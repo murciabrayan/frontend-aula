@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import type { ReactNode } from "react";
 import LoadingModal from "@/components/LoadingModal";
 
 interface LoadingContextType {
@@ -8,7 +9,7 @@ interface LoadingContextType {
 
 const LoadingContext = createContext<LoadingContextType | undefined>(undefined);
 
-export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LoadingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState("Cargando...");
 
@@ -32,7 +33,7 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 export const useLoading = (): LoadingContextType => {
   const context = useContext(LoadingContext);
   if (!context) {
-    throw new Error("useLoading debe usarse dentro de un LoadingProvider");
+    throw new Error("⚠️ useLoading debe usarse dentro de un <LoadingProvider>");
   }
   return context;
 };
