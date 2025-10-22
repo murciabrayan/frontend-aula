@@ -1,11 +1,50 @@
-import { usePageLoader } from "@/hooks/usePageLoader";
+// src/commons/personas/screens/StudentDashboard.tsx
+import React from "react";
+import "@/commons/personas/styles/studentDashboard.css";
+import { logoutUser } from "@/commons/Auth/services/auth.service";
+import { useNavigate } from "react-router-dom";
 
 const StudentDashboard = () => {
-   usePageLoader();
+
+      const navigate = useNavigate();
+    
+ const handleLogout = () => {
+     logoutUser();
+     navigate("/");
+   };
+
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold text-purple-700">Panel de Estudiante</h1>
-      <p className="mt-4">Bienvenido, aquí podrás ver tus cursos y calificaciones.</p>
+    <div className="dashboard-shell">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h2>Estudiante</h2>
+        </div>
+        <ul className="sidebar-menu">
+          <li>Inicio</li>
+          <li>Mis Materias</li>
+          <li>Calificaciones</li>
+          <li>Perfil</li>
+        </ul>
+<button className="logout-btn" onClick={handleLogout}>Cerrar Sesión</button>
+      </aside>
+
+      <main className="dashboard-main">
+        <header className="dashboard-header">
+          <h1>Panel del Estudiante</h1>
+          <p>Bienvenido al sistema académico</p>
+        </header>
+
+        <section className="dashboard-content">
+          <div className="card">
+            <h3>Próximas clases</h3>
+            <p>No hay clases programadas para hoy 🎓</p>
+          </div>
+          <div className="card">
+            <h3>Calificaciones recientes</h3>
+            <p>Aún no hay calificaciones registradas.</p>
+          </div>
+        </section>
+      </main>
     </div>
   );
 };

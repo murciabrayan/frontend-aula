@@ -1,82 +1,83 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "@/commons/Auth/services/auth.service";
-import LoadingModal from "@/components/LoadingModal";
+import "@/commons/Auth/styles/login.css";
+import logo from "@/assets/logo.png";
+import sideImage from "@/assets/login-side.jpg";
+
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
     try {
-      const user = await loginUser(email, password);
+      const userData = await loginUser(email, password);
+      const role = userData?.role;
 
-      // Redirigir según el rol
-      if (user.role === "ADMIN") navigate("/admin");
-      else if (user.role === "TEACHER") navigate("/teacher");
-      else if (user.role === "STUDENT") navigate("/student");
-    } catch {
-      setError("Credenciales inválidas o error en el servidor");
-    } finally {
-      setLoading(false);
+      if (role === "ADMIN") navigate("/admin");
+      else if (role === "TEACHER") navigate("/teacher");
+      else if (role === "STUDENT") navigate("/student");
+      else setErrorMessage("Rol no autorizado");
+    } catch (error) {
+      setErrorMessage("Credenciales incorrectas o error de conexión");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      {loading && <LoadingModal message="Iniciando sesión..." />}
-
-      <div className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-white mb-6">
-          Iniciar Sesión
-        </h1>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-              Correo electrónico
-            </label>
-            <input
-              id="email"
-              type="email"
-              className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className="login-shell">
+      <div className="login-left">
+        <div className="login-left-inner">
+          <div className="login-header">
+            <img src={logo} alt="Logo Institucional" className="login-logo" />
+            <div className="login-institution">
+              <strong>GIMNASIO LOS CERROS</strong>
+              <div className="login-tagline">
+                Un camino feliz hacia la construcción del conocimiento
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              type="password"
-              className="w-full p-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+          <div className="login-card">
+            <h1>Iniciar Sesión</h1>
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                placeholder="Correo"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input
+                type="password"
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button type="submit">Ingresar</button>
+              <a className="forgot" href="#">
+                ¿Olvidó su contraseña?
+              </a>
+
+              {errorMessage && (
+                <div className="error-message">{errorMessage}</div>
+              )}
+            </form>
           </div>
-
-          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition"
-          >
-            Ingresar
-          </button>
-        </form>
+        </div>
       </div>
+
+      {/* 👇 Imagen de fondo al lado derecho */}
+      <div
+        className="login-right"
+        style={{ backgroundImage: `url(${sideImage})` }}
+        aria-hidden="true"
+      ></div>
     </div>
   );
 };

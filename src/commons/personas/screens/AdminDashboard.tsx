@@ -1,12 +1,19 @@
-import { usePageLoader } from "@/hooks/usePageLoader";
+import React, { useState } from "react";
+import SidebarAdmin from "../components/SidebarAdmin";
+import HeaderAdmin from "../components/HeaderAdmin";
+import AdminContent from "../components/AdminContent";
+import "@/commons/personas/styles/adminDashboard.css";
 
-const AdminDashboard = () => {
-usePageLoader();
-    return (
-    
-    <div className="p-10">
-      <h1 className="text-3xl font-bold text-blue-700">Panel de Administrador</h1>
-      <p className="mt-4">Bienvenido al área de administración del sistema.</p>
+const AdminDashboard: React.FC = () => {
+  const [activeModule, setActiveModule] = useState("inicio");
+
+  return (
+    <div className="admin-dashboard">
+      <SidebarAdmin setActiveModule={setActiveModule} />
+      <div className="admin-main">
+        <HeaderAdmin />
+        <AdminContent activeModule={activeModule} />
+      </div>
     </div>
   );
 };
