@@ -234,7 +234,7 @@ export default function CourseAssign() {
                               }}
                               title="Quitar estudiante"
                             >
-                              ✖
+                              Eliminar
                             </button>
                           </li>
                         );

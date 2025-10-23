@@ -60,9 +60,9 @@ const LoginScreen = () => {
                 required
               />
               <button type="submit">Ingresar</button>
-              <a className="forgot" href="#">
-                ¿Olvidó su contraseña?
-              </a>
+             <a className="forgot" onClick={() => navigate("/forgot-password")}>
+  ¿Olvidó su contraseña?
+</a>
 
               {errorMessage && (
                 <div className="error-message">{errorMessage}</div>
@@ -74,10 +74,21 @@ const LoginScreen = () => {
 
       {/* 👇 Imagen de fondo al lado derecho */}
       <div
-        className="login-right"
-        style={{ backgroundImage: `url(${sideImage})` }}
-        aria-hidden="true"
-      ></div>
+  className="login-right"
+  style={{
+    backgroundImage: `url(${sideImage})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    width: "50%",
+    height: "100vh",
+    position: "absolute",
+    top: 0,
+    right: 0,
+  }}
+  aria-hidden="true"
+></div>
+
     </div>
   );
 };
