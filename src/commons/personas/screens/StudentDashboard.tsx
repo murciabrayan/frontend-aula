@@ -1,49 +1,50 @@
-// src/commons/personas/screens/StudentDashboard.tsx
 import React from "react";
 import "@/commons/personas/styles/studentDashboard.css";
-import { logoutUser } from "@/commons/Auth/services/auth.service";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "@/commons/Auth/services/auth.service";
 
-const StudentDashboard = () => {
+const StudentDashboard: React.FC = () => {
+  const navigate = useNavigate();
 
-      const navigate = useNavigate();
-    
- const handleLogout = () => {
-     logoutUser();
-     navigate("/");
-   };
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/");
+  };
 
   return (
-    <div className="dashboard-shell">
+    <div className="student-dashboard">
+      {/* SIDEBAR */}
       <aside className="sidebar">
-        <div className="sidebar-header">
+        <div>
           <h2>Estudiante</h2>
+          <nav>
+            <a href="#" className="active">Inicio</a>
+            <a href="#">Mis Materias</a>
+            <a href="#">Calificaciones</a>
+            <a href="#">Perfil</a>
+          </nav>
         </div>
-        <ul className="sidebar-menu">
-          <li>Inicio</li>
-          <li>Mis Materias</li>
-          <li>Calificaciones</li>
-          <li>Perfil</li>
-        </ul>
-<button className="logout-btn" onClick={handleLogout}>Cerrar Sesión</button>
+        <button className="logout-btn" onClick={handleLogout}>
+          Cerrar Sesión
+        </button>
       </aside>
 
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <h1>Panel del Estudiante</h1>
-          <p>Bienvenido al sistema académico</p>
-        </header>
+      {/* CONTENIDO PRINCIPAL */}
+      <main className="main-content">
+        <h1>Panel del Estudiante</h1>
+        <p>Bienvenido al sistema académico</p>
 
-        <section className="dashboard-content">
+        <div className="cards">
           <div className="card">
-            <h3>Próximas clases</h3>
+            <h3>📚 Próximas clases</h3>
             <p>No hay clases programadas para hoy 🎓</p>
           </div>
+
           <div className="card">
-            <h3>Calificaciones recientes</h3>
+            <h3>🧮 Calificaciones recientes</h3>
             <p>Aún no hay calificaciones registradas.</p>
           </div>
-        </section>
+        </div>
       </main>
     </div>
   );

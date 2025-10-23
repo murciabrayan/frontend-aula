@@ -1,32 +1,32 @@
 import React from "react";
+import UserList from "../../../components/admin/UserList";
+import CourseList from "../../../components/admin/CourseList";
+import CourseAssign from "../../../components/admin/CourseAssign"; // ✅ Nuevo componente
 
-interface ContentProps {
+interface AdminContentProps {
   activeModule: string;
 }
 
-const AdminContent: React.FC<ContentProps> = ({ activeModule }) => {
+const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
   return (
     <div className="admin-content">
-      {activeModule === "inicio" && <h2>Resumen del Sistema</h2>}
-
-      {activeModule === "docentes" && (
+      {activeModule === "inicio" && (
         <div>
-          <h2>Gestión de Docentes</h2>
-          <p>Aquí podrás agregar, editar o eliminar docentes.</p>
+          <h2>Bienvenido al Panel de Administración</h2>
+          <p>Selecciona una opción en el menú lateral para comenzar.</p>
         </div>
       )}
 
-      {activeModule === "estudiantes" && (
-        <div>
-          <h2>Gestión de Estudiantes</h2>
-          <p>Aquí podrás administrar la información de los estudiantes.</p>
-        </div>
-      )}
+      {activeModule === "usuarios" && <UserList />}
+
+      {activeModule === "cursos" && <CourseList />}
+
+      {activeModule === "asignarCursos" && <CourseAssign />} {/* ✅ Nuevo módulo */}
 
       {activeModule === "configuracion" && (
         <div>
           <h2>Configuración del Sistema</h2>
-          <p>Opciones generales y preferencias.</p>
+          <p>Aquí podrás modificar parámetros generales más adelante.</p>
         </div>
       )}
     </div>
