@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LoginScreen from "@/commons/Auth/screens/LoginScreen";
+import ForgotPasswordScreen from "@/commons/Auth/screens/ForgotPasswordScreen";
+import ResetPasswordScreen from "@/commons/Auth/screens/ResetPasswordScreen";
 import AdminDashboard from "@/commons/personas/screens/AdminDashboard";
 import TeacherDashboard from "@/commons/personas/screens/TeacherDashboard";
 import StudentDashboard from "@/commons/personas/screens/StudentDashboard";
@@ -9,10 +11,12 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        {/* Ruta pública */}
+        {/* 🔓 Rutas públicas */}
         <Route path="/" element={<LoginScreen />} />
+        <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+        <Route path="/reset-password/:uid/:token" element={<ResetPasswordScreen />} />
 
-        {/* Rutas protegidas según rol */}
+        {/* 🔐 Rutas protegidas según rol */}
         <Route
           path="/admin"
           element={
@@ -40,7 +44,7 @@ const App = () => {
           }
         />
 
-        {/* Ruta por defecto */}
+        {/* 🧭 Redirección por defecto */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
