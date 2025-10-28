@@ -1,0 +1,217 @@
+/* --- CONTENEDOR PRINCIPAL --- */
+.profile-container {
+  background-color: #fffaf0;
+  border: 1px solid #d6b30a;
+  border-radius: 12px;
+  padding: 40px;
+  max-width: 500px;
+  margin: 60px auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  font-family: 'Poppins', sans-serif;
+}
+
+.profile-container h2 {
+  text-align: center;
+  color: #6b4f00;
+  margin-bottom: 25px;
+}
+
+/* --- CAMPOS DE FORMULARIO --- */
+.profile-container input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 18px;
+  border: 1px solid #d6b30a;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: #f9f7f3;
+  color: #000;
+  transition: all 0.3s ease;
+}
+
+.profile-container input:focus {
+  outline: none;
+  border-color: #000;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(214, 179, 10, 0.5);
+}
+
+/* --- BOTONES --- */
+.btn-primary {
+  background-color: #d6b30a;
+  color: #000;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #000;
+  color: #d6b30a;
+}
+
+.btn-secondary {
+  background-color: #000;
+  color: #d6b30a;
+  border: 1px solid #d6b30a;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #d6b30a;
+  color: #000;
+}
+
+/* --- MODAL MEJORADO --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+  animation: fadeInOverlay 0.3s ease;
+}
+
+.modal {
+  background-color: #fffaf0;
+  border: 2px solid #d6b30a;
+  border-radius: 14px;
+  padding: 30px 28px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.3s ease;
+  position: relative;
+}
+
+.modal h3 {
+  color: #000;
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+
+/* --- BOTÓN DE CIERRE DEL MODAL --- */
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #6b4f00;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #000;
+}
+
+
+.modal-close:hover {
+  color: #d6b30a;
+}
+
+/* --- INPUTS CON ICONOS --- */
+.modal-input {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+.modal-input input {
+  width: 100%;
+  padding: 10px 1px 15px 15px;
+  border: 1px solid #d6b30a;
+  border-radius: 6px;
+  background-color: #fdfcf8;
+  font-size: 0.95rem;
+  color: #000;
+  transition: all 0.3s ease;
+}
+
+.modal-input input:focus {
+  outline: none;
+  border-color: #000;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(214, 179, 10, 0.5);
+}
+
+/* Iconos de los campos */
+.modal-input::after {
+  content: "🔒";
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  font-size: 1.1rem;
+  color: #6b4f00;
+}
+
+/* --- BOTONES DEL MODAL --- */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.modal-buttons .btn-primary,
+.modal-buttons .btn-secondary {
+  flex: 1;
+  margin: 0 5px;
+}
+
+/* --- ANIMACIONES --- */
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* --- MENSAJES --- */
+.msg {
+  text-align: center;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.msg.success {
+  color: #4b8b3b;
+}
+
+.msg.error {
+  color: #d32f2f;
+}
+
+h4 {
+  color: #6b4f00;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #d6b30a;
+  padding-bottom: 4px;
+}

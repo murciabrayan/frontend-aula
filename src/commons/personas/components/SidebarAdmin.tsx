@@ -1,5 +1,5 @@
 import React from "react";
-import { LogOut, Users, Home, Settings, BookOpen } from "lucide-react";
+import { LogOut, Users, Home, Settings, BookOpen, UserCog } from "lucide-react";
 
 interface SidebarProps {
   setActiveModule: (module: string) => void;
@@ -23,23 +23,18 @@ const SidebarAdmin: React.FC<SidebarProps> = ({ setActiveModule }) => {
         <li onClick={() => setActiveModule("inicio")}>
           <Home className="icon" /> Inicio
         </li>
-
         <li onClick={() => setActiveModule("usuarios")}>
           <Users className="icon" /> Gestionar Usuarios
         </li>
-
         <li onClick={() => setActiveModule("cursos")}>
           <BookOpen className="icon" /> Gestionar Cursos
         </li>
-
         <li onClick={() => setActiveModule("asignarCursos")}>
           <BookOpen className="icon" /> Asignar Cursos
         </li>
-
-        <li onClick={() => setActiveModule("configuracion")}>
-          <Settings className="icon" /> Configuración
+        <li onClick={() => setActiveModule("perfil")}>
+          <UserCog className="icon" /> Mi Perfil
         </li>
-
         <li className="logout" onClick={handleLogout}>
           <LogOut className="icon" /> Cerrar Sesión
         </li>
