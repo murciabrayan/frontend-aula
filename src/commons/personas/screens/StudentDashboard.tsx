@@ -1,27 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
+import StudentProfile from "../components/StudentProfile";
 import "@/commons/personas/styles/studentDashboard.css";
-import { useNavigate } from "react-router-dom";
-import { logoutUser } from "@/commons/Auth/services/auth.service";
 
 const StudentDashboard: React.FC = () => {
-  const navigate = useNavigate();
+  const [activeModule, setActiveModule] = useState("inicio");
 
   const handleLogout = () => {
-    logoutUser();
-    navigate("/");
+    localStorage.removeItem("access_token");
+    window.location.href = "/";
   };
 
   return (
     <div className="student-dashboard">
-      {/* SIDEBAR */}
       <aside className="sidebar">
         <div>
           <h2>Estudiante</h2>
           <nav>
-            <a href="#" className="active">Inicio</a>
-            <a href="#">Mis Materias</a>
-            <a href="#">Calificaciones</a>
-            <a href="#">Perfil</a>
+            <a
+              className={activeModule === "inicio" ? "active" : ""}
+              onClick={() => setActiveModule("inicio")}
+            >
+              Inicio
+            </a>
+            <a
+              className={activeModule === "materias" ? "active" : ""}
+              onClick={() => setActiveModule("materias")}
+            >
+              Mis Materias
+            </a>
+            <a
+              className={activeModule === "calificaciones" ? "active" : ""}
+              onClick={() => setActiveModule("calificaciones")}
+            >
+              Calificaciones
+            </a>
+            <a
+              className={activeModule === "perfil" ? "active" : ""}
+              onClick={() => setActiveModule("perfil")}
+            >
+              Perfil
+            </a>
           </nav>
         </div>
         <button className="logout-btn" onClick={handleLogout}>
@@ -29,22 +47,25 @@ const StudentDashboard: React.FC = () => {
         </button>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL */}
       <main className="main-content">
-        <h1>Panel del Estudiante</h1>
-        <p>Bienvenido al sistema académico</p>
+        {activeModule === "inicio" && (
+          <>
+            <h1>Panel del Estudiante</h1>
+            <p>Bienvenido al sistema académico</p>
+            <div className="cards">
+              <div className="card">
+                <h3>📚 Próximas clases</h3>
+                <p>No hay clases programadas para hoy 🎓</p>
+              </div>
+              <div className="card">
+                <h3>🧮 Calificaciones recientes</h3>
+                <p>Aún no hay calificaciones registradas.</p>
+              </div>
+            </div>
+          </>
+        )}
 
-        <div className="cards">
-          <div className="card">
-            <h3>📚 Próximas clases</h3>
-            <p>No hay clases programadas para hoy 🎓</p>
-          </div>
-
-          <div className="card">
-            <h3>🧮 Calificaciones recientes</h3>
-            <p>Aún no hay calificaciones registradas.</p>
-          </div>
-        </div>
+        {activeModule === "perfil" && <StudentProfile />}
       </main>
     </div>
   );

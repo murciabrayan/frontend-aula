@@ -88,3 +88,9 @@
 .card:hover {
   transform: translateY(-3px);
 }
+/* Resaltar opción activa */
+.sidebar-menu li.active {
+  background: #c9a437;
+  color: #000;
+  font-weight: 600;
+}
