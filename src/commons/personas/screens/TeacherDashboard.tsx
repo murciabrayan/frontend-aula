@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import TeacherProfile from "../components/TeacherProfile";
+import AssignmentList from "../components/AssignmentList";
 import "@/commons/personas/styles/teacherDashboard.css";
 
 const TeacherDashboard = () => {
@@ -16,6 +17,7 @@ const TeacherDashboard = () => {
         <div className="sidebar-header">
           <h2>Docente</h2>
         </div>
+
         <ul className="sidebar-menu">
           <li
             className={activeModule === "inicio" ? "active" : ""}
@@ -36,12 +38,19 @@ const TeacherDashboard = () => {
             Registrar Notas
           </li>
           <li
+            className={activeModule === "tareas" ? "active" : ""}
+            onClick={() => setActiveModule("tareas")}
+          >
+            Gestión de Tareas
+          </li>
+          <li
             className={activeModule === "perfil" ? "active" : ""}
             onClick={() => setActiveModule("perfil")}
           >
             Perfil
           </li>
         </ul>
+
         <button className="logout-btn" onClick={handleLogout}>
           Cerrar sesión
         </button>
@@ -52,7 +61,7 @@ const TeacherDashboard = () => {
           <>
             <header className="dashboard-header">
               <h1>Panel del Docente</h1>
-              <p>Gestione sus clases y calificaciones</p>
+              <p>Gestione sus clases, tareas y calificaciones</p>
             </header>
             <section className="dashboard-content">
               <div className="card">
@@ -67,6 +76,7 @@ const TeacherDashboard = () => {
           </>
         )}
 
+        {activeModule === "tareas" && <AssignmentList />}
         {activeModule === "perfil" && <TeacherProfile />}
       </main>
     </div>
