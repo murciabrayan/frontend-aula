@@ -1,0 +1,302 @@
+/* === CONTENEDOR GENERAL === */
+.assignments-container {
+  background-color: #fffaf2;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  width: 90%;
+  max-width: 900px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+.assignments-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+/* === GRID DE TAREAS === */
+.assignment-grid,
+.assignment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+  list-style: none;
+  padding: 0;
+}
+
+/* === TARJETAS DE TAREA === */
+.assignment-card {
+  background-color: #fffdf7;
+  border: 1px solid #d4b100;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.assignment-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.assignment-card h4 {
+  margin: 0 0 8px;
+  color: #222;
+}
+
+.assignment-card p {
+  margin: 5px 0;
+  color: #555;
+}
+
+/* === LINK DE ARCHIVOS === */
+.file-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: #a67c00;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.file-link:hover {
+  text-decoration: underline;
+}
+
+/* === BOTONES === */
+.btn-primary,
+.btn-secondary {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #e5e7eb;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.small-btn {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+/* === MODAL === */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background-color: #fffaf2;
+  padding: 30px 40px;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal h3 {
+  margin-top: 0;
+  text-align: center;
+  color: #111;
+}
+
+/* === FORMULARIO === */
+.assignment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.assignment-form label {
+  font-weight: 600;
+  color: #333;
+}
+
+.assignment-form input,
+.assignment-form textarea {
+  padding: 10px 12px;
+  border: 1px solid #d4b100;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.assignment-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* === ESTADOS DE ENTREGA === */
+.submission-status {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.submission-status.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.submission-status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.submission-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.submission-item {
+  background: #fffdf7;
+  border: 1px solid #d4b100;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+/* === ANIMACIONES === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+/* ===== Modal de calificación ===== */
+.grade-modal {
+  background: #fffdfc;
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 25px;
+  max-width: 450px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+.grade-modal h4 {
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.grade-modal hr {
+  border: none;
+  border-top: 2px solid #eee;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: 500;
+  color: #444;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* Ajuste de colores para inputs y textarea */
+.input-field,
+.textarea-field {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  background: #ffffff; /* Fondo blanco puro */
+  color: #222222; /* Texto oscuro y legible */
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field::placeholder,
+.textarea-field::placeholder {
+  color: #888888; /* Placeholder gris medio */
+}
+
+.input-field:focus,
+.textarea-field:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 4px rgba(74, 144, 226, 0.3);
+}
+
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-primary {
+  background-color: #d4b100;
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #d4b100;
+}
+
+.btn-secondary {
+  background: #f2f2f2;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #e9e9e9;
+}
+
+/* Caja visual de calificación */
+.grade-box {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px 15px;
+  margin-top: 8px;
+}

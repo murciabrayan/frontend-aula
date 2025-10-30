@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import StudentProfile from "../components/StudentProfile";
+import StudentAssignmentsList from "../components/StudentAssignmentsList";
 import "@/commons/personas/styles/studentDashboard.css";
 
 const StudentDashboard: React.FC = () => {
@@ -27,6 +28,12 @@ const StudentDashboard: React.FC = () => {
               onClick={() => setActiveModule("materias")}
             >
               Mis Materias
+            </a>
+            <a
+              className={activeModule === "tareas" ? "active" : ""}
+              onClick={() => setActiveModule("tareas")}
+            >
+              Tareas
             </a>
             <a
               className={activeModule === "calificaciones" ? "active" : ""}
@@ -64,6 +71,8 @@ const StudentDashboard: React.FC = () => {
             </div>
           </>
         )}
+
+        {activeModule === "tareas" && <StudentAssignmentsList />}
 
         {activeModule === "perfil" && <StudentProfile />}
       </main>
