@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import StudentProfile from "../components/StudentProfile";
 import StudentAssignmentsList from "../components/StudentAssignmentsList";
+import NotificationBell from "../components/NotificationBell";
 import "@/commons/personas/styles/studentDashboard.css";
 
 const StudentDashboard: React.FC = () => {
-  const [activeModule, setActiveModule] = useState("inicio");
+  const [activeModule, setActiveModule] = useState<string>("inicio");
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     localStorage.removeItem("access_token");
     window.location.href = "/";
   };
 
   return (
     <div className="student-dashboard">
+      {/* 🔵 SIDEBAR */}
       <aside className="sidebar">
         <div>
           <h2>Estudiante</h2>
@@ -49,32 +51,38 @@ const StudentDashboard: React.FC = () => {
             </a>
           </nav>
         </div>
+
         <button className="logout-btn" onClick={handleLogout}>
           Cerrar Sesión
         </button>
       </aside>
 
+      {/* 🟡 CONTENIDO PRINCIPAL */}
       <main className="main-content">
-        {activeModule === "inicio" && (
-          <>
-            <h1>Panel del Estudiante</h1>
-            <p>Bienvenido al sistema académico</p>
-            <div className="cards">
-              <div className="card">
-                <h3>📚 Próximas clases</h3>
-                <p>No hay clases programadas para hoy 🎓</p>
-              </div>
-              <div className="card">
-                <h3>🧮 Calificaciones recientes</h3>
-                <p>Aún no hay calificaciones registradas.</p>
-              </div>
-            </div>
-          </>
-        )}
+        {/* 🔔 TOPBAR */}
+        <div className="dashboard-topbar">
+          <NotificationBell setActiveModule={setActiveModule} />
+        </div>
 
-        {activeModule === "tareas" && <StudentAssignmentsList />}
+        {/* 📦 CONTENIDO INTERNO */}
+        <div className="main-inner">
+          {activeModule === "inicio" && (
+            <>
+              <h1>Panel del Estudiante</h1>
+              <p>Bienvenido al sistema académico</p>
+            </>
+          )}
 
-        {activeModule === "perfil" && <StudentProfile />}
+          {activeModule === "tareas" && <StudentAssignmentsList />}
+          {activeModule === "perfil" && <StudentProfile />}
+
+          {activeModule === "calificaciones" && (
+            <>
+              <h1>Calificaciones</h1>
+              <p>Aquí podrás ver tus calificaciones.</p>
+            </>
+          )}
+        </div>
       </main>
     </div>
   );

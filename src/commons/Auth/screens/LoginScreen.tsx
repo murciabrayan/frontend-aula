@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "@/commons/Auth/services/auth.service";
+import { loginUser, loginWithGoogle } from "@/commons/Auth/services/auth.service";
+import { GoogleLogin } from "@react-oauth/google";
 import "@/commons/Auth/styles/login.css";
+
 import logo from "@/assets/logo.png";
 import sideImage from "@/assets/login-side.jpg";
-
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ const LoginScreen = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
+  // 🔹 Login tradicional
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -25,6 +27,23 @@ const LoginScreen = () => {
       else setErrorMessage("Rol no autorizado");
     } catch (error) {
       setErrorMessage("Credenciales incorrectas o error de conexión");
+    }
+  };
+
+  // 🔹 Login con Google
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      const googleToken = credentialResponse.credential;
+
+      const userData = await loginWithGoogle(googleToken);
+      const role = userData?.role;
+
+      if (role === "ADMIN") navigate("/admin");
+      else if (role === "TEACHER") navigate("/teacher");
+      else if (role === "STUDENT") navigate("/student");
+      else setErrorMessage("Rol no autorizado");
+    } catch (error) {
+      setErrorMessage("Error al iniciar sesión con Google");
     }
   };
 
@@ -44,6 +63,7 @@ const LoginScreen = () => {
 
           <div className="login-card">
             <h1>Iniciar Sesión</h1>
+
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
@@ -52,6 +72,7 @@ const LoginScreen = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+
               <input
                 type="password"
                 placeholder="Contraseña"
@@ -59,10 +80,31 @@ const LoginScreen = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+
               <button type="submit">Ingresar</button>
-             <a className="forgot" onClick={() => navigate("/forgot-password")}>
-  ¿Olvidó su contraseña?
-</a>
+
+              {/* ⭐ BOTÓN GOOGLE */}
+              <div
+                style={{
+                  marginTop: "12px",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() =>
+                    setErrorMessage("Error al iniciar con Google")
+                  }
+                />
+              </div>
+
+              <a
+                className="forgot"
+                onClick={() => navigate("/forgot-password")}
+              >
+                ¿Olvidó su contraseña?
+              </a>
 
               {errorMessage && (
                 <div className="error-message">{errorMessage}</div>
@@ -72,23 +114,21 @@ const LoginScreen = () => {
         </div>
       </div>
 
-      {/* 👇 Imagen de fondo al lado derecho */}
       <div
-  className="login-right"
-  style={{
-    backgroundImage: `url(${sideImage})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    width: "50%",
-    height: "100vh",
-    position: "absolute",
-    top: 0,
-    right: 0,
-  }}
-  aria-hidden="true"
-></div>
-
+        className="login-right"
+        style={{
+          backgroundImage: `url(${sideImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          width: "50%",
+          height: "100vh",
+          position: "absolute",
+          top: 0,
+          right: 0,
+        }}
+        aria-hidden="true"
+      ></div>
     </div>
   );
 };

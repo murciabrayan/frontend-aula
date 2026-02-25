@@ -41,7 +41,7 @@ const StudentAssignmentsList: React.FC = () => {
     fetchSubmissions();
   }, []);
 
-  // 🔹 Verificar si ya se entregó una tarea
+  // Verifica si ya se entregó una tarea
   const getSubmission = (assignmentId: number) =>
     submissions.find((s) => s.tarea === assignmentId);
 
@@ -72,7 +72,7 @@ const StudentAssignmentsList: React.FC = () => {
 
                   {entrega ? (
                     <div className="submission-status success">
-                      ✅ <strong>Entregado</strong>
+                       <strong>Entregado</strong>
                       <p>Fecha: {new Date(entrega.fecha_entrega).toLocaleString()}</p>
                       {entrega.calificacion ? (
                         <p>

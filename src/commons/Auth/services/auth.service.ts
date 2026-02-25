@@ -37,6 +37,31 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
+export const loginWithGoogle = async (googleToken: string) => {
+  try {
+    const response = await api.post("/api/auth/google/", {
+      token: googleToken,
+    });
+
+    const { access, refresh, user } = response.data;
+
+    // Guardar tokens
+    localStorage.setItem("access_token", access);
+    localStorage.setItem("refresh_token", refresh);
+
+    // Guardar usuario
+    localStorage.setItem("user", JSON.stringify(user));
+
+    return user;
+  } catch (error: any) {
+    console.error(
+      "Error en login con Google:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 export const logoutUser = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
