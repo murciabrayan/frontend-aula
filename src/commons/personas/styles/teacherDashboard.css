@@ -1,21 +1,25 @@
 .dashboard-shell {
   display: flex;
-  min-height: 100vh; /* ✅ CAMBIO CLAVE */
+  min-height: 100vh;
   background: #fdfbf7;
   color: #333;
   font-family: "Poppins", sans-serif;
 }
-/* Sidebar */
+
+/* 🔵 SIDEBAR */
 .sidebar {
   width: 240px;
   background: #000;
-  color: #c9a437; /* dorado */
+  color: #c9a437;
   display: flex;
   flex-direction: column;
   padding: 20px;
-  
+  position: relative;
+  transition: width 0.3s ease;
+  box-sizing: border-box;
 }
 
+/* HEADER */
 .sidebar-header {
   font-size: 20px;
   font-weight: bold;
@@ -25,27 +29,118 @@
   padding-bottom: 10px;
 }
 
+/* NAV */
 .sidebar-menu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   flex-grow: 1;
 }
 
-.sidebar-menu li {
-  margin: 12px 0;
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   padding: 10px;
-  cursor: pointer;
   border-radius: 6px;
+  cursor: pointer;
   transition: background 0.2s;
+  text-decoration: none;
+  color: #c9a437;
 }
 
-.sidebar-menu li:hover {
+.sidebar-menu a:hover {
   background: #c9a437;
   color: #000;
 }
 
-/* Main content */
+.sidebar-menu a.active {
+  background: #c9a437;
+  color: #000;
+  font-weight: 600;
+}
+
+/* ICONOS */
+.icon {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+/* LOGOUT */
+.teacher-logout-btn {
+  margin-top: auto;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: 1px solid #c9a437;
+  color: #c9a437;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.teacher-logout-btn:hover {
+  background: #c9a437;
+  color: #000;
+}
+
+/* BOTÓN COLAPSAR */
+.teacher-collapse-btn {
+  position: absolute;
+  top: 50%;
+  right: -10px;
+  transform: translate(-310%, -10%);
+  background: #c9a437;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 10;
+  padding: 0;
+}
+
+.teacher-collapse-btn svg {
+  color: #000;
+  
+}
+.sidebar.collapsed .teacher-collapse-btn {
+  top: 40%;
+  right: 40%;
+  transform: translate(25%, -100%);
+}
+
+/* 🔵 ESTADO COLAPSADO */
+.sidebar.collapsed {
+  width: 80px;
+  align-items: center;
+}
+
+.sidebar.collapsed .sidebar-header h2 {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-menu a {
+  justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-menu a span {
+  display: none;
+}
+
+.sidebar.collapsed .teacher-logout-btn span {
+  display: none;
+}
+
+/* 🔵 MAIN */
 .dashboard-main {
   flex: 1;
   display: flex;
@@ -53,7 +148,7 @@
   background: #fff;
 }
 
-/* Header */
+/* HEADER */
 .dashboard-header {
   padding: 20px;
   border-bottom: 2px solid #c9a437;
@@ -68,7 +163,7 @@
   color: #777;
 }
 
-/* Content */
+/* CONTENT */
 .dashboard-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -87,10 +182,4 @@
 
 .card:hover {
   transform: translateY(-3px);
-}
-/* Resaltar opción activa */
-.sidebar-menu li.active {
-  background: #c9a437;
-  color: #000;
-  font-weight: 600;
 }

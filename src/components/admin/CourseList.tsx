@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
-import { getCourses, createCourse, updateCourse, deleteCourse } from "../../services/courseService";
-import "./CourseList.css"; // 👈 tu estilo personalizado
+import {
+  getCourses,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+} from "../../services/courseService";
+import "./CourseList.css";
 
 interface Course {
   id?: number;
@@ -11,6 +16,9 @@ interface Course {
 
 export default function CourseList() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   const [formData, setFormData] = useState<Course>({
     name: "",
     teacher: null,
@@ -30,28 +38,51 @@ export default function CourseList() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    console.log("📤 Enviando datos al backend:", formData);
-    if (formData.id) {
-      await updateCourse(formData.id, formData);
-    } else {
-      await createCourse(formData);
-    }
+  const openCreateModal = () => {
     setFormData({ name: "", teacher: null, students: [] });
-    await loadCourses();
-  } catch (error: any) {
-    console.error("Error al guardar curso:", error.response?.data || error);
-  }
-};
+    setErrorMsg("");
+    setIsModalOpen(true);
+  };
 
+  const openEditModal = (course: Course) => {
+    setFormData(course);
+    setErrorMsg("");
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+
+    try {
+      if (formData.id) {
+        await updateCourse(formData.id, formData);
+      } else {
+        await createCourse(formData);
+      }
+
+      closeModal();
+      await loadCourses();
+    } catch (error: any) {
+      if (error.response?.data?.name) {
+        setErrorMsg(error.response.data.name);
+      } else if (error.response?.data?.detail) {
+        setErrorMsg(error.response.data.detail);
+      } else if (error.response?.data?.non_field_errors) {
+        setErrorMsg(error.response.data.non_field_errors[0]);
+      } else {
+        setErrorMsg("Error al guardar el curso");
+      }
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, name: e.target.value });
   };
-
-  const handleEdit = (course: Course) => setFormData(course);
 
   const handleDelete = async (id: number) => {
     if (confirm("¿Seguro que deseas eliminar este curso?")) {
@@ -66,20 +97,12 @@ export default function CourseList() {
 
   return (
     <div className="course-container">
-      <h2 className="course-title">📚 Gestión de Cursos</h2>
-
-      <form onSubmit={handleSubmit} className="course-form">
-        <input
-          type="text"
-          placeholder="Nombre del curso"
-          value={formData.name}
-          onChange={handleChange}
-          className="input-field"
-        />
-        <button type="submit" className="btn-primary">
-          {formData.id ? "Actualizar" : "Crear"}
+      <div className="course-header">
+        <h2 className="course-title">📚 Gestión de Cursos</h2>
+        <button className="btn-primary" onClick={openCreateModal}>
+          + Nuevo curso
         </button>
-      </form>
+      </div>
 
       <ul className="course-list">
         {courses.map((course) => (
@@ -88,7 +111,7 @@ export default function CourseList() {
             <div className="btn-group">
               <button
                 className="btn-secondary"
-                onClick={() => handleEdit(course)}
+                onClick={() => openEditModal(course)}
               >
                 Editar
               </button>
@@ -102,6 +125,43 @@ export default function CourseList() {
           </li>
         ))}
       </ul>
+
+      {/* MODAL */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3 className="modal-title">
+              {formData.id ? "Editar curso" : "Crear curso"}
+            </h3>
+
+            <form onSubmit={handleSubmit} className="modal-form">
+              <input
+                type="text"
+                placeholder="Nombre del curso"
+                value={formData.name}
+                onChange={handleChange}
+                className="input-field"
+                required
+              />
+
+              {errorMsg && <p className="error-text">{errorMsg}</p>}
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={closeModal}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-primary">
+                  {formData.id ? "Actualizar" : "Crear"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

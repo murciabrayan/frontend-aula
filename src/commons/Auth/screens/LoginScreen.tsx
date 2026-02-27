@@ -13,9 +13,12 @@ const LoginScreen = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  // 🔹 Login tradicional
+  const isFormValid = email.trim() !== "" && password.trim() !== "";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!isFormValid) return;
 
     try {
       const userData = await loginUser(email, password);
@@ -30,11 +33,9 @@ const LoginScreen = () => {
     }
   };
 
-  // 🔹 Login con Google
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
       const googleToken = credentialResponse.credential;
-
       const userData = await loginWithGoogle(googleToken);
       const role = userData?.role;
 
@@ -81,9 +82,14 @@ const LoginScreen = () => {
                 required
               />
 
-              <button type="submit">Ingresar</button>
+              <button
+                type="submit"
+                disabled={!isFormValid}
+                className={isFormValid ? "login-btn active" : "login-btn"}
+              >
+                Ingresar
+              </button>
 
-              {/* ⭐ BOTÓN GOOGLE */}
               <div
                 style={{
                   marginTop: "12px",
@@ -118,14 +124,6 @@ const LoginScreen = () => {
         className="login-right"
         style={{
           backgroundImage: `url(${sideImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          width: "50%",
-          height: "100vh",
-          position: "absolute",
-          top: 0,
-          right: 0,
         }}
         aria-hidden="true"
       ></div>
