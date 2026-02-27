@@ -85,40 +85,45 @@
   width: 100%;
   height: 40px;
   margin: 8px 0 12px;
-  padding: 0 0px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   outline: none;
-  background: #FDFBF7; /* crema */
-  color: #000; /* ✅ texto negro visible */
+  background: #FDFBF7;
+  color: #000;
   transition: box-shadow .12s, border-color .12s;
 }
-
 
 .login-card input:focus {
   border-color: #c9a437;
   box-shadow: 0 0 0 3px rgba(201, 164, 55, 0.25);
 }
 
-.login-card button {
+
+.login-btn {
   width: 100%;
   height: 42px;
   border: 0;
   border-radius: 8px;
+  font-weight: 600;
+  background: #e5e5e5;
+  color: #888;
+  cursor: not-allowed;
+  transition: all 0.2s ease;
+}
+
+.login-btn.active {
   background: #c9a437;
   color: #000;
-  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.03s ease, background-color 0.12s;
 }
 
-.login-card button:active {
-  transform: scale(0.99);
-}
-
-.login-card button:hover {
+.login-btn.active:hover {
   background: #6b4c1e;
   color: #fff;
+}
+
+.login-btn:active {
+  transform: scale(0.99);
 }
 
 .login-card .forgot {
@@ -139,7 +144,7 @@
   background-repeat: no-repeat;
 }
 
-
+/* Responsive */
 @media (max-width: 992px) {
   .login-right {
     display: none;
@@ -165,7 +170,7 @@
   }
 }
 
-/* === Loader emergente === */
+/* Loader */
 .login-overlay {
   position: fixed;
   inset: 0;

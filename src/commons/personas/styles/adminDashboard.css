@@ -1,48 +1,73 @@
+/* ===================================================== */
+/* =====            LAYOUT PRINCIPAL               ===== */
+/* ===================================================== */
+
 .admin-dashboard {
   display: flex;
-  height: 100vh;
+  min-height: 100vh; 
   background-color: #f8f9fa;
+  align-items: stretch;
 }
 
 .sidebar {
   width: 240px;
-  background-color: #000;
+  background: #0f0f0f;
   color: white;
   display: flex;
   flex-direction: column;
-  padding: 20px 10px;
+  padding: 20px 12px;
+  transition: all 0.25s ease;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar.collapsed {
+  width: 75px;
 }
 
 .sidebar-header {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: bold;
-  color: #d4af37; /* dorado */
+  color: #d4af37;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .sidebar-menu {
   list-style: none;
   padding: 0;
+  margin: 0;
+  flex: 1;
 }
 
 .sidebar-menu li {
-  padding: 10px 15px;
-  margin: 5px 0;
   display: flex;
   align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin: 6px 0;
+  border-radius: 10px;
   cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.2s;
+  transition: 0.2s ease;
+  font-weight: 500;
 }
 
 .sidebar-menu li:hover {
-  background-color: #1e1e1e;
+  background: #1e1e1e;
 }
 
-.sidebar-menu .icon {
-  margin-right: 10px;
-  color: #d4af37;
+.sidebar-menu li.active {
+  background: linear-gradient(135deg, #d4af37, #b8962e);
+  color: white;
+}
+
+.sidebar.collapsed .sidebar-menu li {
+  justify-content: center;
+}
+
+.icon {
+  min-width: 20px;
 }
 
 .logout {
@@ -50,10 +75,62 @@
   color: #f87171;
 }
 
+/* ===== DIVISOR Y BOTÓN COLLAPSE ===== */
+
+.sidebar-divider {
+  position: relative;
+  margin: 8px 0 18px 0;
+  height: 34px;
+  flex-shrink: 0;
+}
+
+.collapse-btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #0f0f0f;
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #d4af37;
+  width: 34px;
+  height: 50px;
+  border-radius: 10px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.collapse-btn:hover {
+  background: #151515;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+}
+
+.collapse-btn.rotated {
+  transform: translate(-160%, -50%) rotate(180deg);
+}
+
+/* Estado Colapsado */
+.sidebar.collapsed .sidebar-menu span {
+  display: none;
+}
+
+.sidebar.collapsed .collapse-btn {
+  left: 37px;
+}
+
+/* ===================================================== */
+/* =====              CONTENIDO MAIN               ===== */
+/* ===================================================== */
+
 .admin-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
 .admin-header {
@@ -61,8 +138,8 @@
   align-items: center;
   justify-content: space-between;
   background: white;
-  padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
+  padding: 12px 24px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .admin-logo {
@@ -72,23 +149,25 @@
 
 .admin-content {
   flex: 1;
-  padding: 20px;
-  background-color: #fff;
+  padding: 24px;
+  background-color: #f8fafc;
   color: #333;
 }
-/* === Estilos para el módulo Asignar Cursos === */
+
+/* ===================================================== */
+/* ===         MÓDULO ASIGNAR CURSOS                 === */
+/* ===================================================== */
 
 .course-assign {
   background: #fff;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   max-width: 900px;
   margin: 2rem auto;
   border-top: 6px solid #b8860b;
 }
 
-/* Titular */
 .course-assign h2 {
   font-size: 1.8rem;
   font-weight: 700;
@@ -99,7 +178,6 @@
   color: #111827;
 }
 
-/* Botones */
 .course-assign button {
   background-color: #b8860b;
   color: white;
@@ -107,15 +185,15 @@
   border: none;
   border-radius: 10px;
   font-weight: 600;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   cursor: pointer;
 }
 
 .course-assign button:hover {
   background-color: #111827;
+  transform: translateY(-1px);
 }
 
-/* Tablas */
 .course-assign table {
   width: 100%;
   border-collapse: collapse;
@@ -139,12 +217,11 @@
   background-color: #fff8e1;
 }
 
-/* Select */
 .course-assign select {
   background-color: #f9fafb;
   color: #111827;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 8px;
   width: 100%;
   font-size: 14px;
@@ -158,25 +235,28 @@
   background-color: #ffffff;
 }
 
-/* Modal */
+/* ===================================================== */
+/* =====================  MODALES  ===================== */
+/* ===================================================== */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 999;
 }
 
 .modal-content {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 2rem;
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.3s ease-in-out;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  animation: fadeIn 0.25s ease-in-out;
   position: relative;
 }
 
@@ -184,12 +264,11 @@
   position: absolute;
   top: 12px;
   right: 16px;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   color: #555;
   background: none;
   border: none;
   cursor: pointer;
-  transition: color 0.2s ease;
 }
 
 .modal-content button.close:hover {
@@ -199,13 +278,18 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-12px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
+
+/* ===================================================== */
+/* =================  PERFIL ADMIN  ==================== */
+/* ===================================================== */
+
 .admin-profile-container input {
   width: 100%;
   padding: 10px;
@@ -222,6 +306,7 @@
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
+/* Botones Reutilizables */
 .btn-primary {
   background-color: #2563eb;
   color: white;
@@ -246,4 +331,4 @@
 
 .btn-secondary:hover {
   background-color: #4b5563;
-}
+} 

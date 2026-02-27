@@ -1,11 +1,20 @@
-import React from "react";
-import { LogOut, Users, Home, Settings, BookOpen, UserCog } from "lucide-react";
+import React, { useState } from "react";
+import {
+  LogOut,
+  Users,
+  Home,
+  BookOpen,
+  UserCog,
+  ChevronLeft,
+} from "lucide-react";
 
 interface SidebarProps {
   setActiveModule: (module: string) => void;
 }
 
 const SidebarAdmin: React.FC<SidebarProps> = ({ setActiveModule }) => {
+  const [collapsed, setCollapsed] = useState(false);
+
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -14,29 +23,50 @@ const SidebarAdmin: React.FC<SidebarProps> = ({ setActiveModule }) => {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+      {/* HEADER */}
       <div className="sidebar-header">
-        <h2>Panel Admin</h2>
+        <h2>{collapsed ? "" : "Panel Admin"}</h2>
+      </div>
+
+      <div className="sidebar-divider">
+        <button
+          className={`collapse-btn ${collapsed ? "rotated" : ""}`}
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          <ChevronLeft size={18} />
+        </button>
       </div>
 
       <ul className="sidebar-menu">
         <li onClick={() => setActiveModule("inicio")}>
-          <Home className="icon" /> Inicio
+          <Home className="icon" />
+          <span>Inicio</span>
         </li>
+
         <li onClick={() => setActiveModule("usuarios")}>
-          <Users className="icon" /> Gestionar Usuarios
+          <Users className="icon" />
+          <span>Gestionar Usuarios</span>
         </li>
+
         <li onClick={() => setActiveModule("cursos")}>
-          <BookOpen className="icon" /> Gestionar Cursos
+          <BookOpen className="icon" />
+          <span>Gestionar Cursos</span>
         </li>
+
         <li onClick={() => setActiveModule("asignarCursos")}>
-          <BookOpen className="icon" /> Asignar Cursos
+          <BookOpen className="icon" />
+          <span>Asignar Cursos</span>
         </li>
+
         <li onClick={() => setActiveModule("perfil")}>
-          <UserCog className="icon" /> Mi Perfil
+          <UserCog className="icon" />
+          <span>Mi Perfil</span>
         </li>
+
         <li className="logout" onClick={handleLogout}>
-          <LogOut className="icon" /> Cerrar Sesión
+          <LogOut className="icon" />
+          <span>Cerrar Sesión</span>
         </li>
       </ul>
     </aside>
