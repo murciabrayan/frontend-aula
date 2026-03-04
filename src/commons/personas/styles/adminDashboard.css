@@ -4,7 +4,7 @@
 
 .admin-dashboard {
   display: flex;
-  min-height: 100vh; 
+  min-height: 100vh;
   background-color: #f8f9fa;
   align-items: stretch;
 }
@@ -113,7 +113,6 @@
   transform: translate(-160%, -50%) rotate(180deg);
 }
 
-/* Estado Colapsado */
 .sidebar.collapsed .sidebar-menu span {
   display: none;
 }
@@ -142,11 +141,6 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.admin-logo {
-  width: 50px;
-  height: 50px;
-}
-
 .admin-content {
   flex: 1;
   padding: 24px;
@@ -155,88 +149,74 @@
 }
 
 /* ===================================================== */
-/* ===         MÓDULO ASIGNAR CURSOS                 === */
+/* ===         MÓDULO ASIGNAR CURSOS (MODERNO)       === */
 /* ===================================================== */
 
 .course-assign {
-  background: #fff;
-  padding: 2rem;
+  background: white;
+  padding: 24px;
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  max-width: 900px;
-  margin: 2rem auto;
-  border-top: 6px solid #b8860b;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 .course-assign h2 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #111827;
+  margin-bottom: 16px;
 }
 
-.course-assign button {
-  background-color: #b8860b;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 600;
-  transition: all 0.25s ease;
-  cursor: pointer;
-}
-
-.course-assign button:hover {
-  background-color: #111827;
-  transform: translateY(-1px);
-}
+/* ===== TABLE ===== */
 
 .course-assign table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 1rem;
+  background: white;
 }
 
 .course-assign th,
 .course-assign td {
-  padding: 12px;
-  border: 1px solid #e5e7eb;
-  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
 }
 
 .course-assign th {
-  background-color: #111827;
-  color: #fcd34d;
-  font-weight: 600;
+  background: #f8fafc;
+  text-align: left;
 }
 
 .course-assign tbody tr:hover {
-  background-color: #fff8e1;
+  background: #f9fafb;
 }
 
-.course-assign select {
-  background-color: #f9fafb;
-  color: #111827;
-  border: 1px solid #d1d5db;
+/* ===== BUTTONS ===== */
+
+.course-assign button {
   border-radius: 8px;
-  padding: 8px;
-  width: 100%;
-  font-size: 14px;
-  transition: all 0.2s ease-in-out;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
 }
 
-.course-assign select:focus {
-  border-color: #b8860b;
-  box-shadow: 0 0 0 3px rgba(184, 134, 11, 0.25);
-  outline: none;
-  background-color: #ffffff;
+.course-assign button.ghost {
+  background: #f1f5f9;
+}
+
+.course-assign button.primary {
+  background: #2563eb;
+  color: white;
+}
+
+.course-assign button.danger {
+  background: #ef4444;
+  color: white;
 }
 
 /* ===================================================== */
-/* =====================  MODALES  ===================== */
+/* =====================  MODAL NUEVO ================== */
 /* ===================================================== */
 
 .modal-overlay {
@@ -251,29 +231,123 @@
 
 .modal-content {
   background: white;
+  width: 950px;
+  max-width: 95%;
+  max-height: 90vh;
   border-radius: 16px;
-  padding: 2rem;
-  width: 100%;
-  max-width: 480px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   animation: fadeIn 0.25s ease-in-out;
-  position: relative;
 }
 
-.modal-content button.close {
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 1.4rem;
-  color: #555;
-  background: none;
-  border: none;
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  font-size: 1.2rem;
+}
+
+/* ===== TABS ===== */
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 10px 20px 0;
+}
+
+.tab {
+  padding: 8px 14px;
+  background: #f1f5f9;
+  border-radius: 8px 8px 0 0;
+  font-size: 13px;
   cursor: pointer;
 }
 
-.modal-content button.close:hover {
-  color: #b91c1c;
+.tab.active {
+  background: white;
+  font-weight: 600;
+  border: 1px solid #e5e7eb;
+  border-bottom: none;
 }
+
+/* ===== SECTION ===== */
+
+.section {
+  padding: 16px 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.section label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.section input,
+.section select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.section input:focus,
+.section select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* ===== STUDENTS ===== */
+
+.student-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 8px;
+}
+
+.student-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  font-size: 14px;
+}
+
+/* ===== SUBJECTS ===== */
+
+.subject-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.subject-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* ===== FOOTER ===== */
+
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ===== ANIMATION ===== */
 
 @keyframes fadeIn {
   from {
@@ -300,13 +374,8 @@
   font-size: 15px;
 }
 
-.admin-profile-container input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-}
+/* Botones reutilizables */
 
-/* Botones Reutilizables */
 .btn-primary {
   background-color: #2563eb;
   color: white;
@@ -316,19 +385,69 @@
   cursor: pointer;
 }
 
-.btn-primary:hover {
-  background-color: #1d4ed8;
-}
-
 .btn-secondary {
   background-color: gray;
   color: white;
   border: none;
   padding: 10px 15px;
   border-radius: 8px;
-  cursor: pointer;
+}
+/* ===================================================== */
+/* === AJUSTES DE COLORIMETRÍA DORADA (ADMIN PREMIUM) === */
+/* ===================================================== */
+
+/* ===== BOTÓN GESTIONAR (TABLA) ===== */
+
+.course-assign table button {
+  background: linear-gradient(135deg, #d4af37, #b8962e);
+  color: #111827;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
+  transition: all 0.25s ease;
 }
 
-.btn-secondary:hover {
-  background-color: #4b5563;
-} 
+.course-assign table button:hover {
+  background: linear-gradient(135deg, #e6c45c, #c9a635);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.45);
+}
+
+/* ===== BOTONES DEL MODAL ===== */
+
+.modal-footer button.primary {
+  background: linear-gradient(135deg, #d4af37, #b8962e);
+  color: #111827;
+  font-weight: 600;
+}
+
+.modal-footer button.primary:hover {
+  background: linear-gradient(135deg, #e6c45c, #c9a635);
+}
+
+/* ===== BOTÓN AGREGAR MATERIA ===== */
+
+.subject-add button {
+  background: linear-gradient(135deg, #d4af37, #b8962e);
+  color: #111827;
+  font-weight: 600;
+}
+
+.subject-add button:hover {
+  background: linear-gradient(135deg, #e6c45c, #c9a635);
+}
+
+/* ===== BOTONES PELIGRO (ELIMINAR) ===== */
+
+.course-assign button.danger {
+  background: #991b1b;
+  color: white;
+}
+
+.course-assign button.danger:hover {
+  background: #7f1d1d;
+}

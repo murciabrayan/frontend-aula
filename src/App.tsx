@@ -11,12 +11,12 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        {/* 🔓 Rutas públicas */}
+        {/* Rutas públicas */}
         <Route path="/" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
         <Route path="/reset-password/:uid/:token" element={<ResetPasswordScreen />} />
 
-        {/* 🔐 Rutas protegidas según rol */}
+        {/* Rutas protegidas según rol */}
         <Route
           path="/admin"
           element={

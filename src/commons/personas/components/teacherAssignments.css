@@ -1,0 +1,432 @@
+:root {
+  --gold: #c9a227;
+  --gold-dark: #a8841d;
+  --gold-soft: #f6f1dc;
+  --text: #0f172a;
+  --bg: #ffffff;
+  --black-soft: #0f0f0f;
+}
+
+.dashboard {
+  padding: 32px;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* ================= HEADER ================= */
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.dashboard-header h1 {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #0f172a;
+}
+
+.dashboard-header p {
+  margin-top: 6px;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+.dashboard-header::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 3px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--gold),
+    transparent
+  );
+  margin: 18px auto 0;
+  border-radius: 2px;
+}
+
+/* ================= SUBJECTS ================= */
+
+.subjects-wrapper {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 32px;
+  margin-top: 40px;
+}
+
+.subject-card {
+  width: 190px;
+  height: 160px;
+  background: #ffffff;
+  border-radius: 22px;
+  border: 1px solid #f1f1f1;
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .35s ease;
+}
+
+.subject-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.12);
+  border-color: var(--gold);
+}
+
+/* ===== ICONO CORREGIDO (SIN AZUL) ===== */
+
+.subject-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--gold-dark);
+  margin-bottom: 14px;
+  transition: all .3s ease;
+}
+
+.subject-card:hover .subject-icon {
+  background: var(--black-soft);
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.subject-card span {
+  font-weight: 700;
+  font-size: 15px;
+  color: #0f172a;
+  text-align: center;
+}
+
+/* ================= MODAL ================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-premium {
+  width: 900px;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 22px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header-fixed {
+  padding: 18px 26px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header-fixed h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--gold);
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 600;
+  color: #0f172a;
+  transition: .2s;
+}
+
+.modal-actions button:hover {
+  background: var(--gold-soft);
+}
+
+.modal-actions button.active {
+  background: var(--gold);
+  color: #0f172a;
+}
+
+.close-btn {
+  background: transparent;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+/* ================= BODY ================= */
+
+.modal-body {
+  padding: 26px;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+/* ================= ASSIGNMENTS ================= */
+
+.assignment-picker {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.assignment-pill {
+  padding: 10px 18px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid var(--gold);
+  cursor: pointer;
+  font-weight: 600;
+  color: #0f172a;
+  transition: .2s;
+}
+
+.assignment-pill:hover {
+  background: var(--gold-soft);
+}
+
+.assignment-pill.selected {
+  background: var(--gold);
+  color: #0f172a;
+}
+
+/* ================= INPUT FIX ================= */
+
+input,
+textarea,
+select {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #d1d5db;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.success-msg {
+  margin-top: 12px;
+  font-weight: 600;
+  color: var(--gold-dark);
+}
+
+.delete-icon {
+  margin-left: 10px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.delete-icon:hover {
+  opacity: 1;
+  color: #b91c1c;
+}
+/* ================= SUCCESS MINI MODAL ================= */
+
+.success-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.success-modal {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 28px 36px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  animation: popIn .3s ease;
+}
+
+.success-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #0f172a;
+  font-size: 32px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-modal h3 {
+  font-size: 20px;
+  margin-bottom: 6px;
+  color: #0f172a;
+}
+
+.success-modal p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* ===== MINI MODAL DE ÉXITO ===== */
+
+.success-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* 🔥 MÁS ALTO QUE TODO */
+}
+
+.success-modal {
+  background: #ffffff;
+  padding: 28px 36px;
+  border-radius: 14px;
+  text-align: center;
+  min-width: 280px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+  animation: popIn 0.25s ease-out;
+}
+
+.success-icon {
+  font-size: 42px;
+  color: #22c55e;
+  margin-bottom: 10px;
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* ================= CONFIRM MODAL ================= */
+
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.confirm-modal {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 26px 32px;
+  width: 420px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,.3);
+  animation: popIn .25s ease;
+}
+
+.confirm-modal h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.confirm-modal p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.btn-danger {
+  padding: 10px 18px;
+  border-radius: 20px;
+  border: none;
+  background: #b91c1c;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #991b1b;
+}
+.assignment-pill {
+  display: flex;
+  align-items: center;
+  gap: 14px;              /* 🔥 separación general */
+  padding: 10px 18px;
+  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid var(--gold);
+  cursor: pointer;
+  font-weight: 600;
+  color: #0f172a;
+  transition: .2s;
+}
+.assignment-pill svg {
+  margin-left: auto;   /* 🔥 empuja iconos */
+}
+.edit-icon,
+.delete-icon {
+  cursor: pointer;
+  opacity: 0.65;
+  transition: 0.2s;
+}
+
+.edit-icon:hover {
+  opacity: 1;
+  color: var(--gold-dark);
+}
+
+.delete-icon:hover {
+  opacity: 1;
+  color: #b91c1c;
+}

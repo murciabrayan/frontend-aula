@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Home,
   BookOpen,
@@ -7,17 +7,35 @@ import {
   User,
   LogOut,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
 } from "lucide-react";
 
 import StudentProfile from "../components/StudentProfile";
 import StudentAssignmentsList from "../components/StudentAssignmentsList";
 import NotificationBell from "../components/NotificationBell";
+import StudentCalendar from "@/commons/personas/components/StudentCalendar";
+import StudentGrades from "@/commons/personas/components/StudentGrades";
+
 import "@/commons/personas/styles/studentDashboard.css";
 
 const StudentDashboard: React.FC = () => {
   const [activeModule, setActiveModule] = useState<string>("inicio");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  /* ===============================
+     🔔 ESCUCHAR EVENTO DEL CALENDARIO
+     =============================== */
+  useEffect(() => {
+    const goToTasksHandler = () => {
+      setActiveModule("tareas");
+    };
+
+    window.addEventListener("goToTasks", goToTasksHandler);
+
+    return () => {
+      window.removeEventListener("goToTasks", goToTasksHandler);
+    };
+  }, []);
 
   const handleLogout = (): void => {
     localStorage.removeItem("access_token");
@@ -30,8 +48,8 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <div className="student-dashboard">
+      {/* ================= SIDEBAR ================= */}
       <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
-
         <div className="sidebar-top">
           <h2 className="sidebar-title">
             {!sidebarCollapsed && "Estudiante"}
@@ -44,14 +62,6 @@ const StudentDashboard: React.FC = () => {
             >
               <Home className="icon" />
               {!sidebarCollapsed && <span>Inicio</span>}
-            </a>
-
-            <a
-              className={activeModule === "materias" ? "active" : ""}
-              onClick={() => setActiveModule("materias")}
-            >
-              <BookOpen className="icon" />
-              {!sidebarCollapsed && <span>Mis Materias</span>}
             </a>
 
             <a
@@ -80,13 +90,13 @@ const StudentDashboard: React.FC = () => {
           </nav>
         </div>
 
-        {/* 🔹 LOGOUT RENOMBRADO */}
+        {/* LOGOUT */}
         <button className="student-logout-btn" onClick={handleLogout}>
           <LogOut className="icon" />
           {!sidebarCollapsed && <span>Cerrar Sesión</span>}
         </button>
 
-        {/* 🔹 COLLAPSE RENOMBRADO */}
+        {/* COLLAPSE */}
         <button className="student-collapse-btn" onClick={toggleSidebar}>
           {sidebarCollapsed ? (
             <PanelLeftOpen size={18} />
@@ -94,10 +104,11 @@ const StudentDashboard: React.FC = () => {
             <PanelLeftClose size={18} />
           )}
         </button>
-
       </aside>
 
+      {/* ================= MAIN ================= */}
       <main className="main-content">
+        {/* 🔔 TOPBAR */}
         <div className="dashboard-topbar">
           <NotificationBell setActiveModule={setActiveModule} />
         </div>
@@ -106,19 +117,17 @@ const StudentDashboard: React.FC = () => {
           {activeModule === "inicio" && (
             <>
               <h1>Panel del Estudiante</h1>
-              <p>Bienvenido al sistema académico</p>
+              <p>Próximas actividades y tareas</p>
+
+              <StudentCalendar />
             </>
           )}
 
           {activeModule === "tareas" && <StudentAssignmentsList />}
+
           {activeModule === "perfil" && <StudentProfile />}
 
-          {activeModule === "calificaciones" && (
-            <>
-              <h1>Calificaciones</h1>
-              <p>Aquí podrás ver tus calificaciones.</p>
-            </>
-          )}
+          {activeModule === "calificaciones" && <StudentGrades />}
         </div>
       </main>
     </div>
