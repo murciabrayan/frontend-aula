@@ -178,3 +178,214 @@
   color: #4b4b4b;
   margin-bottom: 30px;
 }
+/* ================= NOTIFICATION BELL ================= */
+
+.notification-bell-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* CAMPANA */
+.notification-bell {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* 🔥 ICONO LUCIDE (FORZADO) */
+.notification-bell svg {
+  width: 22px;
+  height: 22px;
+  stroke: #0f172a;          /* 🔥 ESTO ES LA CLAVE */
+  color: #0f172a;
+  stroke-width: 2;
+  transition: stroke 0.2s ease, transform 0.2s ease;
+}
+
+/* HOVER */
+.notification-bell:hover svg {
+  stroke: #a8841d;          /* dorado oscuro */
+  transform: scale(1.08);
+}
+
+/* CON NOTIFICACIONES */
+.notification-bell.has-notifications svg {
+  stroke: #c9a227;          /* dorado principal */
+}
+
+/* PUNTO ROJO */
+.notification-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  background: #dc2626;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+}
+
+/* ================= DROPDOWN ================= */
+
+.notifications-dropdown {
+  position: absolute;
+  top: 48px;
+  right: 0;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+  padding: 12px;
+  z-index: 9999;
+  animation: dropdownFade 0.2s ease;
+}
+
+/* ANIMACIÓN */
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ITEM */
+.notification-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notification-item:hover {
+  background: #f6f1dc;
+}
+
+/* ================= NOTIFICATION ================= */
+
+.notification-wrapper {
+  position: relative;
+}
+
+/* CAMPANA */
+.bell-container {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.bell-container svg {
+  color: #0f172a;          /* NEGRO */
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/* hover */
+.bell-container:hover svg {
+  color: #a8841d;          /* DORADO OSCURO */
+  transform: scale(1.1);
+}
+
+/* con notificaciones */
+.bell-container.has-unread svg {
+  color: #c9a227;          /* DORADO PRINCIPAL */
+}
+
+/* BURBUJA */
+.notification-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 18px;
+  height: 18px;
+  background: #dc2626;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+/* ================= DROPDOWN ================= */
+
+.notification-dropdown {
+  position: absolute;
+  top: 48px;               /* BAJA, NO MUEVE LA CAMPANA */
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+  padding: 12px;
+  z-index: 9999;
+  animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-dropdown h4 {
+  margin-bottom: 10px;
+  color: #6b4f00;
+}
+
+.notification-item {
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.notification-item.unread {
+  background: #f6f1dc;
+}
+
+.notification-item:hover {
+  background: #eee7c9;
+}
+
+.notification-item strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.notification-dropdown p {
+  color: #374151;          /* gris oscuro legible */
+}
+
+.notification-dropdown small {
+  color: #6b7280;          /* gris suave */
+}
+
+.notification-dropdown .empty {
+  color: #6b7280;
+  text-align: center;
+  padding: 12px 0;
+}
+/* TÍTULO DE CADA NOTIFICACIÓN (ej: "Nueva calificación") */
+.notification-item strong {
+  color: #0f172a;          /* negro elegante */
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}

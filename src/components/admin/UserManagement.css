@@ -1,144 +1,292 @@
+/* ===================== THEME ===================== */
+:root {
+  --gold: #c9a227;
+  --gold-dark: #a8841d;
+  --gold-soft: #f6f1dc;
+
+  --black: #0f0f0f;
+  --text: #0f172a;
+  --muted: #6b7280;
+
+  --bg: #ffffff;
+  --border: #e5e7eb;
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+
+  --danger: #b91c1c;
+  --danger-dark: #991b1b;
+}
+
+/* ===================== CONTAINER ===================== */
 .user-container {
-  padding: 20px;
-  background-color: #fffaf0;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 26px;
+  background: var(--bg);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
+/* Title */
 .section-title {
-  color: #8b5e00;
-  font-size: 1.6em;
-  margin-bottom: 15px;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  margin-bottom: 14px;
+  position: relative;
 }
 
+.section-title::after {
+  content: "";
+  display: block;
+  width: 120px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 2px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+}
+
+/* ===================== FILTER BAR ===================== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 16px;
+}
+
+/* ===================== BUTTONS ===================== */
 .btn {
-  background-color: #eee;
-  border: 1px solid #ccc;
-  padding: 8px 14px;
-  margin-right: 6px;
-  border-radius: 6px;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.9em;
+  font-weight: 700;
+  font-size: 13px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease,
+    border-color 0.15s ease, color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
 }
 
 .btn:hover {
-  background-color: #f5deb3;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+  border-color: rgba(201, 162, 39, 0.65);
+  background: var(--gold-soft);
+}
+
+.btn:active {
+  transform: translateY(0px);
+  box-shadow: none;
 }
 
 .btn-active {
-  background-color: #d4a017;
-  color: white;
-  border-color: #c18d00;
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+  box-shadow: 0 10px 22px rgba(201, 162, 39, 0.25);
 }
 
 .btn-primary {
-  background-color: #c18d00;
-  color: white;
-  border: none;
+  background: var(--black);
+  color: #fff;
+  border: 1px solid var(--black);
 }
 
 .btn-primary:hover {
-  background-color: #a87800;
-}
-
-.btn-edit {
-  background-color: #ffecb3;
-}
-
-.btn-delete {
-  background-color: #f8d7da;
-  color: #8a0000;
+  background: #000;
+  border-color: #000;
+  color: var(--gold);
 }
 
 .btn.right {
   margin-left: auto;
 }
 
+/* icon buttons in table */
+.btn-edit,
+.btn-delete {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.btn-edit {
+  border-color: rgba(201, 162, 39, 0.45);
+  background: #fff;
+}
+
+.btn-edit:hover {
+  background: var(--gold-soft);
+  border-color: var(--gold);
+}
+
+.btn-delete {
+  border-color: rgba(185, 28, 28, 0.35);
+  background: #fff;
+  color: var(--danger);
+}
+
+.btn-delete:hover {
+  background: rgba(185, 28, 28, 0.08);
+  border-color: rgba(185, 28, 28, 0.65);
+  color: var(--danger-dark);
+}
+
+/* full button in modal */
+.btn-primary.full {
+  width: 100%;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* ===================== TABLE ===================== */
 .user-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--border);
 }
 
-.user-table th {
-  background-color: #fff1c1;
-  color: #6b4500;
-  padding: 10px;
+.user-table thead th {
+  background: linear-gradient(135deg, #111827, #0b0b0b);
+  color: #ffffff;
+  padding: 14px 14px;
   text-align: left;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.user-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+.user-table tbody td {
+  padding: 14px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13.5px;
 }
 
-.user-table tr:hover {
-  background-color: #fff8e5;
+.user-table tbody tr {
+  background: #fff;
+  transition: background 0.15s ease;
 }
 
+.user-table tbody tr:hover {
+  background: rgba(201, 162, 39, 0.10);
+}
+
+.user-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* acciones column */
+.user-table td:last-child {
+  width: 120px;
+}
+
+.user-table td:last-child .btn {
+  margin-right: 8px;
+}
+
+/* empty row */
+.user-table tbody tr td[colspan] {
+  text-align: center;
+  color: var(--muted);
+  padding: 18px;
+}
+
+/* ===================== MODAL ===================== */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.45);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  z-index: 9999;
+  padding: 18px;
 }
 
 .modal-container {
-  background: #fff;
-  border-radius: 8px;
-  padding: 25px;
-  width: 400px;
+  width: 460px;
+  max-width: 92vw;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 
+/* top strip */
+.modal-container::before {
+  content: "";
+  display: block;
+  height: 6px;
+  width: 100%;
+  background: linear-gradient(90deg, var(--gold), #111827, var(--gold));
+}
+
+/* header title */
 .modal-title {
-  color: #8b5e00;
-  margin-bottom: 15px;
-  font-size: 1.3em;
+  padding: 18px 22px 8px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .close-btn {
   position: absolute;
-  right: 12px;
-  top: 10px;
-  background: transparent;
-  border: none;
-  font-size: 18px;
+  right: 14px;
+  top: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
   cursor: pointer;
-  color: #555;
+  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
 }
 
 .close-btn:hover {
-  color: #000;
+  background: var(--gold-soft);
+  border-color: rgba(201, 162, 39, 0.6);
+  transform: scale(1.03);
 }
 
+/* form */
 .form {
+  padding: 14px 22px 22px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .input-field {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13.5px;
+  color: var(--text);
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-field::placeholder {
+  color: #9ca3af;
 }
 
 .input-field:focus {
-  border-color: #c18d00;
   outline: none;
-  box-shadow: 0 0 3px rgba(193, 141, 0, 0.4);
-}
-
-.btn-primary.full {
-  width: 100%;
-  margin-top: 10px;
+  border-color: rgba(201, 162, 39, 0.85);
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.15);
 }

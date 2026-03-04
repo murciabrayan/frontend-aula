@@ -38,7 +38,6 @@ export default function NotificationBell({ setActiveModule }: Props) {
       await loadData();
       setOpen(false);
 
-      // 🔔 Si es calificación → cambiar módulo
       if (n.titulo.toLowerCase().includes("calificación")) {
         setActiveModule("calificaciones");
       }
@@ -52,15 +51,13 @@ export default function NotificationBell({ setActiveModule }: Props) {
   return (
     <div className="notification-wrapper">
       <div
-        className="bell-container"
+        className={`bell-container ${unread > 0 ? "has-unread" : ""}`}
         onClick={() => setOpen(!open)}
       >
-        <Bell size={22} />
+        <Bell size={22} strokeWidth={2} />
 
         {unread > 0 && (
-          <span className="notification-badge">
-            {unread}
-          </span>
+          <span className="notification-badge">{unread}</span>
         )}
       </div>
 
@@ -74,9 +71,7 @@ export default function NotificationBell({ setActiveModule }: Props) {
             notifications.map((n) => (
               <div
                 key={n.id}
-                className={`notification-item ${
-                  n.leida ? "" : "unread"
-                }`}
+                className={`notification-item ${n.leida ? "" : "unread"}`}
                 onClick={() => handleNotificationClick(n)}
               >
                 <strong>{n.titulo}</strong>
