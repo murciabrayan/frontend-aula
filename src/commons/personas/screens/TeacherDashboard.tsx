@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import {
   Home,
-  BookOpen,
   ClipboardList,
   Star,
   User,
@@ -13,6 +12,7 @@ import {
 import TeacherProfile from "../components/TeacherProfile";
 import AssignmentList from "../components/AssignmentList";
 import TeacherCalendar from "../components/TeacherCalendar";
+import TeacherGrades from "../components/TeacherGrades";
 
 import "@/commons/personas/styles/teacherDashboard.css";
 
@@ -39,6 +39,14 @@ const TeacherDashboard = () => {
           >
             <Home className="icon" />
             {!sidebarCollapsed && <span>Inicio</span>}
+          </a>
+
+          <a
+            className={activeModule === "notas" ? "active" : ""}
+            onClick={() => setActiveModule("notas")}
+          >
+            <Star className="icon" />
+            {!sidebarCollapsed && <span>Notas</span>}
           </a>
 
           <a
@@ -87,7 +95,10 @@ const TeacherDashboard = () => {
           </>
         )}
 
+        {activeModule === "notas" && <TeacherGrades />}
+
         {activeModule === "tareas" && <AssignmentList />}
+
         {activeModule === "perfil" && <TeacherProfile />}
       </main>
     </div>
