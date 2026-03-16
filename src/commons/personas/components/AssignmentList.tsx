@@ -1,17 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import AssignmentForm from "./AssignmentForm";
 import SubmissionList from "./SubmissionList";
-import { FiBookOpen, FiTrash2, FiEdit2 } from "react-icons/fi";
+import { FiBookOpen, FiTrash2, FiEdit2, FiEye } from "react-icons/fi";
 import "./teacherAssignments.css";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
 /* ================= TIPOS ================= */
 
+interface Area {
+  id: number;
+  nombre: string;
+}
+
 interface Subject {
   id: number;
   nombre: string;
+  area?: number | null;
+  area_nombre?: string;
 }
 
 interface Assignment {
@@ -19,6 +26,7 @@ interface Assignment {
   titulo: string;
   descripcion: string;
   fecha_entrega: string;
+  periodo: number;
 }
 
 interface Course {
@@ -30,28 +38,29 @@ interface Course {
 
 const AssignmentDashboard: React.FC = () => {
   const [course, setCourse] = useState<Course | null>(null);
+
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
+
   const [activeSubject, setActiveSubject] = useState<Subject | null>(null);
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [selectedAssignment, setSelectedAssignment] = useState<number | null>(null);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<Assignment | null>(null);
 
   const [mode, setMode] = useState<"create" | "grade">("create");
 
-  // ✏️ edición
-  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
+  const [editingAssignment, setEditingAssignment] =
+    useState<Assignment | null>(null);
 
-  // ❗ confirmación eliminar
   const [showConfirm, setShowConfirm] = useState(false);
-  const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
+  const [assignmentToDelete, setAssignmentToDelete] =
+    useState<Assignment | null>(null);
 
-  // ✅ éxito
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
   const token = localStorage.getItem("access_token");
-
-  /* ================= LOAD DATA ================= */
 
   useEffect(() => {
     axios
@@ -59,7 +68,7 @@ const AssignmentDashboard: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setCourse(res.data));
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     axios
@@ -67,7 +76,15 @@ const AssignmentDashboard: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSubjects(res.data));
-  }, []);
+  }, [token]);
+
+  useEffect(() => {
+    axios
+      .get(`${API_BASE}/areas/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setAreas(res.data));
+  }, [token]);
 
   const loadAssignments = (subjectId: number) => {
     axios
@@ -81,12 +98,11 @@ const AssignmentDashboard: React.FC = () => {
             titulo: a.titulo,
             descripcion: a.descripcion ?? "",
             fecha_entrega: a.fecha_entrega ?? "",
+            periodo: a.periodo ?? 1,
           }))
         )
       );
   };
-
-  /* ================= DELETE ================= */
 
   const confirmDelete = async () => {
     if (!assignmentToDelete) return;
@@ -106,7 +122,19 @@ const AssignmentDashboard: React.FC = () => {
     setTimeout(() => setShowSuccess(false), 1400);
   };
 
-  /* ================= RENDER ================= */
+  const groupedSubjects = useMemo(() => {
+    return areas.map((area) => ({
+      area,
+      subjects: subjects.filter((s) => s.area === area.id),
+    }));
+  }, [areas, subjects]);
+
+  const subjectsWithoutArea = useMemo(
+    () => subjects.filter((s) => !s.area),
+    [subjects]
+  );
+
+  const periodoLabel = (periodo: number) => `Periodo ${periodo}`;
 
   return (
     <div className="dashboard">
@@ -115,31 +143,71 @@ const AssignmentDashboard: React.FC = () => {
         <p>Panel de gestión académica</p>
       </header>
 
-      {/* ===== MATERIAS ===== */}
-      <div className="subjects-wrapper">
-        {subjects.map((s) => (
-          <div
-            key={s.id}
-            className="subject-card"
-            onClick={() => {
-              setActiveSubject(s);
-              loadAssignments(s.id);
-              setMode("create");
-              setSelectedAssignment(null);
-            }}
-          >
-            <div className="subject-icon">
-              <FiBookOpen size={26} />
+      <div className="areas-wrapper">
+        {groupedSubjects.map(({ area, subjects }) => (
+          <div key={area.id} className="area-card">
+            <div className="area-title">{area.nombre}</div>
+
+            <div className="area-subjects">
+              {subjects.length === 0 && (
+                <div className="empty-area">Sin materias</div>
+              )}
+
+              {subjects.map((s) => (
+                <div
+                  key={s.id}
+                  className="subject-card"
+                  onClick={() => {
+                    setActiveSubject(s);
+                    loadAssignments(s.id);
+                    setMode("create");
+                    setSelectedAssignment(null);
+                  }}
+                >
+                  <div className="subject-icon">
+                    <FiBookOpen size={22} />
+                  </div>
+                  <span>{s.nombre}</span>
+                </div>
+              ))}
             </div>
-            <span>{s.nombre}</span>
           </div>
         ))}
+
+        {subjectsWithoutArea.length > 0 && (
+          <div className="area-card">
+            <div className="area-title">Sin área</div>
+
+            <div className="area-subjects">
+              {subjectsWithoutArea.map((s) => (
+                <div
+                  key={s.id}
+                  className="subject-card"
+                  onClick={() => {
+                    setActiveSubject(s);
+                    loadAssignments(s.id);
+                    setMode("create");
+                    setSelectedAssignment(null);
+                  }}
+                >
+                  <div className="subject-icon">
+                    <FiBookOpen size={22} />
+                  </div>
+                  <span>{s.nombre}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ===== MODAL PRINCIPAL ===== */}
       {activeSubject && (
         <div className="modal-backdrop">
-          <div className="modal-premium">
+          <div
+            className={`modal-premium ${
+              mode === "grade" ? "modal-premium-ultrawide" : "modal-premium-form"
+            }`}
+          >
             <div className="modal-header-fixed">
               <h2>{activeSubject.nombre}</h2>
 
@@ -150,110 +218,190 @@ const AssignmentDashboard: React.FC = () => {
                 >
                   Subir tarea
                 </button>
+
                 <button
                   className={mode === "grade" ? "active" : ""}
                   onClick={() => setMode("grade")}
                 >
                   Calificar
                 </button>
-                <button className="close-btn" onClick={() => setActiveSubject(null)}>
+
+                <button
+                  className="close-btn"
+                  onClick={() => {
+                    setActiveSubject(null);
+                    setSelectedAssignment(null);
+                  }}
+                >
                   ✕
                 </button>
               </div>
             </div>
 
             <div className="modal-body">
-              {/* ===== CREAR ===== */}
               {mode === "create" && (
-                <AssignmentForm
-                  subjectId={activeSubject.id}
-                  onClose={() => setActiveSubject(null)}
-                  onSuccess={() => {
-                    loadAssignments(activeSubject.id);
-                    setSuccessMessage("Tarea creada exitosamente");
-                    setShowSuccess(true);
-                    setTimeout(() => {
-                      setShowSuccess(false);
-                      setMode("grade");
-                    }, 1400);
-                  }}
-                />
+                <div className="assignment-form-shell">
+                  <AssignmentForm
+                    subjectId={activeSubject.id}
+                    onClose={() => setActiveSubject(null)}
+                    onSuccess={() => {
+                      loadAssignments(activeSubject.id);
+                      setSuccessMessage("Tarea creada exitosamente");
+                      setShowSuccess(true);
+                      setTimeout(() => {
+                        setShowSuccess(false);
+                        setMode("grade");
+                      }, 1400);
+                    }}
+                  />
+                </div>
               )}
 
-              {/* ===== LISTA / EDITAR ===== */}
               {mode === "grade" && (
-                <>
-                  <div className="assignment-picker">
-                    {assignments.map((a) => (
-                      <div
-                        key={a.id}
-                        className={`assignment-pill ${
-                          selectedAssignment === a.id ? "selected" : ""
-                        }`}
-                        onClick={() => setSelectedAssignment(a.id)}
-                      >
-                        {a.titulo}
-
-                        <FiEdit2
-                          className="edit-icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingAssignment(a);
-                          }}
-                        />
-
-                        <FiTrash2
-                          className="delete-icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setAssignmentToDelete(a);
-                            setShowConfirm(true);
-                          }}
-                        />
-                      </div>
-                    ))}
+                <div className="section-block">
+                  <div className="section-block-header">
+                    <h3>Tareas creadas</h3>
+                    <p>Haz clic en una fila para ver las entregas de esa tarea.</p>
                   </div>
 
-                  {selectedAssignment && (
-                    <SubmissionList assignmentId={selectedAssignment} />
+                  {assignments.length === 0 ? (
+                    <div className="empty-state-box">
+                      No hay tareas creadas en esta materia.
+                    </div>
+                  ) : (
+                    <div className="teacher-table-wrapper">
+                      <table className="teacher-data-table">
+                        <thead>
+                          <tr>
+                            <th>Título</th>
+                            <th>Periodo</th>
+                            <th>Fecha de entrega</th>
+                            <th>Descripción</th>
+                            <th>Ver entregas</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {assignments.map((a) => (
+                            <tr
+                              key={a.id}
+                              className="clickable-row"
+                              onClick={() => setSelectedAssignment(a)}
+                            >
+                              <td className="table-title-cell">{a.titulo}</td>
+                              <td>
+                                <span className="assignment-period-badge table-badge">
+                                  {periodoLabel(a.periodo)}
+                                </span>
+                              </td>
+                              <td>{a.fecha_entrega}</td>
+                              <td className="table-description-cell">
+                                {a.descripcion || "Sin descripción"}
+                              </td>
+                              <td>
+                                <button
+                                  className="table-primary-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedAssignment(a);
+                                  }}
+                                >
+                                  <FiEye size={14} />
+                                  Ver
+                                </button>
+                              </td>
+                              <td>
+                                <div className="table-actions">
+                                  <button
+                                    className="icon-action-btn edit"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingAssignment(a);
+                                    }}
+                                    title="Editar tarea"
+                                  >
+                                    <FiEdit2 size={16} />
+                                  </button>
+
+                                  <button
+                                    className="icon-action-btn delete"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setAssignmentToDelete(a);
+                                      setShowConfirm(true);
+                                    }}
+                                    title="Eliminar tarea"
+                                  >
+                                    <FiTrash2 size={16} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
-                </>
+                </div>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* ===== MODAL EDITAR ===== */}
-      {editingAssignment && activeSubject && (
-        <div className="modal-backdrop">
-          <div className="modal-premium">
+      {selectedAssignment && (
+        <div className="modal-backdrop modal-layer-2">
+          <div className="modal-premium modal-premium-ultrawide">
             <div className="modal-header-fixed">
-              <h2>Editar tarea</h2>
-              <button className="close-btn" onClick={() => setEditingAssignment(null)}>
+              <h2>Entregas · {selectedAssignment.titulo}</h2>
+              <button
+                className="close-btn"
+                onClick={() => setSelectedAssignment(null)}
+              >
                 ✕
               </button>
             </div>
 
             <div className="modal-body">
-              <AssignmentForm
-                subjectId={activeSubject.id}
-                assignmentToEdit={editingAssignment}
-                onClose={() => setEditingAssignment(null)}
-                onSuccess={() => {
-                  loadAssignments(activeSubject.id);
-                  setEditingAssignment(null);
-                  setSuccessMessage("Tarea actualizada exitosamente");
-                  setShowSuccess(true);
-                  setTimeout(() => setShowSuccess(false), 1400);
-                }}
-              />
+              <SubmissionList assignmentId={selectedAssignment.id} />
             </div>
           </div>
         </div>
       )}
 
-      {/* ===== CONFIRMAR ELIMINAR ===== */}
+      {editingAssignment && activeSubject && (
+        <div className="modal-backdrop modal-layer-2">
+          <div className="modal-premium modal-premium-form">
+            <div className="modal-header-fixed">
+              <h2>Editar tarea</h2>
+              <button
+                className="close-btn"
+                onClick={() => setEditingAssignment(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="assignment-form-shell">
+                <AssignmentForm
+                  subjectId={activeSubject.id}
+                  assignmentToEdit={editingAssignment}
+                  onClose={() => setEditingAssignment(null)}
+                  onSuccess={() => {
+                    loadAssignments(activeSubject.id);
+                    setEditingAssignment(null);
+                    setSuccessMessage("Tarea actualizada exitosamente");
+                    setShowSuccess(true);
+                    setTimeout(() => setShowSuccess(false), 1400);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showConfirm && assignmentToDelete && (
         <div className="confirm-backdrop">
           <div className="confirm-modal">
@@ -280,7 +428,6 @@ const AssignmentDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* ===== ÉXITO ===== */}
       {showSuccess && (
         <div className="success-backdrop">
           <div className="success-modal">

@@ -8,6 +8,7 @@ interface Assignment {
   titulo: string;
   descripcion: string;
   fecha_entrega: string;
+  periodo: number;
 }
 
 interface Props {
@@ -26,6 +27,7 @@ const AssignmentForm: React.FC<Props> = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [periodo, setPeriodo] = useState("1");
   const [file, setFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(false);
@@ -33,12 +35,14 @@ const AssignmentForm: React.FC<Props> = ({
 
   const token = localStorage.getItem("access_token");
 
-  // 🔄 CARGAR DATOS SI ES EDICIÓN
   useEffect(() => {
     if (assignmentToEdit) {
       setTitle(assignmentToEdit.titulo);
       setDescription(assignmentToEdit.descripcion || "");
       setDueDate(assignmentToEdit.fecha_entrega);
+      setPeriodo(String(assignmentToEdit.periodo ?? 1));
+    } else {
+      resetForm();
     }
   }, [assignmentToEdit]);
 
@@ -46,6 +50,7 @@ const AssignmentForm: React.FC<Props> = ({
     setTitle("");
     setDescription("");
     setDueDate("");
+    setPeriodo("1");
     setFile(null);
   };
 
@@ -59,11 +64,14 @@ const AssignmentForm: React.FC<Props> = ({
     data.append("titulo", title);
     data.append("descripcion", description);
     data.append("fecha_entrega", dueDate);
-    if (file) data.append("archivo", file);
+    data.append("periodo", periodo);
+
+    if (file) {
+      data.append("archivo", file);
+    }
 
     try {
       if (assignmentToEdit) {
-        // ✏️ EDITAR
         await axios.put(
           `${API_BASE}/assignments/${assignmentToEdit.id}/`,
           data,
@@ -75,7 +83,6 @@ const AssignmentForm: React.FC<Props> = ({
           }
         );
       } else {
-        // ➕ CREAR
         await axios.post(`${API_BASE}/assignments/`, data, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -99,7 +106,11 @@ const AssignmentForm: React.FC<Props> = ({
     <form onSubmit={handleSubmit} className="assignment-form">
       <div className="form-group">
         <label>Título</label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} required />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
       </div>
 
       <div className="form-group">
@@ -121,8 +132,25 @@ const AssignmentForm: React.FC<Props> = ({
       </div>
 
       <div className="form-group">
+        <label>Periodo</label>
+        <select
+          value={periodo}
+          onChange={(e) => setPeriodo(e.target.value)}
+          required
+        >
+          <option value="1">Periodo 1</option>
+          <option value="2">Periodo 2</option>
+          <option value="3">Periodo 3</option>
+          <option value="4">Periodo 4</option>
+        </select>
+      </div>
+
+      <div className="form-group">
         <label>Archivo (opcional)</label>
-        <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
       </div>
 
       {error && <p className="msg error">{error}</p>}

@@ -1,5 +1,7 @@
 import axios from "axios";
 
+const API_BASE = "http://127.0.0.1:8000/api/notifications";
+
 export interface Notification {
   id: number;
   titulo: string;
@@ -8,26 +10,34 @@ export interface Notification {
   fecha_creacion: string;
 }
 
-const API = axios.create({
-  baseURL: "http://localhost:8000/api",
-});
-
-// 🔐 Interceptor para enviar el token automáticamente
-API.interceptors.request.use((config) => {
+const getAuthHeaders = () => {
   const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// ✅ Obtener mis notificaciones
-export const getNotifications = async (): Promise<Notification[]> => {
-  const res = await API.get("/mis-notificaciones/");
-  return res.data;
+  return {
+    Authorization: `Bearer ${token}`,
+  };
 };
 
-// ✅ Marcar como leída
-export const markAsRead = async (id: number): Promise<void> => {
-  await API.post(`/notificaciones/${id}/leer/`);
+export const getNotifications = async (): Promise<Notification[]> => {
+  const response = await axios.get<Notification[]>(`${API_BASE}/`, {
+    headers: getAuthHeaders(),
+  });
+  return response.data;
+};
+
+export const markAsRead = async (id: number) => {
+  const response = await axios.patch(
+    `${API_BASE}/${id}/`,
+    { leida: true },
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  return response.data;
+};
+
+export const deleteNotification = async (id: number) => {
+  const response = await axios.delete(`${API_BASE}/${id}/`, {
+    headers: getAuthHeaders(),
+  });
+  return response.data;
 };

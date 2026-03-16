@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import UploadSubmissionForm from "./UploadSubmissionForm";
 import { FiBookOpen } from "react-icons/fi";
@@ -6,9 +6,16 @@ import "./../styles/assignments.css";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
+interface Area {
+  id: number;
+  nombre: string;
+}
+
 interface Subject {
   id: number;
   nombre: string;
+  area?: number | null;
+  area_nombre?: string;
 }
 
 interface Assignment {
@@ -31,17 +38,18 @@ const StudentAssignmentsList: React.FC = () => {
   const token = localStorage.getItem("access_token");
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [areas, setAreas] = useState<Area[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   const [activeSubject, setActiveSubject] = useState<Subject | null>(null);
-  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+  const [selectedAssignment, setSelectedAssignment] =
+    useState<Assignment | null>(null);
 
   const [showUpload, setShowUpload] = useState(false);
   const [showGrade, setShowGrade] = useState<Submission | null>(null);
   const [showDetails, setShowDetails] = useState<Assignment | null>(null);
 
-  // ✅ toast éxito
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
@@ -51,6 +59,12 @@ const StudentAssignmentsList: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setSubjects(res.data));
+
+    axios
+      .get(`${API_BASE}/areas/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setAreas(res.data));
 
     reloadSubmissions();
   }, [token]);
@@ -80,49 +94,101 @@ const StudentAssignmentsList: React.FC = () => {
     setTimeout(() => setShowToast(false), 1600);
   };
 
+  const groupedSubjects = useMemo(() => {
+    return areas.map((area) => ({
+      area,
+      subjects: subjects.filter((s) => s.area === area.id),
+    }));
+  }, [areas, subjects]);
+
+  const subjectsWithoutArea = useMemo(
+    () => subjects.filter((s) => !s.area),
+    [subjects]
+  );
+
   return (
     <div className="dashboard">
       <h1>Selecciona una materia</h1>
 
-      <div className="subjects-wrapper">
-        {subjects.map((s) => (
-          <div
-            key={s.id}
-            className="subject-card"
-            onClick={() => {
-              setActiveSubject(s);
-              loadAssignments(s.id);
-            }}
-          >
-            <div className="subject-icon">
-              <FiBookOpen size={26} />
+      <div className="areas-wrapper">
+        {groupedSubjects.map(({ area, subjects: areaSubjects }) => (
+          <div key={area.id} className="area-card">
+            <div className="area-title">{area.nombre}</div>
+
+            <div className="area-subjects">
+              {areaSubjects.length === 0 && (
+                <div className="empty-area">Sin materias</div>
+              )}
+
+              {areaSubjects.map((s) => (
+                <div
+                  key={s.id}
+                  className="subject-card"
+                  onClick={() => {
+                    setActiveSubject(s);
+                    loadAssignments(s.id);
+                  }}
+                >
+                  <div className="subject-icon">
+                    <FiBookOpen size={26} />
+                  </div>
+                  <span>{s.nombre}</span>
+                </div>
+              ))}
             </div>
-            <span>{s.nombre}</span>
           </div>
         ))}
+
+        {subjectsWithoutArea.length > 0 && (
+          <div className="area-card">
+            <div className="area-title">Sin área</div>
+
+            <div className="area-subjects">
+              {subjectsWithoutArea.map((s) => (
+                <div
+                  key={s.id}
+                  className="subject-card"
+                  onClick={() => {
+                    setActiveSubject(s);
+                    loadAssignments(s.id);
+                  }}
+                >
+                  <div className="subject-icon">
+                    <FiBookOpen size={26} />
+                  </div>
+                  <span>{s.nombre}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* ✅ TOAST ÉXITO */}
       {showToast && (
         <div className="toast-backdrop" onClick={() => setShowToast(false)}>
           <div className="toast-success" onClick={(e) => e.stopPropagation()}>
             <div>
               <strong>✅ Listo</strong> — {toastMsg}
             </div>
-            <button className="btn-secondary" onClick={() => setShowToast(false)}>
+            <button
+              className="btn-secondary"
+              onClick={() => setShowToast(false)}
+            >
               Cerrar
             </button>
           </div>
         </div>
       )}
 
-      {/* 📘 MODAL MATERIA */}
       {activeSubject && (
         <div className="modal-backdrop">
           <div className="modal-premium">
             <div className="modal-header-fixed">
               <h2>{activeSubject.nombre}</h2>
-              <button className="close-btn" onClick={() => setActiveSubject(null)}>
+              <button
+                className="close-btn"
+                onClick={() => setActiveSubject(null)}
+              >
                 ✕
               </button>
             </div>
@@ -143,7 +209,10 @@ const StudentAssignmentsList: React.FC = () => {
                         </div>
 
                         <div className="assignment-actions">
-                          <button className="btn-secondary" onClick={() => setShowDetails(a)}>
+                          <button
+                            className="btn-secondary"
+                            onClick={() => setShowDetails(a)}
+                          >
                             Ver detalles
                           </button>
 
@@ -164,7 +233,10 @@ const StudentAssignmentsList: React.FC = () => {
                           )}
 
                           {entrega?.calificacion !== undefined && (
-                            <button className="btn-secondary" onClick={() => setShowGrade(entrega)}>
+                            <button
+                              className="btn-secondary"
+                              onClick={() => setShowGrade(entrega)}
+                            >
                               Ver calificación
                             </button>
                           )}
@@ -179,89 +251,98 @@ const StudentAssignmentsList: React.FC = () => {
         </div>
       )}
 
-      {/* 📄 DETALLES DE TAREA */}
-      {showDetails && (() => {
-        const entrega = getSubmission(showDetails.id);
+      {showDetails &&
+        (() => {
+          const entrega = getSubmission(showDetails.id);
 
-        return (
-          <div className="modal-backdrop">
-            <div className="modal-premium">
-              <div className="modal-header-fixed">
-                <h3>{showDetails.titulo}</h3>
-                <button className="close-btn" onClick={() => setShowDetails(null)}>
-                  ✕
-                </button>
-              </div>
-
-              <div className="modal-body">
-                <p>
-                  <strong>Fecha de entrega:</strong> {showDetails.fecha_entrega}
-                </p>
-
-                {showDetails.descripcion && (
-                  <>
-                    <strong>Descripción:</strong>
-                    <p className="assignment-description">{showDetails.descripcion}</p>
-                  </>
-                )}
-
-                {showDetails.archivo && (
-                  <div className="assignment-file">
-                    <strong>Archivo del docente:</strong>
-                    <a
-                      href={showDetails.archivo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="file-link"
-                    >
-                      Descargar archivo
-                    </a>
-                  </div>
-                )}
-
-                {entrega && (
-                  <div style={{ marginTop: 12 }}>
-                    {entrega.calificacion === undefined ? (
-                      <span className="badge pending">✅ Tarea entregada correctamente</span>
-                    ) : (
-                      <button
-                        className="btn-secondary"
-                        onClick={() => {
-                          setShowDetails(null);
-                          setShowGrade(entrega);
-                        }}
-                      >
-                        Ver calificación
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="modal-footer">
-                {!entrega ? (
+          return (
+            <div className="modal-backdrop">
+              <div className="modal-premium">
+                <div className="modal-header-fixed">
+                  <h3>{showDetails.titulo}</h3>
                   <button
-                    className="btn-primary"
-                    onClick={() => {
-                      setSelectedAssignment(showDetails);
-                      setShowDetails(null);
-                      setShowUpload(true);
-                    }}
+                    className="close-btn"
+                    onClick={() => setShowDetails(null)}
                   >
-                    Subir entrega
+                    ✕
                   </button>
-                ) : (
-                  <button className="btn-secondary" onClick={() => setShowDetails(null)}>
-                    Cerrar
-                  </button>
-                )}
+                </div>
+
+                <div className="modal-body">
+                  <p>
+                    <strong>Fecha de entrega:</strong> {showDetails.fecha_entrega}
+                  </p>
+
+                  {showDetails.descripcion && (
+                    <>
+                      <strong>Descripción:</strong>
+                      <p className="assignment-description">
+                        {showDetails.descripcion}
+                      </p>
+                    </>
+                  )}
+
+                  {showDetails.archivo && (
+                    <div className="assignment-file">
+                      <strong>Archivo del docente:</strong>
+                      <a
+                        href={showDetails.archivo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="file-link"
+                      >
+                        Descargar archivo
+                      </a>
+                    </div>
+                  )}
+
+                  {entrega && (
+                    <div style={{ marginTop: 12 }}>
+                      {entrega.calificacion === undefined ? (
+                        <span className="badge pending">
+                          ✅ Tarea entregada correctamente
+                        </span>
+                      ) : (
+                        <button
+                          className="btn-secondary"
+                          onClick={() => {
+                            setShowDetails(null);
+                            setShowGrade(entrega);
+                          }}
+                        >
+                          Ver calificación
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="modal-footer">
+                  {!entrega ? (
+                    <button
+                      className="btn-primary"
+                      onClick={() => {
+                        setSelectedAssignment(showDetails);
+                        setShowDetails(null);
+                        setShowUpload(true);
+                      }}
+                    >
+                      Subir entrega
+                    </button>
+                  ) : (
+                    <button
+                      className="btn-secondary"
+                      onClick={() => setShowDetails(null)}
+                    >
+                      Cerrar
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
-      {/* 📤 SUBIR ENTREGA */}
       {showUpload && selectedAssignment && (
         <div className="modal-backdrop">
           <div className="modal-premium">
@@ -285,7 +366,10 @@ const StudentAssignmentsList: React.FC = () => {
             </div>
 
             <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowUpload(false)}>
+              <button
+                className="btn-secondary"
+                onClick={() => setShowUpload(false)}
+              >
                 Cancelar
               </button>
             </div>
@@ -293,7 +377,6 @@ const StudentAssignmentsList: React.FC = () => {
         </div>
       )}
 
-      {/* 📊 CALIFICACIÓN */}
       {showGrade && (
         <div className="modal-backdrop">
           <div className="modal-premium">

@@ -16,6 +16,8 @@ interface Assignment {
   descripcion?: string;
   fecha_entrega: string;
   materia: number;
+  periodo: number;
+  periodo_nombre?: string;
 }
 
 interface Submission {
@@ -49,11 +51,18 @@ const TeacherGrades: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [students, setStudents] = useState<User[]>([]);
 
+  const [selectedPeriod, setSelectedPeriod] = useState<number>(1);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadSubjects();
   }, []);
+
+  useEffect(() => {
+    if (selectedSubject) {
+      loadGradeData(selectedSubject, selectedPeriod);
+    }
+  }, [selectedPeriod]);
 
   const loadSubjects = async () => {
     try {
@@ -68,15 +77,18 @@ const TeacherGrades: React.FC = () => {
     }
   };
 
-  const loadGradeData = async (subject: Subject) => {
+  const loadGradeData = async (subject: Subject, period: number) => {
     try {
       setSelectedSubject(subject);
 
       const [assignmentsRes, submissionsRes, courseRes, usersRes] =
         await Promise.all([
-          axios.get(`${API_BASE}/assignments/?subject=${subject.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          axios.get(
+            `${API_BASE}/assignments/?subject=${subject.id}&periodo=${period}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          ),
           axios.get(`${API_BASE}/submissions/`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -112,17 +124,17 @@ const TeacherGrades: React.FC = () => {
   };
 
   const gradeMap = useMemo(() => {
-  const map: Record<string, number | null> = {};
+    const map: Record<string, number | null> = {};
 
-  submissions.forEach((s) => {
-    map[`${s.estudiante}-${s.tarea}`] =
-      s.calificacion !== null && s.calificacion !== undefined
-        ? Number(s.calificacion)
-        : null;
-  });
+    submissions.forEach((s) => {
+      map[`${s.estudiante}-${s.tarea}`] =
+        s.calificacion !== null && s.calificacion !== undefined
+          ? Number(s.calificacion)
+          : null;
+    });
 
-  return map;
-}, [submissions]);
+    return map;
+  }, [submissions]);
 
   if (loading) {
     return <p>Cargando materias...</p>;
@@ -142,7 +154,10 @@ const TeacherGrades: React.FC = () => {
               <div
                 key={subject.id}
                 className="teacher-subject-card"
-                onClick={() => loadGradeData(subject)}
+                onClick={() => {
+                  setSelectedPeriod(1);
+                  loadGradeData(subject, 1);
+                }}
               >
                 <div className="teacher-subject-icon">
                   <FiBookOpen size={24} />
@@ -166,6 +181,20 @@ const TeacherGrades: React.FC = () => {
             >
               ← Volver a materias
             </button>
+
+            <div className="teacher-period-tabs">
+              {[1, 2, 3, 4].map((period) => (
+                <button
+                  key={period}
+                  className={`teacher-period-btn ${
+                    selectedPeriod === period ? "active" : ""
+                  }`}
+                  onClick={() => setSelectedPeriod(period)}
+                >
+                  Periodo {period}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grades-table-wrapper">
@@ -191,6 +220,12 @@ const TeacherGrades: React.FC = () => {
                       No hay estudiantes en este curso.
                     </td>
                   </tr>
+                ) : assignments.length === 0 ? (
+                  <tr>
+                    <td colSpan={students.length + 1}>
+                      No hay actividades registradas en este periodo.
+                    </td>
+                  </tr>
                 ) : (
                   students.map((student) => (
                     <tr key={student.id}>
@@ -201,22 +236,22 @@ const TeacherGrades: React.FC = () => {
                       {assignments.map((assignment) => {
                         const grade = gradeMap[`${student.id}-${assignment.id}`];
 
-const hasGrade =
-  grade !== undefined &&
-  grade !== null &&
-  !isNaN(grade);
+                        const hasGrade =
+                          grade !== undefined &&
+                          grade !== null &&
+                          !isNaN(grade);
 
-return (
-  <td key={assignment.id} className="grade-cell">
-    <div
-      className={`grade-box-teacher ${
-        hasGrade ? "good" : "empty"
-      }`}
-    >
-      {hasGrade ? Number(grade).toFixed(1) : "—"}
-    </div>
-  </td>
-);
+                        return (
+                          <td key={assignment.id} className="grade-cell">
+                            <div
+                              className={`grade-box-teacher ${
+                                hasGrade ? "good" : "empty"
+                              }`}
+                            >
+                              {hasGrade ? Number(grade).toFixed(1) : "—"}
+                            </div>
+                          </td>
+                        );
                       })}
                     </tr>
                   ))

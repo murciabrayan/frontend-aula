@@ -1,0 +1,346 @@
+.report-cards-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 8px 20px 24px 20px;
+  box-sizing: border-box;
+}
+
+.report-cards-header {
+  text-align: center;
+  margin-top: 8px;
+  position: relative;
+}
+
+.report-cards-header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #8b5e00;
+  letter-spacing: 0.3px;
+}
+
+.report-cards-header p {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: #64748b;
+}
+
+.report-cards-header::after {
+  content: "";
+  display: block;
+  width: 140px;
+  height: 3px;
+  margin: 18px auto 0;
+  border-radius: 2px;
+  background: linear-gradient(to right, transparent, #d4af37, transparent);
+}
+
+/* topbar */
+.report-topbar {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: -4px;
+}
+
+.report-back-btn {
+  border: none;
+  background: linear-gradient(135deg, #111111, #1f2937);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 10px 15px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.report-back-btn:hover {
+  transform: translateY(-1px);
+  color: #f3cf63;
+}
+
+/* cursos */
+.report-courses-grid,
+.report-students-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+
+.report-course-card,
+.report-student-card,
+.report-empty-card {
+  background: #ffffff;
+  border: 1px solid rgba(201, 162, 39, 0.18);
+  border-radius: 18px;
+  padding: 20px 18px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  transition: all 0.22s ease;
+}
+
+.report-course-card,
+.report-student-card {
+  cursor: pointer;
+}
+
+.report-course-card:hover,
+.report-student-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 162, 39, 0.45);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+}
+
+.report-course-card h3,
+.report-student-card h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.report-course-card p,
+.report-student-card p,
+.report-empty-card {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.report-course-card span,
+.report-student-card span {
+  display: inline-block;
+  margin-top: 12px;
+  color: #a8841d;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* resumen estudiante */
+.report-student-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.summary-item {
+  background: #ffffff;
+  border: 1px solid rgba(201, 162, 39, 0.18);
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.summary-item span {
+  display: block;
+  font-size: 0.88rem;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.summary-item strong {
+  font-size: 1rem;
+  color: #111827;
+  font-weight: 800;
+}
+
+.summary-item.highlight {
+  background: linear-gradient(135deg, #fffaf0, #ffffff);
+  border-color: rgba(201, 162, 39, 0.38);
+}
+
+.summary-item.highlight strong {
+  color: #8b5e00;
+}
+
+/* tabla boletín */
+.report-table-wrapper {
+  background: #ffffff;
+  border: 1px solid rgba(201, 162, 39, 0.16);
+  border-radius: 22px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+  overflow: auto;
+}
+
+.report-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.report-table thead th {
+  background: linear-gradient(135deg, #111111, #1b1b1b);
+  color: #ffffff;
+  padding: 14px 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.report-table tbody td {
+  padding: 13px 12px;
+  text-align: center;
+  border-bottom: 1px solid #f1f5f9;
+  color: #111827;
+  background: #ffffff;
+}
+
+.report-table tbody tr:hover td {
+  background: #fffaf0;
+}
+
+.subject-cell {
+  text-align: left !important;
+  font-weight: 700;
+  color: #111827;
+}
+
+.final-score {
+  font-weight: 800;
+  color: #8b5e00;
+}
+
+.performance-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: #fff7df;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: #6b4f00;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .report-cards-container {
+    padding: 6px 14px 20px 14px;
+  }
+
+  .report-cards-header h1 {
+    font-size: 1.85rem;
+  }
+
+  .report-courses-grid,
+  .report-students-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.report-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -4px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.report-pdf-btn {
+  border: none;
+  background: linear-gradient(135deg, #d4af37, #b8962e);
+  color: #111827;
+  border-radius: 14px;
+  padding: 10px 16px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 18px rgba(212, 175, 55, 0.18);
+}
+
+.report-pdf-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(212, 175, 55, 0.28);
+}
+.report-pdf-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+.report-period-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.report-period-picker label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.report-period-picker select {
+  min-width: 180px;
+}
+.report-period-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #faf7ef 100%);
+  border: 1px solid rgba(201, 164, 55, 0.28);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.report-period-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8b6b1d;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.report-period-select-wrap {
+  position: relative;
+}
+
+.report-period-select-wrap::after {
+  content: "▾";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #8b6b1d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.report-period-select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 1px solid #d6c089;
+  background: #fffdf8;
+  color: #1f2937;
+  border-radius: 12px;
+  padding: 12px 38px 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.report-period-select:focus {
+  border-color: #c9a437;
+  box-shadow: 0 0 0 4px rgba(201, 164, 55, 0.14);
+  background: #ffffff;
+}
+
+.report-period-select:hover {
+  border-color: #c9a437;
+}
+
+@media (max-width: 900px) {
+  .report-period-card {
+    width: 100%;
+    min-width: 0;
+  }
+}

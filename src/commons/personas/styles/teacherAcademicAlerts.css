@@ -1,0 +1,94 @@
+.teacher-alerts {
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.teacher-alerts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.teacher-alerts-header h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #111827;
+}
+
+.teacher-alerts-header p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.teacher-alerts-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.teacher-alerts-controls select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.teacher-alerts-controls button {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.teacher-alerts-controls button:hover {
+  background: #374151;
+}
+
+.teacher-alerts-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.teacher-alerts-table thead {
+  background: #111827;
+  color: white;
+}
+
+.teacher-alerts-table th {
+  text-align: left;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.teacher-alerts-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.teacher-alerts-table tr:hover {
+  background: #f9fafb;
+}
+
+.resolve-btn {
+  background: #10b981;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.resolve-btn:hover {
+  background: #059669;
+}

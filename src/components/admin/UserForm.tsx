@@ -3,20 +3,6 @@ import axios from "axios";
 import "./UserManagement.css";
 import type { User } from "../../types/User";
 
-interface StudentProfile {
-  id?: number;
-  grado?: string;
-  acudiente_nombre?: string;
-  acudiente_telefono?: string;
-  acudiente_email?: string;
-}
-
-interface TeacherProfile {
-  id?: number;
-  especialidad?: string;
-  titulo?: string;
-}
-
 interface UserFormProps {
   user: User | null;
   onClose: () => void;
@@ -24,73 +10,102 @@ interface UserFormProps {
   role: "STUDENT" | "TEACHER";
 }
 
-const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
-  const [formData, setFormData] = useState<User>({
-    email: "",
-    cedula: "",
-    first_name: "",
-    last_name: "",
-    password: "",
-    role,
-  });
+interface UserFormState {
+  email: string;
+  cedula: string;
+  first_name: string;
+  last_name: string;
+  password: string;
+  role: "STUDENT" | "TEACHER";
+  grado: string;
+  acudiente_nombre: string;
+  acudiente_telefono: string;
+  acudiente_email: string;
+  especialidad: string;
+  titulo: string;
+}
 
-  // 🔹 Cargar datos del usuario si se está editando
+const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
+  email: "",
+  cedula: "",
+  first_name: "",
+  last_name: "",
+  password: "",
+  role,
+  grado: "",
+  acudiente_nombre: "",
+  acudiente_telefono: "",
+  acudiente_email: "",
+  especialidad: "",
+  titulo: "",
+});
+
+const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
+  const [formData, setFormData] = useState<UserFormState>(emptyForm(role));
+
   useEffect(() => {
     if (user) {
       setFormData({
-        ...user,
-        password: "",
-        teacher_profile: user.teacher_profile || {},
-        student_profile: user.student_profile || {},
-      });
-    } else {
-      setFormData({
-        email: "",
-        cedula: "",
-        first_name: "",
-        last_name: "",
+        email: user.email || "",
+        cedula: user.cedula || "",
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
         password: "",
         role,
+        grado: user.student_profile?.grado || "",
+        acudiente_nombre: user.student_profile?.acudiente_nombre || "",
+        acudiente_telefono: user.student_profile?.acudiente_telefono || "",
+        acudiente_email: user.student_profile?.acudiente_email || "",
+        especialidad: user.teacher_profile?.especialidad || "",
+        titulo: user.teacher_profile?.titulo || "",
       });
+    } else {
+      setFormData(emptyForm(role));
     }
   }, [user, role]);
 
-  // 🔹 Manejar cambios en los inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    if (role === "TEACHER" && (name === "especialidad" || name === "titulo")) {
-      setFormData({
-        ...formData,
-        teacher_profile: {
-          ...formData.teacher_profile,
-          [name]: value,
-        },
-      });
-    } else if (
-      role === "STUDENT" &&
-      ["grado", "acudiente_nombre", "acudiente_telefono", "acudiente_email"].includes(name)
-    ) {
-      setFormData({
-        ...formData,
-        student_profile: {
-          ...formData.student_profile,
-          [name]: value,
-        },
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // 🔹 Guardar o actualizar usuario
+  const buildPayload = () => {
+    const basePayload: Record<string, any> = {
+      email: formData.email.trim(),
+      cedula: formData.cedula.trim(),
+      first_name: formData.first_name.trim(),
+      last_name: formData.last_name.trim(),
+      role: formData.role,
+    };
+
+    if (!user && formData.password.trim()) {
+      basePayload.password = formData.password;
+    }
+
+    if (role === "TEACHER") {
+      basePayload.especialidad = formData.especialidad.trim();
+      basePayload.titulo = formData.titulo.trim();
+    }
+
+    if (role === "STUDENT") {
+      basePayload.grado = formData.grado.trim();
+      basePayload.acudiente_nombre = formData.acudiente_nombre.trim();
+      basePayload.acudiente_telefono = formData.acudiente_telefono.trim();
+      basePayload.acudiente_email = formData.acudiente_email.trim();
+    }
+
+    return basePayload;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const token = localStorage.getItem("access_token");
 
     if (!token) {
-      console.error("No se encontró el token en localStorage");
       alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
       return;
     }
@@ -100,23 +115,19 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       "Content-Type": "application/json",
     };
 
-    console.log("🔹 Enviando headers:", headers);
+    const payload = buildPayload();
 
     try {
       if (user) {
-        // 🔹 Actualizar usuario existente
-        await axios.put(
+        await axios.patch(
           `http://127.0.0.1:8000/api/users/${user.id}/`,
-          formData,
+          payload,
           { headers }
         );
-        console.log("✅ Usuario actualizado correctamente");
       } else {
-        // 🔹 Crear nuevo usuario
-        await axios.post("http://127.0.0.1:8000/api/users/", formData, {
+        await axios.post("http://127.0.0.1:8000/api/users/", payload, {
           headers,
         });
-        console.log("✅ Usuario creado correctamente");
       }
 
       onSave();
@@ -124,11 +135,24 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     } catch (error: any) {
       console.error("❌ Error al guardar el usuario:", error);
 
+      const backendErrors = error?.response?.data;
+
       if (error.response?.status === 401) {
         alert("Tu sesión ha expirado o el token es inválido. Por favor inicia sesión nuevamente.");
-      } else {
-        alert("Error al guardar el usuario. Revisa la consola para más detalles.");
+        return;
       }
+
+      if (typeof backendErrors === "object" && backendErrors !== null) {
+        const firstKey = Object.keys(backendErrors)[0];
+        const firstMessage = Array.isArray(backendErrors[firstKey])
+          ? backendErrors[firstKey][0]
+          : backendErrors[firstKey];
+
+        alert(firstMessage || "Error al guardar el usuario.");
+        return;
+      }
+
+      alert("Error al guardar el usuario. Revisa la consola para más detalles.");
     }
   };
 
@@ -153,6 +177,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
             required
             className="input-field"
           />
+
           <input
             type="text"
             name="last_name"
@@ -162,6 +187,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
             required
             className="input-field"
           />
+
           <input
             type="email"
             name="email"
@@ -171,6 +197,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
             required
             className="input-field"
           />
+
           <input
             type="text"
             name="cedula"
@@ -193,14 +220,13 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
             />
           )}
 
-          {/* 🔹 Campos adicionales según rol */}
           {role === "TEACHER" && (
             <>
               <input
                 type="text"
                 name="especialidad"
                 placeholder="Especialidad"
-                value={formData.teacher_profile?.especialidad || ""}
+                value={formData.especialidad}
                 onChange={handleChange}
                 className="input-field"
               />
@@ -208,7 +234,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 type="text"
                 name="titulo"
                 placeholder="Título académico"
-                value={formData.teacher_profile?.titulo || ""}
+                value={formData.titulo}
                 onChange={handleChange}
                 className="input-field"
               />
@@ -221,7 +247,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 type="text"
                 name="grado"
                 placeholder="Grado"
-                value={formData.student_profile?.grado || ""}
+                value={formData.grado}
                 onChange={handleChange}
                 className="input-field"
               />
@@ -229,7 +255,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 type="text"
                 name="acudiente_nombre"
                 placeholder="Nombre del acudiente"
-                value={formData.student_profile?.acudiente_nombre || ""}
+                value={formData.acudiente_nombre}
                 onChange={handleChange}
                 className="input-field"
               />
@@ -237,7 +263,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 type="text"
                 name="acudiente_telefono"
                 placeholder="Teléfono del acudiente"
-                value={formData.student_profile?.acudiente_telefono || ""}
+                value={formData.acudiente_telefono}
                 onChange={handleChange}
                 className="input-field"
               />
@@ -245,7 +271,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 type="email"
                 name="acudiente_email"
                 placeholder="Correo del acudiente"
-                value={formData.student_profile?.acudiente_email || ""}
+                value={formData.acudiente_email}
                 onChange={handleChange}
                 className="input-field"
               />

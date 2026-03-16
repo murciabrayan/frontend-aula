@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
   Home,
-  BookOpen,
   ClipboardList,
   Star,
   User,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
+  ClipboardCheck,
+  TriangleAlert,
 } from "lucide-react";
 
 import StudentProfile from "../components/StudentProfile";
@@ -15,6 +16,8 @@ import StudentAssignmentsList from "../components/StudentAssignmentsList";
 import NotificationBell from "../components/NotificationBell";
 import StudentCalendar from "@/commons/personas/components/StudentCalendar";
 import StudentGrades from "@/commons/personas/components/StudentGrades";
+import StudentAttendance from "@/commons/personas/components/StudentAttendance";
+import StudentAcademicAlerts from "@/commons/personas/components/StudentAcademicAlerts";
 
 import "@/commons/personas/styles/studentDashboard.css";
 
@@ -22,9 +25,6 @@ const StudentDashboard: React.FC = () => {
   const [activeModule, setActiveModule] = useState<string>("inicio");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  /* ===============================
-     🔔 ESCUCHAR EVENTO DEL CALENDARIO
-     =============================== */
   useEffect(() => {
     const goToTasksHandler = () => {
       setActiveModule("tareas");
@@ -48,7 +48,6 @@ const StudentDashboard: React.FC = () => {
 
   return (
     <div className="student-dashboard">
-      {/* ================= SIDEBAR ================= */}
       <aside className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
         <div className="sidebar-top">
           <h2 className="sidebar-title">
@@ -81,6 +80,22 @@ const StudentDashboard: React.FC = () => {
             </a>
 
             <a
+              className={activeModule === "asistencia" ? "active" : ""}
+              onClick={() => setActiveModule("asistencia")}
+            >
+              <ClipboardCheck className="icon" />
+              {!sidebarCollapsed && <span>Asistencia</span>}
+            </a>
+
+            <a
+              className={activeModule === "alertas" ? "active" : ""}
+              onClick={() => setActiveModule("alertas")}
+            >
+              <TriangleAlert className="icon" />
+              {!sidebarCollapsed && <span>Alertas</span>}
+            </a>
+
+            <a
               className={activeModule === "perfil" ? "active" : ""}
               onClick={() => setActiveModule("perfil")}
             >
@@ -90,13 +105,11 @@ const StudentDashboard: React.FC = () => {
           </nav>
         </div>
 
-        {/* LOGOUT */}
         <button className="student-logout-btn" onClick={handleLogout}>
           <LogOut className="icon" />
           {!sidebarCollapsed && <span>Cerrar Sesión</span>}
         </button>
 
-        {/* COLLAPSE */}
         <button className="student-collapse-btn" onClick={toggleSidebar}>
           {sidebarCollapsed ? (
             <PanelLeftOpen size={18} />
@@ -106,9 +119,7 @@ const StudentDashboard: React.FC = () => {
         </button>
       </aside>
 
-      {/* ================= MAIN ================= */}
       <main className="main-content">
-        {/* 🔔 TOPBAR */}
         <div className="dashboard-topbar">
           <NotificationBell setActiveModule={setActiveModule} />
         </div>
@@ -118,16 +129,15 @@ const StudentDashboard: React.FC = () => {
             <>
               <h1>Panel del Estudiante</h1>
               <p>Próximas actividades y tareas</p>
-
               <StudentCalendar />
             </>
           )}
 
           {activeModule === "tareas" && <StudentAssignmentsList />}
-
-          {activeModule === "perfil" && <StudentProfile />}
-
           {activeModule === "calificaciones" && <StudentGrades />}
+          {activeModule === "asistencia" && <StudentAttendance />}
+          {activeModule === "alertas" && <StudentAcademicAlerts />}
+          {activeModule === "perfil" && <StudentProfile />}
         </div>
       </main>
     </div>

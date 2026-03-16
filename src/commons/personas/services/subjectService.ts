@@ -6,7 +6,18 @@ export const getSubjectsByCourse = (courseId: number) =>
 export const createSubject = (data: {
   nombre: string;
   curso: number;
-}) => api.post("/api/subjects/", data);
+  area?: number | null;
+}) =>
+  api.post("/api/subjects/", data);
+
+export const updateSubject = (
+  id: number,
+  data: {
+    nombre?: string;
+    area?: number | null;
+  }
+) =>
+  api.patch(`/api/subjects/${id}/`, data);
 
 export const deleteSubject = (id: number) =>
   api.delete(`/api/subjects/${id}/`);
