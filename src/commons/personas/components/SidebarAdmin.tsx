@@ -6,6 +6,9 @@ import {
   BookOpen,
   UserCog,
   ChevronLeft,
+  FileText,
+  TriangleAlert,
+  ClipboardCheck,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -24,7 +27,6 @@ const SidebarAdmin: React.FC<SidebarProps> = ({ setActiveModule }) => {
 
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-      {/* HEADER */}
       <div className="sidebar-header">
         <h2>{collapsed ? "" : "Panel Admin"}</h2>
       </div>
@@ -57,6 +59,21 @@ const SidebarAdmin: React.FC<SidebarProps> = ({ setActiveModule }) => {
         <li onClick={() => setActiveModule("asignarCursos")}>
           <BookOpen className="icon" />
           <span>Asignar Cursos</span>
+        </li>
+
+        <li onClick={() => setActiveModule("boletines")}>
+          <FileText className="icon" />
+          <span>Boletines</span>
+        </li>
+
+        <li onClick={() => setActiveModule("asistencia")}>
+          <ClipboardCheck className="icon" />
+          <span>Asistencia</span>
+        </li>
+
+        <li onClick={() => setActiveModule("alertasAcademicas")}>
+          <TriangleAlert className="icon" />
+          <span>Alertas Tempranas</span>
         </li>
 
         <li onClick={() => setActiveModule("perfil")}>

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import "./../styles/assignments.css";
+import { FiEye, FiUpload } from "react-icons/fi";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
@@ -8,62 +8,79 @@ interface Props {
   assignmentId: number;
 }
 
+interface Submission {
+  id: number;
+  tarea: number;
+  estudiante: number;
+  estudiante_nombre: string;
+  archivo?: string | null;
+  fecha_entrega: string;
+  calificacion?: number | null;
+  retroalimentacion?: string | null;
+}
+
 const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
-  const [submissions, setSubmissions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedSubmission, setSelectedSubmission] = useState<any | null>(null);
-  const [grade, setGrade] = useState("");
-  const [feedback, setFeedback] = useState("");
   const token = localStorage.getItem("access_token");
 
-  // 🔹 Cargar entregas
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+
+  const [grade, setGrade] = useState("");
+  const [feedback, setFeedback] = useState("");
+
+  const [saving, setSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const loadSubmissions = async () => {
+    try {
+      setLoading(true);
+
+      const res = await axios.get(`${API_BASE}/submissions/?assignment=${assignmentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setSubmissions(res.data || []);
+    } catch (err) {
+      console.error("Error cargando entregas", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchSubmissions = async () => {
-      try {
-        const res = await axios.get(
-          `${API_BASE}/submissions/?assignment=${assignmentId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setSubmissions(res.data);
-      } catch (err) {
-        console.error("Error al cargar entregas", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSubmissions();
+    loadSubmissions();
   }, [assignmentId]);
 
-  // 🔹 Manejar escritura de nota (máx 1 decimal)
-  const handleGradeChange = (value: string) => {
-    // permite: 0, 4, 4.5, 5.0
-    if (/^\d*\.?\d{0,1}$/.test(value)) {
-      setGrade(value);
-    }
+  const orderedSubmissions = useMemo(() => {
+    return [...submissions].sort((a, b) =>
+      a.estudiante_nombre.localeCompare(b.estudiante_nombre, "es", {
+        sensitivity: "base",
+      })
+    );
+  }, [submissions]);
+
+  const openGradeModal = (submission: Submission) => {
+    setSelectedSubmission(submission);
+    setGrade(
+      submission.calificacion !== null && submission.calificacion !== undefined
+        ? String(submission.calificacion)
+        : ""
+    );
+    setFeedback(submission.retroalimentacion || "");
   };
 
-  // 🔹 Validar nota
-  const isGradeValid = () => {
-    const numericGrade = parseFloat(grade);
-    return !isNaN(numericGrade) && numericGrade >= 0 && numericGrade <= 5;
-  };
-
-  // 🔹 Enviar calificación
-  const handleGrade = async (submissionId: number) => {
-    const numericGrade = parseFloat(grade);
-
-    if (!isGradeValid()) {
-      alert("❌ La nota debe estar entre 0.0 y 5.0");
-      return;
-    }
+  const saveGrade = async () => {
+    if (!selectedSubmission) return;
 
     try {
+      setSaving(true);
+
       await axios.post(
-        `${API_BASE}/submissions/${submissionId}/calificar/`,
+        `${API_BASE}/submissions/${selectedSubmission.id}/calificar/`,
         {
-          calificacion: numericGrade,
+          calificacion: grade,
           retroalimentacion: feedback,
         },
         {
@@ -71,122 +88,171 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
         }
       );
 
-      alert("Calificación guardada");
+      await loadSubmissions();
 
-      // limpiar
+      setSuccessMessage("Calificación guardada correctamente");
+      setTimeout(() => setSuccessMessage(""), 1600);
       setSelectedSubmission(null);
-      setGrade("");
-      setFeedback("");
-
-      // recargar lista
-      const res = await axios.get(
-        `${API_BASE}/submissions/?assignment=${assignmentId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setSubmissions(res.data);
     } catch (err) {
-      console.error("Error al calificar", err);
-      alert("❌ Error al guardar calificación");
+      console.error("Error guardando calificación", err);
+      alert("No se pudo guardar la calificación.");
+    } finally {
+      setSaving(false);
     }
   };
 
-  if (loading) return <p>Cargando entregas...</p>;
-  if (submissions.length === 0) return <p>No hay entregas registradas.</p>;
-
   return (
-    <div>
-      <h3>Entregas de estudiantes</h3>
+    <div className="section-block">
+      <div className="section-block-header">
+        <h3>Entregas de estudiantes</h3>
+        <p>Consulta archivos, fechas y registra calificaciones.</p>
+      </div>
 
-      <ul className="submission-list">
-        {submissions.map((s) => (
-          <li key={s.id} className="submission-item">
-            <strong>{s.estudiante_nombre || "Estudiante desconocido"}</strong>
-            <br />
-            Fecha de entrega:{" "}
-            {new Date(s.fecha_entrega).toLocaleString()}
-            <br />
+      {successMessage && (
+        <div className="inline-success-message">{successMessage}</div>
+      )}
 
-            {s.archivo ? (
-              <a href={s.archivo} target="_blank" rel="noreferrer">
-                📎 Ver archivo
-              </a>
-            ) : (
-              <span>Sin archivo</span>
-            )}
+      {loading ? (
+        <div className="empty-state-box">Cargando entregas...</div>
+      ) : orderedSubmissions.length === 0 ? (
+        <div className="empty-state-box">
+          Aún no hay entregas para esta tarea.
+        </div>
+      ) : (
+        <div className="teacher-table-wrapper">
+          <table className="teacher-data-table">
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Archivo</th>
+                <th>Fecha de entrega</th>
+                <th>Nota</th>
+                <th>Retroalimentación</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orderedSubmissions.map((submission) => (
+                <tr key={submission.id}>
+                  <td className="table-title-cell">
+                    {submission.estudiante_nombre}
+                  </td>
 
-            {s.calificacion ? (
-              <div className="grade-box">
-                <p>
-                  <strong>Calificación:</strong> {s.calificacion}
-                </p>
-                <p>
-                  <strong>Retroalimentación:</strong>{" "}
-                  {s.retroalimentacion || "—"}
-                </p>
-              </div>
-            ) : (
-              <button
-                className="btn-primary small-btn"
-                onClick={() => setSelectedSubmission(s)}
-              >
-                Calificar
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
+                  <td>
+                    {submission.archivo ? (
+                      <a
+                        href={submission.archivo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="table-file-link"
+                      >
+                        <FiUpload size={14} />
+                        Ver archivo
+                      </a>
+                    ) : (
+                      <span className="muted-cell">Sin archivo</span>
+                    )}
+                  </td>
 
-      {/* 🔹 MODAL DE CALIFICACIÓN */}
+                  <td>{new Date(submission.fecha_entrega).toLocaleString()}</td>
+
+                  <td>
+                    {submission.calificacion !== null &&
+                    submission.calificacion !== undefined ? (
+                      <span className="grade-chip">
+                        {Number(submission.calificacion).toFixed(1)}
+                      </span>
+                    ) : (
+                      <span className="muted-cell">Sin calificar</span>
+                    )}
+                  </td>
+
+                  <td className="table-description-cell">
+                    {submission.retroalimentacion || "—"}
+                  </td>
+
+                  <td>
+                    <button
+                      className="table-primary-btn"
+                      onClick={() => openGradeModal(submission)}
+                    >
+                      <FiEye size={14} />
+                      {submission.calificacion !== null &&
+                      submission.calificacion !== undefined
+                        ? "Editar"
+                        : "Calificar"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {selectedSubmission && (
-        <div className="modal-overlay">
-          <div className="modal grade-modal">
-            <h4>Calificar entrega</h4>
-            <hr />
-            <p>
-              <strong>{selectedSubmission.estudiante_nombre}</strong>
-            </p>
-
-            <div className="form-group">
-              <label>Nota (0.0 – 5.0):</label>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="5"
-                value={grade}
-                onChange={(e) => handleGradeChange(e.target.value)}
-                className="input-field"
-                placeholder="Ej: 4.5"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Retroalimentación:</label>
-              <textarea
-                rows={3}
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                className="textarea-field"
-                placeholder="Escribe una retroalimentación para el estudiante..."
-              />
-            </div>
-
-            <div className="modal-actions">
+        <div className="modal-backdrop">
+          <div className="modal-premium">
+            <div className="modal-header-fixed">
+              <h2>Calificar entrega</h2>
               <button
-                onClick={() => handleGrade(selectedSubmission.id)}
-                className="btn-primary"
-                disabled={!isGradeValid()}
-              >
-                Guardar
-              </button>
-
-              <button
+                className="close-btn"
                 onClick={() => setSelectedSubmission(null)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="submission-student-box">
+                <strong>{selectedSubmission.estudiante_nombre}</strong>
+                <span>
+                  {new Date(selectedSubmission.fecha_entrega).toLocaleString()}
+                </span>
+              </div>
+
+              {selectedSubmission.archivo && (
+                <a
+                  href={selectedSubmission.archivo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="table-file-link file-link-large"
+                >
+                  <FiUpload size={15} />
+                  Abrir archivo entregado
+                </a>
+              )}
+
+              <div className="teacher-grade-form">
+                <label>Calificación</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  placeholder="Ej: 4.5"
+                />
+
+                <label>Retroalimentación</label>
+                <textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Escribe observaciones para el estudiante..."
+                />
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
                 className="btn-secondary"
+                onClick={() => setSelectedSubmission(null)}
               >
                 Cancelar
+              </button>
+              <button className="btn-primary" onClick={saveGrade} disabled={saving}>
+                {saving ? "Guardando..." : "Guardar calificación"}
               </button>
             </div>
           </div>

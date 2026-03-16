@@ -3,6 +3,9 @@ import UserList from "../../../components/admin/UserList";
 import CourseList from "../../../components/admin/CourseList";
 import CourseAssign from "../../../components/admin/CourseAssign";
 import AdminProfile from "../components/AdminProfile";
+import AdminReportCards from "../components/AdminReportCards";
+import AdminAcademicAlerts from "../components/AdminAcademicAlerts";
+import AdminAttendance from "../../../components/admin/AdminAttendance";
 import sideImage from "@/assets/2.png";
 
 interface AdminContentProps {
@@ -38,11 +41,14 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
       {activeModule === "usuarios" && <UserList />}
       {activeModule === "cursos" && <CourseList />}
       {activeModule === "asignarCursos" && <CourseAssign />}
+      {activeModule === "boletines" && <AdminReportCards />} {activeModule === "asistencia" && <AdminAttendance />}
+      {activeModule === "alertasAcademicas" && <AdminAcademicAlerts />}
       {activeModule === "perfil" && <AdminProfile />}
+
       {activeModule === "configuracion" && (
         <div>
           <h2>Configuración del Sistema</h2>
-          <p>Proximamente...</p>
+          <p>Próximamente...</p>
         </div>
       )}
     </div>

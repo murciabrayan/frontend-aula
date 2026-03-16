@@ -1,15 +1,42 @@
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+/* CONTENEDOR PRINCIPAL */
 .dashboard-shell {
+  position: relative;
   display: flex;
   min-height: 100vh;
+  align-items: stretch;
   background: #fdfbf7;
   color: #333;
   font-family: "Poppins", sans-serif;
 }
 
-/* 🔵 SIDEBAR */
-.sidebar {
+.dashboard-shell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
   width: 240px;
   background: #000;
+  z-index: 0;
+  transition: width 0.3s ease;
+}
+
+.dashboard-shell.sidebar-is-collapsed::before {
+  width: 80px;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: transparent;
   color: #c9a437;
   display: flex;
   flex-direction: column;
@@ -17,13 +44,25 @@
   position: relative;
   transition: width 0.3s ease;
   box-sizing: border-box;
+  flex-shrink: 0;
+  z-index: 1;
+  align-self: stretch;
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebar-bottom {
+  margin-top: 24px;
 }
 
 /* HEADER */
 .sidebar-header {
   font-size: 20px;
   font-weight: bold;
-  margin-bottom: 30px;
   text-align: center;
   border-bottom: 1px solid #c9a437;
   padding-bottom: 10px;
@@ -34,7 +73,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex-grow: 1;
 }
 
 .sidebar-menu a {
@@ -69,8 +107,7 @@
 
 /* LOGOUT */
 .teacher-logout-btn {
-  margin-top: auto;
-  margin-bottom: 10px;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -88,7 +125,7 @@
   color: #000;
 }
 
-/* BOTÓN COLAPSAR */
+/* BOTON PARA ESCONDER LA SIDEBAR */
 .teacher-collapse-btn {
   position: absolute;
   top: 50%;
@@ -103,29 +140,39 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   z-index: 10;
   padding: 0;
 }
 
 .teacher-collapse-btn svg {
   color: #000;
-  
 }
+
 .sidebar.collapsed .teacher-collapse-btn {
   top: 40%;
   right: 40%;
   transform: translate(25%, -100%);
 }
 
-/* 🔵 ESTADO COLAPSADO */
+/* SIDEBAR OCULTA */
 .sidebar.collapsed {
   width: 80px;
+  min-width: 80px;
+  align-items: center;
+}
+
+.sidebar.collapsed .sidebar-top {
+  width: 100%;
   align-items: center;
 }
 
 .sidebar.collapsed .sidebar-header h2 {
   display: none;
+}
+
+.sidebar.collapsed .sidebar-menu {
+  width: 100%;
 }
 
 .sidebar.collapsed .sidebar-menu a {
@@ -136,16 +183,32 @@
   display: none;
 }
 
+.sidebar.collapsed .sidebar-bottom {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar.collapsed .teacher-logout-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  justify-content: center;
+}
+
 .sidebar.collapsed .teacher-logout-btn span {
   display: none;
 }
 
-/* 🔵 MAIN */
+/* MAIN */
 .dashboard-main {
   flex: 1;
   display: flex;
   flex-direction: column;
   background: #fff;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* HEADER */

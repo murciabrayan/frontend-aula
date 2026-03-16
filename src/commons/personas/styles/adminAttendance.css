@@ -1,0 +1,509 @@
+.admin-attendance-page {
+  padding: 28px;
+  background: #fff;
+  min-height: 100vh;
+}
+
+.admin-attendance-hero {
+  margin-bottom: 22px;
+  padding: 24px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 55%, #fdf6df 100%);
+  border: 1px solid rgba(201, 164, 55, 0.18);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+}
+
+.admin-attendance-hero-copy {
+  margin-bottom: 18px;
+}
+
+.admin-attendance-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff7dc;
+  color: #8b6b1d;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  margin-bottom: 14px;
+}
+
+.admin-attendance-hero-copy h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.admin-attendance-hero-copy p {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 15px;
+  max-width: 780px;
+  line-height: 1.55;
+}
+
+.admin-attendance-hero-actions {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.admin-attendance-input-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 220px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #ececec;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+.admin-attendance-input-card label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.admin-attendance-input-card select,
+.admin-attendance-input-card input {
+  height: 46px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 700;
+  background: #fff;
+  color: #111827;
+}
+
+.admin-attendance-primary-btn,
+.admin-attendance-secondary-btn {
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.admin-attendance-primary-btn {
+  border: none;
+  background: linear-gradient(135deg, #d4af37, #b8962e);
+  color: #111827;
+  box-shadow: 0 10px 18px rgba(212, 175, 55, 0.18);
+}
+
+.admin-attendance-secondary-btn {
+  background: #ffffff;
+  color: #111827;
+  border: 1px solid #dbe3ec;
+}
+
+.admin-attendance-course-banner {
+  margin-bottom: 18px;
+  padding: 15px 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  color: #334155;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-attendance-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.admin-attendance-summary-card {
+  border-radius: 16px;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #ececec;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.admin-attendance-summary-card span {
+  display: block;
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.admin-attendance-summary-card strong {
+  font-size: 30px;
+  color: #111827;
+}
+
+.admin-attendance-summary-card.absent strong {
+  color: #b91c1c;
+}
+
+.admin-attendance-summary-card.late strong {
+  color: #92400e;
+}
+
+.admin-attendance-summary-card.justified strong {
+  color: #166534;
+}
+
+.admin-attendance-message {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.admin-attendance-message.success {
+  background: #ecfdf5;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.admin-attendance-message.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.admin-attendance-empty {
+  border: 1px dashed #dbe3ec;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 16px;
+  padding: 26px;
+  text-align: center;
+}
+
+.admin-attendance-table-section {
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+}
+
+.admin-attendance-section-header {
+  padding: 18px 20px;
+  border-bottom: 1px solid #eef2f7;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+}
+
+.admin-attendance-section-header h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 20px;
+}
+
+.admin-attendance-section-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-attendance-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: #ffffff;
+}
+
+.admin-attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+}
+
+.admin-attendance-table thead th {
+  background: #111827;
+  color: #ffffff;
+  text-align: left;
+  padding: 14px;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+
+.admin-attendance-table tbody td {
+  padding: 14px;
+  border-bottom: 1px solid #eef2f7;
+  vertical-align: middle;
+}
+
+.admin-attendance-table tbody tr:hover {
+  background: #fffaf0;
+}
+
+.admin-attendance-student-cell {
+  font-weight: 700;
+  color: #111827;
+}
+
+.admin-attendance-observation-cell {
+  color: #475569;
+  max-width: 280px;
+  line-height: 1.45;
+}
+
+.admin-attendance-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+
+.admin-attendance-status-pill.present {
+  background: #ecfdf5;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.admin-attendance-status-pill.absent {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.admin-attendance-status-pill.late {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+
+.admin-attendance-justified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-attendance-justified.yes {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.admin-attendance-justified.no {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.admin-attendance-file-link {
+  color: #8b5e00;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-attendance-file-link:hover {
+  text-decoration: underline;
+}
+
+.admin-attendance-muted {
+  color: #94a3b8;
+}
+
+.admin-attendance-manage-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #f8fafc;
+  color: #111827;
+  cursor: pointer;
+  border: 1px solid #dbe3ec;
+}
+
+.admin-attendance-manage-btn:hover {
+  background: #eef5fb;
+}
+
+.admin-attendance-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4000;
+  padding: 18px;
+}
+
+.admin-attendance-modal {
+  width: min(760px, 94vw);
+  background: #ffffff;
+  border-radius: 22px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(201, 162, 39, 0.16);
+  overflow: hidden;
+}
+
+.admin-attendance-modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #ffffff, #fcfcfd);
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.admin-attendance-modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #111827;
+}
+
+.admin-attendance-modal-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-attendance-close-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  color: #111827;
+}
+
+.admin-attendance-modal-body {
+  padding: 22px;
+}
+
+.admin-attendance-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-attendance-form-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-attendance-form-block.full {
+  grid-column: 1 / -1;
+}
+
+.admin-attendance-form-block label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.admin-attendance-form-block select,
+.admin-attendance-form-block textarea,
+.admin-attendance-form-block input[type="file"] {
+  width: 100%;
+  border: 1px solid #dbe3ec;
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.admin-attendance-form-block textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.admin-attendance-form-block select:focus,
+.admin-attendance-form-block textarea:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+}
+
+.checkbox-block input {
+  width: 20px;
+  height: 20px;
+}
+
+.admin-attendance-file-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-attendance-file-selected {
+  color: #334155;
+  font-weight: 600;
+}
+
+.admin-attendance-modal-footer {
+  padding: 16px 22px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: #ffffff;
+}
+
+@media (max-width: 980px) {
+  .admin-attendance-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-attendance-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-attendance-page {
+    padding: 18px;
+  }
+
+  .admin-attendance-hero {
+    padding: 18px;
+  }
+
+  .admin-attendance-hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-attendance-course-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-attendance-primary-btn,
+  .admin-attendance-secondary-btn {
+    width: 100%;
+  }
+
+  .admin-attendance-modal {
+    width: 100%;
+  }
+
+  .admin-attendance-modal-header {
+    flex-direction: column;
+  }
+
+  .admin-attendance-modal-footer {
+    flex-direction: column;
+  }
+}
