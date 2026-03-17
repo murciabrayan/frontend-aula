@@ -192,6 +192,8 @@ body {
 .landing-profile__trigger svg {
   display: block;
   stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .landing-profile__menu {

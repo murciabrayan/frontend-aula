@@ -1,11 +1,11 @@
 import {
-  CircleUserRound,
   Facebook,
   Instagram,
   LogOut,
   Menu,
   PencilLine,
   Twitter,
+  UserRound,
   UserCircle2,
   Youtube,
   X,
@@ -167,7 +167,7 @@ const InstitutionalLayout = () => {
                     onClick={handleProfileAction}
                     aria-label={profileLabel}
                   >
-                    <CircleUserRound size={22} strokeWidth={2.2} />
+                    <UserRound size={28} strokeWidth={2.5} />
                   </button>
 
                   {profileOpen ? (
