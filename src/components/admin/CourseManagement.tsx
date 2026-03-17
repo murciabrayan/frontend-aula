@@ -128,6 +128,7 @@ const CourseManagement = ({
   const [newAreaName, setNewAreaName] = useState("");
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
+  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
 
   const [indicatorBank, setIndicatorBank] = useState<Indicator[]>([]);
   const [indicatorAssignments, setIndicatorAssignments] = useState<
@@ -511,6 +512,7 @@ const CourseManagement = ({
       setSelectedSubjectId(createdSubject.id);
       setNewSubjectName("");
       setNewSubjectArea("");
+      setIsSubjectModalOpen(false);
 
       showToast({
         type: "success",
@@ -527,6 +529,12 @@ const CourseManagement = ({
           "No se pudo crear la materia.",
       });
     }
+  };
+
+  const resetSubjectDraft = () => {
+    setNewSubjectName("");
+    setNewSubjectArea("");
+    setIsSubjectModalOpen(false);
   };
 
   const removeSubject = async (subjectId: number) => {
@@ -1006,10 +1014,6 @@ const CourseManagement = ({
         <div>
           <p className="course-management__eyebrow">Arquitectura del curso</p>
           <h3>{selectedCourse?.name}</h3>
-          <p className="course-management__section-copy">
-            Este modulo solo sirve para construir la estructura academica. Elige
-            una capa del curso y trabajala con espacio propio.
-          </p>
         </div>
         <div className="course-management__hero-meta">
           <span>
@@ -1036,7 +1040,6 @@ const CourseManagement = ({
             }`}
             onClick={() => setSelectedStructureSection("areas")}
           >
-            <span>01</span>
             <div>
               <strong>Areas</strong>
               <small>Bloques del curso</small>
@@ -1049,7 +1052,6 @@ const CourseManagement = ({
             }`}
             onClick={() => setSelectedStructureSection("materias")}
           >
-            <span>02</span>
             <div>
               <strong>Materias</strong>
               <small>Mapa academico</small>
@@ -1062,7 +1064,6 @@ const CourseManagement = ({
             }`}
             onClick={() => setSelectedStructureSection("indicadores")}
           >
-            <span>03</span>
             <div>
               <strong>Indicadores</strong>
               <small>Evaluacion por periodo</small>
@@ -1090,9 +1091,6 @@ const CourseManagement = ({
                       <div key={area.id} className="course-management__simple-row">
                         <div>
                           <strong>{area.nombre}</strong>
-                          <span>
-                            {subjects.filter((subject) => subject.area === area.id).length} materias
-                          </span>
                         </div>
                         <button
                           type="button"
@@ -1141,8 +1139,16 @@ const CourseManagement = ({
                 <div className="course-management__card-header">
                   <div>
                     <h3>Biblioteca de materias</h3>
-                    <p>Selecciona una materia y ajusta su area en el panel lateral.</p>
+                    <p>Selecciona una materia y revisa su configuracion con mas espacio.</p>
                   </div>
+                  <button
+                    type="button"
+                    className="course-management__primary-btn course-management__primary-btn--compact"
+                    onClick={() => setIsSubjectModalOpen(true)}
+                  >
+                    <Plus size={14} />
+                    <span>Nueva materia</span>
+                  </button>
                 </div>
                 <div className="course-management__scroll-panel">
                   {groupedSubjects.map((group) =>
@@ -1175,46 +1181,6 @@ const CourseManagement = ({
               </article>
 
               <div className="course-management__subjects-side">
-                <article className="course-management__card">
-                  <div className="course-management__card-header">
-                    <div>
-                      <h3>Nueva materia</h3>
-                      <p>Crea la materia y ubicala directamente en un area.</p>
-                    </div>
-                  </div>
-                  <div className="course-management__stack-form">
-                    <input
-                      type="text"
-                      value={newSubjectName}
-                      onChange={(event) => setNewSubjectName(event.target.value)}
-                      placeholder="Nombre de la materia"
-                    />
-                    <select
-                      value={newSubjectArea}
-                      onChange={(event) =>
-                        setNewSubjectArea(
-                          event.target.value ? Number(event.target.value) : ""
-                        )
-                      }
-                    >
-                      <option value="">Sin area</option>
-                      {areas.map((area) => (
-                        <option key={area.id} value={area.id}>
-                          {area.nombre}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      className="course-management__primary-btn"
-                      onClick={() => void addSubject()}
-                    >
-                      <Plus size={15} />
-                      <span>Crear materia</span>
-                    </button>
-                  </div>
-                </article>
-
                 <article className="course-management__card">
                   <div className="course-management__card-header">
                     <div>
@@ -1722,6 +1688,67 @@ const CourseManagement = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {!isCourseMode && isSubjectModalOpen ? (
+        <div className="course-management__modal-backdrop">
+          <div className="course-management__modal">
+            <div className="course-management__card-header">
+              <div>
+                <h3>Nueva materia</h3>
+                <p>Crea una materia y, si quieres, asignala de una vez a un area.</p>
+              </div>
+              <button
+                type="button"
+                className="course-management__mini-btn"
+                onClick={resetSubjectDraft}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div className="course-management__stack-form">
+              <input
+                type="text"
+                value={newSubjectName}
+                onChange={(event) => setNewSubjectName(event.target.value)}
+                placeholder="Nombre de la materia"
+              />
+              <select
+                value={newSubjectArea}
+                onChange={(event) =>
+                  setNewSubjectArea(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Sin area</option>
+                {areas.map((area) => (
+                  <option key={area.id} value={area.id}>
+                    {area.nombre}
+                  </option>
+                ))}
+              </select>
+              <div className="course-management__form-actions">
+                <button
+                  type="button"
+                  className="course-management__primary-btn"
+                  onClick={() => void addSubject()}
+                >
+                  <Plus size={15} />
+                  <span>Crear materia</span>
+                </button>
+                <button
+                  type="button"
+                  className="course-management__secondary-btn"
+                  onClick={resetSubjectDraft}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ) : null}

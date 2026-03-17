@@ -1077,18 +1077,6 @@
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
-.course-management__builder-tab span {
-  width: 42px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: #f8fafc;
-  color: #8b5e00;
-  font-weight: 800;
-}
-
 .course-management__builder-tab strong {
   display: block;
   color: #111827;
@@ -1113,7 +1101,7 @@
 }
 
 .course-management__subjects-stage {
-  grid-template-columns: minmax(0, 1.1fr) 360px;
+  grid-template-columns: minmax(0, 1.2fr) 320px;
 }
 
 .course-management__subjects-side {
