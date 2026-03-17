@@ -115,8 +115,8 @@ const InstitutionalLayout = () => {
             <Link to="/" className="landing-header__brand">
               <img src={logo} alt="Logo institucional" className="landing-header__logo" />
               <div>
-                <strong>Institucion Educativa</strong>
-                <span>Excelencia academica y formacion con vision global</span>
+                <strong>Gimnasio los cerros</strong>
+                <span>Un camino feliz hacia la construccion del conocimiento</span>
               </div>
             </Link>
 

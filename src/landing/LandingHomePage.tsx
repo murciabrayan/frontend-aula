@@ -10,7 +10,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import heroImageA from "@/assets/login-side.jpg";
+import heroImageA from "@/assets/carrusel.jpg";
 import heroImageB from "@/assets/carrusel2.jpg";
 import heroImageC from "@/assets/carrusel3.jpg";
 import { useLandingContent } from "./LandingContentContext";

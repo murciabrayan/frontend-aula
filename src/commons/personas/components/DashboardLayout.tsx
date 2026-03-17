@@ -53,7 +53,7 @@ const DashboardLayout = ({
     >
       <aside className="dashboard-sidebar">
         <div className="dashboard-sidebar__header">
-          <span className="dashboard-sidebar__eyebrow">Proyecto Aula</span>
+          <span className="dashboard-sidebar__eyebrow"></span>
           {!sidebarCollapsed && <h2>{roleLabel}</h2>}
         </div>
 
