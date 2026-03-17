@@ -118,6 +118,26 @@
   color: #b91c1c;
 }
 
+.feedback-confirm__badge--success {
+  background: #ecfdf3;
+  color: #15803d;
+}
+
+.feedback-confirm__badge--error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.feedback-confirm__badge--warning {
+  background: #fffbeb;
+  color: #b45309;
+}
+
+.feedback-confirm__badge--info {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
 .feedback-confirm h3 {
   margin: 0 0 8px;
   color: #111827;
@@ -134,6 +154,20 @@
   gap: 12px;
   justify-content: flex-end;
   margin-top: 22px;
+}
+
+.feedback-confirm__actions--single {
+  justify-content: center;
+}
+
+.feedback-confirm--notice {
+  width: min(420px, 100%);
+  text-align: center;
+}
+
+.feedback-confirm--notice .feedback-confirm__badge {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .feedback-btn {

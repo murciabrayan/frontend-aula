@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useFeedback } from "@/context/FeedbackContext";
 import "@/commons/Auth/styles/login.css";
 import sideImage from "@/assets/login-side.jpg";
 import logo from "@/assets/logo.png";
@@ -9,20 +10,32 @@ const API_URL = "http://127.0.0.1:8000/api/password-reset/";
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const { showNotice } = useFeedback();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
 
     try {
       const res = await axios.post(API_URL, { email });
-      setMessage(res.data.message || "Correo enviado correctamente.");
+      await showNotice({
+        title: "Correo enviado",
+        message:
+          res.data.message ||
+          "Te enviamos un enlace para restablecer tu contraseña.",
+        buttonText: "Volver",
+        tone: "success",
+      });
+      navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Error al enviar el correo.");
+      await showNotice({
+        title: "No se pudo enviar",
+        message:
+          err.response?.data?.error ||
+          "Ocurrio un error al enviar el correo de recuperacion.",
+        buttonText: "Entendido",
+        tone: "error",
+      });
     }
   };
 
@@ -51,9 +64,6 @@ const ForgotPasswordScreen = () => {
                 required
               />
               <button type="submit">Enviar enlace</button>
-
-              {message && <div className="success-message">{message}</div>}
-              {error && <div className="error-message">{error}</div>}
 
               <a className="forgot" onClick={() => navigate("/")}>
                 ← Volver al inicio de sesión

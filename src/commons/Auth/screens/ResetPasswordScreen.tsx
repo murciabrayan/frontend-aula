@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useFeedback } from "@/context/FeedbackContext";
 import "@/commons/Auth/styles/login.css";
 import sideImage from "@/assets/login-side.jpg";
 
@@ -9,18 +10,20 @@ import logo from "@/assets/logo.png";
 const ResetPasswordScreen = () => {
   const { uid, token } = useParams();
   const navigate = useNavigate();
+  const { showNotice } = useFeedback();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
 
     if (password !== confirm) {
-      setError("Las contraseñas no coinciden.");
+      await showNotice({
+        title: "Contraseñas distintas",
+        message: "Las contraseñas no coinciden. Verifica e intenta nuevamente.",
+        buttonText: "Entendido",
+        tone: "warning",
+      });
       return;
     }
 
@@ -29,10 +32,23 @@ const ResetPasswordScreen = () => {
         `http://127.0.0.1:8000/api/password-reset/${uid}/${token}/`,
         { password }
       );
-      setMessage(res.data.message || "Contraseña restablecida exitosamente.");
-      setTimeout(() => navigate("/"), 2500);
+      await showNotice({
+        title: "Contraseña actualizada",
+        message:
+          res.data.message || "Tu contraseña fue restablecida exitosamente.",
+        buttonText: "Ir al inicio",
+        tone: "success",
+      });
+      navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Error al restablecer la contraseña.");
+      await showNotice({
+        title: "No se pudo restablecer",
+        message:
+          err.response?.data?.error ||
+          "Ocurrio un error al restablecer la contraseña.",
+        buttonText: "Entendido",
+        tone: "error",
+      });
     }
   };
 
@@ -68,9 +84,6 @@ const ResetPasswordScreen = () => {
                 required
               />
               <button type="submit">Guardar contraseña</button>
-
-              {message && <div className="success-message">{message}</div>}
-              {error && <div className="error-message">{error}</div>}
             </form>
              <div
   className="login-right"

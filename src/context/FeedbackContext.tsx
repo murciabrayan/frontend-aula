@@ -27,6 +27,13 @@ interface ConfirmOptions {
   tone?: "default" | "danger";
 }
 
+interface NoticeOptions {
+  title: string;
+  message: string;
+  buttonText?: string;
+  tone?: ToastType;
+}
+
 interface ToastItem extends Required<Omit<ToastOptions, "duration">> {
   id: number;
   duration: number;
@@ -36,9 +43,14 @@ interface ConfirmState extends ConfirmOptions {
   resolve: (value: boolean) => void;
 }
 
+interface NoticeState extends NoticeOptions {
+  resolve: () => void;
+}
+
 interface FeedbackContextValue {
   showToast: (options: ToastOptions) => void;
   confirm: (options: ConfirmOptions) => Promise<boolean>;
+  showNotice: (options: NoticeOptions) => Promise<void>;
 }
 
 const iconByType = {
@@ -60,6 +72,7 @@ const FeedbackContext = createContext<FeedbackContextValue | undefined>(undefine
 export const FeedbackProvider = ({ children }: { children: ReactNode }) => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
+  const [noticeState, setNoticeState] = useState<NoticeState | null>(null);
   const idRef = useRef(0);
 
   const dismissToast = useCallback((id: number) => {
@@ -92,18 +105,34 @@ export const FeedbackProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
+  const showNotice = useCallback((options: NoticeOptions) => {
+    return new Promise<void>((resolve) => {
+      setNoticeState({
+        ...options,
+        resolve,
+      });
+    });
+  }, []);
+
   const closeConfirm = (value: boolean) => {
     if (!confirmState) return;
     confirmState.resolve(value);
     setConfirmState(null);
   };
 
+  const closeNotice = () => {
+    if (!noticeState) return;
+    noticeState.resolve();
+    setNoticeState(null);
+  };
+
   const value = useMemo(
     () => ({
       showToast,
       confirm,
+      showNotice,
     }),
-    [showToast, confirm]
+    [showToast, confirm, showNotice]
   );
 
   return (
@@ -180,6 +209,41 @@ export const FeedbackProvider = ({ children }: { children: ReactNode }) => {
                 onClick={() => closeConfirm(true)}
               >
                 {confirmState.confirmText || "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {noticeState ? (
+        <div className="feedback-confirm__overlay" onClick={closeNotice}>
+          <div
+            className="feedback-confirm feedback-confirm--notice"
+            role="dialog"
+            aria-modal="true"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div
+              className={`feedback-confirm__badge feedback-confirm__badge--${
+                noticeState.tone || "success"
+              }`}
+            >
+              {(() => {
+                const Icon = iconByType[noticeState.tone || "success"];
+                return <Icon size={18} />;
+              })()}
+            </div>
+
+            <h3>{noticeState.title}</h3>
+            <p>{noticeState.message}</p>
+
+            <div className="feedback-confirm__actions feedback-confirm__actions--single">
+              <button
+                type="button"
+                className="feedback-btn feedback-btn--primary"
+                onClick={closeNotice}
+              >
+                {noticeState.buttonText || "Entendido"}
               </button>
             </div>
           </div>
