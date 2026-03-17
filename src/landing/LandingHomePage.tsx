@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import heroImageA from "@/assets/login-side.jpg";
 import heroImageB from "@/assets/2.png";
-import heroImageC from "@/assets/logo.png";
 import { useLandingContent } from "./LandingContentContext";
 
 const heroSlides = [
@@ -29,7 +28,7 @@ const heroSlides = [
     text: "Creamos espacios donde la ciencia, la convivencia y la creatividad fortalecen el proyecto de vida de cada estudiante.",
   },
   {
-    image: heroImageC,
+    image: heroImageA,
     eyebrow: "Plataforma integral",
     title: "Un colegio conectado con su comunidad educativa.",
     text: "Informacion institucional, gestion academica y comunicacion en una presencia digital ordenada, moderna y confiable.",
@@ -261,11 +260,6 @@ const LandingHomePage = () => {
           <div className="landing-hero__visual">
             <div className="landing-hero__frame">
               <img src={currentHero.image} alt={currentHero.title} />
-            </div>
-            <div className="landing-hero__panel">
-              <span>Excelencia institucional</span>
-              <strong>Formacion escolar con identidad y valores</strong>
-              <p>Conoce un colegio que combina calidad academica, acompanamiento y sentido de comunidad.</p>
             </div>
           </div>
         </div>

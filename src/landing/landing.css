@@ -584,38 +584,30 @@ body {
   position: relative;
   display: flex;
   justify-content: flex-end;
+  align-items: stretch;
 }
 
 .landing-hero__frame {
   position: relative;
   width: min(100%, 620px);
+  aspect-ratio: 0.86;
   min-height: 640px;
   border-radius: 34px;
   overflow: hidden;
   border: 1px solid rgba(229, 201, 107, 0.28);
   box-shadow: 0 28px 80px rgba(0, 0, 0, 0.34);
+  background: linear-gradient(180deg, rgba(24, 24, 30, 0.94), rgba(11, 11, 15, 0.92));
 }
 
 .landing-hero__frame img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.landing-hero__panel {
-  position: absolute;
-  left: -14px;
-  bottom: 34px;
-  max-width: 280px;
-  padding: 20px;
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(24, 24, 30, 0.94), rgba(11, 11, 15, 0.92));
-  border: 1px solid rgba(229, 201, 107, 0.24);
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.28);
-}
-
-.landing-hero__panel span,
 .landing-calendar-card__header span {
   display: block;
   margin-bottom: 6px;
@@ -624,12 +616,6 @@ body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 700;
-}
-
-.landing-hero__panel strong {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
 }
 
 .landing-hero__ornament {
@@ -1967,10 +1953,6 @@ body {
     justify-content: center;
   }
 
-  .landing-hero__panel {
-    left: 18px;
-  }
-
   .landing-profile__menu {
     left: 0;
     right: auto;
@@ -2058,12 +2040,7 @@ body {
 
   .landing-hero__frame {
     min-height: 420px;
-  }
-
-  .landing-hero__panel {
-    position: static;
-    margin-top: 14px;
-    max-width: none;
+    aspect-ratio: 1 / 1.06;
   }
 
   .landing-hero__metrics {
