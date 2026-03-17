@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
+  Check,
+  Layers3,
   LayoutPanelTop,
   Pencil,
   Plus,
@@ -214,6 +216,11 @@ const CourseManagement = () => {
     if (!teacherId) return "Sin docente";
     const teacher = teachers.find((item) => item.id === teacherId);
     return teacher ? `${teacher.first_name} ${teacher.last_name}` : "Sin docente";
+  };
+
+  const getStudentName = (studentId: number) => {
+    const student = students.find((item) => item.id === studentId);
+    return student ? `${student.first_name} ${student.last_name}` : "Estudiante";
   };
 
   const initializeSelectedIndicators = (subjectList: Subject[]) => {
@@ -925,25 +932,34 @@ const CourseManagement = () => {
                         <strong>{course.name}</strong>
                         <span>{getTeacherName(course.teacher)}</span>
                       </div>
-                      <small>{course.students.length} estudiantes</small>
+                      <div className="course-management__course-badges">
+                        <small>{course.students.length} estudiantes</small>
+                        {selectedCourseId === course.id ? (
+                          <span className="course-management__selected-pill">
+                            Abierto
+                          </span>
+                        ) : null}
+                      </div>
                     </button>
 
                     <div className="course-management__course-actions">
                       <button
                         type="button"
-                        className="course-management__icon-btn"
+                        className="course-management__action-pill"
                         onClick={() => handleEditCourse(course)}
                         title="Editar curso"
                       >
                         <Pencil size={15} />
+                        <span>Editar</span>
                       </button>
                       <button
                         type="button"
-                        className="course-management__icon-btn is-danger"
+                        className="course-management__action-pill is-danger"
                         onClick={() => void handleDeleteCourse(course.id!)}
                         title="Eliminar curso"
                       >
                         <Trash2 size={15} />
+                        <span>Eliminar</span>
                       </button>
                     </div>
                   </div>
@@ -1009,16 +1025,33 @@ const CourseManagement = () => {
 
               {selectedCourseTab === "equipo" ? (
                 <div className="course-management__team-grid">
-                  <article className="course-management__card">
+                  <article className="course-management__card course-management__team-card">
                     <div className="course-management__card-header">
                       <div>
-                        <h3>Docente asignado</h3>
-                        <p>Selecciona el docente responsable del curso.</p>
+                        <h3>Equipo del curso</h3>
+                        <p>Primero define el docente y luego confirma los estudiantes asignados.</p>
+                      </div>
+                    </div>
+
+                    <div className="course-management__team-summary">
+                      <div className="course-management__summary-chip">
+                        <UserSquare2 size={16} />
+                        <div>
+                          <strong>Docente actual</strong>
+                          <span>{getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}</span>
+                        </div>
+                      </div>
+                      <div className="course-management__summary-chip">
+                        <Users size={16} />
+                        <div>
+                          <strong>Estudiantes elegidos</strong>
+                          <span>{selectedStudents.length} seleccionados</span>
+                        </div>
                       </div>
                     </div>
 
                     <label className="course-management__field">
-                      <span>Docente</span>
+                      <span>Selecciona el docente</span>
                       <select
                         value={selectedTeacher}
                         onChange={(event) =>
@@ -1036,42 +1069,71 @@ const CourseManagement = () => {
                       </select>
                     </label>
 
-                    <button
-                      type="button"
-                      className="course-management__primary-btn"
-                      onClick={() => void saveCoursePeople()}
-                      disabled={savingCoursePeople}
-                    >
-                      <Save size={16} />
-                      <span>
-                        {savingCoursePeople ? "Guardando..." : "Guardar equipo"}
-                      </span>
-                    </button>
+                    <div className="course-management__team-footer">
+                      <p>Los cambios del equipo se guardan juntos para evitar configuraciones incompletas.</p>
+                      <button
+                        type="button"
+                        className="course-management__primary-btn"
+                        onClick={() => void saveCoursePeople()}
+                        disabled={savingCoursePeople}
+                      >
+                        <Save size={16} />
+                        <span>
+                          {savingCoursePeople ? "Guardando..." : "Guardar equipo"}
+                        </span>
+                      </button>
+                    </div>
                   </article>
 
                   <article className="course-management__card course-management__card--fill">
                     <div className="course-management__card-header">
                       <div>
                         <h3>Estudiantes asignados</h3>
-                        <p>Marca los estudiantes que pertenecen a este curso.</p>
+                        <p>Selecciona estudiantes en una vista mas clara, con busqueda y tarjetas.</p>
                       </div>
                     </div>
 
-                    <label className="course-management__search">
-                      <Search size={16} />
-                      <input
-                        type="text"
-                        value={studentFilter}
-                        onChange={(event) => setStudentFilter(event.target.value)}
-                        placeholder="Buscar estudiante..."
-                      />
-                    </label>
+                    <div className="course-management__students-toolbar">
+                      <label className="course-management__search course-management__search--compact">
+                        <Search size={16} />
+                        <input
+                          type="text"
+                          value={studentFilter}
+                          onChange={(event) => setStudentFilter(event.target.value)}
+                          placeholder="Buscar estudiante..."
+                        />
+                      </label>
 
-                    <div className="course-management__student-list">
+                      <div className="course-management__selected-strip">
+                        {selectedStudents.length === 0 ? (
+                          <span className="course-management__selected-empty">
+                            No hay estudiantes seleccionados.
+                          </span>
+                        ) : (
+                          selectedStudents.slice(0, 4).map((studentId) => (
+                            <span
+                              key={studentId}
+                              className="course-management__selected-chip"
+                            >
+                              {getStudentName(studentId)}
+                            </span>
+                          ))
+                        )}
+                        {selectedStudents.length > 4 ? (
+                          <span className="course-management__selected-chip is-muted">
+                            +{selectedStudents.length - 4} mas
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+
+                    <div className="course-management__student-grid">
                       {filteredStudents.map((student) => (
                         <label
                           key={student.id}
-                          className="course-management__student-item"
+                          className={`course-management__student-card ${
+                            selectedStudents.includes(student.id) ? "is-selected" : ""
+                          }`}
                         >
                           <input
                             type="checkbox"
@@ -1084,9 +1146,19 @@ const CourseManagement = () => {
                               )
                             }
                           />
-                          <span>
-                            {student.first_name} {student.last_name}
-                          </span>
+                          <div className="course-management__student-card-body">
+                            <span className="course-management__student-check">
+                              {selectedStudents.includes(student.id) ? (
+                                <Check size={14} />
+                              ) : null}
+                            </span>
+                            <div>
+                              <strong>
+                                {student.first_name} {student.last_name}
+                              </strong>
+                              <small>Disponible para este curso</small>
+                            </div>
+                          </div>
                         </label>
                       ))}
                     </div>
@@ -1191,6 +1263,15 @@ const CourseManagement = () => {
                         <p>Define los grupos academicos del curso en una vista enfocada solo en esta parte.</p>
                       </div>
                     </div>
+                    <div className="course-management__stage-intro">
+                      <div className="course-management__summary-chip">
+                        <Layers3 size={16} />
+                        <div>
+                          <strong>Bloques del curso</strong>
+                          <span>{areas.length} areas creadas</span>
+                        </div>
+                      </div>
+                    </div>
                     <div className="course-management__scroll-panel">
                       {areas.length === 0 ? (
                         <div className="course-management__empty">
@@ -1242,6 +1323,15 @@ const CourseManagement = () => {
                       <div>
                         <h3>Materias</h3>
                         <p>Explora el listado y abre el detalle sin mezclarlo con indicadores.</p>
+                      </div>
+                    </div>
+                    <div className="course-management__stage-intro">
+                      <div className="course-management__summary-chip">
+                        <BookOpen size={16} />
+                        <div>
+                          <strong>Mapa del curso</strong>
+                          <span>{subjects.length} materias creadas</span>
+                        </div>
                       </div>
                     </div>
 
@@ -1344,6 +1434,24 @@ const CourseManagement = () => {
                         </div>
                       ) : (
                         <>
+                          {selectedStructureSection === "indicadores" ? (
+                            <div className="course-management__indicator-stage-header">
+                              <div className="course-management__summary-chip">
+                                <BookOpen size={16} />
+                                <div>
+                                  <strong>Materia activa</strong>
+                                  <span>{selectedSubject.nombre}</span>
+                                </div>
+                              </div>
+                              <div className="course-management__summary-chip">
+                                <Layers3 size={16} />
+                                <div>
+                                  <strong>Area</strong>
+                                  <span>{selectedSubject.area_nombre || "Sin area"}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ) : null}
                           <div className="course-management__subject-detail-header">
                             <div>
                               <h4>{selectedSubject.nombre}</h4>

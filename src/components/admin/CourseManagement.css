@@ -295,6 +295,13 @@
   padding: 16px;
 }
 
+.course-management__course-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
 .course-management__course-main strong,
 .course-management__subject-item strong {
   display: block;
@@ -310,6 +317,44 @@
 
 .course-management__course-actions {
   padding: 0 16px 16px;
+  justify-content: flex-end;
+}
+
+.course-management__selected-pill,
+.course-management__selected-chip,
+.course-management__selected-empty {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.course-management__selected-pill {
+  background: #fff3cd;
+  color: #8b5e00;
+}
+
+.course-management__action-pill {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.course-management__action-pill.is-danger {
+  background: #fff1f2;
+  color: #b91c1c;
+  border-color: #fecdd3;
 }
 
 .course-management__placeholder,
@@ -480,6 +525,88 @@
   gap: 20px;
 }
 
+.course-management__team-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.course-management__team-summary,
+.course-management__indicator-stage-header {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.course-management__summary-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+  border: 1px solid rgba(202, 165, 64, 0.18);
+}
+
+.course-management__summary-chip svg {
+  color: #8b5e00;
+  margin-top: 1px;
+}
+
+.course-management__summary-chip strong,
+.course-management__student-card-body strong {
+  display: block;
+  color: #111827;
+}
+
+.course-management__summary-chip span,
+.course-management__student-card-body small {
+  color: #64748b;
+}
+
+.course-management__team-footer {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid #e8edf3;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.course-management__team-footer p {
+  margin: 0;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.course-management__students-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.course-management__search--compact {
+  margin-bottom: 0;
+}
+
+.course-management__selected-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.course-management__selected-chip {
+  background: #fef3c7;
+  color: #8b5e00;
+}
+
+.course-management__selected-chip.is-muted,
+.course-management__selected-empty {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
 .course-management__student-list {
   border: 1px solid #edf2f7;
   border-radius: 18px;
@@ -487,16 +614,64 @@
   background: #fcfcfd;
 }
 
-.course-management__student-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 12px;
+.course-management__student-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.course-management__student-item:hover {
-  background: #fff8e6;
+.course-management__student-card {
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 14px;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.course-management__student-card:hover {
+  transform: translateY(-1px);
+  border-color: #d4af37;
+  box-shadow: 0 12px 24px rgba(212, 175, 55, 0.1);
+}
+
+.course-management__student-card input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.course-management__student-card.is-selected {
+  border-color: #d4af37;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+  box-shadow: 0 16px 28px rgba(212, 175, 55, 0.12);
+}
+
+.course-management__student-card-body {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.course-management__student-check {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid #dbe3ec;
+  background: #ffffff;
+  color: transparent;
+}
+
+.course-management__student-card.is-selected .course-management__student-check {
+  background: #b98b1f;
+  border-color: #b98b1f;
+  color: #ffffff;
 }
 
 .course-management__structure-layout,
@@ -521,6 +696,10 @@
 
 .course-management__stage-card {
   min-height: 560px;
+}
+
+.course-management__stage-intro {
+  margin-bottom: 16px;
 }
 
 .course-management__subject-group {
@@ -631,6 +810,10 @@
   max-height: 640px;
 }
 
+.course-management__indicator-bank {
+  padding-top: 26px;
+}
+
 .course-management__indicator-item {
   padding: 14px;
 }
@@ -663,6 +846,9 @@
   .course-management__team-grid,
   .course-management__structure-layout,
   .course-management__section-overview,
+  .course-management__student-grid,
+  .course-management__team-summary,
+  .course-management__indicator-stage-header,
   .course-management__section-panel--split,
   .course-management__structure-main {
     grid-template-columns: 1fr;
@@ -699,7 +885,8 @@
 
   .course-management__primary-btn,
   .course-management__secondary-btn,
-  .course-management__danger-btn {
+  .course-management__danger-btn,
+  .course-management__action-pill {
     width: 100%;
   }
 
