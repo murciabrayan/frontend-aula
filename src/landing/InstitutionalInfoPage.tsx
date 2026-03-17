@@ -1,13 +1,19 @@
-const documents = [
+import { useLandingContent } from "./LandingContentContext";
+
+const fallbackDocuments = [
   {
+    id: 1,
     title: "Proyecto Educativo Institucional",
-    description: "Marco estrategico con lineamientos pedagogicos, horizonte institucional y metas formativas.",
-    href: "/documents/pei-resumen.txt",
+    description:
+      "Marco estrategico con lineamientos pedagogicos, horizonte institucional y metas formativas.",
+    file_url: "/documents/pei-resumen.txt",
   },
   {
+    id: 2,
     title: "Manual de convivencia",
-    description: "Documento institucional con acuerdos, principios de comunidad y rutas de acompanamiento.",
-    href: "/documents/manual-convivencia.txt",
+    description:
+      "Documento institucional con acuerdos, principios de comunidad y rutas de acompanamiento.",
+    file_url: "/documents/manual-convivencia.txt",
   },
 ];
 
@@ -18,6 +24,9 @@ const values = [
 ];
 
 const InstitutionalInfoPage = () => {
+  const { content } = useLandingContent();
+  const documents = content.documents.length ? content.documents : fallbackDocuments;
+
   return (
     <div className="landing-page">
       <section className="landing-inner-hero landing-inner-hero--dark">
@@ -68,19 +77,23 @@ const InstitutionalInfoPage = () => {
 
         <div className="landing-document-grid">
           {documents.map((document) => (
-            <article key={document.title} className="landing-document-card">
+            <article key={document.id} className="landing-document-card">
               <h3>{document.title}</h3>
               <p>{document.description}</p>
               <div className="landing-document-card__actions">
                 <a
-                  href={document.href}
+                  href={document.file_url || "#"}
                   target="_blank"
                   rel="noreferrer"
                   className="landing-btn landing-btn--ghost-dark"
                 >
                   Visualizar en vivo
                 </a>
-                <a href={document.href} download className="landing-btn landing-btn--primary">
+                <a
+                  href={document.file_url || "#"}
+                  download
+                  className="landing-btn landing-btn--primary"
+                >
                   Descargar
                 </a>
               </div>

@@ -15,6 +15,19 @@ export interface LoginResponse {
   refresh: string;
 }
 
+export const AUTH_CHANGE_EVENT = "auth-change";
+
+const notifyAuthChange = () => {
+  window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+};
+
+export const getDashboardRoute = (role?: DecodedToken["role"] | null) => {
+  if (role === "ADMIN") return "/admin";
+  if (role === "TEACHER") return "/teacher";
+  if (role === "STUDENT") return "/student";
+  return "/plataforma";
+};
+
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await api.post<LoginResponse>("/api/token/", { email, password });
@@ -29,6 +42,8 @@ export const loginUser = async (email: string, password: string) => {
 
     // Guardar datos del usuario actual (opcional)
     localStorage.setItem("user", JSON.stringify(decoded));
+
+    notifyAuthChange();
 
     return decoded; // devuelve el usuario con su rol, email, etc.
   } catch (error: any) {
@@ -52,6 +67,8 @@ export const loginWithGoogle = async (googleToken: string) => {
     // Guardar usuario
     localStorage.setItem("user", JSON.stringify(user));
 
+    notifyAuthChange();
+
     return user;
   } catch (error: any) {
     console.error(
@@ -66,9 +83,12 @@ export const logoutUser = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("user");
+  notifyAuthChange();
 };
 
 export const getCurrentUser = (): DecodedToken | null => {
   const user = localStorage.getItem("user");
   return user ? JSON.parse(user) : null;
 };
+
+export const isAuthenticated = () => Boolean(localStorage.getItem("access_token"));

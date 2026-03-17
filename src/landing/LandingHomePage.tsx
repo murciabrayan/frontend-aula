@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -13,6 +13,7 @@ import {
 import heroImageA from "@/assets/login-side.jpg";
 import heroImageB from "@/assets/2.png";
 import heroImageC from "@/assets/logo.png";
+import { useLandingContent } from "./LandingContentContext";
 
 const heroSlides = [
   {
@@ -35,43 +36,73 @@ const heroSlides = [
   },
 ];
 
-const newsItems = [
+const fallbackNewsItems = [
   {
-    image: heroImageA,
+    id: 1,
+    image_url: heroImageA,
     title: "Encuentro institucional sobre liderazgo, convivencia y proyecto de vida",
-    date: "17 de marzo de 2026",
-    description:
+    published_at: "2026-03-17",
+    summary:
       "Una jornada para fortalecer habilidades de liderazgo estudiantil, sentido de comunidad y formacion en valores.",
   },
   {
-    image: heroImageB,
+    id: 2,
+    image_url: heroImageB,
     title: "Inicio del nuevo periodo academico con experiencias de aula innovadoras",
-    date: "10 de marzo de 2026",
-    description:
+    published_at: "2026-03-10",
+    summary:
       "El colegio inicia una nueva etapa con actividades integradas, laboratorios escolares y acompanamiento permanente.",
   },
   {
-    image: heroImageA,
+    id: 3,
+    image_url: heroImageA,
     title: "Salida pedagogica y cultural para fortalecer aprendizaje significativo",
-    date: "2 de marzo de 2026",
-    description:
+    published_at: "2026-03-02",
+    summary:
       "Una experiencia que une observacion, trabajo colaborativo y vivencias reales alineadas con el proceso formativo.",
   },
 ];
 
-const galleryItems = [
-  { image: heroImageA, title: "Ceremonia de graduacion", detail: "Logros, familia y proyeccion de futuro" },
-  { image: heroImageB, title: "Laboratorios escolares", detail: "Aprendizaje practico y curiosidad cientifica" },
-  { image: heroImageA, title: "Actos institucionales", detail: "Comunidad, identidad y participacion" },
-  { image: heroImageB, title: "Vida estudiantil", detail: "Arte, deporte y crecimiento integral" },
-  { image: heroImageA, title: "Eventos culturales", detail: "Talento, valores y sentido de pertenencia" },
+const fallbackGalleryItems = [
+  { id: 1, image_url: heroImageA, title: "Ceremonia de graduacion", detail: "Logros, familia y proyeccion de futuro" },
+  { id: 2, image_url: heroImageB, title: "Laboratorios escolares", detail: "Aprendizaje practico y curiosidad cientifica" },
+  { id: 3, image_url: heroImageA, title: "Actos institucionales", detail: "Comunidad, identidad y participacion" },
+  { id: 4, image_url: heroImageB, title: "Vida estudiantil", detail: "Arte, deporte y crecimiento integral" },
+  { id: 5, image_url: heroImageA, title: "Eventos culturales", detail: "Talento, valores y sentido de pertenencia" },
+];
+
+const fallbackCalendarEntries = [
+  {
+    id: 1,
+    title: "Entrega de informes",
+    detail: "Espacio de dialogo entre familias, docentes y direccion de grupo.",
+    event_date: "2026-04-04",
+  },
+  {
+    id: 2,
+    title: "Reunion con familias",
+    detail: "Seguimiento formativo y acompanamiento institucional.",
+    event_date: "2026-04-05",
+  },
+  {
+    id: 3,
+    title: "Semana cultural",
+    detail: "Jornadas artisticas, deportivas y de convivencia.",
+    event_date: "2026-04-18",
+  },
+  {
+    id: 4,
+    title: "Muestra de proyectos",
+    detail: "Exposicion de trabajos y experiencias de aula.",
+    event_date: "2026-04-19",
+  },
 ];
 
 const featuredPrograms = [
   {
     icon: GraduationCap,
     title: "Formacion academica solida",
-    text: "Procesos pedagógicos orientados al pensamiento critico, la lectura, la ciencia y el desarrollo integral.",
+    text: "Procesos pedagogicos orientados al pensamiento critico, la lectura, la ciencia y el desarrollo integral.",
   },
   {
     icon: Sparkles,
@@ -85,59 +116,77 @@ const featuredPrograms = [
   },
 ];
 
-const schoolCalendarDays = [
-  { day: "30", muted: true },
-  { day: "31", muted: true },
-  { day: "1" },
-  { day: "2" },
-  { day: "3" },
-  { day: "4", highlighted: true, label: "Informes" },
-  { day: "5", highlighted: true, label: "Familias" },
-  { day: "6" },
-  { day: "7" },
-  { day: "8" },
-  { day: "9" },
-  { day: "10" },
-  { day: "11" },
-  { day: "12" },
-  { day: "13" },
-  { day: "14" },
-  { day: "15" },
-  { day: "16" },
-  { day: "17" },
-  { day: "18", highlighted: true, label: "Semana cultural" },
-  { day: "19", highlighted: true, label: "Proyectos" },
-  { day: "20" },
-  { day: "21" },
-  { day: "22" },
-  { day: "23" },
-  { day: "24" },
-  { day: "25" },
-  { day: "26" },
-  { day: "27" },
-  { day: "28" },
-  { day: "29" },
-  { day: "30" },
-  { day: "1", muted: true },
-  { day: "2", muted: true },
-  { day: "3", muted: true },
-];
-
-const institutionalCalendar = [
-  { day: "24 MAR", label: "Consejo academico y planeacion institucional" },
-  { day: "05 ABR", label: "Reunion con familias y seguimiento formativo" },
-  { day: "19 ABR", label: "Muestra de proyectos escolares" },
-];
-
 const communityItems = [
   { title: "Instagram", subtitle: "@colegio.simijaca" },
   { title: "Facebook", subtitle: "Colegio Institucional Simijaca" },
   { title: "YouTube", subtitle: "Eventos, actos y comunidad escolar" },
 ];
 
+const weekDays = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
+
+const formatDisplayDate = (dateValue: string) =>
+  new Date(`${dateValue}T00:00:00`).toLocaleDateString("es-CO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+const buildMonthlyCalendar = (
+  monthDate: Date,
+  entries: Array<{ event_date: string; title: string }>,
+) => {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const previousMonthDays = new Date(year, month, 0).getDate();
+  const offset = (firstDay.getDay() + 6) % 7;
+
+  const entryMap = new Map<number, string>();
+  entries.forEach((entry) => {
+    const date = new Date(`${entry.event_date}T00:00:00`);
+    if (date.getFullYear() === year && date.getMonth() === month) {
+      entryMap.set(date.getDate(), entry.title);
+    }
+  });
+
+  const cells: Array<{
+    day: string;
+    muted?: boolean;
+    highlighted?: boolean;
+    label?: string;
+  }> = [];
+
+  for (let index = offset; index > 0; index -= 1) {
+    cells.push({
+      day: String(previousMonthDays - index + 1),
+      muted: true,
+    });
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const label = entryMap.get(day);
+    cells.push({
+      day: String(day),
+      highlighted: Boolean(label),
+      label: label ? label.split(" ").slice(0, 2).join(" ") : undefined,
+    });
+  }
+
+  while (cells.length % 7 !== 0) {
+    cells.push({
+      day: String(cells.length - daysInMonth - offset + 1),
+      muted: true,
+    });
+  }
+
+  return cells;
+};
+
 const LandingHomePage = () => {
   const [activeHero, setActiveHero] = useState(0);
   const [activeGallery, setActiveGallery] = useState(0);
+  const { content } = useLandingContent();
 
   useEffect(() => {
     const heroTimer = window.setInterval(() => {
@@ -155,6 +204,25 @@ const LandingHomePage = () => {
   }, []);
 
   const currentHero = heroSlides[activeHero];
+  const newsItems = content.news.length ? content.news : fallbackNewsItems;
+  const galleryItems = content.gallery.length ? content.gallery : fallbackGalleryItems;
+  const calendarEntries = content.calendar_entries.length
+    ? [...content.calendar_entries].sort((a, b) => a.event_date.localeCompare(b.event_date))
+    : fallbackCalendarEntries;
+
+  const activeMonthDate = useMemo(() => {
+    const firstEntry = calendarEntries[0];
+    return firstEntry
+      ? new Date(`${firstEntry.event_date}T00:00:00`)
+      : new Date("2026-04-01T00:00:00");
+  }, [calendarEntries]);
+
+  const monthLabel = activeMonthDate.toLocaleDateString("es-CO", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const calendarCells = buildMonthlyCalendar(activeMonthDate, calendarEntries);
 
   return (
     <div className="landing-page">
@@ -247,15 +315,21 @@ const LandingHomePage = () => {
         </div>
 
         <div className="landing-news-grid">
-          {newsItems.map((item) => (
-            <article key={item.title} className="landing-news-card">
+          {newsItems.slice(0, 3).map((item) => (
+            <article key={item.id} className="landing-news-card">
               <div className="landing-news-card__image-wrap">
-                <img src={item.image} alt={item.title} className="landing-news-card__image" />
-                <span className="landing-news-card__date">{item.date}</span>
+                <img
+                  src={item.image_url || heroImageA}
+                  alt={item.title}
+                  className="landing-news-card__image"
+                />
+                <span className="landing-news-card__date">
+                  {formatDisplayDate(item.published_at)}
+                </span>
               </div>
               <div className="landing-news-card__body">
                 <h3>{item.title}</h3>
-                <p>{item.description}</p>
+                <p>{item.summary}</p>
                 <a href="/#noticias" className="landing-inline-link">
                   Leer mas <ArrowRight size={16} />
                 </a>
@@ -329,12 +403,12 @@ const LandingHomePage = () => {
 
               return (
                 <article
-                  key={`${item.title}-${index}`}
+                  key={`${item.id}-${index}`}
                   className={`landing-gallery__card ${
                     index === activeGallery ? "is-active" : ""
                   } ${isVisible ? "is-visible" : ""}`}
                 >
-                  <img src={item.image} alt={item.title} />
+                  <img src={item.image_url || heroImageA} alt={item.title} />
                   <div className="landing-gallery__overlay">
                     <strong>{item.title}</strong>
                     <span>{item.detail}</span>
@@ -357,7 +431,7 @@ const LandingHomePage = () => {
         <div className="landing-gallery__dots">
           {galleryItems.map((item, index) => (
             <button
-              key={item.title}
+              key={item.id}
               type="button"
               className={index === activeGallery ? "is-active" : ""}
               onClick={() => setActiveGallery(index)}
@@ -373,23 +447,23 @@ const LandingHomePage = () => {
             <span className="landing-section-tag landing-section-tag--light">Agenda escolar</span>
             <h2>Calendario academico del colegio</h2>
             <p>
-              Un resumen visual de fechas, actividades y encuentros que organizan la
-              vida institucional durante el periodo escolar.
+              Una vista mensual que resume la vida institucional del periodo y se
+              complementa con el detalle del calendario al lado.
             </p>
           </div>
 
           <div className="landing-school-calendar">
             <div className="landing-school-calendar__topbar">
-              <strong>Abril 2026</strong>
+              <strong>{monthLabel}</strong>
               <span>Vista mensual escolar</span>
             </div>
             <div className="landing-school-calendar__weekdays">
-              {["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"].map((day) => (
+              {weekDays.map((day) => (
                 <span key={day}>{day}</span>
               ))}
             </div>
             <div className="landing-school-calendar__grid">
-              {schoolCalendarDays.map((item, index) => (
+              {calendarCells.map((item, index) => (
                 <article
                   key={`${item.day}-${index}`}
                   className={`landing-school-calendar__cell ${item.muted ? "is-muted" : ""} ${
@@ -411,10 +485,15 @@ const LandingHomePage = () => {
               <span>Calendario institucional</span>
             </div>
             <ul>
-              {institutionalCalendar.map((item) => (
-                <li key={item.day}>
-                  <strong>{item.day}</strong>
-                  <span>{item.label}</span>
+              {calendarEntries.slice(0, 4).map((item) => (
+                <li key={item.id}>
+                  <strong>
+                    {new Date(`${item.event_date}T00:00:00`).toLocaleDateString("es-CO", {
+                      day: "2-digit",
+                      month: "short",
+                    })}
+                  </strong>
+                  <span>{item.title}</span>
                 </li>
               ))}
             </ul>
