@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarDays,
   Eye,
@@ -94,6 +94,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   const [galleryForm, setGalleryForm] = useState(emptyGalleryForm);
   const [documentForm, setDocumentForm] = useState(emptyDocumentForm);
   const [calendarForm, setCalendarForm] = useState(emptyCalendarForm);
+  const calendarDateInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -257,6 +258,23 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
     }
   };
 
+  const openCalendarPicker = () => {
+    const input = calendarDateInputRef.current;
+
+    if (!input) return;
+
+    const pickerTarget = input as HTMLInputElement & {
+      showPicker?: () => void;
+    };
+
+    if (typeof pickerTarget.showPicker === "function") {
+      pickerTarget.showPicker();
+    } else {
+      pickerTarget.focus?.();
+      pickerTarget.click?.();
+    }
+  };
+
   return (
     <div className="landing-admin__overlay" onClick={onClose}>
       <div className="landing-admin" onClick={(event) => event.stopPropagation()}>
@@ -354,23 +372,25 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                         <span>{item.published_at}</span>
                         <p>{item.summary}</p>
                       </div>
-                      <div className="landing-admin__item-actions">
-                        <button
-                          type="button"
-                          className="landing-admin__action-button landing-admin__action-button--edit"
-                          onClick={() => setNewsForm({ id: item.id, title: item.title, summary: item.summary, published_at: item.published_at, display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
-                        >
-                          <PencilLine size={16} />
-                          <span>Editar</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="landing-admin__action-button landing-admin__action-button--delete"
-                          onClick={() => handleDelete("news", item.id)}
-                        >
-                          <Trash2 size={16} />
-                          <span>Eliminar</span>
-                        </button>
+                      <div className="landing-admin__card-footer">
+                        <div className="landing-admin__item-actions">
+                          <button
+                            type="button"
+                            className="landing-admin__action-button landing-admin__action-button--edit"
+                            onClick={() => setNewsForm({ id: item.id, title: item.title, summary: item.summary, published_at: item.published_at, display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
+                          >
+                            <PencilLine size={16} />
+                            <span>Editar</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="landing-admin__action-button landing-admin__action-button--delete"
+                            onClick={() => handleDelete("news", item.id)}
+                          >
+                            <Trash2 size={16} />
+                            <span>Eliminar</span>
+                          </button>
+                        </div>
                       </div>
                     </article>
                   ))}
@@ -433,23 +453,25 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                         <span>{item.event_date || "Sin fecha"}</span>
                         <p>{item.detail}</p>
                       </div>
-                      <div className="landing-admin__item-actions">
-                        <button
-                          type="button"
-                          className="landing-admin__action-button landing-admin__action-button--edit"
-                          onClick={() => setGalleryForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date || "", display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
-                        >
-                          <PencilLine size={16} />
-                          <span>Editar</span>
-                        </button>
-                        <button
-                          type="button"
-                          className="landing-admin__action-button landing-admin__action-button--delete"
-                          onClick={() => handleDelete("gallery", item.id)}
-                        >
-                          <Trash2 size={16} />
-                          <span>Eliminar</span>
-                        </button>
+                      <div className="landing-admin__card-footer">
+                        <div className="landing-admin__item-actions">
+                          <button
+                            type="button"
+                            className="landing-admin__action-button landing-admin__action-button--edit"
+                            onClick={() => setGalleryForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date || "", display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
+                          >
+                            <PencilLine size={16} />
+                            <span>Editar</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="landing-admin__action-button landing-admin__action-button--delete"
+                            onClick={() => handleDelete("gallery", item.id)}
+                          >
+                            <Trash2 size={16} />
+                            <span>Eliminar</span>
+                          </button>
+                        </div>
                       </div>
                     </article>
                   ))}
@@ -548,7 +570,23 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   <div className="landing-admin__form-meta">
                     <span>Fecha seleccionada: {calendarForm.event_date}</span>
                   </div>
-                  <input type="date" value={calendarForm.event_date} onChange={(e) => setCalendarForm((c) => ({ ...c, event_date: e.target.value }))} required />
+                  <div className="landing-admin__date-field">
+                    <input
+                      ref={calendarDateInputRef}
+                      type="date"
+                      value={calendarForm.event_date}
+                      onChange={(e) => setCalendarForm((c) => ({ ...c, event_date: e.target.value }))}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="landing-admin__date-trigger"
+                      onClick={openCalendarPicker}
+                    >
+                      <CalendarDays size={16} />
+                      <span>Abrir calendario</span>
+                    </button>
+                  </div>
                   <label className="landing-admin__checkbox">
                     <input type="checkbox" checked={calendarForm.is_active} onChange={(e) => setCalendarForm((c) => ({ ...c, is_active: e.target.checked }))} />
                     <span>Visible</span>

@@ -1585,6 +1585,26 @@ body {
   gap: 12px;
 }
 
+.landing-admin__date-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.landing-admin__date-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(201, 162, 39, 0.2);
+  background: rgba(201, 162, 39, 0.08);
+  color: #7f6210;
+  font-weight: 700;
+}
+
 .landing-admin__form-meta {
   padding: 12px 14px;
   border-radius: 16px;
@@ -1759,8 +1779,12 @@ body {
   line-height: 1.6;
 }
 
-.landing-admin__card .landing-admin__item-actions {
+.landing-admin__card-footer {
   padding: 0 18px 18px;
+}
+
+.landing-admin__card .landing-admin__item-actions {
+  display: flex;
   flex-wrap: wrap;
 }
 
