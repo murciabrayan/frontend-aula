@@ -6,13 +6,23 @@ import AdminDashboard from "@/commons/personas/screens/AdminDashboard";
 import TeacherDashboard from "@/commons/personas/screens/TeacherDashboard";
 import StudentDashboard from "@/commons/personas/screens/StudentDashboard";
 import ProtectedRoute from "@/commons/personas/components/ProtectedRoute";
+import InstitutionalLayout from "@/landing/InstitutionalLayout";
+import LandingHomePage from "@/landing/LandingHomePage";
+import InstitutionalInfoPage from "@/landing/InstitutionalInfoPage";
+import ContactPage from "@/landing/ContactPage";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<LoginScreen />} />
+        <Route element={<InstitutionalLayout />}>
+          <Route path="/" element={<LandingHomePage />} />
+          <Route path="/institucional" element={<InstitutionalInfoPage />} />
+          <Route path="/contacto" element={<ContactPage />} />
+        </Route>
+
+        <Route path="/plataforma" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
         <Route path="/reset-password/:uid/:token" element={<ResetPasswordScreen />} />
 
