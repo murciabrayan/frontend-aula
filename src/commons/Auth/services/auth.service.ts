@@ -10,9 +10,20 @@ export interface DecodedToken {
   iat: number;
 }
 
+export interface StoredUser {
+  id?: number;
+  email: string;
+  cedula?: string;
+  first_name?: string;
+  last_name?: string;
+  role: "ADMIN" | "TEACHER" | "STUDENT";
+  photo_url?: string | null;
+}
+
 export interface LoginResponse {
   access: string;
   refresh: string;
+  user?: StoredUser;
 }
 
 export const AUTH_CHANGE_EVENT = "auth-change";
@@ -31,7 +42,7 @@ export const getDashboardRoute = (role?: DecodedToken["role"] | null) => {
 export const loginUser = async (email: string, password: string) => {
   try {
     const response = await api.post<LoginResponse>("/api/token/", { email, password });
-    const { access, refresh } = response.data;
+    const { access, refresh, user } = response.data;
 
     // Guardar los tokens en localStorage
     localStorage.setItem("access_token", access);
@@ -40,8 +51,16 @@ export const loginUser = async (email: string, password: string) => {
     // Decodificar el JWT para extraer datos del usuario
     const decoded: DecodedToken = jwtDecode(access);
 
-    // Guardar datos del usuario actual (opcional)
-    localStorage.setItem("user", JSON.stringify(decoded));
+    const storedUser: StoredUser = {
+      ...decoded,
+      ...user,
+      email: user?.email || decoded.email,
+      cedula: user?.cedula || decoded.cedula,
+      role: user?.role || decoded.role,
+      photo_url: user?.photo_url || null,
+    };
+
+    localStorage.setItem("user", JSON.stringify(storedUser));
 
     notifyAuthChange();
 
@@ -86,9 +105,14 @@ export const logoutUser = () => {
   notifyAuthChange();
 };
 
-export const getCurrentUser = (): DecodedToken | null => {
+export const getCurrentUser = (): StoredUser | null => {
   const user = localStorage.getItem("user");
   return user ? JSON.parse(user) : null;
+};
+
+export const setCurrentUser = (user: StoredUser) => {
+  localStorage.setItem("user", JSON.stringify(user));
+  notifyAuthChange();
 };
 
 export const isAuthenticated = () => Boolean(localStorage.getItem("access_token"));

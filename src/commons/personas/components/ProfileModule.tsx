@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Eye, LockKeyhole, Mail, PencilLine, Save, Shield, User, X } from "lucide-react";
+import { Camera, Eye, LockKeyhole, Mail, PencilLine, Save, Shield, User, X } from "lucide-react";
 import api from "@/api/axios";
+import { getCurrentUser, setCurrentUser } from "@/commons/Auth/services/auth.service";
 import "./profile.css";
 
 type FieldType = "text" | "email";
@@ -48,6 +49,8 @@ const ProfileModule = ({
   });
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState("");
 
   const allFields = useMemo(
     () => sections.flatMap((section) => section.fields),
@@ -75,6 +78,7 @@ const ProfileModule = ({
         const response = await api.get("/api/profile/");
         setProfile(response.data);
         setDraft(response.data);
+        setPhotoPreview(response.data.photo_url || "");
       } catch {
         setError("No fue posible cargar el perfil.");
       } finally {
@@ -95,9 +99,38 @@ const ProfileModule = ({
     setSuccess("");
 
     try {
-      await api.put("/api/profile/", draft);
-      setProfile(draft);
+      const payload = new FormData();
+
+      Object.entries(draft ?? {}).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          payload.append(key, value);
+        }
+      });
+
+      if (photoFile) {
+        payload.append("profile_photo", photoFile);
+      }
+
+      await api.put("/api/profile/", payload);
+      const refreshedProfile = await api.get("/api/profile/");
+      setProfile(refreshedProfile.data);
+      setDraft(refreshedProfile.data);
       setEditing(false);
+      setPhotoFile(null);
+      setPhotoPreview(refreshedProfile.data.photo_url || "");
+
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        setCurrentUser({
+          ...currentUser,
+          first_name: refreshedProfile.data.first_name,
+          last_name: refreshedProfile.data.last_name,
+          email: refreshedProfile.data.email,
+          role: refreshedProfile.data.role,
+          photo_url: refreshedProfile.data.photo_url || null,
+        });
+      }
+
       setSuccess("Perfil actualizado correctamente.");
     } catch (err: any) {
       setError(err.response?.data?.error || "No se pudo actualizar el perfil.");
@@ -108,6 +141,8 @@ const ProfileModule = ({
     setDraft(profile);
     setEditing(false);
     setError("");
+    setPhotoFile(null);
+    setPhotoPreview(profile?.photo_url || "");
   };
 
   const handlePasswordChange = async (event: React.FormEvent) => {
@@ -178,6 +213,41 @@ const ProfileModule = ({
           <div className="profile-card__header">
             <h3>Resumen</h3>
             <span>Vista general de tu informacion</span>
+          </div>
+
+          <div className="profile-avatar-card">
+            <div className="profile-avatar-card__image">
+              {photoPreview ? (
+                <img src={photoPreview} alt="Foto de perfil" />
+              ) : (
+                <User size={42} />
+              )}
+            </div>
+
+            <div className="profile-avatar-card__copy">
+              <strong>Foto de perfil</strong>
+              <span>
+                {editing
+                  ? "Carga una imagen para personalizar tu cuenta."
+                  : "Visible en tu perfil y en accesos institucionales."}
+              </span>
+            </div>
+
+            {editing ? (
+              <label className="profile-avatar-card__upload">
+                <Camera size={16} />
+                <span>{photoFile ? photoFile.name : "Cambiar foto"}</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0] || null;
+                    setPhotoFile(file);
+                    setPhotoPreview(file ? URL.createObjectURL(file) : profile?.photo_url || "");
+                  }}
+                />
+              </label>
+            ) : null}
           </div>
 
           <div className="profile-summary">

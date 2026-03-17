@@ -167,7 +167,15 @@ const InstitutionalLayout = () => {
                     onClick={handleProfileAction}
                     aria-label={profileLabel}
                   >
-                    <UserRound size={28} strokeWidth={2.5} />
+                    {currentUser?.photo_url ? (
+                      <img
+                        src={currentUser.photo_url}
+                        alt="Perfil"
+                        className="landing-profile__avatar"
+                      />
+                    ) : (
+                      <UserRound size={28} strokeWidth={2.5} />
+                    )}
                   </button>
 
                   {profileOpen ? (

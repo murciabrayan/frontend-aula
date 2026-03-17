@@ -17,6 +17,7 @@ const AdminProfile = () => {
               label: "Correo electronico",
               type: "email",
             },
+            { name: "cargo", label: "Cargo" },
           ],
         },
       ]}
