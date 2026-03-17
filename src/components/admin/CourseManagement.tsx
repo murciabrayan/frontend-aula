@@ -73,6 +73,7 @@ interface Subject {
 
 type StructureSection = "areas" | "materias" | "indicadores";
 type CourseManagementMode = "course" | "structure";
+type IndicatorSection = "materias" | "creacion";
 
 type PeriodSelectorState = {
   1: number | "";
@@ -110,6 +111,8 @@ const CourseManagement = ({
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [selectedStructureSection, setSelectedStructureSection] =
     useState<StructureSection>("areas");
+  const [indicatorSection, setIndicatorSection] =
+    useState<IndicatorSection>("materias");
   const [courseSearch, setCourseSearch] = useState("");
   const [studentFilter, setStudentFilter] = useState("");
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
@@ -248,6 +251,7 @@ const CourseManagement = ({
     setSelectedTeacher(course.teacher || "");
     setSelectedStudents(course.students || []);
     setSelectedStructureSection("areas");
+    setIndicatorSection("materias");
     setStudentFilter("");
     setLoadingWorkspace(true);
 
@@ -1271,208 +1275,244 @@ const CourseManagement = ({
               <article className="course-management__card">
                 <div className="course-management__card-header">
                   <div>
-                    <h3>Asignaciones activas</h3>
-                    <p>Consulta los indicadores asignados y abre el modal para crear una nueva relacion.</p>
+                    <h3>Indicadores</h3>
+                    <p>Cambia entre materias e indicadores creados sin mezclar ambos flujos.</p>
                   </div>
-                  <button
-                    type="button"
-                    className="course-management__primary-btn course-management__primary-btn--compact"
-                    onClick={() => {
-                      setAssignmentSubjectId(selectedSubjectId ?? "");
-                      setAssignmentPeriod("");
-                      setAssignmentIndicatorId("");
-                      setIsAssignIndicatorModalOpen(true);
-                    }}
-                  >
-                    <Plus size={14} />
-                    <span>Asignar indicador</span>
-                  </button>
-                </div>
-                <div className="course-management__assignment-overview">
-                  {subjects.length === 0 ? (
-                    <div className="course-management__empty">
-                      Crea materias antes de asignar indicadores.
-                    </div>
-                  ) : (
-                    subjects.map((subject) => {
-                      const totalAssignments = indicatorAssignments.filter(
-                        (assignment) => assignment.materia === subject.id
-                      ).length;
-                      return (
-                        <div
-                          key={subject.id}
-                          className={`course-management__assignment-summary-card ${
-                            selectedSubjectId === subject.id ? "is-active" : ""
-                          }`}
-                          onClick={() => setSelectedSubjectId(subject.id)}
-                          role="button"
-                          tabIndex={0}
-                        >
-                          <strong>{subject.nombre}</strong>
-                          <span>{subject.area_nombre || "Sin area"}</span>
-                          <small>{totalAssignments} indicadores asignados</small>
-                        </div>
-                      );
-                    })
-                  )}
+                  <div className="course-management__indicator-switch">
+                    <button
+                      type="button"
+                      className={indicatorSection === "materias" ? "is-active" : ""}
+                      onClick={() => setIndicatorSection("materias")}
+                    >
+                      Materias
+                    </button>
+                    <button
+                      type="button"
+                      className={indicatorSection === "creacion" ? "is-active" : ""}
+                      onClick={() => setIndicatorSection("creacion")}
+                    >
+                      Creacion de indicadores
+                    </button>
+                  </div>
                 </div>
               </article>
 
-              <div className="course-management__indicators-layout is-single">
-                <article className="course-management__card course-management__indicator-bank">
-                  <div className="course-management__card-header">
-                    <div>
-                      <h3>Banco de indicadores</h3>
-                      <p>Crea, edita y revisa los indicadores disponibles. Las asignaciones viven en el modal.</p>
+              {indicatorSection === "materias" ? (
+                <div className="course-management__indicators-layout">
+                  <article className="course-management__card">
+                    <div className="course-management__card-header">
+                      <div>
+                        <h3>Materias</h3>
+                        <p>Selecciona una materia para visualizar sus indicadores guardados.</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="course-management__inline-form course-management__inline-form--column">
-                    <textarea
-                      value={newIndicatorDescription}
-                      onChange={(event) =>
-                        setNewIndicatorDescription(event.target.value)
-                      }
-                      placeholder="Escribe un indicador para reutilizarlo..."
-                    />
-                    <button
-                      type="button"
-                      className="course-management__primary-btn"
-                      onClick={() => void addIndicatorToBank()}
-                    >
-                      <Plus size={15} />
-                      <span>Crear indicador</span>
-                    </button>
-                  </div>
-                  <div className="course-management__indicator-list">
-                    {indicatorBank.length === 0 ? (
-                      <div className="course-management__empty">
-                        Aun no hay indicadores creados.
+                    <div className="course-management__assignment-overview">
+                      {subjects.length === 0 ? (
+                        <div className="course-management__empty">
+                          Crea materias antes de asignar indicadores.
+                        </div>
+                      ) : (
+                        subjects.map((subject) => {
+                          const totalAssignments = indicatorAssignments.filter(
+                            (assignment) => assignment.materia === subject.id
+                          ).length;
+                          return (
+                            <div
+                              key={subject.id}
+                              className={`course-management__assignment-summary-card ${
+                                selectedSubjectId === subject.id ? "is-active" : ""
+                              }`}
+                              onClick={() => setSelectedSubjectId(subject.id)}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <strong>{subject.nombre}</strong>
+                              <span>{subject.area_nombre || "Sin area"}</span>
+                              <small>{totalAssignments} indicadores guardados</small>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </article>
+
+                  <article className="course-management__card">
+                    <div className="course-management__card-header">
+                      <div>
+                        <h3>Indicadores de la materia</h3>
+                        <p>
+                          {selectedSubject
+                            ? `Consulta la tabla de ${selectedSubject.nombre}.`
+                            : "Selecciona una materia para ver su tabla de indicadores."}
+                        </p>
+                      </div>
+                    </div>
+                    {!selectedSubject ? (
+                      <div className="course-management__empty course-management__empty--large">
+                        Selecciona una materia del panel izquierdo.
                       </div>
                     ) : (
-                      indicatorBank.map((indicator) => (
-                        <div
-                          key={indicator.id}
-                          className="course-management__indicator-item"
-                        >
-                          {editingIndicatorId === indicator.id ? (
-                            <>
-                              <textarea
-                                value={editingIndicatorDescription}
-                                onChange={(event) =>
-                                  setEditingIndicatorDescription(event.target.value)
-                                }
-                              />
-                              <div className="course-management__indicator-actions">
-                                <button
-                                  type="button"
-                                  className="course-management__primary-btn"
-                                  onClick={() => void saveEditedIndicator()}
-                                >
-                                  Guardar
-                                </button>
-                                <button
-                                  type="button"
-                                  className="course-management__secondary-btn"
-                                  onClick={() => {
-                                    setEditingIndicatorId(null);
-                                    setEditingIndicatorDescription("");
-                                  }}
-                                >
-                                  Cancelar
-                                </button>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <p>{indicator.descripcion}</p>
-                              <div className="course-management__indicator-actions">
-                                <button
-                                  type="button"
-                                  className="course-management__secondary-btn"
-                                  onClick={() => {
-                                    setEditingIndicatorId(indicator.id);
-                                    setEditingIndicatorDescription(indicator.descripcion);
-                                  }}
-                                >
-                                  Editar
-                                </button>
-                                <button
-                                  type="button"
-                                  className="course-management__danger-btn"
-                                  onClick={() =>
-                                    void removeIndicatorFromBank(indicator.id)
-                                  }
-                                >
-                                  Eliminar
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </article>
+                      <div className="course-management__student-table-wrap">
+                        <table className="course-management__student-table">
+                          <thead>
+                            <tr>
+                              <th>Periodo</th>
+                              <th>Indicador</th>
+                              <th>Accion</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[1, 2, 3, 4].flatMap((period) => {
+                              const typedPeriod = period as 1 | 2 | 3 | 4;
+                              const periodAssignments = getAssignmentsForSubjectPeriod(
+                                selectedSubject.id,
+                                typedPeriod
+                              );
 
-                <article className="course-management__card">
-                  <div className="course-management__card-header">
-                    <div>
-                      <h3>Vista de asignaciones</h3>
-                      <p>
-                        {selectedSubject
-                          ? `Revisa las asignaciones de ${selectedSubject.nombre}.`
-                          : "Selecciona una materia para revisar sus indicadores."}
-                      </p>
-                    </div>
-                  </div>
-                  {!selectedSubject ? (
-                    <div className="course-management__empty course-management__empty--large">
-                      Selecciona una materia del resumen superior.
-                    </div>
-                  ) : (
-                    <div className="course-management__assignment-columns">
-                      {[1, 2, 3, 4].map((period) => {
-                        const typedPeriod = period as 1 | 2 | 3 | 4;
-                        const periodAssignments = getAssignmentsForSubjectPeriod(
-                          selectedSubject.id,
-                          typedPeriod
-                        );
+                              if (periodAssignments.length === 0) {
+                                return [
+                                  <tr key={`empty-${period}`}>
+                                    <td>Periodo {period}</td>
+                                    <td colSpan={2}>Sin indicadores asignados.</td>
+                                  </tr>,
+                                ];
+                              }
 
-                        return (
-                          <div key={period} className="course-management__period-card">
-                            <div className="course-management__period-title">
-                              Periodo {period}
-                            </div>
-                            <div className="course-management__assignment-list">
-                              {periodAssignments.length === 0 ? (
-                                <div className="course-management__empty">
-                                  Sin indicadores asignados.
-                                </div>
-                              ) : (
-                                periodAssignments.map((assignment) => (
-                                  <div
-                                    key={assignment.id}
-                                    className="course-management__assignment-item"
-                                  >
-                                    <span>{assignment.indicador_descripcion}</span>
+                              return periodAssignments.map((assignment) => (
+                                <tr key={assignment.id}>
+                                  <td>Periodo {period}</td>
+                                  <td>{assignment.indicador_descripcion}</td>
+                                  <td>
                                     <button
                                       type="button"
-                                      className="course-management__icon-btn"
+                                      className="course-management__action-pill"
                                       onClick={() => void unassignIndicator(assignment.id)}
                                     >
-                                      <Trash2 size={14} />
+                                      Quitar
                                     </button>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
+                                  </td>
+                                </tr>
+                              ));
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </article>
+                </div>
+              ) : null}
+
+              {indicatorSection === "creacion" ? (
+                <div className="course-management__indicators-layout is-single">
+                  <article className="course-management__card course-management__indicator-bank">
+                    <div className="course-management__card-header">
+                      <div>
+                        <h3>Banco de indicadores</h3>
+                        <p>Crea, edita y revisa los indicadores disponibles.</p>
+                      </div>
+                      <button
+                        type="button"
+                        className="course-management__primary-btn course-management__primary-btn--compact"
+                        onClick={() => {
+                          setAssignmentSubjectId(selectedSubjectId ?? "");
+                          setAssignmentPeriod("");
+                          setAssignmentIndicatorId("");
+                          setIsAssignIndicatorModalOpen(true);
+                        }}
+                      >
+                        <Plus size={14} />
+                        <span>Asignar indicador</span>
+                      </button>
                     </div>
-                  )}
-                </article>
-              </div>
+                    <div className="course-management__inline-form course-management__inline-form--column">
+                      <textarea
+                        value={newIndicatorDescription}
+                        onChange={(event) =>
+                          setNewIndicatorDescription(event.target.value)
+                        }
+                        placeholder="Escribe un indicador para reutilizarlo..."
+                      />
+                      <button
+                        type="button"
+                        className="course-management__primary-btn"
+                        onClick={() => void addIndicatorToBank()}
+                      >
+                        <Plus size={15} />
+                        <span>Crear indicador</span>
+                      </button>
+                    </div>
+                    <div className="course-management__indicator-list">
+                      {indicatorBank.length === 0 ? (
+                        <div className="course-management__empty">
+                          Aun no hay indicadores creados.
+                        </div>
+                      ) : (
+                        indicatorBank.map((indicator) => (
+                          <div
+                            key={indicator.id}
+                            className="course-management__indicator-item"
+                          >
+                            {editingIndicatorId === indicator.id ? (
+                              <>
+                                <textarea
+                                  value={editingIndicatorDescription}
+                                  onChange={(event) =>
+                                    setEditingIndicatorDescription(event.target.value)
+                                  }
+                                />
+                                <div className="course-management__indicator-actions">
+                                  <button
+                                    type="button"
+                                    className="course-management__primary-btn"
+                                    onClick={() => void saveEditedIndicator()}
+                                  >
+                                    Guardar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="course-management__secondary-btn"
+                                    onClick={() => {
+                                      setEditingIndicatorId(null);
+                                      setEditingIndicatorDescription("");
+                                    }}
+                                  >
+                                    Cancelar
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <p>{indicator.descripcion}</p>
+                                <div className="course-management__indicator-actions">
+                                  <button
+                                    type="button"
+                                    className="course-management__secondary-btn"
+                                    onClick={() => {
+                                      setEditingIndicatorId(indicator.id);
+                                      setEditingIndicatorDescription(indicator.descripcion);
+                                    }}
+                                  >
+                                    Editar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="course-management__danger-btn"
+                                    onClick={() =>
+                                      void removeIndicatorFromBank(indicator.id)
+                                    }
+                                  >
+                                    Eliminar
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </article>
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>
