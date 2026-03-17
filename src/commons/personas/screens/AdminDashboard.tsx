@@ -18,7 +18,6 @@ const adminModules: DashboardModuleItem[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "usuarios", label: "Gestionar usuarios", icon: Users },
   { id: "cursos", label: "Gestionar cursos", icon: BookOpen },
-  { id: "asignarCursos", label: "Asignar cursos", icon: BookOpen },
   { id: "boletines", label: "Boletines", icon: FileText },
   { id: "asistencia", label: "Asistencia", icon: ClipboardCheck },
   { id: "alertasAcademicas", label: "Alertas tempranas", icon: TriangleAlert },

@@ -1,7 +1,6 @@
 import React from "react";
 import AdminAttendance from "../../../components/admin/AdminAttendance";
-import CourseAssign from "../../../components/admin/CourseAssign";
-import CourseList from "../../../components/admin/CourseList";
+import CourseManagement from "../../../components/admin/CourseManagement";
 import UserList from "../../../components/admin/UserList";
 import sideImage from "@/assets/2.png";
 import AdminAcademicAlerts from "../components/AdminAcademicAlerts";
@@ -34,8 +33,9 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
       )}
 
       {activeModule === "usuarios" && <UserList />}
-      {activeModule === "cursos" && <CourseList />}
-      {activeModule === "asignarCursos" && <CourseAssign />}
+      {(activeModule === "cursos" || activeModule === "asignarCursos") && (
+        <CourseManagement />
+      )}
       {activeModule === "boletines" && <AdminReportCards />}
       {activeModule === "asistencia" && <AdminAttendance />}
       {activeModule === "alertasAcademicas" && <AdminAcademicAlerts />}
