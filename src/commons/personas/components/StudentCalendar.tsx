@@ -12,7 +12,7 @@ interface CalendarEvent {
   id: string;
   title: string;
   start: string;
-  end?: string | null;
+  end?: string;
   className?: string;
   extendedProps?: {
     tipo: "TASK" | "EVENT";
@@ -34,7 +34,12 @@ const StudentCalendar: React.FC = () => {
   const loadEvents = async () => {
     try {
       const data = await getCalendarEvents();
-      setEvents(data);
+      setEvents(
+        data.map((event: CalendarEvent & { end?: string | null }) => ({
+          ...event,
+          end: event.end ?? undefined,
+        }))
+      );
     } catch (err) {
       console.error("Error cargando calendario", err);
     }
@@ -47,7 +52,7 @@ const StudentCalendar: React.FC = () => {
         initialView="dayGridMonth"
         locale="es"
         height="auto"
-        events={getCalendarEvents}
+        events={events}
         eventClick={(info) => {
           if (info.event.extendedProps?.tipo === "TASK") {
             setSelectedEvent(info.event);

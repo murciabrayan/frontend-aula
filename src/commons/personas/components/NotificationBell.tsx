@@ -6,6 +6,7 @@ import {
   type Notification,
 } from "../../../api/notifications";
 import { Bell, X, CheckCheck } from "lucide-react";
+import "@/commons/personas/styles/notificationBell.css";
 
 interface Props {
   setActiveModule: (module: string) => void;

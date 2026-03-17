@@ -1,12 +1,12 @@
 import React from "react";
-import UserList from "../../../components/admin/UserList";
-import CourseList from "../../../components/admin/CourseList";
+import AdminAttendance from "../../../components/admin/AdminAttendance";
 import CourseAssign from "../../../components/admin/CourseAssign";
+import CourseList from "../../../components/admin/CourseList";
+import UserList from "../../../components/admin/UserList";
+import sideImage from "@/assets/2.png";
+import AdminAcademicAlerts from "../components/AdminAcademicAlerts";
 import AdminProfile from "../components/AdminProfile";
 import AdminReportCards from "../components/AdminReportCards";
-import AdminAcademicAlerts from "../components/AdminAcademicAlerts";
-import AdminAttendance from "../../../components/admin/AdminAttendance";
-import sideImage from "@/assets/2.png";
 
 interface AdminContentProps {
   activeModule: string;
@@ -16,39 +16,35 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
   return (
     <div className="admin-content">
       {activeModule === "inicio" && (
-        <div>
-          <div
-            className="login-right"
-            style={{
-              backgroundImage: `url(${sideImage})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-              width: "50%",
-              height: "100vh",
-              position: "absolute",
-              top: 0,
-              right: 0,
-            }}
-            aria-hidden="true"
-          ></div>
+        <div className="dashboard-home">
+          <div className="dashboard-home__hero">
+            <h2>Bienvenido al panel de administracion</h2>
+            <p>
+              Gestiona usuarios, cursos, asistencia, boletines y alertas desde una
+              experiencia unificada y mas consistente.
+            </p>
+          </div>
 
-          <h2 className="titulo 1">Bienvenido al Panel de Administración</h2>
-          <p>Selecciona una opción en el menú lateral para comenzar.</p>
+          <div
+            className="dashboard-home__media"
+            style={{ backgroundImage: `url(${sideImage})` }}
+            aria-hidden="true"
+          />
         </div>
       )}
 
       {activeModule === "usuarios" && <UserList />}
       {activeModule === "cursos" && <CourseList />}
       {activeModule === "asignarCursos" && <CourseAssign />}
-      {activeModule === "boletines" && <AdminReportCards />} {activeModule === "asistencia" && <AdminAttendance />}
+      {activeModule === "boletines" && <AdminReportCards />}
+      {activeModule === "asistencia" && <AdminAttendance />}
       {activeModule === "alertasAcademicas" && <AdminAcademicAlerts />}
       {activeModule === "perfil" && <AdminProfile />}
 
       {activeModule === "configuracion" && (
         <div>
-          <h2>Configuración del Sistema</h2>
-          <p>Próximamente...</p>
+          <h2>Configuracion del sistema</h2>
+          <p>Proximamente...</p>
         </div>
       )}
     </div>

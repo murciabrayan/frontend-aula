@@ -42,6 +42,7 @@ const UploadSubmissionForm: React.FC<Props> = ({ assignmentId, onClose, onSucces
           "Content-Type": "multipart/form-data",
         },
       });
+      onClose();
       onSuccess();
     } catch (err) {
       console.error(err);
