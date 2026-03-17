@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
-  Check,
-  ChevronRight,
   Layers3,
   LayoutPanelTop,
   Pencil,
@@ -114,7 +112,6 @@ const CourseManagement = ({
     useState<StructureSection>("areas");
   const [courseSearch, setCourseSearch] = useState("");
   const [studentFilter, setStudentFilter] = useState("");
-  const [teacherFilter, setTeacherFilter] = useState("");
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
 
   const [courseForm, setCourseForm] = useState<Course>(emptyCourseForm());
@@ -209,14 +206,6 @@ const CourseManagement = ({
         .includes(query)
     );
   }, [studentFilter, students]);
-
-  const filteredTeachers = useMemo(() => {
-    const query = teacherFilter.trim().toLowerCase();
-    if (!query) return teachers;
-    return teachers.filter((teacher) =>
-      `${teacher.first_name} ${teacher.last_name}`.toLowerCase().includes(query)
-    );
-  }, [teacherFilter, teachers]);
 
   const groupedSubjects = useMemo(() => {
     return areas.map((area) => ({
@@ -883,57 +872,27 @@ const CourseManagement = ({
             <div className="course-management__card-header">
               <div>
                 <h3>Docente responsable</h3>
-                <p>Elige el docente desde una lista clara con busqueda.</p>
+                <p>Elige el docente desde un desplegable mas limpio y facil de leer.</p>
               </div>
             </div>
 
-            <label className="course-management__search course-management__search--compact">
-              <Search size={16} />
-              <input
-                type="text"
-                value={teacherFilter}
-                onChange={(event) => setTeacherFilter(event.target.value)}
-                placeholder="Buscar docente..."
-              />
-            </label>
-
-            <div className="course-management__teacher-list">
-              <button
-                type="button"
-                className={`course-management__teacher-card ${
-                  selectedTeacher === "" ? "is-selected" : ""
-                }`}
-                onClick={() => setSelectedTeacher("")}
+            <div className="course-management__select-shell">
+              <span className="course-management__select-label">Docente del curso</span>
+              <select
+                value={selectedTeacher}
+                onChange={(event) =>
+                  setSelectedTeacher(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
               >
-                <div>
-                  <strong>Sin asignar</strong>
-                  <span>El curso aun no tiene docente principal.</span>
-                </div>
-                {selectedTeacher === "" ? <Check size={14} /> : <ChevronRight size={14} />}
-              </button>
-
-              {filteredTeachers.map((teacher) => (
-                <button
-                  key={teacher.id}
-                  type="button"
-                  className={`course-management__teacher-card ${
-                    selectedTeacher === teacher.id ? "is-selected" : ""
-                  }`}
-                  onClick={() => setSelectedTeacher(teacher.id)}
-                >
-                  <div>
-                    <strong>
-                      {teacher.first_name} {teacher.last_name}
-                    </strong>
-                    <span>{teacher.email || "Docente disponible"}</span>
-                  </div>
-                  {selectedTeacher === teacher.id ? (
-                    <Check size={14} />
-                  ) : (
-                    <ChevronRight size={14} />
-                  )}
-                </button>
-              ))}
+                <option value="">Sin asignar</option>
+                {teachers.map((teacher) => (
+                  <option key={teacher.id} value={teacher.id}>
+                    {teacher.first_name} {teacher.last_name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="course-management__teacher-summary">
@@ -996,7 +955,6 @@ const CourseManagement = ({
                 <tr>
                   <th>Estudiante</th>
                   <th>Curso actual</th>
-                  <th>Estado</th>
                   <th>Accion</th>
                 </tr>
               </thead>
@@ -1014,11 +972,6 @@ const CourseManagement = ({
                         </strong>
                       </td>
                       <td>{getStudentCourseName(student.id)}</td>
-                      <td>
-                        <span className="course-management__table-badge">
-                          {isSelected ? "Incluido" : "Libre"}
-                        </span>
-                      </td>
                       <td>
                         <button
                           type="button"
@@ -1577,7 +1530,7 @@ const CourseManagement = ({
               </div>
               <button
                 type="button"
-                className="course-management__mini-btn"
+                className="course-management__primary-btn course-management__primary-btn--compact"
                 onClick={openCreateCourseModal}
               >
                 <Plus size={14} />

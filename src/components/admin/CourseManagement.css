@@ -152,6 +152,11 @@
   box-shadow: 0 12px 24px rgba(185, 139, 31, 0.2);
 }
 
+.course-management__primary-btn--compact {
+  min-height: 42px;
+  padding: 0 16px;
+}
+
 .course-management__primary-btn:hover,
 .course-management__secondary-btn:hover,
 .course-management__danger-btn:hover,
@@ -301,6 +306,17 @@
   border-color: #d4af37;
   background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
   box-shadow: 0 16px 28px rgba(212, 175, 55, 0.14);
+}
+
+.course-management__course-card,
+.course-management__course-main {
+  overflow: hidden;
+}
+
+.course-management__course-main:focus,
+.course-management__course-main:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .course-management__course-main,
@@ -930,48 +946,6 @@
   gap: 12px;
 }
 
-.course-management__teacher-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 320px;
-  overflow: auto;
-}
-
-.course-management__teacher-card {
-  width: 100%;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  background: #ffffff;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.course-management__teacher-card strong {
-  display: block;
-  color: #111827;
-}
-
-.course-management__teacher-card span {
-  color: #64748b;
-}
-
-.course-management__teacher-card svg {
-  color: #8b5e00;
-  flex: 0 0 auto;
-}
-
-.course-management__teacher-card.is-selected {
-  border-color: #d4af37;
-  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
-  box-shadow: 0 12px 24px rgba(212, 175, 55, 0.12);
-}
-
 .course-management__select-shell {
   padding: 18px;
   border-radius: 22px;
@@ -1029,7 +1003,7 @@
 .course-management__student-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  min-width: 0;
 }
 
 .course-management__student-table thead th {
@@ -1057,18 +1031,6 @@
 
 .course-management__student-table tbody tr:hover {
   background: #fffdf7;
-}
-
-.course-management__table-badge {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 0.82rem;
-  font-weight: 700;
 }
 
 .course-management__modal-backdrop {
