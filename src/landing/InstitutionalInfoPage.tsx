@@ -20,8 +20,8 @@ const values = [
 const InstitutionalInfoPage = () => {
   return (
     <div className="landing-page">
-      <section className="landing-inner-hero">
-        <div className="landing-section-heading">
+      <section className="landing-inner-hero landing-inner-hero--dark">
+        <div className="landing-section-heading landing-section-heading--dark">
           <span className="landing-section-tag">Nosotros</span>
           <h1>Una identidad institucional construida para inspirar excelencia</h1>
           <p>
@@ -71,9 +71,19 @@ const InstitutionalInfoPage = () => {
             <article key={document.title} className="landing-document-card">
               <h3>{document.title}</h3>
               <p>{document.description}</p>
-              <a href={document.href} download className="landing-btn landing-btn--primary">
-                Descargar documento
-              </a>
+              <div className="landing-document-card__actions">
+                <a
+                  href={document.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="landing-btn landing-btn--ghost-dark"
+                >
+                  Visualizar en vivo
+                </a>
+                <a href={document.href} download className="landing-btn landing-btn--primary">
+                  Descargar
+                </a>
+              </div>
             </article>
           ))}
         </div>

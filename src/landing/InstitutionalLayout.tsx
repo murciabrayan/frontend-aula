@@ -7,9 +7,6 @@ import "./landing.css";
 const navItems = [
   { label: "Inicio", href: "/" },
   { label: "Nosotros", href: "/institucional" },
-  { label: "Carreras", href: "/#programas" },
-  { label: "Admision", href: "/#admisiones" },
-  { label: "Noticias", href: "/#noticias" },
   { label: "Contacto", href: "/contacto" },
 ];
 
@@ -31,17 +28,7 @@ const InstitutionalLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
-  const isRouteActive = (href: string) => {
-    if (href === "/") {
-      return location.pathname === "/";
-    }
-
-    if (href.startsWith("/#")) {
-      return location.pathname === "/";
-    }
-
-    return location.pathname === href;
-  };
+  const isRouteActive = (href: string) => location.pathname === href;
 
   return (
     <div className="landing-shell">
@@ -66,27 +53,16 @@ const InstitutionalLayout = () => {
 
           <div className={`landing-header__menu ${menuOpen ? "is-open" : ""}`}>
             <nav className="landing-header__nav">
-              {navItems.map((item) =>
-                item.href.startsWith("/#") ? (
-                  <a
-                    key={item.label}
-                    href={item.href}
-                    className={isRouteActive(item.href) ? "active" : ""}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.label}
-                  </a>
-                ) : (
-                  <NavLink
-                    key={item.label}
-                    to={item.href}
-                    className={isRouteActive(item.href) ? "active" : ""}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.label}
-                  </NavLink>
-                ),
-              )}
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.label}
+                  to={item.href}
+                  className={isRouteActive(item.href) ? "active" : ""}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
             </nav>
 
             <div className="landing-header__tools">
@@ -178,7 +154,7 @@ const InstitutionalLayout = () => {
         </div>
 
         <div className="landing-footer__bottom">
-          <span>© 2026 Institucion Educativa. Todos los derechos reservados.</span>
+          <span>&copy; 2026 Institucion Educativa. Todos los derechos reservados.</span>
         </div>
       </footer>
     </div>
