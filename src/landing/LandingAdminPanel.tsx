@@ -58,7 +58,7 @@ const emptyGalleryForm = {
   id: null as number | null,
   title: "",
   detail: "",
-  event_date: "",
+  event_date: getTodayDateValue(),
   display_order: 0,
   is_active: true,
   image: null as File | null,
@@ -79,7 +79,7 @@ const emptyCalendarForm = {
   id: null as number | null,
   title: "",
   detail: "",
-  event_date: "",
+  event_date: getTodayDateValue(),
   display_order: 0,
   is_active: true,
 };
@@ -330,7 +330,18 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </label>
                   <div className="landing-admin__actions">
                     <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{newsForm.id ? "Actualizar" : "Crear noticia"}</button>
-                    {newsForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setNewsForm(emptyNewsForm)}>Cancelar</button> : null}
+                    {newsForm.id ? (
+                      <>
+                        <button
+                          type="button"
+                          className="landing-btn landing-btn--danger"
+                          onClick={() => handleDelete("news", newsForm.id!)}
+                        >
+                          Eliminar
+                        </button>
+                        <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setNewsForm(emptyNewsForm)}>Cancelar</button>
+                      </>
+                    ) : null}
                   </div>
                 </form>
 
@@ -383,6 +394,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </div>
                   <input value={galleryForm.title} onChange={(e) => setGalleryForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
                   <textarea value={galleryForm.detail} onChange={(e) => setGalleryForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Descripcion corta" rows={4} required />
+                  <div className="landing-admin__form-meta">
+                    <span>Fecha del evento: {galleryForm.event_date}</span>
+                  </div>
                   <input type="date" value={galleryForm.event_date} onChange={(e) => setGalleryForm((c) => ({ ...c, event_date: e.target.value }))} />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
@@ -395,7 +409,18 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </label>
                   <div className="landing-admin__actions">
                     <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{galleryForm.id ? "Actualizar" : "Crear evento"}</button>
-                    {galleryForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setGalleryForm(emptyGalleryForm)}>Cancelar</button> : null}
+                    {galleryForm.id ? (
+                      <>
+                        <button
+                          type="button"
+                          className="landing-btn landing-btn--danger"
+                          onClick={() => handleDelete("gallery", galleryForm.id!)}
+                        >
+                          Eliminar
+                        </button>
+                        <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setGalleryForm(emptyGalleryForm)}>Cancelar</button>
+                      </>
+                    ) : null}
                   </div>
                 </form>
 
@@ -465,7 +490,18 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </label>
                   <div className="landing-admin__actions">
                     <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{documentForm.id ? "Actualizar" : "Crear documento"}</button>
-                    {documentForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setDocumentForm(emptyDocumentForm)}>Cancelar</button> : null}
+                    {documentForm.id ? (
+                      <>
+                        <button
+                          type="button"
+                          className="landing-btn landing-btn--danger"
+                          onClick={() => handleDelete("documents", documentForm.id!)}
+                        >
+                          Eliminar
+                        </button>
+                        <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setDocumentForm(emptyDocumentForm)}>Cancelar</button>
+                      </>
+                    ) : null}
                   </div>
                 </form>
 
@@ -509,6 +545,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   <h4>{calendarForm.id ? "Editar fecha" : "Nueva fecha institucional"}</h4>
                   <input value={calendarForm.title} onChange={(e) => setCalendarForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
                   <textarea value={calendarForm.detail} onChange={(e) => setCalendarForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Detalle" rows={4} required />
+                  <div className="landing-admin__form-meta">
+                    <span>Fecha seleccionada: {calendarForm.event_date}</span>
+                  </div>
                   <input type="date" value={calendarForm.event_date} onChange={(e) => setCalendarForm((c) => ({ ...c, event_date: e.target.value }))} required />
                   <label className="landing-admin__checkbox">
                     <input type="checkbox" checked={calendarForm.is_active} onChange={(e) => setCalendarForm((c) => ({ ...c, is_active: e.target.checked }))} />
@@ -516,7 +555,18 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </label>
                   <div className="landing-admin__actions">
                     <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{calendarForm.id ? "Actualizar" : "Crear fecha"}</button>
-                    {calendarForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setCalendarForm(emptyCalendarForm)}>Cancelar</button> : null}
+                    {calendarForm.id ? (
+                      <>
+                        <button
+                          type="button"
+                          className="landing-btn landing-btn--danger"
+                          onClick={() => handleDelete("calendar", calendarForm.id!)}
+                        >
+                          Eliminar
+                        </button>
+                        <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setCalendarForm(emptyCalendarForm)}>Cancelar</button>
+                      </>
+                    ) : null}
                   </div>
                 </form>
 

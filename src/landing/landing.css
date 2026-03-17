@@ -427,6 +427,12 @@ body {
   color: #7f6210;
 }
 
+.landing-btn--danger {
+  border: 1px solid rgba(166, 63, 63, 0.22);
+  background: rgba(126, 28, 28, 0.08);
+  color: #8d2e2e;
+}
+
 .landing-main {
   padding: 28px 0 0;
 }
