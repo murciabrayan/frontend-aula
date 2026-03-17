@@ -820,34 +820,49 @@ const CourseManagement = ({
 
   const renderCourseWorkspace = () => (
     <div className="course-management__roster-shell">
-      <div className="course-management__roster-main">
-        <article className="course-management__card course-management__roster-hero">
-          <div>
-            <p className="course-management__eyebrow">Configuracion del curso</p>
-            <h3>{selectedCourse?.name}</h3>
-            <p className="course-management__section-copy">
-              Aqui se define el equipo humano del curso. Primero escoge un docente
-              y luego arma el grupo de estudiantes.
-            </p>
-          </div>
-          <div className="course-management__hero-meta">
-            <span>
-              <UserSquare2 size={15} />
-              {getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
-            </span>
-            <span>
-              <Users size={15} />
-              {selectedStudents.length} estudiantes asignados
-            </span>
-          </div>
-        </article>
+      <article className="course-management__card course-management__roster-hero">
+        <div>
+          <p className="course-management__eyebrow">Configuracion del curso</p>
+          <h3>{selectedCourse?.name}</h3>
+          <p className="course-management__section-copy">
+            Un espacio para armar el curso con calma: define el docente, revisa
+            el grupo y ajusta estudiantes sin salir de la misma vista.
+          </p>
+        </div>
+        <div className="course-management__hero-meta">
+          <span>
+            <UserSquare2 size={15} />
+            {getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
+          </span>
+          <span>
+            <Users size={15} />
+            {selectedStudents.length} estudiantes asignados
+          </span>
+        </div>
+      </article>
 
-        <div className="course-management__roster-grid">
+      <div className="course-management__roster-overview">
+        <div className="course-management__roster-stat">
+          <span className="course-management__roster-stat-label">Docente</span>
+          <strong>{getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}</strong>
+        </div>
+        <div className="course-management__roster-stat">
+          <span className="course-management__roster-stat-label">Estudiantes</span>
+          <strong>{selectedStudents.length}</strong>
+        </div>
+        <div className="course-management__roster-stat">
+          <span className="course-management__roster-stat-label">Estado</span>
+          <strong>{selectedStudents.length > 0 ? "Conformado" : "En preparacion"}</strong>
+        </div>
+      </div>
+
+      <div className="course-management__roster-grid">
+        <aside className="course-management__roster-side">
           <article className="course-management__card course-management__teacher-panel">
             <div className="course-management__card-header">
               <div>
                 <h3>Docente responsable</h3>
-                <p>Selecciona al docente principal en una tarjeta dedicada.</p>
+                <p>Selecciona al docente principal en un panel dedicado.</p>
               </div>
             </div>
 
@@ -898,8 +913,8 @@ const CourseManagement = ({
           <article className="course-management__card course-management__selection-panel">
             <div className="course-management__card-header">
               <div>
-                <h3>Resumen del grupo</h3>
-                <p>Visualiza rapidamente a quienes ya hacen parte del curso.</p>
+                <h3>Estudiantes elegidos</h3>
+                <p>Resumen rapido del grupo que ya hace parte del curso.</p>
               </div>
             </div>
 
@@ -920,13 +935,13 @@ const CourseManagement = ({
               )}
             </div>
           </article>
-        </div>
+        </aside>
 
         <article className="course-management__card course-management__student-bank">
           <div className="course-management__card-header">
             <div>
-              <h3>Banco de estudiantes</h3>
-              <p>Agrega o quita estudiantes desde tarjetas amplias y faciles de leer.</p>
+              <h3>Explorador de estudiantes</h3>
+              <p>Agrega o quita estudiantes desde una grilla amplia y mas comoda de recorrer.</p>
             </div>
           </div>
 

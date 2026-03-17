@@ -865,12 +865,57 @@
 }
 
 .course-management__roster-grid {
-  grid-template-columns: 360px minmax(0, 1fr);
+  grid-template-columns: 340px minmax(0, 1fr);
+}
+
+.course-management__roster-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.course-management__roster-stat {
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+  border: 1px solid rgba(202, 165, 64, 0.2);
+  box-shadow: 0 14px 28px rgba(24, 33, 47, 0.05);
+}
+
+.course-management__roster-stat-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b5e00;
+}
+
+.course-management__roster-stat strong {
+  color: #111827;
+  font-size: 1rem;
+}
+
+.course-management__roster-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .course-management__teacher-panel,
 .course-management__selection-panel {
   min-height: 100%;
+}
+
+.course-management__selection-panel {
+  background: linear-gradient(180deg, rgba(255, 253, 250, 0.96) 0%, rgba(255, 247, 228, 0.9) 100%);
+}
+
+.course-management__selection-panel .course-management__selected-strip {
+  max-height: 220px;
+  overflow: auto;
+  align-content: flex-start;
 }
 
 .course-management__teacher-summary {
@@ -1057,6 +1102,7 @@
   .course-management__layout,
   .course-management__team-grid,
   .course-management__roster-grid,
+  .course-management__roster-overview,
   .course-management__areas-stage,
   .course-management__subjects-stage,
   .course-management__indicators-layout,
