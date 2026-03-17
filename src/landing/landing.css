@@ -1643,6 +1643,7 @@ body {
   gap: 8px;
 }
 
+.landing-admin__icon-button,
 .landing-admin__item-actions button {
   display: inline-flex;
   align-items: center;
@@ -1653,6 +1654,39 @@ body {
   border: 1px solid rgba(20, 20, 24, 0.08);
   background: rgba(20, 20, 24, 0.04);
   color: #2a261e;
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease;
+}
+
+.landing-admin__icon-button svg,
+.landing-admin__item-actions button svg {
+  display: block;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+.landing-admin__icon-button:hover,
+.landing-admin__item-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.landing-admin__icon-button--edit {
+  background: rgba(201, 162, 39, 0.12);
+  border-color: rgba(201, 162, 39, 0.26);
+  color: #7f6210;
+}
+
+.landing-admin__icon-button--edit:hover {
+  background: rgba(201, 162, 39, 0.2);
+}
+
+.landing-admin__icon-button--delete {
+  background: rgba(126, 28, 28, 0.08);
+  border-color: rgba(166, 63, 63, 0.2);
+  color: #8d2e2e;
+}
+
+.landing-admin__icon-button--delete:hover {
+  background: rgba(126, 28, 28, 0.14);
 }
 
 .landing-admin__list--cards {

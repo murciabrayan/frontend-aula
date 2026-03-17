@@ -345,8 +345,22 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                         <p>{item.summary}</p>
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button type="button" onClick={() => setNewsForm({ id: item.id, title: item.title, summary: item.summary, published_at: item.published_at, display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}><PencilLine size={16} /></button>
-                        <button type="button" onClick={() => handleDelete("news", item.id)}><Trash2 size={16} /></button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--edit"
+                          aria-label="Editar noticia"
+                          onClick={() => setNewsForm({ id: item.id, title: item.title, summary: item.summary, published_at: item.published_at, display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
+                        >
+                          <PencilLine size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--delete"
+                          aria-label="Eliminar noticia"
+                          onClick={() => handleDelete("news", item.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </article>
                   ))}
@@ -399,8 +413,22 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                         <p>{item.detail}</p>
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button type="button" onClick={() => setGalleryForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date || "", display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}><PencilLine size={16} /></button>
-                        <button type="button" onClick={() => handleDelete("gallery", item.id)}><Trash2 size={16} /></button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--edit"
+                          aria-label="Editar elemento de galeria"
+                          onClick={() => setGalleryForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date || "", display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
+                        >
+                          <PencilLine size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--delete"
+                          aria-label="Eliminar elemento de galeria"
+                          onClick={() => handleDelete("gallery", item.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </article>
                   ))}
@@ -457,8 +485,22 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                         {item.file_url ? <a href={item.file_url} target="_blank" rel="noreferrer" className="landing-admin__link"><Eye size={14} /><span>Ver documento</span></a> : null}
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button type="button" onClick={() => setDocumentForm({ id: item.id, title: item.title, description: item.description, display_order: item.display_order, is_active: item.is_active, file: null, currentFileUrl: item.file_url || "" })}><PencilLine size={16} /></button>
-                        <button type="button" onClick={() => handleDelete("documents", item.id)}><Trash2 size={16} /></button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--edit"
+                          aria-label="Editar documento"
+                          onClick={() => setDocumentForm({ id: item.id, title: item.title, description: item.description, display_order: item.display_order, is_active: item.is_active, file: null, currentFileUrl: item.file_url || "" })}
+                        >
+                          <PencilLine size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--delete"
+                          aria-label="Eliminar documento"
+                          onClick={() => handleDelete("documents", item.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </article>
                   ))}
@@ -499,8 +541,22 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                         <p>{item.detail}</p>
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button type="button" onClick={() => setCalendarForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date, display_order: item.display_order, is_active: item.is_active })}><PencilLine size={16} /></button>
-                        <button type="button" onClick={() => handleDelete("calendar", item.id)}><Trash2 size={16} /></button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--edit"
+                          aria-label="Editar fecha institucional"
+                          onClick={() => setCalendarForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date, display_order: item.display_order, is_active: item.is_active })}
+                        >
+                          <PencilLine size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          className="landing-admin__icon-button landing-admin__icon-button--delete"
+                          aria-label="Eliminar fecha institucional"
+                          onClick={() => handleDelete("calendar", item.id)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </article>
                   ))}
