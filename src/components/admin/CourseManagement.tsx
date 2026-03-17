@@ -129,6 +129,11 @@ const CourseManagement = ({
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+  const [isAssignIndicatorModalOpen, setIsAssignIndicatorModalOpen] =
+    useState(false);
+  const [assignmentSubjectId, setAssignmentSubjectId] = useState<number | "">("");
+  const [assignmentPeriod, setAssignmentPeriod] = useState<1 | 2 | 3 | 4 | "">("");
+  const [assignmentIndicatorId, setAssignmentIndicatorId] = useState<number | "">("");
 
   const [indicatorBank, setIndicatorBank] = useState<Indicator[]>([]);
   const [indicatorAssignments, setIndicatorAssignments] = useState<
@@ -148,9 +153,6 @@ const CourseManagement = ({
   const [loadingWorkspace, setLoadingWorkspace] = useState(false);
   const [savingCoursePeople, setSavingCoursePeople] = useState(false);
   const [savingSubjectId, setSavingSubjectId] = useState<number | null>(null);
-  const [savingAssignmentKey, setSavingAssignmentKey] = useState<string | null>(
-    null
-  );
 
   const isCourseMode = mode === "course";
 
@@ -265,6 +267,7 @@ const CourseManagement = ({
       setIndicatorAssignments(assignmentsRes.data || []);
       initializeSelectedIndicators(loadedSubjects);
       setSelectedSubjectId(loadedSubjects[0]?.id ?? null);
+      setAssignmentSubjectId(loadedSubjects[0]?.id ?? "");
     } catch (error) {
       console.error("Error cargando el curso seleccionado", error);
       showToast({
@@ -537,6 +540,13 @@ const CourseManagement = ({
     setIsSubjectModalOpen(false);
   };
 
+  const resetIndicatorAssignmentDraft = () => {
+    setAssignmentSubjectId(selectedSubjectId ?? "");
+    setAssignmentPeriod("");
+    setAssignmentIndicatorId("");
+    setIsAssignIndicatorModalOpen(false);
+  };
+
   const removeSubject = async (subjectId: number) => {
     const accepted = await confirm({
       title: "Eliminar materia",
@@ -712,6 +722,30 @@ const CourseManagement = ({
     }
   };
 
+  const submitIndicatorAssignment = async () => {
+    if (
+      assignmentSubjectId === "" ||
+      assignmentPeriod === "" ||
+      assignmentIndicatorId === ""
+    ) {
+      showToast({
+        type: "warning",
+        title: "Asignacion incompleta",
+        message: "Selecciona materia, periodo e indicador antes de continuar.",
+      });
+      return;
+    }
+
+    handleSelectedIndicatorChange(
+      assignmentSubjectId,
+      assignmentPeriod,
+      assignmentIndicatorId
+    );
+    await assignIndicatorToSubject(assignmentSubjectId, assignmentPeriod);
+    setSelectedSubjectId(assignmentSubjectId);
+    resetIndicatorAssignmentDraft();
+  };
+
   const handleSelectedIndicatorChange = (
     subjectId: number,
     period: 1 | 2 | 3 | 4,
@@ -733,10 +767,7 @@ const CourseManagement = ({
     const indicatorId = selectedIndicators[subjectId]?.[period];
     if (!indicatorId) return;
 
-    const assignmentKey = `${subjectId}-${period}`;
-
     try {
-      setSavingAssignmentKey(assignmentKey);
       const response = await createAssignment({
         materia: subjectId,
         periodo: period,
@@ -765,8 +796,6 @@ const CourseManagement = ({
           error?.response?.data?.detail ||
           "No se pudo asignar el indicador.",
       });
-    } finally {
-      setSavingAssignmentKey(null);
     }
   };
 
@@ -1242,130 +1271,59 @@ const CourseManagement = ({
               <article className="course-management__card">
                 <div className="course-management__card-header">
                   <div>
-                    <h3>Materia activa</h3>
-                    <p>Elige una materia desde botones visibles, no desde una vista mezclada.</p>
+                    <h3>Asignaciones activas</h3>
+                    <p>Consulta los indicadores asignados y abre el modal para crear una nueva relacion.</p>
                   </div>
+                  <button
+                    type="button"
+                    className="course-management__primary-btn course-management__primary-btn--compact"
+                    onClick={() => {
+                      setAssignmentSubjectId(selectedSubjectId ?? "");
+                      setAssignmentPeriod("");
+                      setAssignmentIndicatorId("");
+                      setIsAssignIndicatorModalOpen(true);
+                    }}
+                  >
+                    <Plus size={14} />
+                    <span>Asignar indicador</span>
+                  </button>
                 </div>
-                <div className="course-management__subject-pills">
-                  {subjects.map((subject) => (
-                    <button
-                      key={subject.id}
-                      type="button"
-                      className={`course-management__subject-pill ${
-                        selectedSubjectId === subject.id ? "is-active" : ""
-                      }`}
-                      onClick={() => setSelectedSubjectId(subject.id)}
-                    >
-                      <strong>{subject.nombre}</strong>
-                      <span>{subject.area_nombre || "Sin area"}</span>
-                    </button>
-                  ))}
+                <div className="course-management__assignment-overview">
+                  {subjects.length === 0 ? (
+                    <div className="course-management__empty">
+                      Crea materias antes de asignar indicadores.
+                    </div>
+                  ) : (
+                    subjects.map((subject) => {
+                      const totalAssignments = indicatorAssignments.filter(
+                        (assignment) => assignment.materia === subject.id
+                      ).length;
+                      return (
+                        <div
+                          key={subject.id}
+                          className={`course-management__assignment-summary-card ${
+                            selectedSubjectId === subject.id ? "is-active" : ""
+                          }`}
+                          onClick={() => setSelectedSubjectId(subject.id)}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <strong>{subject.nombre}</strong>
+                          <span>{subject.area_nombre || "Sin area"}</span>
+                          <small>{totalAssignments} indicadores asignados</small>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </article>
 
-              <div className="course-management__indicators-layout">
-                <article className="course-management__card">
-                  <div className="course-management__card-header">
-                    <div>
-                      <h3>Asignacion por periodos</h3>
-                      <p>
-                        {selectedSubject
-                          ? `Trabajando sobre ${selectedSubject.nombre}.`
-                          : "Selecciona una materia para continuar."}
-                      </p>
-                    </div>
-                  </div>
-                  {!selectedSubject ? (
-                    <div className="course-management__empty course-management__empty--large">
-                      Selecciona una materia para administrar indicadores.
-                    </div>
-                  ) : (
-                    <div className="course-management__period-grid">
-                      {[1, 2, 3, 4].map((period) => {
-                        const typedPeriod = period as 1 | 2 | 3 | 4;
-                        const periodAssignments = getAssignmentsForSubjectPeriod(
-                          selectedSubject.id,
-                          typedPeriod
-                        );
-
-                        return (
-                          <div key={period} className="course-management__period-card">
-                            <div className="course-management__period-title">
-                              Periodo {period}
-                            </div>
-                            <div className="course-management__period-form">
-                              <select
-                                value={
-                                  selectedIndicators[selectedSubject.id]?.[typedPeriod] ?? ""
-                                }
-                                onChange={(event) =>
-                                  handleSelectedIndicatorChange(
-                                    selectedSubject.id,
-                                    typedPeriod,
-                                    event.target.value ? Number(event.target.value) : ""
-                                  )
-                                }
-                              >
-                                <option value="">Selecciona un indicador</option>
-                                {indicatorBank.map((indicator) => (
-                                  <option key={indicator.id} value={indicator.id}>
-                                    {indicator.descripcion}
-                                  </option>
-                                ))}
-                              </select>
-                              <button
-                                type="button"
-                                className="course-management__primary-btn"
-                                disabled={
-                                  savingAssignmentKey === `${selectedSubject.id}-${period}`
-                                }
-                                onClick={() =>
-                                  void assignIndicatorToSubject(
-                                    selectedSubject.id,
-                                    typedPeriod
-                                  )
-                                }
-                              >
-                                {savingAssignmentKey === `${selectedSubject.id}-${period}`
-                                  ? "..."
-                                  : "Asignar"}
-                              </button>
-                            </div>
-                            <div className="course-management__assignment-list">
-                              {periodAssignments.length === 0 ? (
-                                <div className="course-management__empty">
-                                  Sin indicadores asignados.
-                                </div>
-                              ) : (
-                                periodAssignments.map((assignment) => (
-                                  <div
-                                    key={assignment.id}
-                                    className="course-management__assignment-item"
-                                  >
-                                    <span>{assignment.indicador_descripcion}</span>
-                                    <button
-                                      type="button"
-                                      className="course-management__icon-btn is-danger"
-                                      onClick={() => void unassignIndicator(assignment.id)}
-                                    >
-                                      <Trash2 size={14} />
-                                    </button>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </article>
-
+              <div className="course-management__indicators-layout is-single">
                 <article className="course-management__card course-management__indicator-bank">
                   <div className="course-management__card-header">
                     <div>
                       <h3>Banco de indicadores</h3>
-                      <p>Crea y edita indicadores en un panel aparte.</p>
+                      <p>Crea, edita y revisa los indicadores disponibles. Las asignaciones viven en el modal.</p>
                     </div>
                   </div>
                   <div className="course-management__inline-form course-management__inline-form--column">
@@ -1454,6 +1412,65 @@ const CourseManagement = ({
                       ))
                     )}
                   </div>
+                </article>
+
+                <article className="course-management__card">
+                  <div className="course-management__card-header">
+                    <div>
+                      <h3>Vista de asignaciones</h3>
+                      <p>
+                        {selectedSubject
+                          ? `Revisa las asignaciones de ${selectedSubject.nombre}.`
+                          : "Selecciona una materia para revisar sus indicadores."}
+                      </p>
+                    </div>
+                  </div>
+                  {!selectedSubject ? (
+                    <div className="course-management__empty course-management__empty--large">
+                      Selecciona una materia del resumen superior.
+                    </div>
+                  ) : (
+                    <div className="course-management__assignment-columns">
+                      {[1, 2, 3, 4].map((period) => {
+                        const typedPeriod = period as 1 | 2 | 3 | 4;
+                        const periodAssignments = getAssignmentsForSubjectPeriod(
+                          selectedSubject.id,
+                          typedPeriod
+                        );
+
+                        return (
+                          <div key={period} className="course-management__period-card">
+                            <div className="course-management__period-title">
+                              Periodo {period}
+                            </div>
+                            <div className="course-management__assignment-list">
+                              {periodAssignments.length === 0 ? (
+                                <div className="course-management__empty">
+                                  Sin indicadores asignados.
+                                </div>
+                              ) : (
+                                periodAssignments.map((assignment) => (
+                                  <div
+                                    key={assignment.id}
+                                    className="course-management__assignment-item"
+                                  >
+                                    <span>{assignment.indicador_descripcion}</span>
+                                    <button
+                                      type="button"
+                                      className="course-management__icon-btn"
+                                      onClick={() => void unassignIndicator(assignment.id)}
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </article>
               </div>
             </div>
@@ -1744,6 +1761,93 @@ const CourseManagement = ({
                   type="button"
                   className="course-management__secondary-btn"
                   onClick={resetSubjectDraft}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {!isCourseMode && isAssignIndicatorModalOpen ? (
+        <div className="course-management__modal-backdrop">
+          <div className="course-management__modal">
+            <div className="course-management__card-header">
+              <div>
+                <h3>Asignar indicador</h3>
+                <p>Selecciona la materia, el periodo y el indicador que quieres relacionar.</p>
+              </div>
+              <button
+                type="button"
+                className="course-management__mini-btn"
+                onClick={resetIndicatorAssignmentDraft}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div className="course-management__stack-form">
+              <select
+                value={assignmentSubjectId}
+                onChange={(event) =>
+                  setAssignmentSubjectId(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Selecciona una materia</option>
+                {subjects.map((subject) => (
+                  <option key={subject.id} value={subject.id}>
+                    {subject.nombre}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={assignmentPeriod}
+                onChange={(event) =>
+                  setAssignmentPeriod(
+                    event.target.value ? (Number(event.target.value) as 1 | 2 | 3 | 4) : ""
+                  )
+                }
+              >
+                <option value="">Selecciona un periodo</option>
+                <option value="1">Periodo 1</option>
+                <option value="2">Periodo 2</option>
+                <option value="3">Periodo 3</option>
+                <option value="4">Periodo 4</option>
+              </select>
+
+              <select
+                value={assignmentIndicatorId}
+                onChange={(event) =>
+                  setAssignmentIndicatorId(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Selecciona un indicador</option>
+                {indicatorBank.map((indicator) => (
+                  <option key={indicator.id} value={indicator.id}>
+                    {indicator.descripcion}
+                  </option>
+                ))}
+              </select>
+
+              <div className="course-management__form-actions">
+                <button
+                  type="button"
+                  className="course-management__primary-btn"
+                  onClick={() => void submitIndicatorAssignment()}
+                >
+                  <Plus size={14} />
+                  <span>Asignar indicador</span>
+                </button>
+                <button
+                  type="button"
+                  className="course-management__secondary-btn"
+                  onClick={resetIndicatorAssignmentDraft}
                 >
                   Cancelar
                 </button>

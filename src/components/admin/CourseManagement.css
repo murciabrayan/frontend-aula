@@ -1152,6 +1152,48 @@
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
 }
 
+.course-management__indicators-layout.is-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.course-management__assignment-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.course-management__assignment-summary-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.course-management__assignment-summary-card strong {
+  color: #111827;
+}
+
+.course-management__assignment-summary-card span,
+.course-management__assignment-summary-card small {
+  color: #64748b;
+}
+
+.course-management__assignment-summary-card.is-active {
+  border-color: #d4af37;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+  box-shadow: 0 14px 28px rgba(212, 175, 55, 0.12);
+}
+
+.course-management__assignment-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .course-management__empty {
   padding: 14px;
   border-radius: 16px;
