@@ -1135,13 +1135,60 @@ const CourseManagement = () => {
                     </div>
                   </article>
 
+                  <div className="course-management__section-overview">
+                    <button
+                      type="button"
+                      className={`course-management__overview-card ${
+                        selectedStructureSection === "areas" ? "is-active" : ""
+                      }`}
+                      onClick={() => setSelectedStructureSection("areas")}
+                    >
+                      <span className="course-management__overview-kicker">
+                        Base del curso
+                      </span>
+                      <strong>Areas</strong>
+                      <p>Organiza los grandes bloques academicos antes de crear materias.</p>
+                      <small>{areas.length} areas registradas</small>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`course-management__overview-card ${
+                        selectedStructureSection === "materias" ? "is-active" : ""
+                      }`}
+                      onClick={() => setSelectedStructureSection("materias")}
+                    >
+                      <span className="course-management__overview-kicker">
+                        Mapa academico
+                      </span>
+                      <strong>Materias</strong>
+                      <p>Revisa el listado y entra al detalle de cada materia con mas espacio.</p>
+                      <small>{subjects.length} materias configuradas</small>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`course-management__overview-card ${
+                        selectedStructureSection === "indicadores" ? "is-active" : ""
+                      }`}
+                      onClick={() => setSelectedStructureSection("indicadores")}
+                    >
+                      <span className="course-management__overview-kicker">
+                        Evaluacion
+                      </span>
+                      <strong>Indicadores</strong>
+                      <p>Trabaja periodos e indicadores en una vista dedicada y mas amplia.</p>
+                      <small>{indicatorBank.length} indicadores en banco</small>
+                    </button>
+                  </div>
+
                   <div className="course-management__structure-layout">
                   {selectedStructureSection === "areas" ? (
-                  <article className="course-management__card course-management__structure-card">
+                  <article className="course-management__card course-management__structure-card course-management__stage-card">
                     <div className="course-management__card-header">
                       <div>
                         <h3>Areas</h3>
-                        <p>Define los grupos academicos del curso.</p>
+                        <p>Define los grupos academicos del curso en una vista enfocada solo en esta parte.</p>
                       </div>
                     </div>
                     <div className="course-management__scroll-panel">
@@ -1190,11 +1237,11 @@ const CourseManagement = () => {
                   ) : null}
 
                   {selectedStructureSection === "materias" ? (
-                  <article className="course-management__card course-management__structure-card">
+                  <article className="course-management__card course-management__structure-card course-management__stage-card">
                     <div className="course-management__card-header">
                       <div>
                         <h3>Materias</h3>
-                        <p>Selecciona una materia para ver su configuracion detallada.</p>
+                        <p>Explora el listado y abre el detalle sin mezclarlo con indicadores.</p>
                       </div>
                     </div>
 
@@ -1264,14 +1311,28 @@ const CourseManagement = () => {
 
                   {(selectedStructureSection === "materias" ||
                     selectedStructureSection === "indicadores") ? (
-                  <div className="course-management__structure-main">
+                  <div
+                    className={`course-management__structure-main ${
+                      selectedStructureSection === "indicadores"
+                        ? "is-indicators"
+                        : ""
+                    }`}
+                  >
                     <article className="course-management__card">
                       <div className="course-management__card-header">
                         <div>
-                          <h3>Detalle de materia</h3>
+                          <h3>
+                            {selectedStructureSection === "indicadores"
+                              ? "Configuracion de indicadores"
+                              : "Detalle de materia"}
+                          </h3>
                           <p>
-                            {selectedSubject
-                              ? "Asigna el area y los indicadores por periodo."
+                            {selectedStructureSection === "indicadores"
+                              ? selectedSubject
+                                ? "Trabaja una sola materia a la vez y asigna sus indicadores por periodo."
+                                : "Selecciona una materia para trabajar sus indicadores."
+                              : selectedSubject
+                              ? "Asigna el area de la materia sin ruido visual extra."
                               : "Selecciona una materia para administrarla."}
                           </p>
                         </div>
@@ -1290,35 +1351,58 @@ const CourseManagement = () => {
                                 Area actual: {selectedSubject.area_nombre || "Sin area"}
                               </p>
                             </div>
-                            <button
-                              type="button"
-                              className="course-management__icon-btn is-danger"
-                              onClick={() => void removeSubject(selectedSubject.id)}
-                            >
-                              <Trash2 size={15} />
-                            </button>
+                            {selectedStructureSection === "materias" ? (
+                              <button
+                                type="button"
+                                className="course-management__icon-btn is-danger"
+                                onClick={() => void removeSubject(selectedSubject.id)}
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            ) : null}
                           </div>
 
-                          <label className="course-management__field">
-                            <span>Area de la materia</span>
-                            <select
-                              value={selectedSubject.area ?? ""}
-                              disabled={savingSubjectId === selectedSubject.id}
-                              onChange={(event) =>
-                                void handleAssignAreaToSubject(
-                                  selectedSubject.id,
-                                  event.target.value ? Number(event.target.value) : ""
-                                )
-                              }
-                            >
-                              <option value="">Sin area</option>
-                              {areas.map((area) => (
-                                <option key={area.id} value={area.id}>
-                                  {area.nombre}
-                                </option>
-                              ))}
-                            </select>
-                          </label>
+                          {selectedStructureSection === "materias" ? (
+                            <label className="course-management__field">
+                              <span>Area de la materia</span>
+                              <select
+                                value={selectedSubject.area ?? ""}
+                                disabled={savingSubjectId === selectedSubject.id}
+                                onChange={(event) =>
+                                  void handleAssignAreaToSubject(
+                                    selectedSubject.id,
+                                    event.target.value ? Number(event.target.value) : ""
+                                  )
+                                }
+                              >
+                                <option value="">Sin area</option>
+                                {areas.map((area) => (
+                                  <option key={area.id} value={area.id}>
+                                    {area.nombre}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          ) : (
+                            <label className="course-management__field">
+                              <span>Materia activa</span>
+                              <select
+                                value={selectedSubjectId ?? ""}
+                                onChange={(event) =>
+                                  setSelectedSubjectId(
+                                    event.target.value ? Number(event.target.value) : null
+                                  )
+                                }
+                              >
+                                <option value="">Selecciona una materia</option>
+                                {subjects.map((subject) => (
+                                  <option key={subject.id} value={subject.id}>
+                                    {subject.nombre}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          )}
 
                           {selectedStructureSection === "indicadores" ? (
                           <div className="course-management__period-grid">
@@ -1422,7 +1506,10 @@ const CourseManagement = () => {
                       <div className="course-management__card-header">
                         <div>
                           <h3>Banco de indicadores</h3>
-                          <p>Crea y reutiliza indicadores en todas las materias del curso.</p>
+                          <p>
+                            Crea, edita y reutiliza indicadores en una zona separada,
+                            sin apretar la configuracion por periodos.
+                          </p>
                         </div>
                       </div>
 

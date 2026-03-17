@@ -400,6 +400,63 @@
   box-shadow: 0 12px 24px rgba(185, 139, 31, 0.18);
 }
 
+.course-management__section-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.course-management__overview-card {
+  text-align: left;
+  border: 1px solid rgba(202, 165, 64, 0.18);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+  padding: 20px;
+  cursor: pointer;
+  box-shadow: 0 16px 34px rgba(24, 33, 47, 0.06);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.course-management__overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 36px rgba(24, 33, 47, 0.1);
+}
+
+.course-management__overview-card.is-active {
+  border-color: #d4af37;
+  box-shadow: 0 22px 42px rgba(185, 139, 31, 0.16);
+}
+
+.course-management__overview-kicker {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8b5e00;
+}
+
+.course-management__overview-card strong {
+  display: block;
+  font-size: 1.1rem;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.course-management__overview-card p,
+.course-management__overview-card small {
+  margin: 0;
+  color: #5b6472;
+  line-height: 1.55;
+}
+
+.course-management__overview-card small {
+  display: block;
+  margin-top: 14px;
+  font-weight: 700;
+}
+
 .course-management__workspace-tabs button {
   min-height: 44px;
   padding: 0 16px;
@@ -460,6 +517,10 @@
 
 .course-management__structure-card {
   min-height: 0;
+}
+
+.course-management__stage-card {
+  min-height: 560px;
 }
 
 .course-management__subject-group {
@@ -537,6 +598,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+  margin-top: 18px;
 }
 
 .course-management__period-card {
@@ -566,7 +628,7 @@
 }
 
 .course-management__indicator-bank .course-management__indicator-list {
-  max-height: 420px;
+  max-height: 640px;
 }
 
 .course-management__indicator-item {
@@ -600,6 +662,7 @@
   .course-management__layout,
   .course-management__team-grid,
   .course-management__structure-layout,
+  .course-management__section-overview,
   .course-management__section-panel--split,
   .course-management__structure-main {
     grid-template-columns: 1fr;
@@ -611,6 +674,10 @@
   .course-management__indicator-list {
     max-height: none;
   }
+}
+
+.course-management__structure-main.is-indicators {
+  grid-template-columns: 1fr;
 }
 
 @media (max-width: 720px) {
