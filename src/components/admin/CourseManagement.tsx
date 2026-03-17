@@ -71,8 +71,8 @@ interface Subject {
   area_nombre?: string;
 }
 
-type CourseWorkspaceTab = "equipo" | "estructura";
 type StructureSection = "areas" | "materias" | "indicadores";
+type CourseManagementMode = "course" | "structure";
 
 type PeriodSelectorState = {
   1: number | "";
@@ -94,7 +94,13 @@ const emptyCourseForm = (): Course => ({
   students: [],
 });
 
-const CourseManagement = () => {
+interface CourseManagementProps {
+  mode?: CourseManagementMode;
+}
+
+const CourseManagement = ({
+  mode = "course",
+}: CourseManagementProps) => {
   const { confirm, showToast } = useFeedback();
 
   const [courses, setCourses] = useState<Course[]>([]);
@@ -102,8 +108,6 @@ const CourseManagement = () => {
   const [students, setStudents] = useState<User[]>([]);
 
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-  const [selectedCourseTab, setSelectedCourseTab] =
-    useState<CourseWorkspaceTab>("equipo");
   const [selectedStructureSection, setSelectedStructureSection] =
     useState<StructureSection>("areas");
   const [courseSearch, setCourseSearch] = useState("");
@@ -145,6 +149,8 @@ const CourseManagement = () => {
   const [savingAssignmentKey, setSavingAssignmentKey] = useState<string | null>(
     null
   );
+
+  const isCourseMode = mode === "course";
 
   useEffect(() => {
     void loadInitialData();
@@ -237,7 +243,6 @@ const CourseManagement = () => {
     setSelectedCourseId(course.id);
     setSelectedTeacher(course.teacher || "");
     setSelectedStudents(course.students || []);
-    setSelectedCourseTab("equipo");
     setSelectedStructureSection("areas");
     setStudentFilter("");
     setLoadingWorkspace(true);
@@ -822,16 +827,22 @@ const CourseManagement = () => {
       <div className="course-management__header">
         <div>
           <p className="course-management__eyebrow">Administracion academica</p>
-          <h2>Cursos y estructura academica</h2>
+          <h2>
+            {isCourseMode
+              ? "Cursos y equipo academico"
+              : "Estructura academica por curso"}
+          </h2>
           <p>
-            Crea cursos, asigna su equipo de trabajo y organiza materias,
-            areas e indicadores desde un solo espacio.
+            {isCourseMode
+              ? "Crea cursos, asigna docentes y organiza estudiantes en un flujo mas claro y comodo."
+              : "Selecciona un curso y configura sus areas, materias e indicadores sin mezclarlo con la gestion del equipo."}
           </p>
         </div>
       </div>
 
       <div className="course-management__layout">
         <aside className="course-management__catalog">
+          {isCourseMode ? (
           <article className="course-management__card">
             <div className="course-management__card-header">
               <div>
@@ -891,12 +902,34 @@ const CourseManagement = () => {
               </div>
             </form>
           </article>
+          ) : (
+          <article className="course-management__card">
+            <div className="course-management__card-header">
+              <div>
+                <h3>Seleccion de curso</h3>
+                <p>Elige el curso sobre el que vas a construir su estructura academica.</p>
+              </div>
+            </div>
+
+            <div className="course-management__summary-chip">
+              <BookOpen size={16} />
+              <div>
+                <strong>Curso activo</strong>
+                <span>{selectedCourse?.name || "Aun no has seleccionado un curso"}</span>
+              </div>
+            </div>
+          </article>
+          )}
 
           <article className="course-management__card course-management__card--fill">
             <div className="course-management__card-header">
               <div>
-                <h3>Catalogo de cursos</h3>
-                <p>Selecciona un curso para configurarlo en el panel derecho.</p>
+                <h3>{isCourseMode ? "Catalogo de cursos" : "Cursos disponibles"}</h3>
+                <p>
+                  {isCourseMode
+                    ? "Selecciona un curso para gestionar su equipo en el panel derecho."
+                    : "Selecciona un curso para administrar sus areas, materias e indicadores."}
+                </p>
               </div>
             </div>
 
@@ -976,7 +1009,9 @@ const CourseManagement = () => {
               <h3>Selecciona un curso</h3>
               <p>
                 Cuando elijas un curso, podras administrar docente, estudiantes,
-                materias, areas e indicadores sin salir de esta pantalla.
+                {isCourseMode
+                  ? " y la asignacion del equipo sin salir de esta pantalla."
+                  : " y toda su estructura academica sin salir de esta pantalla."}
               </p>
             </div>
           ) : loadingWorkspace ? (
@@ -1004,26 +1039,9 @@ const CourseManagement = () => {
                     </span>
                   </div>
                 </div>
-
-                <div className="course-management__workspace-tabs">
-                  <button
-                    type="button"
-                    className={selectedCourseTab === "equipo" ? "is-active" : ""}
-                    onClick={() => setSelectedCourseTab("equipo")}
-                  >
-                    Equipo del curso
-                  </button>
-                  <button
-                    type="button"
-                    className={selectedCourseTab === "estructura" ? "is-active" : ""}
-                    onClick={() => setSelectedCourseTab("estructura")}
-                  >
-                    Estructura academica
-                  </button>
-                </div>
               </article>
 
-              {selectedCourseTab === "equipo" ? (
+              {isCourseMode ? (
                 <div className="course-management__team-grid">
                   <article className="course-management__card course-management__team-card">
                     <div className="course-management__card-header">
