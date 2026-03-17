@@ -134,6 +134,8 @@ const CourseManagement = ({
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [isAssignIndicatorModalOpen, setIsAssignIndicatorModalOpen] =
     useState(false);
+  const [isSubjectIndicatorsModalOpen, setIsSubjectIndicatorsModalOpen] =
+    useState(false);
   const [assignmentSubjectId, setAssignmentSubjectId] = useState<number | "">("");
   const [assignmentPeriod, setAssignmentPeriod] = useState<1 | 2 | 3 | 4 | "">("");
   const [assignmentIndicatorId, setAssignmentIndicatorId] = useState<number | "">("");
@@ -1322,7 +1324,10 @@ const CourseManagement = ({
                               className={`course-management__assignment-summary-card ${
                                 selectedSubjectId === subject.id ? "is-active" : ""
                               }`}
-                              onClick={() => setSelectedSubjectId(subject.id)}
+                              onClick={() => {
+                                setSelectedSubjectId(subject.id);
+                                setIsSubjectIndicatorsModalOpen(true);
+                              }}
                               role="button"
                               tabIndex={0}
                             >
@@ -1334,70 +1339,6 @@ const CourseManagement = ({
                         })
                       )}
                     </div>
-                  </article>
-
-                  <article className="course-management__card">
-                    <div className="course-management__card-header">
-                      <div>
-                        <h3>Indicadores de la materia</h3>
-                        <p>
-                          {selectedSubject
-                            ? `Consulta la tabla de ${selectedSubject.nombre}.`
-                            : "Selecciona una materia para ver su tabla de indicadores."}
-                        </p>
-                      </div>
-                    </div>
-                    {!selectedSubject ? (
-                      <div className="course-management__empty course-management__empty--large">
-                        Selecciona una materia del panel izquierdo.
-                      </div>
-                    ) : (
-                      <div className="course-management__student-table-wrap">
-                        <table className="course-management__student-table">
-                          <thead>
-                            <tr>
-                              <th>Periodo</th>
-                              <th>Indicador</th>
-                              <th>Accion</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {[1, 2, 3, 4].flatMap((period) => {
-                              const typedPeriod = period as 1 | 2 | 3 | 4;
-                              const periodAssignments = getAssignmentsForSubjectPeriod(
-                                selectedSubject.id,
-                                typedPeriod
-                              );
-
-                              if (periodAssignments.length === 0) {
-                                return [
-                                  <tr key={`empty-${period}`}>
-                                    <td>Periodo {period}</td>
-                                    <td colSpan={2}>Sin indicadores asignados.</td>
-                                  </tr>,
-                                ];
-                              }
-
-                              return periodAssignments.map((assignment) => (
-                                <tr key={assignment.id}>
-                                  <td>Periodo {period}</td>
-                                  <td>{assignment.indicador_descripcion}</td>
-                                  <td>
-                                    <button
-                                      type="button"
-                                      className="course-management__action-pill"
-                                      onClick={() => void unassignIndicator(assignment.id)}
-                                    >
-                                      Quitar
-                                    </button>
-                                  </td>
-                                </tr>
-                              ));
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
                   </article>
                 </div>
               ) : null}
@@ -1893,6 +1834,82 @@ const CourseManagement = ({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {!isCourseMode && isSubjectIndicatorsModalOpen ? (
+        <div className="course-management__modal-backdrop">
+          <div className="course-management__modal course-management__modal--wide">
+            <div className="course-management__card-header">
+              <div>
+                <h3>
+                  {selectedSubject
+                    ? `Indicadores de ${selectedSubject.nombre}`
+                    : "Indicadores de la materia"}
+                </h3>
+                <p>Consulta los indicadores guardados y el periodo al que pertenecen.</p>
+              </div>
+              <button
+                type="button"
+                className="course-management__mini-btn"
+                onClick={() => setIsSubjectIndicatorsModalOpen(false)}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            {!selectedSubject ? (
+              <div className="course-management__empty course-management__empty--large">
+                Selecciona una materia para ver sus indicadores.
+              </div>
+            ) : (
+              <div className="course-management__student-table-wrap">
+                <table className="course-management__student-table">
+                  <thead>
+                    <tr>
+                      <th>Periodo</th>
+                      <th>Indicador</th>
+                      <th>Accion</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 2, 3, 4].flatMap((period) => {
+                      const typedPeriod = period as 1 | 2 | 3 | 4;
+                      const periodAssignments = getAssignmentsForSubjectPeriod(
+                        selectedSubject.id,
+                        typedPeriod
+                      );
+
+                      if (periodAssignments.length === 0) {
+                        return [
+                          <tr key={`empty-${period}`}>
+                            <td>Periodo {period}</td>
+                            <td colSpan={2}>Sin indicadores asignados.</td>
+                          </tr>,
+                        ];
+                      }
+
+                      return periodAssignments.map((assignment) => (
+                        <tr key={assignment.id}>
+                          <td>Periodo {period}</td>
+                          <td>{assignment.indicador_descripcion}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="course-management__action-pill"
+                              onClick={() => void unassignIndicator(assignment.id)}
+                            >
+                              Quitar
+                            </button>
+                          </td>
+                        </tr>
+                      ));
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       ) : null}

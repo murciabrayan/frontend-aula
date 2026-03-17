@@ -1053,6 +1053,10 @@
   padding: 24px;
 }
 
+.course-management__modal--wide {
+  width: min(100%, 860px);
+}
+
 .course-management__builder-layout {
   grid-template-columns: 240px minmax(0, 1fr);
 }
