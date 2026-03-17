@@ -31,16 +31,19 @@ const slides = [
 
 const news = [
   {
+    image: heroImageA,
     title: "Semana institucional de ciencia y creatividad",
     date: "Abril 12",
     description: "Exposiciones, proyectos y experiencias de aula para toda la comunidad.",
   },
   {
+    image: heroImageB,
     title: "Encuentro con familias y docentes",
     date: "Abril 18",
     description: "Espacio de dialogo para fortalecer acompanamiento academico y convivencia.",
   },
   {
+    image: heroImageA,
     title: "Jornada cultural y deportiva",
     date: "Abril 27",
     description: "Actividades artisticas, deportivas y recreativas en la sede principal.",
@@ -76,25 +79,27 @@ const LandingHomePage = () => {
   return (
     <div className="landing-page">
       <section className="landing-hero">
-        <div className="landing-hero__copy">
-          <p className="landing-eyebrow">Bienvenidos</p>
-          <h1>{currentSlide.title}</h1>
-          <p>{currentSlide.text}</p>
-          <div className="landing-hero__actions">
-            <Link to="/institucional" className="landing-btn landing-btn--primary">
-              Conocer la institucion
-            </Link>
-            <Link to="/contacto" className="landing-btn landing-btn--secondary">
-              Contactanos
-            </Link>
-          </div>
-        </div>
-
         <div className="landing-carousel">
           <div
             className="landing-carousel__image"
             style={{ backgroundImage: `url(${currentSlide.image})` }}
           />
+
+          <div className="landing-carousel__content">
+            <div className="landing-hero__copy">
+              <p className="landing-eyebrow">Bienvenidos</p>
+              <h1>{currentSlide.title}</h1>
+              <p>{currentSlide.text}</p>
+              <div className="landing-hero__actions">
+                <Link to="/institucional" className="landing-btn landing-btn--primary">
+                  Conocer la institucion
+                </Link>
+                <Link to="/contacto" className="landing-btn landing-btn--secondary">
+                  Contactanos
+                </Link>
+              </div>
+            </div>
+          </div>
 
           <div className="landing-carousel__controls">
             <button
@@ -128,7 +133,7 @@ const LandingHomePage = () => {
       </section>
 
       <section className="landing-grid">
-        <article className="landing-card">
+        <article className="landing-card landing-card--feature">
           <div className="landing-card__header">
             <FileText size={18} />
             <h2>Informacion institucional</h2>
@@ -142,7 +147,7 @@ const LandingHomePage = () => {
           </Link>
         </article>
 
-        <article className="landing-card">
+        <article className="landing-card landing-card--news">
           <div className="landing-card__header">
             <Megaphone size={18} />
             <h2>Noticias y eventos</h2>
@@ -150,9 +155,15 @@ const LandingHomePage = () => {
           <div className="landing-news">
             {news.map((item) => (
               <div key={item.title} className="landing-news__item">
-                <span>{item.date}</span>
-                <strong>{item.title}</strong>
-                <p>{item.description}</p>
+                <div
+                  className="landing-news__image"
+                  style={{ backgroundImage: `url(${item.image})` }}
+                />
+                <div className="landing-news__body">
+                  <span>{item.date}</span>
+                  <strong>{item.title}</strong>
+                  <p>{item.description}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -178,6 +189,10 @@ const LandingHomePage = () => {
         <div>
           <p className="landing-eyebrow">Comunidad digital</p>
           <h2>Siguenos en nuestras redes</h2>
+          <p className="landing-social__copy">
+            Comparte los momentos institucionales, noticias destacadas y actividades
+            de nuestra comunidad educativa.
+          </p>
         </div>
         <div className="landing-social__grid">
           {socialLinks.map((item) => (
