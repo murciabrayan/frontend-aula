@@ -167,7 +167,7 @@ const InstitutionalLayout = () => {
                     onClick={handleProfileAction}
                     aria-label={profileLabel}
                   >
-                    <CircleUserRound size={18} />
+                    <CircleUserRound size={22} strokeWidth={2.2} />
                   </button>
 
                   {profileOpen ? (
