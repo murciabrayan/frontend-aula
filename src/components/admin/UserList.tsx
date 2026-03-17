@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useFeedback } from "@/context/FeedbackContext";
 import UserForm from "./UserForm";
 import "./UserManagement.css";
 import type { User } from "../../types/User"; 
 
 
 const UserList: React.FC = () => {
+  const { confirm, showToast } = useFeedback();
   const [users, setUsers] = useState<User[]>([]);
   const [filterRole, setFilterRole] = useState<"STUDENT" | "TEACHER">("STUDENT");
   const [showForm, setShowForm] = useState(false);
@@ -33,9 +35,19 @@ const UserList: React.FC = () => {
       .catch((err) => {
         console.error("Error al obtener usuarios:", err);
         if (err.response?.status === 401) {
-          alert("Tu sesión ha expirado. Por favor inicia sesión nuevamente.");
+          showToast({
+            type: "warning",
+            title: "Sesion expirada",
+            message: "Tu sesion ha expirado. Por favor inicia sesion nuevamente.",
+          });
           localStorage.clear();
           window.location.href = "/";
+        } else {
+          showToast({
+            type: "error",
+            title: "Usuarios",
+            message: "No se pudieron cargar los usuarios.",
+          });
         }
       });
   };
@@ -49,11 +61,23 @@ const UserList: React.FC = () => {
 
   // 🗑 Eliminar usuario
   const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
+    const accepted = await confirm({
+      title: "Eliminar usuario",
+      message: "Esta accion eliminara definitivamente el usuario seleccionado.",
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      tone: "danger",
+    });
+
+    if (!accepted) return;
 
     const token = getToken();
     if (!token) {
-      alert("Sesión no válida, inicia sesión de nuevo.");
+      showToast({
+        type: "warning",
+        title: "Sesion no valida",
+        message: "Inicia sesion de nuevo para continuar.",
+      });
       window.location.href = "/";
       return;
     }
@@ -63,12 +87,27 @@ const UserList: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchUsers();
+      showToast({
+        type: "success",
+        title: "Usuario eliminado",
+        message: "El usuario se elimino correctamente.",
+      });
     } catch (err: any) {
       console.error("Error al eliminar usuario:", err);
       if (err.response?.status === 401) {
-        alert("Tu sesión ha expirado. Inicia sesión nuevamente.");
+        showToast({
+          type: "warning",
+          title: "Sesion expirada",
+          message: "Tu sesion ha expirado. Inicia sesion nuevamente.",
+        });
         localStorage.clear();
         window.location.href = "/";
+      } else {
+        showToast({
+          type: "error",
+          title: "Usuario",
+          message: "No se pudo eliminar el usuario.",
+        });
       }
     }
   };

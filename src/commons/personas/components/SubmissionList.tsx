@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { FiEye, FiUpload } from "react-icons/fi";
+import { useFeedback } from "@/context/FeedbackContext";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
@@ -20,6 +21,7 @@ interface Submission {
 }
 
 const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
+  const { showToast } = useFeedback();
   const token = localStorage.getItem("access_token");
 
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -31,7 +33,6 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
   const [feedback, setFeedback] = useState("");
 
   const [saving, setSaving] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
 
   const loadSubmissions = async () => {
     try {
@@ -90,12 +91,19 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
 
       await loadSubmissions();
 
-      setSuccessMessage("Calificación guardada correctamente");
-      setTimeout(() => setSuccessMessage(""), 1600);
+      showToast({
+        type: "success",
+        title: "Calificacion guardada",
+        message: "La calificacion se guardo correctamente.",
+      });
       setSelectedSubmission(null);
     } catch (err) {
       console.error("Error guardando calificación", err);
-      alert("No se pudo guardar la calificación.");
+      showToast({
+        type: "error",
+        title: "Calificacion",
+        message: "No se pudo guardar la calificacion.",
+      });
     } finally {
       setSaving(false);
     }
@@ -107,10 +115,6 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
         <h3>Entregas de estudiantes</h3>
         <p>Consulta archivos, fechas y registra calificaciones.</p>
       </div>
-
-      {successMessage && (
-        <div className="inline-success-message">{successMessage}</div>
-      )}
 
       {loading ? (
         <div className="empty-state-box">Cargando entregas...</div>

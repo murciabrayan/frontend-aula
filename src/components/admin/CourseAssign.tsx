@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useFeedback } from "@/context/FeedbackContext";
 import { getCourses, updateCourse } from "../../services/courseService";
 import { getTeachers, getStudents } from "../../services/userService";
 import {
@@ -71,6 +72,7 @@ const emptyPeriodState = (): PeriodSelectorState => ({
 });
 
 export default function CourseAssign() {
+  const { confirm, showToast } = useFeedback();
   const [courses, setCourses] = useState<Course[]>([]);
   const [teachers, setTeachers] = useState<User[]>([]);
   const [students, setStudents] = useState<User[]>([]);
@@ -128,6 +130,22 @@ export default function CourseAssign() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const notifyError = (message: string) => {
+    showToast({
+      type: "error",
+      title: "Gestion de cursos",
+      message,
+    });
+  };
+
+  const notifySuccess = (message: string) => {
+    showToast({
+      type: "success",
+      title: "Gestion de cursos",
+      message,
+    });
   };
 
   const truncateIndicator = (text: string, max = 90) => {
@@ -200,6 +218,7 @@ export default function CourseAssign() {
 
     await updateCourse(activeCourse.id, payload);
     await loadInitialData();
+    notifySuccess("Los cambios del curso se guardaron correctamente.");
     closeModal();
   };
 
@@ -218,7 +237,7 @@ export default function CourseAssign() {
       setAreas((prev) => [...prev, res.data]);
       setNewAreaName("");
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.non_field_errors?.[0] ||
           error?.response?.data?.detail ||
           "Error al crear el área"
@@ -229,14 +248,22 @@ export default function CourseAssign() {
   const removeArea = async (id: number) => {
     const hasSubjects = subjects.some((s) => s.area === id);
     if (hasSubjects) {
-      alert("No puedes eliminar un área que aún tiene materias asignadas.");
+      notifyError("No puedes eliminar un área que aún tiene materias asignadas.");
       return;
     }
 
-    if (!confirm("¿Eliminar área?")) return;
+    const shouldRemoveArea = await confirm({
+      title: "Eliminar área",
+      message: "Esta acción eliminará el área seleccionada.",
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      tone: "danger",
+    });
+    if (!shouldRemoveArea) return;
 
     await deleteArea(id);
     setAreas((prev) => prev.filter((a) => a.id !== id));
+    notifySuccess("El área se eliminó correctamente.");
   };
 
   const addSubject = async () => {
@@ -263,7 +290,7 @@ export default function CourseAssign() {
       setNewSubjectName("");
       setNewSubjectArea("");
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.non_field_errors?.[0] ||
           error?.response?.data?.detail ||
           "Error al crear la materia"
@@ -272,7 +299,14 @@ export default function CourseAssign() {
   };
 
   const removeSubject = async (id: number) => {
-    if (!confirm("¿Eliminar materia?")) return;
+    const shouldRemoveSubject = await confirm({
+      title: "Eliminar materia",
+      message: "Esta acción eliminará la materia seleccionada.",
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      tone: "danger",
+    });
+    if (!shouldRemoveSubject) return;
     await deleteSubject(id);
 
     setSubjects((prev) => prev.filter((s) => s.id !== id));
@@ -282,6 +316,7 @@ export default function CourseAssign() {
       delete copy[id];
       return copy;
     });
+    notifySuccess("La materia se eliminó correctamente.");
   };
 
   const handleAssignAreaToSubject = async (
@@ -300,7 +335,7 @@ export default function CourseAssign() {
         )
       );
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.detail ||
           "No se pudo actualizar el área de la materia"
       );
@@ -318,7 +353,7 @@ export default function CourseAssign() {
       setIndicatorBank((prev) => [...prev, res.data].sort((a, b) => a.descripcion.localeCompare(b.descripcion)));
       setNewIndicatorDescription("");
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.descripcion?.[0] ||
           error?.response?.data?.detail ||
           error?.response?.data?.non_field_errors?.[0] ||
@@ -361,7 +396,7 @@ export default function CourseAssign() {
       setEditingIndicatorId(null);
       setEditingIndicatorDescription("");
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.descripcion?.[0] ||
           error?.response?.data?.detail ||
           error?.response?.data?.non_field_errors?.[0] ||
@@ -371,7 +406,14 @@ export default function CourseAssign() {
   };
 
   const removeIndicatorFromBank = async (indicatorId: number) => {
-    if (!confirm("¿Eliminar indicador del banco?")) return;
+    const shouldRemoveIndicator = await confirm({
+      title: "Eliminar indicador",
+      message: "Esta acción eliminará el indicador del banco.",
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      tone: "danger",
+    });
+    if (!shouldRemoveIndicator) return;
 
     try {
       await deleteIndicator(indicatorId);
@@ -379,8 +421,9 @@ export default function CourseAssign() {
       setIndicatorAssignments((prev) =>
         prev.filter((assignment) => assignment.indicador !== indicatorId)
       );
+      notifySuccess("El indicador se eliminó correctamente.");
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.detail ||
           "No se pudo eliminar el indicador."
       );
@@ -429,7 +472,7 @@ export default function CourseAssign() {
         },
       }));
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.non_field_errors?.[0] ||
           error?.response?.data?.detail ||
           "No se pudo asignar el indicador."
@@ -440,15 +483,23 @@ export default function CourseAssign() {
   };
 
   const unassignIndicator = async (assignmentId: number) => {
-    if (!confirm("¿Quitar este indicador de la materia?")) return;
+    const shouldUnassignIndicator = await confirm({
+      title: "Quitar indicador",
+      message: "Esta acción quitará el indicador asignado a la materia.",
+      confirmText: "Quitar",
+      cancelText: "Cancelar",
+      tone: "danger",
+    });
+    if (!shouldUnassignIndicator) return;
 
     try {
       await deleteAssignment(assignmentId);
       setIndicatorAssignments((prev) =>
         prev.filter((item) => item.id !== assignmentId)
       );
+      notifySuccess("El indicador se quitó correctamente.");
     } catch (error: any) {
-      alert(
+      notifyError(
         error?.response?.data?.detail ||
           "No se pudo quitar el indicador."
       );

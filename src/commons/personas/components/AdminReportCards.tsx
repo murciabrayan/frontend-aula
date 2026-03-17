@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useFeedback } from "@/context/FeedbackContext";
 import "../styles/adminReportCards.css";
 
 const API_BASE = "http://127.0.0.1:8000/api/report-cards";
@@ -65,6 +66,7 @@ interface StudentReportResponse {
 }
 
 const AdminReportCards: React.FC = () => {
+  const { showToast } = useFeedback();
   const token = localStorage.getItem("access_token");
 
   const [courses, setCourses] = useState<CourseItem[]>([]);
@@ -98,6 +100,11 @@ const AdminReportCards: React.FC = () => {
       setCourses(res.data || []);
     } catch (err) {
       console.error("Error cargando cursos para boletines", err);
+      showToast({
+        type: "error",
+        title: "Boletines",
+        message: "No se pudieron cargar los cursos.",
+      });
     } finally {
       setLoading(false);
     }
@@ -117,6 +124,11 @@ const AdminReportCards: React.FC = () => {
       setStudents(res.data.estudiantes || []);
     } catch (err) {
       console.error("Error cargando estudiantes del curso", err);
+      showToast({
+        type: "error",
+        title: "Boletines",
+        message: "No se pudieron cargar los estudiantes del curso.",
+      });
     }
   };
 
@@ -132,6 +144,11 @@ const AdminReportCards: React.FC = () => {
       setReport(res.data);
     } catch (err) {
       console.error("Error cargando boletín del estudiante", err);
+      showToast({
+        type: "error",
+        title: "Boletin",
+        message: "No se pudo cargar el boletin del estudiante.",
+      });
     }
   };
 
@@ -176,7 +193,11 @@ const AdminReportCards: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error generando PDF", err);
-      alert("No se pudo generar el PDF del boletín.");
+      showToast({
+        type: "error",
+        title: "PDF",
+        message: "No se pudo generar el PDF del boletin.",
+      });
     } finally {
       setDownloadingPdf(false);
     }
@@ -211,7 +232,11 @@ const AdminReportCards: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error generando ZIP de boletines", err);
-      alert("No se pudieron generar los boletines masivos.");
+      showToast({
+        type: "error",
+        title: "Boletines masivos",
+        message: "No se pudieron generar los boletines masivos.",
+      });
     } finally {
       setDownloadingZip(false);
     }

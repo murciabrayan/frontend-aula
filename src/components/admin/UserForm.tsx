@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useFeedback } from "@/context/FeedbackContext";
 import "./UserManagement.css";
 import type { User } from "../../types/User";
 
@@ -41,6 +42,7 @@ const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
 });
 
 const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
+  const { showToast } = useFeedback();
   const [formData, setFormData] = useState<UserFormState>(emptyForm(role));
 
   useEffect(() => {
@@ -106,7 +108,11 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     const token = localStorage.getItem("access_token");
 
     if (!token) {
-      alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
+      showToast({
+        type: "warning",
+        title: "Sesion expirada",
+        message: "Por favor, inicia sesion nuevamente.",
+      });
       return;
     }
 
@@ -132,13 +138,24 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
       onSave();
       onClose();
+      showToast({
+        type: "success",
+        title: user ? "Usuario actualizado" : "Usuario creado",
+        message: user
+          ? "Los cambios del usuario se guardaron correctamente."
+          : "El usuario se creo correctamente.",
+      });
     } catch (error: any) {
       console.error("❌ Error al guardar el usuario:", error);
 
       const backendErrors = error?.response?.data;
 
       if (error.response?.status === 401) {
-        alert("Tu sesión ha expirado o el token es inválido. Por favor inicia sesión nuevamente.");
+        showToast({
+          type: "warning",
+          title: "Sesion expirada",
+          message: "Tu sesion ha expirado o el token es invalido. Inicia sesion nuevamente.",
+        });
         return;
       }
 
@@ -148,11 +165,19 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
           ? backendErrors[firstKey][0]
           : backendErrors[firstKey];
 
-        alert(firstMessage || "Error al guardar el usuario.");
+        showToast({
+          type: "error",
+          title: "Usuario",
+          message: firstMessage || "Error al guardar el usuario.",
+        });
         return;
       }
 
-      alert("Error al guardar el usuario. Revisa la consola para más detalles.");
+      showToast({
+        type: "error",
+        title: "Usuario",
+        message: "Error al guardar el usuario. Revisa los datos e intenta nuevamente.",
+      });
     }
   };
 

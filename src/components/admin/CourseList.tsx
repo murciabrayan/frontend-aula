@@ -5,6 +5,7 @@ import {
   updateCourse,
   deleteCourse,
 } from "../../services/courseService";
+import { useFeedback } from "@/context/FeedbackContext";
 import "./CourseList.css";
 
 interface Course {
@@ -15,6 +16,7 @@ interface Course {
 }
 
 export default function CourseList() {
+  const { confirm, showToast } = useFeedback();
   const [courses, setCourses] = useState<Course[]>([]);
   const [errorMsg, setErrorMsg] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -35,6 +37,11 @@ export default function CourseList() {
       setCourses(res.data);
     } catch (error) {
       console.error("Error al cargar cursos:", error);
+      showToast({
+        type: "error",
+        title: "Cursos",
+        message: "No se pudieron cargar los cursos.",
+      });
     }
   };
 
@@ -61,8 +68,18 @@ export default function CourseList() {
     try {
       if (formData.id) {
         await updateCourse(formData.id, formData);
+        showToast({
+          type: "success",
+          title: "Curso actualizado",
+          message: "Los cambios del curso se guardaron correctamente.",
+        });
       } else {
         await createCourse(formData);
+        showToast({
+          type: "success",
+          title: "Curso creado",
+          message: "El curso se creo correctamente.",
+        });
       }
 
       closeModal();
@@ -85,13 +102,31 @@ export default function CourseList() {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm("¿Seguro que deseas eliminar este curso?")) {
-      try {
-        await deleteCourse(id);
-        await loadCourses();
-      } catch (error) {
-        console.error("Error al eliminar curso:", error);
-      }
+    const accepted = await confirm({
+      title: "Eliminar curso",
+      message: "Esta accion eliminara el curso seleccionado. ¿Deseas continuar?",
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      tone: "danger",
+    });
+
+    if (!accepted) return;
+
+    try {
+      await deleteCourse(id);
+      await loadCourses();
+      showToast({
+        type: "success",
+        title: "Curso eliminado",
+        message: "El curso se elimino correctamente.",
+      });
+    } catch (error) {
+      console.error("Error al eliminar curso:", error);
+      showToast({
+        type: "error",
+        title: "Curso",
+        message: "No se pudo eliminar el curso.",
+      });
     }
   };
 
