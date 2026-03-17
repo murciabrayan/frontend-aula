@@ -42,7 +42,7 @@ const DashboardLayout = ({
   const handleLogout = () => {
     logoutUser();
     localStorage.removeItem("role");
-    window.location.href = "/";
+    window.location.href = "/plataforma";
   };
 
   return (
