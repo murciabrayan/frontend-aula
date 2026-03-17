@@ -319,7 +319,6 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   <div className="landing-admin__form-meta">
                     <span>Fecha de publicacion: {newsForm.published_at}</span>
                   </div>
-                  <input type="number" value={newsForm.display_order} onChange={(e) => setNewsForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
                     <span>{newsForm.image ? newsForm.image.name : "Subir imagen de noticia"}</span>
@@ -347,19 +346,19 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       <div className="landing-admin__item-actions">
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--edit"
-                          aria-label="Editar noticia"
+                          className="landing-admin__action-button landing-admin__action-button--edit"
                           onClick={() => setNewsForm({ id: item.id, title: item.title, summary: item.summary, published_at: item.published_at, display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
                         >
                           <PencilLine size={16} />
+                          <span>Editar</span>
                         </button>
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--delete"
-                          aria-label="Eliminar noticia"
+                          className="landing-admin__action-button landing-admin__action-button--delete"
                           onClick={() => handleDelete("news", item.id)}
                         >
                           <Trash2 size={16} />
+                          <span>Eliminar</span>
                         </button>
                       </div>
                     </article>
@@ -384,10 +383,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </div>
                   <input value={galleryForm.title} onChange={(e) => setGalleryForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
                   <textarea value={galleryForm.detail} onChange={(e) => setGalleryForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Descripcion corta" rows={4} required />
-                  <div className="landing-admin__form-row">
-                    <input type="date" value={galleryForm.event_date} onChange={(e) => setGalleryForm((c) => ({ ...c, event_date: e.target.value }))} />
-                    <input type="number" value={galleryForm.display_order} onChange={(e) => setGalleryForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
-                  </div>
+                  <input type="date" value={galleryForm.event_date} onChange={(e) => setGalleryForm((c) => ({ ...c, event_date: e.target.value }))} />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
                     <span>{galleryForm.image ? galleryForm.image.name : "Subir imagen de galeria"}</span>
@@ -415,19 +411,19 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       <div className="landing-admin__item-actions">
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--edit"
-                          aria-label="Editar elemento de galeria"
+                          className="landing-admin__action-button landing-admin__action-button--edit"
                           onClick={() => setGalleryForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date || "", display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}
                         >
                           <PencilLine size={16} />
+                          <span>Editar</span>
                         </button>
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--delete"
-                          aria-label="Eliminar elemento de galeria"
+                          className="landing-admin__action-button landing-admin__action-button--delete"
                           onClick={() => handleDelete("gallery", item.id)}
                         >
                           <Trash2 size={16} />
+                          <span>Eliminar</span>
                         </button>
                       </div>
                     </article>
@@ -458,7 +454,6 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </div>
                   <input value={documentForm.title} onChange={(e) => setDocumentForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
                   <textarea value={documentForm.description} onChange={(e) => setDocumentForm((c) => ({ ...c, description: e.target.value }))} placeholder="Descripcion" rows={4} required />
-                  <input type="number" value={documentForm.display_order} onChange={(e) => setDocumentForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
                     <span>{documentForm.file ? documentForm.file.name : "Subir documento institucional"}</span>
@@ -487,19 +482,19 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       <div className="landing-admin__item-actions">
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--edit"
-                          aria-label="Editar documento"
+                          className="landing-admin__action-button landing-admin__action-button--edit"
                           onClick={() => setDocumentForm({ id: item.id, title: item.title, description: item.description, display_order: item.display_order, is_active: item.is_active, file: null, currentFileUrl: item.file_url || "" })}
                         >
                           <PencilLine size={16} />
+                          <span>Editar</span>
                         </button>
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--delete"
-                          aria-label="Eliminar documento"
+                          className="landing-admin__action-button landing-admin__action-button--delete"
                           onClick={() => handleDelete("documents", item.id)}
                         >
                           <Trash2 size={16} />
+                          <span>Eliminar</span>
                         </button>
                       </div>
                     </article>
@@ -514,10 +509,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   <h4>{calendarForm.id ? "Editar fecha" : "Nueva fecha institucional"}</h4>
                   <input value={calendarForm.title} onChange={(e) => setCalendarForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
                   <textarea value={calendarForm.detail} onChange={(e) => setCalendarForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Detalle" rows={4} required />
-                  <div className="landing-admin__form-row">
-                    <input type="date" value={calendarForm.event_date} onChange={(e) => setCalendarForm((c) => ({ ...c, event_date: e.target.value }))} required />
-                    <input type="number" value={calendarForm.display_order} onChange={(e) => setCalendarForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
-                  </div>
+                  <input type="date" value={calendarForm.event_date} onChange={(e) => setCalendarForm((c) => ({ ...c, event_date: e.target.value }))} required />
                   <label className="landing-admin__checkbox">
                     <input type="checkbox" checked={calendarForm.is_active} onChange={(e) => setCalendarForm((c) => ({ ...c, is_active: e.target.checked }))} />
                     <span>Visible</span>
@@ -543,19 +535,19 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       <div className="landing-admin__item-actions">
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--edit"
-                          aria-label="Editar fecha institucional"
+                          className="landing-admin__action-button landing-admin__action-button--edit"
                           onClick={() => setCalendarForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date, display_order: item.display_order, is_active: item.is_active })}
                         >
                           <PencilLine size={16} />
+                          <span>Editar</span>
                         </button>
                         <button
                           type="button"
-                          className="landing-admin__icon-button landing-admin__icon-button--delete"
-                          aria-label="Eliminar fecha institucional"
+                          className="landing-admin__action-button landing-admin__action-button--delete"
                           onClick={() => handleDelete("calendar", item.id)}
                         >
                           <Trash2 size={16} />
+                          <span>Eliminar</span>
                         </button>
                       </div>
                     </article>

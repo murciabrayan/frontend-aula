@@ -1508,16 +1508,23 @@ body {
 .landing-admin__form {
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .landing-admin__form input,
 .landing-admin__form textarea {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   border: 1px solid rgba(201, 162, 39, 0.18);
   border-radius: 18px;
   background: #fff;
   padding: 13px 14px;
   color: #141418;
+}
+
+.landing-admin__form textarea {
+  resize: vertical;
 }
 
 .landing-admin__preview {
@@ -1643,49 +1650,57 @@ body {
   gap: 8px;
 }
 
-.landing-admin__icon-button,
 .landing-admin__item-actions button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
   border: 1px solid rgba(20, 20, 24, 0.08);
   background: rgba(20, 20, 24, 0.04);
   color: #2a261e;
   transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease;
 }
 
-.landing-admin__icon-button svg,
 .landing-admin__item-actions button svg {
   display: block;
   stroke: currentColor;
   stroke-width: 2.2;
+  min-width: 16px;
 }
 
-.landing-admin__icon-button:hover,
 .landing-admin__item-actions button:hover {
   transform: translateY(-1px);
 }
 
-.landing-admin__icon-button--edit {
+.landing-admin__action-button {
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.84rem;
+}
+
+.landing-admin__action-button span {
+  line-height: 1;
+}
+
+.landing-admin__action-button--edit {
   background: rgba(201, 162, 39, 0.12);
   border-color: rgba(201, 162, 39, 0.26);
   color: #7f6210;
 }
 
-.landing-admin__icon-button--edit:hover {
+.landing-admin__action-button--edit:hover {
   background: rgba(201, 162, 39, 0.2);
 }
 
-.landing-admin__icon-button--delete {
+.landing-admin__action-button--delete {
   background: rgba(126, 28, 28, 0.08);
   border-color: rgba(166, 63, 63, 0.2);
   color: #8d2e2e;
 }
 
-.landing-admin__icon-button--delete:hover {
+.landing-admin__action-button--delete:hover {
   background: rgba(126, 28, 28, 0.14);
 }
 
@@ -1740,6 +1755,7 @@ body {
 
 .landing-admin__card .landing-admin__item-actions {
   padding: 0 18px 18px;
+  flex-wrap: wrap;
 }
 
 .landing-admin__card--document,
