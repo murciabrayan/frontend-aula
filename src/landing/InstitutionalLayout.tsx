@@ -88,17 +88,7 @@ const InstitutionalLayout = () => {
   };
 
   const handleProfileAction = () => {
-    if (!currentUser) {
-      setLoginOpen(true);
-      return;
-    }
-
-    if (currentUser.role === "ADMIN") {
-      setProfileOpen((current) => !current);
-      return;
-    }
-
-    handleLogout();
+    setProfileOpen((current) => !current);
   };
 
   const profileLabel = !currentUser
@@ -178,33 +168,49 @@ const InstitutionalLayout = () => {
                     aria-label={profileLabel}
                   >
                     <CircleUserRound size={18} />
-                    <span>{profileLabel}</span>
                   </button>
 
-                  {profileOpen && currentUser?.role === "ADMIN" ? (
+                  {profileOpen ? (
                     <div className="landing-profile__menu">
-                      <div className="landing-profile__summary">
-                        <UserCircle2 size={22} />
-                        <div>
-                          <strong>{currentUser.email}</strong>
-                          <span>{currentUser.role}</span>
-                        </div>
-                      </div>
+                      {currentUser ? (
+                        <>
+                          <div className="landing-profile__summary">
+                            <UserCircle2 size={22} />
+                            <div>
+                              <strong>{currentUser.email}</strong>
+                              <span>{currentUser.role}</span>
+                            </div>
+                          </div>
 
-                      <button type="button" onClick={handlePlatformAccess}>
-                        <UserCircle2 size={16} />
-                        <span>Ir a mi panel</span>
-                      </button>
+                          <button type="button" onClick={handlePlatformAccess}>
+                            <UserCircle2 size={16} />
+                            <span>Ir a mi panel</span>
+                          </button>
 
-                      <button type="button" onClick={() => setEditorOpen(true)}>
-                        <PencilLine size={16} />
-                        <span>Editar landing</span>
-                      </button>
+                          {currentUser.role === "ADMIN" ? (
+                            <button type="button" onClick={() => setEditorOpen(true)}>
+                              <PencilLine size={16} />
+                              <span>Editar landing</span>
+                            </button>
+                          ) : null}
 
-                      <button type="button" onClick={handleLogout}>
-                        <LogOut size={16} />
-                        <span>Cerrar sesion</span>
-                      </button>
+                          <button type="button" onClick={handleLogout}>
+                            <LogOut size={16} />
+                            <span>Cerrar sesion</span>
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setProfileOpen(false);
+                            setLoginOpen(true);
+                          }}
+                        >
+                          <UserCircle2 size={16} />
+                          <span>Iniciar sesion</span>
+                        </button>
+                      )}
                     </div>
                   ) : null}
                 </div>
