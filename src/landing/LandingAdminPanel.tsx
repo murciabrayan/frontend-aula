@@ -400,14 +400,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                 <div className="landing-admin__list landing-admin__list--cards">
                   {content.news.map((item) => (
                     <article key={item.id} className="landing-admin__card">
-                      <div className="landing-admin__card-media">{item.image_url ? <img src={item.image_url} alt={item.title} /> : null}</div>
-                      <div className="landing-admin__card-body">
-                        <strong>{item.title}</strong>
-                        <span>{item.published_at}</span>
-                        <p>{item.summary}</p>
-                      </div>
-                      <div className="landing-admin__card-footer">
-                        <div className="landing-admin__item-actions">
+                      <div className="landing-admin__card-media">
+                        {item.image_url ? <img src={item.image_url} alt={item.title} /> : null}
+                        <div className="landing-admin__card-actions-overlay">
                           <button
                             type="button"
                             className="landing-admin__action-button landing-admin__action-button--edit"
@@ -425,6 +420,11 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                             <span>Eliminar</span>
                           </button>
                         </div>
+                      </div>
+                      <div className="landing-admin__card-body">
+                        <strong>{item.title}</strong>
+                        <span>{item.published_at}</span>
+                        <p>{item.summary}</p>
                       </div>
                     </article>
                   ))}

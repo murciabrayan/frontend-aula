@@ -1816,6 +1816,7 @@ body {
 }
 
 .landing-admin__card-media {
+  position: relative;
   height: 160px;
   background: linear-gradient(135deg, #f2e6bf, #faf6e9);
 }
@@ -1825,6 +1826,31 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.landing-admin__card-actions-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.landing-admin__card-actions-overlay .landing-admin__action-button {
+  min-height: 34px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+.landing-admin__card-actions-overlay .landing-admin__action-button--edit {
+  color: #7f6210;
+}
+
+.landing-admin__card-actions-overlay .landing-admin__action-button--delete {
+  color: #8d2e2e;
 }
 
 .landing-admin__card-body {
