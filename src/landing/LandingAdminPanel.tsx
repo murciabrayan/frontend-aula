@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
   Eye,
@@ -42,6 +42,30 @@ const tabs: Array<{ id: LandingTab; label: string; icon: typeof Newspaper }> = [
 ];
 
 const getTodayDateValue = () => new Date().toISOString().slice(0, 10);
+
+const weekDayLabels = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
+
+const buildCalendarDays = (dateValue: string) => {
+  const baseDate = new Date(`${dateValue}T00:00:00`);
+  const year = baseDate.getFullYear();
+  const month = baseDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const totalCells = Math.ceil((startOffset + lastDay.getDate()) / 7) * 7;
+
+  return Array.from({ length: totalCells }, (_, index) => {
+    const dayNumber = index - startOffset + 1;
+    const cellDate = new Date(year, month, dayNumber);
+    const iso = `${cellDate.getFullYear()}-${String(cellDate.getMonth() + 1).padStart(2, "0")}-${String(cellDate.getDate()).padStart(2, "0")}`;
+
+    return {
+      iso,
+      day: cellDate.getDate(),
+      isCurrentMonth: cellDate.getMonth() === month,
+    };
+  });
+};
 
 const emptyNewsForm = {
   id: null as number | null,
@@ -94,7 +118,8 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   const [galleryForm, setGalleryForm] = useState(emptyGalleryForm);
   const [documentForm, setDocumentForm] = useState(emptyDocumentForm);
   const [calendarForm, setCalendarForm] = useState(emptyCalendarForm);
-  const calendarDateInputRef = useRef<HTMLInputElement | null>(null);
+  const [calendarPickerOpen, setCalendarPickerOpen] = useState(false);
+  const [calendarPickerValue, setCalendarPickerValue] = useState(getTodayDateValue());
 
   useEffect(() => {
     if (!open) {
@@ -103,6 +128,8 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       setGalleryForm(emptyGalleryForm);
       setDocumentForm(emptyDocumentForm);
       setCalendarForm(emptyCalendarForm);
+      setCalendarPickerOpen(false);
+      setCalendarPickerValue(getTodayDateValue());
     }
   }, [open]);
 
@@ -122,6 +149,11 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   );
 
   const documentPreviewName = documentForm.file?.name || documentForm.currentFileUrl || "";
+  const calendarGrid = useMemo(() => buildCalendarDays(calendarPickerValue), [calendarPickerValue]);
+  const calendarPickerDate = useMemo(
+    () => new Date(`${calendarPickerValue}T00:00:00`),
+    [calendarPickerValue],
+  );
 
   if (!open) return null;
 
@@ -259,20 +291,22 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   };
 
   const openCalendarPicker = () => {
-    const input = calendarDateInputRef.current;
+    setCalendarPickerValue(calendarForm.event_date || getTodayDateValue());
+    setCalendarPickerOpen(true);
+  };
 
-    if (!input) return;
+  const moveCalendarMonth = (direction: -1 | 1) => {
+    const current = new Date(`${calendarPickerValue}T00:00:00`);
+    current.setMonth(current.getMonth() + direction, 1);
+    setCalendarPickerValue(
+      `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, "0")}-01`,
+    );
+  };
 
-    const pickerTarget = input as HTMLInputElement & {
-      showPicker?: () => void;
-    };
-
-    if (typeof pickerTarget.showPicker === "function") {
-      pickerTarget.showPicker();
-    } else {
-      pickerTarget.focus?.();
-      pickerTarget.click?.();
-    }
+  const selectCalendarDate = (iso: string) => {
+    setCalendarForm((current) => ({ ...current, event_date: iso }));
+    setCalendarPickerValue(iso);
+    setCalendarPickerOpen(false);
   };
 
   return (
@@ -572,11 +606,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </div>
                   <div className="landing-admin__date-field">
                     <input
-                      ref={calendarDateInputRef}
-                      type="date"
+                      type="text"
                       value={calendarForm.event_date}
-                      onChange={(e) => setCalendarForm((c) => ({ ...c, event_date: e.target.value }))}
-                      required
+                      readOnly
                     />
                     <button
                       type="button"
@@ -587,6 +619,41 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       <span>Abrir calendario</span>
                     </button>
                   </div>
+                  {calendarPickerOpen ? (
+                    <div className="landing-admin__calendar-popover">
+                      <div className="landing-admin__calendar-toolbar">
+                        <button type="button" onClick={() => moveCalendarMonth(-1)}>
+                          Anterior
+                        </button>
+                        <strong>
+                          {calendarPickerDate.toLocaleDateString("es-CO", {
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </strong>
+                        <button type="button" onClick={() => moveCalendarMonth(1)}>
+                          Siguiente
+                        </button>
+                      </div>
+                      <div className="landing-admin__calendar-weekdays">
+                        {weekDayLabels.map((label) => (
+                          <span key={label}>{label}</span>
+                        ))}
+                      </div>
+                      <div className="landing-admin__calendar-grid">
+                        {calendarGrid.map((day) => (
+                          <button
+                            key={day.iso}
+                            type="button"
+                            className={`landing-admin__calendar-day ${day.isCurrentMonth ? "" : "is-muted"} ${calendarForm.event_date === day.iso ? "is-selected" : ""}`}
+                            onClick={() => selectCalendarDate(day.iso)}
+                          >
+                            {day.day}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                   <label className="landing-admin__checkbox">
                     <input type="checkbox" checked={calendarForm.is_active} onChange={(e) => setCalendarForm((c) => ({ ...c, is_active: e.target.checked }))} />
                     <span>Visible</span>
