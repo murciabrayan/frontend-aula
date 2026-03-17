@@ -30,6 +30,9 @@ export interface User {
   role: "ADMIN" | "STUDENT" | "TEACHER";
   is_active?: boolean;
   photo_url?: string | null;
+  avatar_url?: string | null;
+  avatar_style?: string;
+  avatar_seed?: string;
   student_profile?: StudentProfile | null;
   teacher_profile?: TeacherProfile | null;
   documents?: UserDocument[];

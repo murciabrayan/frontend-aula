@@ -123,7 +123,7 @@ const UserList = () => {
             <article key={user.id} className="user-card">
               <div className="user-card__identity">
                 <div className="user-card__avatar">
-                  {user.photo_url ? <img src={user.photo_url} alt={user.first_name} /> : <Users size={24} />}
+                  {user.avatar_url ? <img src={user.avatar_url} alt={user.first_name} /> : <Users size={24} />}
                 </div>
                 <div>
                   <span className="user-card__role">

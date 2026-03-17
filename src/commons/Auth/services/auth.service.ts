@@ -18,6 +18,9 @@ export interface StoredUser {
   last_name?: string;
   role: "ADMIN" | "TEACHER" | "STUDENT";
   photo_url?: string | null;
+  avatar_url?: string | null;
+  avatar_style?: string;
+  avatar_seed?: string;
 }
 
 export interface LoginResponse {
@@ -58,6 +61,9 @@ export const loginUser = async (email: string, password: string) => {
       cedula: user?.cedula || decoded.cedula,
       role: user?.role || decoded.role,
       photo_url: user?.photo_url || null,
+      avatar_url: user?.avatar_url || user?.photo_url || null,
+      avatar_style: user?.avatar_style,
+      avatar_seed: user?.avatar_seed,
     };
 
     localStorage.setItem("user", JSON.stringify(storedUser));

@@ -167,9 +167,9 @@ const InstitutionalLayout = () => {
                     onClick={handleProfileAction}
                     aria-label={profileLabel}
                   >
-                    {currentUser?.photo_url ? (
+                    {currentUser?.avatar_url ? (
                       <img
-                        src={currentUser.photo_url}
+                        src={currentUser.avatar_url}
                         alt="Perfil"
                         className="landing-profile__avatar"
                       />

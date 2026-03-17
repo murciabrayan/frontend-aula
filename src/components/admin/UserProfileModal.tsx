@@ -210,7 +210,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
         <div className="user-profile-modal__header">
           <div className="user-profile-modal__identity">
             <div className="user-profile-modal__avatar">
-              {user.photo_url ? <img src={user.photo_url} alt={user.first_name} /> : <UserRound size={48} />}
+              {user.avatar_url ? <img src={user.avatar_url} alt={user.first_name} /> : <UserRound size={48} />}
             </div>
             <div>
               <span className="user-profile-modal__eyebrow">{roleLabel}</span>

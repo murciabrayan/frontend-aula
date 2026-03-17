@@ -27,6 +27,16 @@ interface ProfileModuleProps {
 
 type ProfileData = Record<string, string>;
 
+const AVATAR_STYLES = [
+  { value: "adventurer-neutral", label: "Clasico" },
+  { value: "lorelei-neutral", label: "Artistico" },
+  { value: "personas", label: "Moderno" },
+  { value: "thumbs", label: "3D suave" },
+];
+
+const buildDiceBearUrl = (style: string, seed: string) =>
+  `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear`;
+
 const baseSummary = [
   { key: "first_name", label: "Nombre", icon: User },
   { key: "last_name", label: "Apellido", icon: User },
@@ -51,6 +61,9 @@ const ProfileModule = ({
   const [error, setError] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState("");
+  const [avatarStyle, setAvatarStyle] = useState("adventurer-neutral");
+  const [avatarSeed, setAvatarSeed] = useState("");
+  const [clearProfilePhoto, setClearProfilePhoto] = useState(false);
 
   const allFields = useMemo(
     () => sections.flatMap((section) => section.fields),
@@ -78,7 +91,9 @@ const ProfileModule = ({
         const response = await api.get("/api/profile/");
         setProfile(response.data);
         setDraft(response.data);
-        setPhotoPreview(response.data.photo_url || "");
+        setAvatarStyle(response.data.avatar_style || "adventurer-neutral");
+        setAvatarSeed(response.data.avatar_seed || "");
+        setPhotoPreview(response.data.avatar_url || response.data.photo_url || "");
       } catch {
         setError("No fue posible cargar el perfil.");
       } finally {
@@ -92,6 +107,23 @@ const ProfileModule = ({
   const handleFieldChange = (name: string, value: string) => {
     setDraft((current) => ({ ...(current ?? {}), [name]: value }));
   };
+
+  const avatarSeedBase = useMemo(() => {
+    const firstName = (draft?.first_name || "").trim();
+    const lastName = (draft?.last_name || "").trim();
+    const email = (draft?.email || "").trim();
+    return `${firstName} ${lastName}`.trim() || email || "usuario";
+  }, [draft]);
+
+  const avatarOptions = useMemo(
+    () =>
+      AVATAR_STYLES.map((style, index) => ({
+        ...style,
+        seed: `${avatarSeedBase}-${index + 1}`,
+        url: buildDiceBearUrl(style.value, `${avatarSeedBase}-${index + 1}`),
+      })),
+    [avatarSeedBase],
+  );
 
   const handleSaveProfile = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -107,6 +139,10 @@ const ProfileModule = ({
         }
       });
 
+      payload.append("avatar_style", avatarStyle);
+      payload.append("avatar_seed", avatarSeed || avatarSeedBase);
+      payload.append("clear_profile_photo", clearProfilePhoto ? "true" : "false");
+
       if (photoFile) {
         payload.append("profile_photo", photoFile);
       }
@@ -117,7 +153,10 @@ const ProfileModule = ({
       setDraft(refreshedProfile.data);
       setEditing(false);
       setPhotoFile(null);
-      setPhotoPreview(refreshedProfile.data.photo_url || "");
+      setClearProfilePhoto(false);
+      setAvatarStyle(refreshedProfile.data.avatar_style || "adventurer-neutral");
+      setAvatarSeed(refreshedProfile.data.avatar_seed || "");
+      setPhotoPreview(refreshedProfile.data.avatar_url || refreshedProfile.data.photo_url || "");
 
       const currentUser = getCurrentUser();
       if (currentUser) {
@@ -128,6 +167,9 @@ const ProfileModule = ({
           email: refreshedProfile.data.email,
           role: refreshedProfile.data.role,
           photo_url: refreshedProfile.data.photo_url || null,
+          avatar_url: refreshedProfile.data.avatar_url || refreshedProfile.data.photo_url || null,
+          avatar_style: refreshedProfile.data.avatar_style,
+          avatar_seed: refreshedProfile.data.avatar_seed,
         });
       }
 
@@ -142,7 +184,10 @@ const ProfileModule = ({
     setEditing(false);
     setError("");
     setPhotoFile(null);
-    setPhotoPreview(profile?.photo_url || "");
+    setClearProfilePhoto(false);
+    setAvatarStyle(profile?.avatar_style || "adventurer-neutral");
+    setAvatarSeed(profile?.avatar_seed || "");
+    setPhotoPreview(profile?.avatar_url || profile?.photo_url || "");
   };
 
   const handlePasswordChange = async (event: React.FormEvent) => {
@@ -228,25 +273,80 @@ const ProfileModule = ({
               <strong>Foto de perfil</strong>
               <span>
                 {editing
-                  ? "Carga una imagen para personalizar tu cuenta."
-                  : "Visible en tu perfil y en accesos institucionales."}
+                  ? "Sube una foto o elige un avatar DiceBear para personalizar tu cuenta."
+                  : "Visible en tu perfil, la landing y los accesos institucionales."}
               </span>
             </div>
 
             {editing ? (
-              <label className="profile-avatar-card__upload">
-                <Camera size={16} />
-                <span>{photoFile ? photoFile.name : "Cambiar foto"}</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0] || null;
-                    setPhotoFile(file);
-                    setPhotoPreview(file ? URL.createObjectURL(file) : profile?.photo_url || "");
+              <div className="profile-avatar-card__controls">
+                <label className="profile-avatar-card__upload">
+                  <Camera size={16} />
+                  <span>{photoFile ? photoFile.name : "Subir foto"}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] || null;
+                      setPhotoFile(file);
+                      setClearProfilePhoto(false);
+                      setPhotoPreview(
+                        file
+                          ? URL.createObjectURL(file)
+                          : profile?.avatar_url || profile?.photo_url || "",
+                      );
+                    }}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  className="profile-avatar-card__upload profile-avatar-card__upload--ghost"
+                  onClick={() => {
+                    const option = avatarOptions[0];
+                    setPhotoFile(null);
+                    setClearProfilePhoto(true);
+                    setAvatarStyle(option.value);
+                    setAvatarSeed(option.seed);
+                    setPhotoPreview(option.url);
                   }}
-                />
-              </label>
+                >
+                  Usar avatar
+                </button>
+              </div>
+            ) : null}
+
+            {editing ? (
+              <div className="profile-avatar-picker">
+                <div className="profile-avatar-picker__header">
+                  <strong>Elige un avatar</strong>
+                  <span>Se guardara como alternativa a la foto de perfil.</span>
+                </div>
+
+                <div className="profile-avatar-picker__grid">
+                  {avatarOptions.map((option) => (
+                    <button
+                      key={`${option.value}-${option.seed}`}
+                      type="button"
+                      className={`profile-avatar-option ${
+                        avatarStyle === option.value && (avatarSeed || avatarSeedBase) === option.seed
+                          ? "is-active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        setPhotoFile(null);
+                        setClearProfilePhoto(true);
+                        setAvatarStyle(option.value);
+                        setAvatarSeed(option.seed);
+                        setPhotoPreview(option.url);
+                      }}
+                    >
+                      <img src={option.url} alt={option.label} />
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             ) : null}
           </div>
 
