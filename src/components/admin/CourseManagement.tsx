@@ -818,6 +818,676 @@ const CourseManagement = ({
     );
   };
 
+  const renderCourseWorkspace = () => (
+    <div className="course-management__roster-shell">
+      <div className="course-management__roster-main">
+        <article className="course-management__card course-management__roster-hero">
+          <div>
+            <p className="course-management__eyebrow">Configuracion del curso</p>
+            <h3>{selectedCourse?.name}</h3>
+            <p className="course-management__section-copy">
+              Aqui se define el equipo humano del curso. Primero escoge un docente
+              y luego arma el grupo de estudiantes.
+            </p>
+          </div>
+          <div className="course-management__hero-meta">
+            <span>
+              <UserSquare2 size={15} />
+              {getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
+            </span>
+            <span>
+              <Users size={15} />
+              {selectedStudents.length} estudiantes asignados
+            </span>
+          </div>
+        </article>
+
+        <div className="course-management__roster-grid">
+          <article className="course-management__card course-management__teacher-panel">
+            <div className="course-management__card-header">
+              <div>
+                <h3>Docente responsable</h3>
+                <p>Selecciona al docente principal en una tarjeta dedicada.</p>
+              </div>
+            </div>
+
+            <div className="course-management__select-shell">
+              <span className="course-management__select-label">Docente del curso</span>
+              <select
+                value={selectedTeacher}
+                onChange={(event) =>
+                  setSelectedTeacher(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Sin asignar</option>
+                {teachers.map((teacher) => (
+                  <option key={teacher.id} value={teacher.id}>
+                    {teacher.first_name} {teacher.last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="course-management__teacher-summary">
+              <div className="course-management__summary-chip">
+                <UserSquare2 size={16} />
+                <div>
+                  <strong>Responsable actual</strong>
+                  <span>
+                    {getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="course-management__sticky-actions">
+              <button
+                type="button"
+                className="course-management__primary-btn"
+                onClick={() => void saveCoursePeople()}
+                disabled={savingCoursePeople}
+              >
+                <Save size={16} />
+                <span>{savingCoursePeople ? "Guardando..." : "Guardar equipo"}</span>
+              </button>
+            </div>
+          </article>
+
+          <article className="course-management__card course-management__selection-panel">
+            <div className="course-management__card-header">
+              <div>
+                <h3>Resumen del grupo</h3>
+                <p>Visualiza rapidamente a quienes ya hacen parte del curso.</p>
+              </div>
+            </div>
+
+            <div className="course-management__selected-strip">
+              {selectedStudents.length === 0 ? (
+                <span className="course-management__selected-empty">
+                  Aun no has agregado estudiantes.
+                </span>
+              ) : (
+                selectedStudents.map((studentId) => (
+                  <span
+                    key={studentId}
+                    className="course-management__selected-chip"
+                  >
+                    {getStudentName(studentId)}
+                  </span>
+                ))
+              )}
+            </div>
+          </article>
+        </div>
+
+        <article className="course-management__card course-management__student-bank">
+          <div className="course-management__card-header">
+            <div>
+              <h3>Banco de estudiantes</h3>
+              <p>Agrega o quita estudiantes desde tarjetas amplias y faciles de leer.</p>
+            </div>
+          </div>
+
+          <div className="course-management__students-topbar">
+            <label className="course-management__search course-management__search--compact">
+              <Search size={16} />
+              <input
+                type="text"
+                value={studentFilter}
+                onChange={(event) => setStudentFilter(event.target.value)}
+                placeholder="Buscar estudiante..."
+              />
+            </label>
+            <div className="course-management__summary-chip">
+              <Users size={16} />
+              <div>
+                <strong>Seleccion actual</strong>
+                <span>{selectedStudents.length} marcados</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="course-management__student-grid">
+            {filteredStudents.map((student) => (
+              <label
+                key={student.id}
+                className={`course-management__student-card ${
+                  selectedStudents.includes(student.id) ? "is-selected" : ""
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedStudents.includes(student.id)}
+                  onChange={() =>
+                    setSelectedStudents((current) =>
+                      current.includes(student.id)
+                        ? current.filter((id) => id !== student.id)
+                        : [...current, student.id]
+                    )
+                  }
+                />
+                <div className="course-management__student-card-body">
+                  <span className="course-management__student-check">
+                    {selectedStudents.includes(student.id) ? <Check size={14} /> : null}
+                  </span>
+                  <div>
+                    <strong>
+                      {student.first_name} {student.last_name}
+                    </strong>
+                    <small>
+                      {selectedStudents.includes(student.id)
+                        ? "Incluido en este curso"
+                        : "Disponible para asignar"}
+                    </small>
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </article>
+      </div>
+    </div>
+  );
+
+  const renderStructureWorkspace = () => (
+    <div className="course-management__builder-shell">
+      <article className="course-management__card course-management__builder-hero">
+        <div>
+          <p className="course-management__eyebrow">Arquitectura del curso</p>
+          <h3>{selectedCourse?.name}</h3>
+          <p className="course-management__section-copy">
+            Este modulo solo sirve para construir la estructura academica. Elige
+            una capa del curso y trabajala con espacio propio.
+          </p>
+        </div>
+        <div className="course-management__hero-meta">
+          <span>
+            <Layers3 size={15} />
+            {areas.length} areas
+          </span>
+          <span>
+            <BookOpen size={15} />
+            {subjects.length} materias
+          </span>
+          <span>
+            <LayoutPanelTop size={15} />
+            {indicatorBank.length} indicadores
+          </span>
+        </div>
+      </article>
+
+      <div className="course-management__builder-layout">
+        <aside className="course-management__builder-nav">
+          <button
+            type="button"
+            className={`course-management__builder-tab ${
+              selectedStructureSection === "areas" ? "is-active" : ""
+            }`}
+            onClick={() => setSelectedStructureSection("areas")}
+          >
+            <span>01</span>
+            <div>
+              <strong>Areas</strong>
+              <small>Bloques del curso</small>
+            </div>
+          </button>
+          <button
+            type="button"
+            className={`course-management__builder-tab ${
+              selectedStructureSection === "materias" ? "is-active" : ""
+            }`}
+            onClick={() => setSelectedStructureSection("materias")}
+          >
+            <span>02</span>
+            <div>
+              <strong>Materias</strong>
+              <small>Mapa academico</small>
+            </div>
+          </button>
+          <button
+            type="button"
+            className={`course-management__builder-tab ${
+              selectedStructureSection === "indicadores" ? "is-active" : ""
+            }`}
+            onClick={() => setSelectedStructureSection("indicadores")}
+          >
+            <span>03</span>
+            <div>
+              <strong>Indicadores</strong>
+              <small>Evaluacion por periodo</small>
+            </div>
+          </button>
+        </aside>
+
+        <div className="course-management__builder-stage">
+          {selectedStructureSection === "areas" ? (
+            <div className="course-management__areas-stage">
+              <article className="course-management__card">
+                <div className="course-management__card-header">
+                  <div>
+                    <h3>Panel de areas</h3>
+                    <p>Crea y revisa las areas en un tablero amplio.</p>
+                  </div>
+                </div>
+                <div className="course-management__scroll-panel">
+                  {areas.length === 0 ? (
+                    <div className="course-management__empty">
+                      Aun no hay areas creadas.
+                    </div>
+                  ) : (
+                    areas.map((area) => (
+                      <div key={area.id} className="course-management__simple-row">
+                        <div>
+                          <strong>{area.nombre}</strong>
+                          <span>
+                            {subjects.filter((subject) => subject.area === area.id).length} materias
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="course-management__action-pill is-danger"
+                          onClick={() => void removeArea(area.id)}
+                        >
+                          <Trash2 size={14} />
+                          <span>Eliminar</span>
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </article>
+
+              <article className="course-management__card">
+                <div className="course-management__card-header">
+                  <div>
+                    <h3>Nueva area</h3>
+                    <p>Agrega una nueva area sin competir con otras configuraciones.</p>
+                  </div>
+                </div>
+                <div className="course-management__stack-form">
+                  <input
+                    type="text"
+                    value={newAreaName}
+                    onChange={(event) => setNewAreaName(event.target.value)}
+                    placeholder="Nombre del area"
+                  />
+                  <button
+                    type="button"
+                    className="course-management__primary-btn"
+                    onClick={() => void addArea()}
+                  >
+                    <Plus size={15} />
+                    <span>Crear area</span>
+                  </button>
+                </div>
+              </article>
+            </div>
+          ) : null}
+
+          {selectedStructureSection === "materias" ? (
+            <div className="course-management__subjects-stage">
+              <article className="course-management__card">
+                <div className="course-management__card-header">
+                  <div>
+                    <h3>Biblioteca de materias</h3>
+                    <p>Selecciona una materia y ajusta su area en el panel lateral.</p>
+                  </div>
+                </div>
+                <div className="course-management__scroll-panel">
+                  {groupedSubjects.map((group) =>
+                    renderSubjectsGroup(group.area.nombre, group.subjects)
+                  )}
+                  {subjectsWithoutArea.length > 0 ? (
+                    <div className="course-management__subject-group">
+                      <div className="course-management__subject-group-title">
+                        Sin area
+                      </div>
+                      {subjectsWithoutArea.map((subject) => (
+                        <button
+                          key={subject.id}
+                          type="button"
+                          className={`course-management__subject-item ${
+                            selectedSubjectId === subject.id ? "is-active" : ""
+                          }`}
+                          onClick={() => setSelectedSubjectId(subject.id)}
+                        >
+                          <div>
+                            <strong>{subject.nombre}</strong>
+                            <span>Sin area</span>
+                          </div>
+                          <span className="course-management__subject-chevron">&gt;</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </article>
+
+              <div className="course-management__subjects-side">
+                <article className="course-management__card">
+                  <div className="course-management__card-header">
+                    <div>
+                      <h3>Nueva materia</h3>
+                      <p>Crea la materia y ubicala directamente en un area.</p>
+                    </div>
+                  </div>
+                  <div className="course-management__stack-form">
+                    <input
+                      type="text"
+                      value={newSubjectName}
+                      onChange={(event) => setNewSubjectName(event.target.value)}
+                      placeholder="Nombre de la materia"
+                    />
+                    <select
+                      value={newSubjectArea}
+                      onChange={(event) =>
+                        setNewSubjectArea(
+                          event.target.value ? Number(event.target.value) : ""
+                        )
+                      }
+                    >
+                      <option value="">Sin area</option>
+                      {areas.map((area) => (
+                        <option key={area.id} value={area.id}>
+                          {area.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      className="course-management__primary-btn"
+                      onClick={() => void addSubject()}
+                    >
+                      <Plus size={15} />
+                      <span>Crear materia</span>
+                    </button>
+                  </div>
+                </article>
+
+                <article className="course-management__card">
+                  <div className="course-management__card-header">
+                    <div>
+                      <h3>Detalle activo</h3>
+                      <p>
+                        {selectedSubject
+                          ? "Administra una sola materia a la vez."
+                          : "Selecciona una materia para editar su area."}
+                      </p>
+                    </div>
+                  </div>
+                  {!selectedSubject ? (
+                    <div className="course-management__empty course-management__empty--large">
+                      Selecciona una materia del listado.
+                    </div>
+                  ) : (
+                    <div className="course-management__stack-form">
+                      <div className="course-management__summary-chip">
+                        <BookOpen size={16} />
+                        <div>
+                          <strong>{selectedSubject.nombre}</strong>
+                          <span>{selectedSubject.area_nombre || "Sin area"}</span>
+                        </div>
+                      </div>
+                      <select
+                        value={selectedSubject.area ?? ""}
+                        disabled={savingSubjectId === selectedSubject.id}
+                        onChange={(event) =>
+                          void handleAssignAreaToSubject(
+                            selectedSubject.id,
+                            event.target.value ? Number(event.target.value) : ""
+                          )
+                        }
+                      >
+                        <option value="">Sin area</option>
+                        {areas.map((area) => (
+                          <option key={area.id} value={area.id}>
+                            {area.nombre}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="button"
+                        className="course-management__action-pill is-danger"
+                        onClick={() => void removeSubject(selectedSubject.id)}
+                      >
+                        <Trash2 size={14} />
+                        <span>Eliminar materia</span>
+                      </button>
+                    </div>
+                  )}
+                </article>
+              </div>
+            </div>
+          ) : null}
+
+          {selectedStructureSection === "indicadores" ? (
+            <div className="course-management__indicators-stage">
+              <article className="course-management__card">
+                <div className="course-management__card-header">
+                  <div>
+                    <h3>Materia activa</h3>
+                    <p>Elige una materia desde botones visibles, no desde una vista mezclada.</p>
+                  </div>
+                </div>
+                <div className="course-management__subject-pills">
+                  {subjects.map((subject) => (
+                    <button
+                      key={subject.id}
+                      type="button"
+                      className={`course-management__subject-pill ${
+                        selectedSubjectId === subject.id ? "is-active" : ""
+                      }`}
+                      onClick={() => setSelectedSubjectId(subject.id)}
+                    >
+                      <strong>{subject.nombre}</strong>
+                      <span>{subject.area_nombre || "Sin area"}</span>
+                    </button>
+                  ))}
+                </div>
+              </article>
+
+              <div className="course-management__indicators-layout">
+                <article className="course-management__card">
+                  <div className="course-management__card-header">
+                    <div>
+                      <h3>Asignacion por periodos</h3>
+                      <p>
+                        {selectedSubject
+                          ? `Trabajando sobre ${selectedSubject.nombre}.`
+                          : "Selecciona una materia para continuar."}
+                      </p>
+                    </div>
+                  </div>
+                  {!selectedSubject ? (
+                    <div className="course-management__empty course-management__empty--large">
+                      Selecciona una materia para administrar indicadores.
+                    </div>
+                  ) : (
+                    <div className="course-management__period-grid">
+                      {[1, 2, 3, 4].map((period) => {
+                        const typedPeriod = period as 1 | 2 | 3 | 4;
+                        const periodAssignments = getAssignmentsForSubjectPeriod(
+                          selectedSubject.id,
+                          typedPeriod
+                        );
+
+                        return (
+                          <div key={period} className="course-management__period-card">
+                            <div className="course-management__period-title">
+                              Periodo {period}
+                            </div>
+                            <div className="course-management__period-form">
+                              <select
+                                value={
+                                  selectedIndicators[selectedSubject.id]?.[typedPeriod] ?? ""
+                                }
+                                onChange={(event) =>
+                                  handleSelectedIndicatorChange(
+                                    selectedSubject.id,
+                                    typedPeriod,
+                                    event.target.value ? Number(event.target.value) : ""
+                                  )
+                                }
+                              >
+                                <option value="">Selecciona un indicador</option>
+                                {indicatorBank.map((indicator) => (
+                                  <option key={indicator.id} value={indicator.id}>
+                                    {indicator.descripcion}
+                                  </option>
+                                ))}
+                              </select>
+                              <button
+                                type="button"
+                                className="course-management__primary-btn"
+                                disabled={
+                                  savingAssignmentKey === `${selectedSubject.id}-${period}`
+                                }
+                                onClick={() =>
+                                  void assignIndicatorToSubject(
+                                    selectedSubject.id,
+                                    typedPeriod
+                                  )
+                                }
+                              >
+                                {savingAssignmentKey === `${selectedSubject.id}-${period}`
+                                  ? "..."
+                                  : "Asignar"}
+                              </button>
+                            </div>
+                            <div className="course-management__assignment-list">
+                              {periodAssignments.length === 0 ? (
+                                <div className="course-management__empty">
+                                  Sin indicadores asignados.
+                                </div>
+                              ) : (
+                                periodAssignments.map((assignment) => (
+                                  <div
+                                    key={assignment.id}
+                                    className="course-management__assignment-item"
+                                  >
+                                    <span>{assignment.indicador_descripcion}</span>
+                                    <button
+                                      type="button"
+                                      className="course-management__icon-btn is-danger"
+                                      onClick={() => void unassignIndicator(assignment.id)}
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </article>
+
+                <article className="course-management__card course-management__indicator-bank">
+                  <div className="course-management__card-header">
+                    <div>
+                      <h3>Banco de indicadores</h3>
+                      <p>Crea y edita indicadores en un panel aparte.</p>
+                    </div>
+                  </div>
+                  <div className="course-management__inline-form course-management__inline-form--column">
+                    <textarea
+                      value={newIndicatorDescription}
+                      onChange={(event) =>
+                        setNewIndicatorDescription(event.target.value)
+                      }
+                      placeholder="Escribe un indicador para reutilizarlo..."
+                    />
+                    <button
+                      type="button"
+                      className="course-management__primary-btn"
+                      onClick={() => void addIndicatorToBank()}
+                    >
+                      <Plus size={15} />
+                      <span>Crear indicador</span>
+                    </button>
+                  </div>
+                  <div className="course-management__indicator-list">
+                    {indicatorBank.length === 0 ? (
+                      <div className="course-management__empty">
+                        Aun no hay indicadores creados.
+                      </div>
+                    ) : (
+                      indicatorBank.map((indicator) => (
+                        <div
+                          key={indicator.id}
+                          className="course-management__indicator-item"
+                        >
+                          {editingIndicatorId === indicator.id ? (
+                            <>
+                              <textarea
+                                value={editingIndicatorDescription}
+                                onChange={(event) =>
+                                  setEditingIndicatorDescription(event.target.value)
+                                }
+                              />
+                              <div className="course-management__indicator-actions">
+                                <button
+                                  type="button"
+                                  className="course-management__primary-btn"
+                                  onClick={() => void saveEditedIndicator()}
+                                >
+                                  Guardar
+                                </button>
+                                <button
+                                  type="button"
+                                  className="course-management__secondary-btn"
+                                  onClick={() => {
+                                    setEditingIndicatorId(null);
+                                    setEditingIndicatorDescription("");
+                                  }}
+                                >
+                                  Cancelar
+                                </button>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <p>{indicator.descripcion}</p>
+                              <div className="course-management__indicator-actions">
+                                <button
+                                  type="button"
+                                  className="course-management__secondary-btn"
+                                  onClick={() => {
+                                    setEditingIndicatorId(indicator.id);
+                                    setEditingIndicatorDescription(indicator.descripcion);
+                                  }}
+                                >
+                                  Editar
+                                </button>
+                                <button
+                                  type="button"
+                                  className="course-management__danger-btn"
+                                  onClick={() =>
+                                    void removeIndicatorFromBank(indicator.id)
+                                  }
+                                >
+                                  Eliminar
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </article>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return <div className="course-management__state">Cargando gestion de cursos...</div>;
   }
@@ -1020,723 +1690,7 @@ const CourseManagement = ({
             </div>
           ) : (
             <>
-              <article className="course-management__workspace-hero">
-                <div>
-                  <p className="course-management__eyebrow">Curso seleccionado</p>
-                  <h3>{selectedCourse.name}</h3>
-                  <div className="course-management__hero-meta">
-                    <span>
-                      <UserSquare2 size={15} />
-                      {getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
-                    </span>
-                    <span>
-                      <Users size={15} />
-                      {selectedStudents.length} estudiantes asignados
-                    </span>
-                    <span>
-                      <LayoutPanelTop size={15} />
-                      {subjects.length} materias configuradas
-                    </span>
-                  </div>
-                </div>
-              </article>
-
-              {isCourseMode ? (
-                <div className="course-management__team-grid">
-                  <article className="course-management__card course-management__team-card">
-                    <div className="course-management__card-header">
-                      <div>
-                        <h3>Equipo del curso</h3>
-                        <p>Primero define el docente y luego confirma los estudiantes asignados.</p>
-                      </div>
-                    </div>
-
-                    <div className="course-management__team-summary">
-                      <div className="course-management__summary-chip">
-                        <UserSquare2 size={16} />
-                        <div>
-                          <strong>Docente actual</strong>
-                          <span>{getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}</span>
-                        </div>
-                      </div>
-                      <div className="course-management__summary-chip">
-                        <Users size={16} />
-                        <div>
-                          <strong>Estudiantes elegidos</strong>
-                          <span>{selectedStudents.length} seleccionados</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <label className="course-management__field">
-                      <span>Selecciona el docente</span>
-                      <select
-                        value={selectedTeacher}
-                        onChange={(event) =>
-                          setSelectedTeacher(
-                            event.target.value ? Number(event.target.value) : ""
-                          )
-                        }
-                      >
-                        <option value="">Sin asignar</option>
-                        {teachers.map((teacher) => (
-                          <option key={teacher.id} value={teacher.id}>
-                            {teacher.first_name} {teacher.last_name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <div className="course-management__team-footer">
-                      <p>Los cambios del equipo se guardan juntos para evitar configuraciones incompletas.</p>
-                      <button
-                        type="button"
-                        className="course-management__primary-btn"
-                        onClick={() => void saveCoursePeople()}
-                        disabled={savingCoursePeople}
-                      >
-                        <Save size={16} />
-                        <span>
-                          {savingCoursePeople ? "Guardando..." : "Guardar equipo"}
-                        </span>
-                      </button>
-                    </div>
-                  </article>
-
-                  <article className="course-management__card course-management__card--fill">
-                    <div className="course-management__card-header">
-                      <div>
-                        <h3>Estudiantes asignados</h3>
-                        <p>Selecciona estudiantes en una vista mas clara, con busqueda y tarjetas.</p>
-                      </div>
-                    </div>
-
-                    <div className="course-management__students-toolbar">
-                      <label className="course-management__search course-management__search--compact">
-                        <Search size={16} />
-                        <input
-                          type="text"
-                          value={studentFilter}
-                          onChange={(event) => setStudentFilter(event.target.value)}
-                          placeholder="Buscar estudiante..."
-                        />
-                      </label>
-
-                      <div className="course-management__selected-strip">
-                        {selectedStudents.length === 0 ? (
-                          <span className="course-management__selected-empty">
-                            No hay estudiantes seleccionados.
-                          </span>
-                        ) : (
-                          selectedStudents.slice(0, 4).map((studentId) => (
-                            <span
-                              key={studentId}
-                              className="course-management__selected-chip"
-                            >
-                              {getStudentName(studentId)}
-                            </span>
-                          ))
-                        )}
-                        {selectedStudents.length > 4 ? (
-                          <span className="course-management__selected-chip is-muted">
-                            +{selectedStudents.length - 4} mas
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    <div className="course-management__student-grid">
-                      {filteredStudents.map((student) => (
-                        <label
-                          key={student.id}
-                          className={`course-management__student-card ${
-                            selectedStudents.includes(student.id) ? "is-selected" : ""
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedStudents.includes(student.id)}
-                            onChange={() =>
-                              setSelectedStudents((current) =>
-                                current.includes(student.id)
-                                  ? current.filter((id) => id !== student.id)
-                                  : [...current, student.id]
-                              )
-                            }
-                          />
-                          <div className="course-management__student-card-body">
-                            <span className="course-management__student-check">
-                              {selectedStudents.includes(student.id) ? (
-                                <Check size={14} />
-                              ) : null}
-                            </span>
-                            <div>
-                              <strong>
-                                {student.first_name} {student.last_name}
-                              </strong>
-                              <small>Disponible para este curso</small>
-                            </div>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  </article>
-                </div>
-              ) : (
-                <div className="course-management__structure-shell">
-                  <article className="course-management__workspace-hero course-management__workspace-hero--section">
-                    <div>
-                      <p className="course-management__eyebrow">Organizacion interna</p>
-                      <h3>Estructura academica</h3>
-                      <p className="course-management__section-copy">
-                        Ya no necesitas ver todo junto. Entra a una seccion a la vez
-                        para organizar el curso con mas calma y claridad.
-                      </p>
-                    </div>
-
-                    <div className="course-management__section-tabs">
-                      <button
-                        type="button"
-                        className={
-                          selectedStructureSection === "areas" ? "is-active" : ""
-                        }
-                        onClick={() => setSelectedStructureSection("areas")}
-                      >
-                        Areas
-                      </button>
-                      <button
-                        type="button"
-                        className={
-                          selectedStructureSection === "materias" ? "is-active" : ""
-                        }
-                        onClick={() => setSelectedStructureSection("materias")}
-                      >
-                        Materias
-                      </button>
-                      <button
-                        type="button"
-                        className={
-                          selectedStructureSection === "indicadores" ? "is-active" : ""
-                        }
-                        onClick={() => setSelectedStructureSection("indicadores")}
-                      >
-                        Indicadores
-                      </button>
-                    </div>
-                  </article>
-
-                  <div className="course-management__section-overview">
-                    <button
-                      type="button"
-                      className={`course-management__overview-card ${
-                        selectedStructureSection === "areas" ? "is-active" : ""
-                      }`}
-                      onClick={() => setSelectedStructureSection("areas")}
-                    >
-                      <span className="course-management__overview-kicker">
-                        Base del curso
-                      </span>
-                      <strong>Areas</strong>
-                      <p>Organiza los grandes bloques academicos antes de crear materias.</p>
-                      <small>{areas.length} areas registradas</small>
-                    </button>
-
-                    <button
-                      type="button"
-                      className={`course-management__overview-card ${
-                        selectedStructureSection === "materias" ? "is-active" : ""
-                      }`}
-                      onClick={() => setSelectedStructureSection("materias")}
-                    >
-                      <span className="course-management__overview-kicker">
-                        Mapa academico
-                      </span>
-                      <strong>Materias</strong>
-                      <p>Revisa el listado y entra al detalle de cada materia con mas espacio.</p>
-                      <small>{subjects.length} materias configuradas</small>
-                    </button>
-
-                    <button
-                      type="button"
-                      className={`course-management__overview-card ${
-                        selectedStructureSection === "indicadores" ? "is-active" : ""
-                      }`}
-                      onClick={() => setSelectedStructureSection("indicadores")}
-                    >
-                      <span className="course-management__overview-kicker">
-                        Evaluacion
-                      </span>
-                      <strong>Indicadores</strong>
-                      <p>Trabaja periodos e indicadores en una vista dedicada y mas amplia.</p>
-                      <small>{indicatorBank.length} indicadores en banco</small>
-                    </button>
-                  </div>
-
-                  <div className="course-management__structure-layout">
-                  {selectedStructureSection === "areas" ? (
-                  <article className="course-management__card course-management__structure-card course-management__stage-card">
-                    <div className="course-management__card-header">
-                      <div>
-                        <h3>Areas</h3>
-                        <p>Define los grupos academicos del curso en una vista enfocada solo en esta parte.</p>
-                      </div>
-                    </div>
-                    <div className="course-management__stage-intro">
-                      <div className="course-management__summary-chip">
-                        <Layers3 size={16} />
-                        <div>
-                          <strong>Bloques del curso</strong>
-                          <span>{areas.length} areas creadas</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="course-management__scroll-panel">
-                      {areas.length === 0 ? (
-                        <div className="course-management__empty">
-                          Aun no hay areas creadas.
-                        </div>
-                      ) : (
-                        areas.map((area) => (
-                          <div key={area.id} className="course-management__simple-row">
-                            <div>
-                              <strong>{area.nombre}</strong>
-                              <span>
-                                {subjects.filter((subject) => subject.area === area.id).length} materias
-                              </span>
-                            </div>
-                            <button
-                              type="button"
-                              className="course-management__icon-btn is-danger"
-                              onClick={() => void removeArea(area.id)}
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    <div className="course-management__inline-form">
-                      <input
-                        type="text"
-                        value={newAreaName}
-                        onChange={(event) => setNewAreaName(event.target.value)}
-                        placeholder="Nueva area"
-                      />
-                      <button
-                        type="button"
-                        className="course-management__primary-btn"
-                        onClick={() => void addArea()}
-                      >
-                        <Plus size={15} />
-                        <span>Agregar</span>
-                      </button>
-                    </div>
-                  </article>
-                  ) : null}
-
-                  {selectedStructureSection === "materias" ? (
-                  <article className="course-management__card course-management__structure-card course-management__stage-card">
-                    <div className="course-management__card-header">
-                      <div>
-                        <h3>Materias</h3>
-                        <p>Explora el listado y abre el detalle sin mezclarlo con indicadores.</p>
-                      </div>
-                    </div>
-                    <div className="course-management__stage-intro">
-                      <div className="course-management__summary-chip">
-                        <BookOpen size={16} />
-                        <div>
-                          <strong>Mapa del curso</strong>
-                          <span>{subjects.length} materias creadas</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="course-management__scroll-panel">
-                      {groupedSubjects.map((group) =>
-                        renderSubjectsGroup(group.area.nombre, group.subjects)
-                      )}
-
-                      {subjectsWithoutArea.length > 0 ? (
-                        <div className="course-management__subject-group">
-                          <div className="course-management__subject-group-title">
-                            Sin area
-                          </div>
-                          {subjectsWithoutArea.map((subject) => (
-                            <button
-                              key={subject.id}
-                              type="button"
-                              className={`course-management__subject-item ${
-                                selectedSubjectId === subject.id ? "is-active" : ""
-                              }`}
-                              onClick={() => setSelectedSubjectId(subject.id)}
-                            >
-                              <div>
-                                <strong>{subject.nombre}</strong>
-                                <span>Sin area</span>
-                              </div>
-                              <span className="course-management__subject-chevron">&gt;</span>
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
-                    </div>
-
-                    <div className="course-management__stack-form">
-                      <input
-                        type="text"
-                        value={newSubjectName}
-                        onChange={(event) => setNewSubjectName(event.target.value)}
-                        placeholder="Nueva materia"
-                      />
-                      <select
-                        value={newSubjectArea}
-                        onChange={(event) =>
-                          setNewSubjectArea(
-                            event.target.value ? Number(event.target.value) : ""
-                          )
-                        }
-                      >
-                        <option value="">Sin area</option>
-                        {areas.map((area) => (
-                          <option key={area.id} value={area.id}>
-                            {area.nombre}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        className="course-management__primary-btn"
-                        onClick={() => void addSubject()}
-                      >
-                        <Plus size={15} />
-                        <span>Crear materia</span>
-                      </button>
-                    </div>
-                  </article>
-                  ) : null}
-
-                  {(selectedStructureSection === "materias" ||
-                    selectedStructureSection === "indicadores") ? (
-                  <div
-                    className={`course-management__structure-main ${
-                      selectedStructureSection === "indicadores"
-                        ? "is-indicators"
-                        : ""
-                    }`}
-                  >
-                    <article className="course-management__card">
-                      <div className="course-management__card-header">
-                        <div>
-                          <h3>
-                            {selectedStructureSection === "indicadores"
-                              ? "Configuracion de indicadores"
-                              : "Detalle de materia"}
-                          </h3>
-                          <p>
-                            {selectedStructureSection === "indicadores"
-                              ? selectedSubject
-                                ? "Trabaja una sola materia a la vez y asigna sus indicadores por periodo."
-                                : "Selecciona una materia para trabajar sus indicadores."
-                              : selectedSubject
-                              ? "Asigna el area de la materia sin ruido visual extra."
-                              : "Selecciona una materia para administrarla."}
-                          </p>
-                        </div>
-                      </div>
-
-                      {!selectedSubject ? (
-                        <div className="course-management__empty course-management__empty--large">
-                          Selecciona una materia del panel izquierdo.
-                        </div>
-                      ) : (
-                        <>
-                          {selectedStructureSection === "indicadores" ? (
-                            <div className="course-management__indicator-stage-header">
-                              <div className="course-management__summary-chip">
-                                <BookOpen size={16} />
-                                <div>
-                                  <strong>Materia activa</strong>
-                                  <span>{selectedSubject.nombre}</span>
-                                </div>
-                              </div>
-                              <div className="course-management__summary-chip">
-                                <Layers3 size={16} />
-                                <div>
-                                  <strong>Area</strong>
-                                  <span>{selectedSubject.area_nombre || "Sin area"}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ) : null}
-                          <div className="course-management__subject-detail-header">
-                            <div>
-                              <h4>{selectedSubject.nombre}</h4>
-                              <p>
-                                Area actual: {selectedSubject.area_nombre || "Sin area"}
-                              </p>
-                            </div>
-                            {selectedStructureSection === "materias" ? (
-                              <button
-                                type="button"
-                                className="course-management__icon-btn is-danger"
-                                onClick={() => void removeSubject(selectedSubject.id)}
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            ) : null}
-                          </div>
-
-                          {selectedStructureSection === "materias" ? (
-                            <label className="course-management__field">
-                              <span>Area de la materia</span>
-                              <select
-                                value={selectedSubject.area ?? ""}
-                                disabled={savingSubjectId === selectedSubject.id}
-                                onChange={(event) =>
-                                  void handleAssignAreaToSubject(
-                                    selectedSubject.id,
-                                    event.target.value ? Number(event.target.value) : ""
-                                  )
-                                }
-                              >
-                                <option value="">Sin area</option>
-                                {areas.map((area) => (
-                                  <option key={area.id} value={area.id}>
-                                    {area.nombre}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                          ) : (
-                            <label className="course-management__field">
-                              <span>Materia activa</span>
-                              <select
-                                value={selectedSubjectId ?? ""}
-                                onChange={(event) =>
-                                  setSelectedSubjectId(
-                                    event.target.value ? Number(event.target.value) : null
-                                  )
-                                }
-                              >
-                                <option value="">Selecciona una materia</option>
-                                {subjects.map((subject) => (
-                                  <option key={subject.id} value={subject.id}>
-                                    {subject.nombre}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                          )}
-
-                          {selectedStructureSection === "indicadores" ? (
-                          <div className="course-management__period-grid">
-                            {[1, 2, 3, 4].map((period) => {
-                              const typedPeriod = period as 1 | 2 | 3 | 4;
-                              const periodAssignments = getAssignmentsForSubjectPeriod(
-                                selectedSubject.id,
-                                typedPeriod
-                              );
-
-                              return (
-                                <div
-                                  key={period}
-                                  className="course-management__period-card"
-                                >
-                                  <div className="course-management__period-title">
-                                    Periodo {period}
-                                  </div>
-
-                                  <div className="course-management__period-form">
-                                    <select
-                                      value={
-                                        selectedIndicators[selectedSubject.id]?.[
-                                          typedPeriod
-                                        ] ?? ""
-                                      }
-                                      onChange={(event) =>
-                                        handleSelectedIndicatorChange(
-                                          selectedSubject.id,
-                                          typedPeriod,
-                                          event.target.value
-                                            ? Number(event.target.value)
-                                            : ""
-                                        )
-                                      }
-                                    >
-                                      <option value="">Selecciona un indicador</option>
-                                      {indicatorBank.map((indicator) => (
-                                        <option key={indicator.id} value={indicator.id}>
-                                          {indicator.descripcion}
-                                        </option>
-                                      ))}
-                                    </select>
-                                    <button
-                                      type="button"
-                                      className="course-management__primary-btn"
-                                      disabled={
-                                        savingAssignmentKey ===
-                                        `${selectedSubject.id}-${period}`
-                                      }
-                                      onClick={() =>
-                                        void assignIndicatorToSubject(
-                                          selectedSubject.id,
-                                          typedPeriod
-                                        )
-                                      }
-                                    >
-                                      {savingAssignmentKey ===
-                                      `${selectedSubject.id}-${period}`
-                                        ? "..."
-                                        : "Asignar"}
-                                    </button>
-                                  </div>
-
-                                  <div className="course-management__assignment-list">
-                                    {periodAssignments.length === 0 ? (
-                                      <div className="course-management__empty">
-                                        Sin indicadores asignados.
-                                      </div>
-                                    ) : (
-                                      periodAssignments.map((assignment) => (
-                                        <div
-                                          key={assignment.id}
-                                          className="course-management__assignment-item"
-                                        >
-                                          <span>{assignment.indicador_descripcion}</span>
-                                          <button
-                                            type="button"
-                                            className="course-management__icon-btn is-danger"
-                                            onClick={() =>
-                                              void unassignIndicator(assignment.id)
-                                            }
-                                          >
-                                            <Trash2 size={14} />
-                                          </button>
-                                        </div>
-                                      ))
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                          ) : null}
-                        </>
-                      )}
-                    </article>
-
-                    {selectedStructureSection === "indicadores" ? (
-                    <article className="course-management__card course-management__indicator-bank">
-                      <div className="course-management__card-header">
-                        <div>
-                          <h3>Banco de indicadores</h3>
-                          <p>
-                            Crea, edita y reutiliza indicadores en una zona separada,
-                            sin apretar la configuracion por periodos.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="course-management__inline-form course-management__inline-form--column">
-                        <textarea
-                          value={newIndicatorDescription}
-                          onChange={(event) =>
-                            setNewIndicatorDescription(event.target.value)
-                          }
-                          placeholder="Escribe un indicador para reutilizarlo..."
-                        />
-                        <button
-                          type="button"
-                          className="course-management__primary-btn"
-                          onClick={() => void addIndicatorToBank()}
-                        >
-                          <Plus size={15} />
-                          <span>Crear indicador</span>
-                        </button>
-                      </div>
-
-                      <div className="course-management__indicator-list">
-                        {indicatorBank.length === 0 ? (
-                          <div className="course-management__empty">
-                            Aun no hay indicadores creados.
-                          </div>
-                        ) : (
-                          indicatorBank.map((indicator) => (
-                            <div
-                              key={indicator.id}
-                              className="course-management__indicator-item"
-                            >
-                              {editingIndicatorId === indicator.id ? (
-                                <>
-                                  <textarea
-                                    value={editingIndicatorDescription}
-                                    onChange={(event) =>
-                                      setEditingIndicatorDescription(
-                                        event.target.value
-                                      )
-                                    }
-                                  />
-                                  <div className="course-management__indicator-actions">
-                                    <button
-                                      type="button"
-                                      className="course-management__primary-btn"
-                                      onClick={() => void saveEditedIndicator()}
-                                    >
-                                      Guardar
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="course-management__secondary-btn"
-                                      onClick={() => {
-                                        setEditingIndicatorId(null);
-                                        setEditingIndicatorDescription("");
-                                      }}
-                                    >
-                                      Cancelar
-                                    </button>
-                                  </div>
-                                </>
-                              ) : (
-                                <>
-                                  <p>{indicator.descripcion}</p>
-                                  <div className="course-management__indicator-actions">
-                                    <button
-                                      type="button"
-                                      className="course-management__secondary-btn"
-                                      onClick={() => {
-                                        setEditingIndicatorId(indicator.id);
-                                        setEditingIndicatorDescription(
-                                          indicator.descripcion
-                                        );
-                                      }}
-                                    >
-                                      Editar
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="course-management__danger-btn"
-                                      onClick={() =>
-                                        void removeIndicatorFromBank(indicator.id)
-                                      }
-                                    >
-                                      Eliminar
-                                    </button>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </article>
-                    ) : null}
-                  </div>
-                  ) : null}
-                </div>
-                </div>
-              )}
+              {isCourseMode ? renderCourseWorkspace() : renderStructureWorkspace()}
             </>
           )}
         </section>
@@ -1746,3 +1700,4 @@ const CourseManagement = ({
 };
 
 export default CourseManagement;
+
