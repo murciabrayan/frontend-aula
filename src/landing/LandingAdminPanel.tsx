@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
+  Eye,
   FileText,
   Images,
   Newspaper,
   PencilLine,
   Trash2,
+  Upload,
   X,
 } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
@@ -47,6 +49,7 @@ const emptyNewsForm = {
   display_order: 0,
   is_active: true,
   image: null as File | null,
+  currentImageUrl: "",
 };
 
 const emptyGalleryForm = {
@@ -57,6 +60,7 @@ const emptyGalleryForm = {
   display_order: 0,
   is_active: true,
   image: null as File | null,
+  currentImageUrl: "",
 };
 
 const emptyDocumentForm = {
@@ -66,6 +70,7 @@ const emptyDocumentForm = {
   display_order: 0,
   is_active: true,
   file: null as File | null,
+  currentFileUrl: "",
 };
 
 const emptyCalendarForm = {
@@ -91,6 +96,10 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   useEffect(() => {
     if (!open) {
       setActiveTab("news");
+      setNewsForm(emptyNewsForm);
+      setGalleryForm(emptyGalleryForm);
+      setDocumentForm(emptyDocumentForm);
+      setCalendarForm(emptyCalendarForm);
     }
   }, [open]);
 
@@ -98,6 +107,18 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
     () => tabs.find((tab) => tab.id === activeTab)?.label || "Contenido",
     [activeTab],
   );
+
+  const newsPreviewUrl = useMemo(
+    () => (newsForm.image ? URL.createObjectURL(newsForm.image) : newsForm.currentImageUrl),
+    [newsForm.image, newsForm.currentImageUrl],
+  );
+
+  const galleryPreviewUrl = useMemo(
+    () => (galleryForm.image ? URL.createObjectURL(galleryForm.image) : galleryForm.currentImageUrl),
+    [galleryForm.image, galleryForm.currentImageUrl],
+  );
+
+  const documentPreviewName = documentForm.file?.name || documentForm.currentFileUrl || "";
 
   if (!open) return null;
 
@@ -145,18 +166,12 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
         image: newsForm.image,
       };
 
-      if (newsForm.id) {
-        await updateLandingNews(newsForm.id, payload);
-      } else {
-        await createLandingNews(payload);
-      }
+      if (newsForm.id) await updateLandingNews(newsForm.id, payload);
+      else await createLandingNews(payload);
 
       setNewsForm(emptyNewsForm);
       await refreshLandingContent();
-      showToast({
-        type: "success",
-        message: "Noticias actualizadas correctamente.",
-      });
+      showToast({ type: "success", message: "Noticias actualizadas correctamente." });
     } catch (error) {
       showToast({ type: "error", message: "No se pudo guardar la noticia." });
     } finally {
@@ -177,18 +192,12 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
         image: galleryForm.image,
       };
 
-      if (galleryForm.id) {
-        await updateLandingGalleryItem(galleryForm.id, payload);
-      } else {
-        await createLandingGalleryItem(payload);
-      }
+      if (galleryForm.id) await updateLandingGalleryItem(galleryForm.id, payload);
+      else await createLandingGalleryItem(payload);
 
       setGalleryForm(emptyGalleryForm);
       await refreshLandingContent();
-      showToast({
-        type: "success",
-        message: "Galeria actualizada correctamente.",
-      });
+      showToast({ type: "success", message: "Galeria actualizada correctamente." });
     } catch (error) {
       showToast({ type: "error", message: "No se pudo guardar el evento de galeria." });
     } finally {
@@ -208,18 +217,12 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
         file: documentForm.file,
       };
 
-      if (documentForm.id) {
-        await updateLandingDocument(documentForm.id, payload);
-      } else {
-        await createLandingDocument(payload);
-      }
+      if (documentForm.id) await updateLandingDocument(documentForm.id, payload);
+      else await createLandingDocument(payload);
 
       setDocumentForm(emptyDocumentForm);
       await refreshLandingContent();
-      showToast({
-        type: "success",
-        message: "Documentacion actualizada correctamente.",
-      });
+      showToast({ type: "success", message: "Documentacion actualizada correctamente." });
     } catch (error) {
       showToast({ type: "error", message: "No se pudo guardar el documento." });
     } finally {
@@ -239,18 +242,12 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
         is_active: calendarForm.is_active,
       };
 
-      if (calendarForm.id) {
-        await updateLandingCalendarEntry(calendarForm.id, payload);
-      } else {
-        await createLandingCalendarEntry(payload);
-      }
+      if (calendarForm.id) await updateLandingCalendarEntry(calendarForm.id, payload);
+      else await createLandingCalendarEntry(payload);
 
       setCalendarForm(emptyCalendarForm);
       await refreshLandingContent();
-      showToast({
-        type: "success",
-        message: "Agenda institucional actualizada correctamente.",
-      });
+      showToast({ type: "success", message: "Agenda institucional actualizada correctamente." });
     } catch (error) {
       showToast({ type: "error", message: "No se pudo guardar el evento del calendario." });
     } finally {
@@ -305,113 +302,49 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
               <div className="landing-admin__grid">
                 <form className="landing-admin__form" onSubmit={submitNews}>
                   <h4>{newsForm.id ? "Editar noticia" : "Nueva noticia"}</h4>
-                  <input
-                    value={newsForm.title}
-                    onChange={(event) =>
-                      setNewsForm((current) => ({ ...current, title: event.target.value }))
-                    }
-                    placeholder="Titulo"
-                    required
-                  />
-                  <textarea
-                    value={newsForm.summary}
-                    onChange={(event) =>
-                      setNewsForm((current) => ({ ...current, summary: event.target.value }))
-                    }
-                    placeholder="Resumen"
-                    rows={5}
-                    required
-                  />
-                  <div className="landing-admin__form-row">
-                    <input
-                      type="date"
-                      value={newsForm.published_at}
-                      onChange={(event) =>
-                        setNewsForm((current) => ({
-                          ...current,
-                          published_at: event.target.value,
-                        }))
-                      }
-                      required
-                    />
-                    <input
-                      type="number"
-                      value={newsForm.display_order}
-                      onChange={(event) =>
-                        setNewsForm((current) => ({
-                          ...current,
-                          display_order: Number(event.target.value),
-                        }))
-                      }
-                      placeholder="Orden"
-                    />
+                  <div className="landing-admin__preview landing-admin__preview--image">
+                    {newsPreviewUrl ? (
+                      <img src={newsPreviewUrl} alt="Vista previa de noticia" />
+                    ) : (
+                      <div className="landing-admin__preview-empty">
+                        <Upload size={18} />
+                        <span>Vista previa de la imagen principal</span>
+                      </div>
+                    )}
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) =>
-                      setNewsForm((current) => ({
-                        ...current,
-                        image: event.target.files?.[0] || null,
-                      }))
-                    }
-                  />
+                  <input value={newsForm.title} onChange={(e) => setNewsForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
+                  <textarea value={newsForm.summary} onChange={(e) => setNewsForm((c) => ({ ...c, summary: e.target.value }))} placeholder="Resumen" rows={5} required />
+                  <div className="landing-admin__form-row">
+                    <input type="date" value={newsForm.published_at} onChange={(e) => setNewsForm((c) => ({ ...c, published_at: e.target.value }))} required />
+                    <input type="number" value={newsForm.display_order} onChange={(e) => setNewsForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
+                  </div>
+                  <label className="landing-admin__upload">
+                    <Upload size={16} />
+                    <span>{newsForm.image ? newsForm.image.name : "Subir imagen de noticia"}</span>
+                    <input type="file" accept="image/*" onChange={(e) => setNewsForm((c) => ({ ...c, image: e.target.files?.[0] || null }))} />
+                  </label>
                   <label className="landing-admin__checkbox">
-                    <input
-                      type="checkbox"
-                      checked={newsForm.is_active}
-                      onChange={(event) =>
-                        setNewsForm((current) => ({
-                          ...current,
-                          is_active: event.target.checked,
-                        }))
-                      }
-                    />
+                    <input type="checkbox" checked={newsForm.is_active} onChange={(e) => setNewsForm((c) => ({ ...c, is_active: e.target.checked }))} />
                     <span>Visible</span>
                   </label>
                   <div className="landing-admin__actions">
-                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>
-                      {newsForm.id ? "Actualizar" : "Crear noticia"}
-                    </button>
-                    {newsForm.id ? (
-                      <button
-                        type="button"
-                        className="landing-btn landing-btn--ghost-dark"
-                        onClick={() => setNewsForm(emptyNewsForm)}
-                      >
-                        Cancelar
-                      </button>
-                    ) : null}
+                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{newsForm.id ? "Actualizar" : "Crear noticia"}</button>
+                    {newsForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setNewsForm(emptyNewsForm)}>Cancelar</button> : null}
                   </div>
                 </form>
 
-                <div className="landing-admin__list">
+                <div className="landing-admin__list landing-admin__list--cards">
                   {content.news.map((item) => (
-                    <article key={item.id} className="landing-admin__item">
-                      <div>
+                    <article key={item.id} className="landing-admin__card">
+                      <div className="landing-admin__card-media">{item.image_url ? <img src={item.image_url} alt={item.title} /> : null}</div>
+                      <div className="landing-admin__card-body">
                         <strong>{item.title}</strong>
                         <span>{item.published_at}</span>
+                        <p>{item.summary}</p>
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setNewsForm({
-                              id: item.id,
-                              title: item.title,
-                              summary: item.summary,
-                              published_at: item.published_at,
-                              display_order: item.display_order,
-                              is_active: item.is_active,
-                              image: null,
-                            })
-                          }
-                        >
-                          <PencilLine size={16} />
-                        </button>
-                        <button type="button" onClick={() => handleDelete("news", item.id)}>
-                          <Trash2 size={16} />
-                        </button>
+                        <button type="button" onClick={() => setNewsForm({ id: item.id, title: item.title, summary: item.summary, published_at: item.published_at, display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}><PencilLine size={16} /></button>
+                        <button type="button" onClick={() => handleDelete("news", item.id)}><Trash2 size={16} /></button>
                       </div>
                     </article>
                   ))}
@@ -423,112 +356,49 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
               <div className="landing-admin__grid">
                 <form className="landing-admin__form" onSubmit={submitGallery}>
                   <h4>{galleryForm.id ? "Editar evento visual" : "Nuevo evento visual"}</h4>
-                  <input
-                    value={galleryForm.title}
-                    onChange={(event) =>
-                      setGalleryForm((current) => ({ ...current, title: event.target.value }))
-                    }
-                    placeholder="Titulo"
-                    required
-                  />
-                  <textarea
-                    value={galleryForm.detail}
-                    onChange={(event) =>
-                      setGalleryForm((current) => ({ ...current, detail: event.target.value }))
-                    }
-                    placeholder="Descripcion corta"
-                    rows={4}
-                    required
-                  />
-                  <div className="landing-admin__form-row">
-                    <input
-                      type="date"
-                      value={galleryForm.event_date}
-                      onChange={(event) =>
-                        setGalleryForm((current) => ({
-                          ...current,
-                          event_date: event.target.value,
-                        }))
-                      }
-                    />
-                    <input
-                      type="number"
-                      value={galleryForm.display_order}
-                      onChange={(event) =>
-                        setGalleryForm((current) => ({
-                          ...current,
-                          display_order: Number(event.target.value),
-                        }))
-                      }
-                      placeholder="Orden"
-                    />
+                  <div className="landing-admin__preview landing-admin__preview--image">
+                    {galleryPreviewUrl ? (
+                      <img src={galleryPreviewUrl} alt="Vista previa de galeria" />
+                    ) : (
+                      <div className="landing-admin__preview-empty">
+                        <Images size={18} />
+                        <span>Vista previa del evento visual</span>
+                      </div>
+                    )}
                   </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) =>
-                      setGalleryForm((current) => ({
-                        ...current,
-                        image: event.target.files?.[0] || null,
-                      }))
-                    }
-                  />
+                  <input value={galleryForm.title} onChange={(e) => setGalleryForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
+                  <textarea value={galleryForm.detail} onChange={(e) => setGalleryForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Descripcion corta" rows={4} required />
+                  <div className="landing-admin__form-row">
+                    <input type="date" value={galleryForm.event_date} onChange={(e) => setGalleryForm((c) => ({ ...c, event_date: e.target.value }))} />
+                    <input type="number" value={galleryForm.display_order} onChange={(e) => setGalleryForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
+                  </div>
+                  <label className="landing-admin__upload">
+                    <Upload size={16} />
+                    <span>{galleryForm.image ? galleryForm.image.name : "Subir imagen de galeria"}</span>
+                    <input type="file" accept="image/*" onChange={(e) => setGalleryForm((c) => ({ ...c, image: e.target.files?.[0] || null }))} />
+                  </label>
                   <label className="landing-admin__checkbox">
-                    <input
-                      type="checkbox"
-                      checked={galleryForm.is_active}
-                      onChange={(event) =>
-                        setGalleryForm((current) => ({
-                          ...current,
-                          is_active: event.target.checked,
-                        }))
-                      }
-                    />
+                    <input type="checkbox" checked={galleryForm.is_active} onChange={(e) => setGalleryForm((c) => ({ ...c, is_active: e.target.checked }))} />
                     <span>Visible</span>
                   </label>
                   <div className="landing-admin__actions">
-                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>
-                      {galleryForm.id ? "Actualizar" : "Crear evento"}
-                    </button>
-                    {galleryForm.id ? (
-                      <button
-                        type="button"
-                        className="landing-btn landing-btn--ghost-dark"
-                        onClick={() => setGalleryForm(emptyGalleryForm)}
-                      >
-                        Cancelar
-                      </button>
-                    ) : null}
+                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{galleryForm.id ? "Actualizar" : "Crear evento"}</button>
+                    {galleryForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setGalleryForm(emptyGalleryForm)}>Cancelar</button> : null}
                   </div>
                 </form>
 
-                <div className="landing-admin__list">
+                <div className="landing-admin__list landing-admin__list--cards">
                   {content.gallery.map((item) => (
-                    <article key={item.id} className="landing-admin__item">
-                      <div>
+                    <article key={item.id} className="landing-admin__card">
+                      <div className="landing-admin__card-media">{item.image_url ? <img src={item.image_url} alt={item.title} /> : null}</div>
+                      <div className="landing-admin__card-body">
                         <strong>{item.title}</strong>
                         <span>{item.event_date || "Sin fecha"}</span>
+                        <p>{item.detail}</p>
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setGalleryForm({
-                              id: item.id,
-                              title: item.title,
-                              detail: item.detail,
-                              event_date: item.event_date || "",
-                              display_order: item.display_order,
-                              is_active: item.is_active,
-                              image: null,
-                            })
-                          }
-                        >
-                          <PencilLine size={16} />
-                        </button>
-                        <button type="button" onClick={() => handleDelete("gallery", item.id)}>
-                          <Trash2 size={16} />
-                        </button>
+                        <button type="button" onClick={() => setGalleryForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date || "", display_order: item.display_order, is_active: item.is_active, image: null, currentImageUrl: item.image_url || "" })}><PencilLine size={16} /></button>
+                        <button type="button" onClick={() => handleDelete("gallery", item.id)}><Trash2 size={16} /></button>
                       </div>
                     </article>
                   ))}
@@ -540,103 +410,53 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
               <div className="landing-admin__grid">
                 <form className="landing-admin__form" onSubmit={submitDocument}>
                   <h4>{documentForm.id ? "Editar documento" : "Nuevo documento"}</h4>
-                  <input
-                    value={documentForm.title}
-                    onChange={(event) =>
-                      setDocumentForm((current) => ({ ...current, title: event.target.value }))
-                    }
-                    placeholder="Titulo"
-                    required
-                  />
-                  <textarea
-                    value={documentForm.description}
-                    onChange={(event) =>
-                      setDocumentForm((current) => ({
-                        ...current,
-                        description: event.target.value,
-                      }))
-                    }
-                    placeholder="Descripcion"
-                    rows={4}
-                    required
-                  />
-                  <div className="landing-admin__form-row">
-                    <input
-                      type="number"
-                      value={documentForm.display_order}
-                      onChange={(event) =>
-                        setDocumentForm((current) => ({
-                          ...current,
-                          display_order: Number(event.target.value),
-                        }))
-                      }
-                      placeholder="Orden"
-                    />
-                    <input
-                      type="file"
-                      onChange={(event) =>
-                        setDocumentForm((current) => ({
-                          ...current,
-                          file: event.target.files?.[0] || null,
-                        }))
-                      }
-                    />
+                  <div className="landing-admin__preview landing-admin__preview--file">
+                    {documentPreviewName ? (
+                      <div className="landing-admin__file-preview">
+                        <FileText size={22} />
+                        <div>
+                          <strong>{documentForm.file?.name || documentForm.title || "Documento actual"}</strong>
+                          <span>{documentForm.file ? "Archivo listo para subir" : "Documento actualmente publicado"}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="landing-admin__preview-empty">
+                        <FileText size={18} />
+                        <span>Vista previa del documento institucional</span>
+                      </div>
+                    )}
                   </div>
+                  <input value={documentForm.title} onChange={(e) => setDocumentForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
+                  <textarea value={documentForm.description} onChange={(e) => setDocumentForm((c) => ({ ...c, description: e.target.value }))} placeholder="Descripcion" rows={4} required />
+                  <input type="number" value={documentForm.display_order} onChange={(e) => setDocumentForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
+                  <label className="landing-admin__upload">
+                    <Upload size={16} />
+                    <span>{documentForm.file ? documentForm.file.name : "Subir documento institucional"}</span>
+                    <input type="file" onChange={(e) => setDocumentForm((c) => ({ ...c, file: e.target.files?.[0] || null }))} />
+                  </label>
                   <label className="landing-admin__checkbox">
-                    <input
-                      type="checkbox"
-                      checked={documentForm.is_active}
-                      onChange={(event) =>
-                        setDocumentForm((current) => ({
-                          ...current,
-                          is_active: event.target.checked,
-                        }))
-                      }
-                    />
+                    <input type="checkbox" checked={documentForm.is_active} onChange={(e) => setDocumentForm((c) => ({ ...c, is_active: e.target.checked }))} />
                     <span>Visible</span>
                   </label>
                   <div className="landing-admin__actions">
-                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>
-                      {documentForm.id ? "Actualizar" : "Crear documento"}
-                    </button>
-                    {documentForm.id ? (
-                      <button
-                        type="button"
-                        className="landing-btn landing-btn--ghost-dark"
-                        onClick={() => setDocumentForm(emptyDocumentForm)}
-                      >
-                        Cancelar
-                      </button>
-                    ) : null}
+                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{documentForm.id ? "Actualizar" : "Crear documento"}</button>
+                    {documentForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setDocumentForm(emptyDocumentForm)}>Cancelar</button> : null}
                   </div>
                 </form>
 
-                <div className="landing-admin__list">
+                <div className="landing-admin__list landing-admin__list--cards">
                   {content.documents.map((item) => (
-                    <article key={item.id} className="landing-admin__item">
-                      <div>
+                    <article key={item.id} className="landing-admin__card landing-admin__card--document">
+                      <div className="landing-admin__card-file"><FileText size={24} /></div>
+                      <div className="landing-admin__card-body">
                         <strong>{item.title}</strong>
-                        <span>{item.file_url ? "Documento cargado" : "Sin archivo"}</span>
+                        <span>{item.file_url ? "Documento activo" : "Sin archivo"}</span>
+                        <p>{item.description}</p>
+                        {item.file_url ? <a href={item.file_url} target="_blank" rel="noreferrer" className="landing-admin__link"><Eye size={14} /><span>Ver documento</span></a> : null}
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setDocumentForm({
-                              id: item.id,
-                              title: item.title,
-                              description: item.description,
-                              display_order: item.display_order,
-                              is_active: item.is_active,
-                              file: null,
-                            })
-                          }
-                        >
-                          <PencilLine size={16} />
-                        </button>
-                        <button type="button" onClick={() => handleDelete("documents", item.id)}>
-                          <Trash2 size={16} />
-                        </button>
+                        <button type="button" onClick={() => setDocumentForm({ id: item.id, title: item.title, description: item.description, display_order: item.display_order, is_active: item.is_active, file: null, currentFileUrl: item.file_url || "" })}><PencilLine size={16} /></button>
+                        <button type="button" onClick={() => handleDelete("documents", item.id)}><Trash2 size={16} /></button>
                       </div>
                     </article>
                   ))}
@@ -648,102 +468,37 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
               <div className="landing-admin__grid">
                 <form className="landing-admin__form" onSubmit={submitCalendar}>
                   <h4>{calendarForm.id ? "Editar fecha" : "Nueva fecha institucional"}</h4>
-                  <input
-                    value={calendarForm.title}
-                    onChange={(event) =>
-                      setCalendarForm((current) => ({ ...current, title: event.target.value }))
-                    }
-                    placeholder="Titulo"
-                    required
-                  />
-                  <textarea
-                    value={calendarForm.detail}
-                    onChange={(event) =>
-                      setCalendarForm((current) => ({ ...current, detail: event.target.value }))
-                    }
-                    placeholder="Detalle"
-                    rows={4}
-                    required
-                  />
+                  <input value={calendarForm.title} onChange={(e) => setCalendarForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
+                  <textarea value={calendarForm.detail} onChange={(e) => setCalendarForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Detalle" rows={4} required />
                   <div className="landing-admin__form-row">
-                    <input
-                      type="date"
-                      value={calendarForm.event_date}
-                      onChange={(event) =>
-                        setCalendarForm((current) => ({
-                          ...current,
-                          event_date: event.target.value,
-                        }))
-                      }
-                      required
-                    />
-                    <input
-                      type="number"
-                      value={calendarForm.display_order}
-                      onChange={(event) =>
-                        setCalendarForm((current) => ({
-                          ...current,
-                          display_order: Number(event.target.value),
-                        }))
-                      }
-                      placeholder="Orden"
-                    />
+                    <input type="date" value={calendarForm.event_date} onChange={(e) => setCalendarForm((c) => ({ ...c, event_date: e.target.value }))} required />
+                    <input type="number" value={calendarForm.display_order} onChange={(e) => setCalendarForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
                   </div>
                   <label className="landing-admin__checkbox">
-                    <input
-                      type="checkbox"
-                      checked={calendarForm.is_active}
-                      onChange={(event) =>
-                        setCalendarForm((current) => ({
-                          ...current,
-                          is_active: event.target.checked,
-                        }))
-                      }
-                    />
+                    <input type="checkbox" checked={calendarForm.is_active} onChange={(e) => setCalendarForm((c) => ({ ...c, is_active: e.target.checked }))} />
                     <span>Visible</span>
                   </label>
                   <div className="landing-admin__actions">
-                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>
-                      {calendarForm.id ? "Actualizar" : "Crear fecha"}
-                    </button>
-                    {calendarForm.id ? (
-                      <button
-                        type="button"
-                        className="landing-btn landing-btn--ghost-dark"
-                        onClick={() => setCalendarForm(emptyCalendarForm)}
-                      >
-                        Cancelar
-                      </button>
-                    ) : null}
+                    <button type="submit" className="landing-btn landing-btn--primary" disabled={saving}>{calendarForm.id ? "Actualizar" : "Crear fecha"}</button>
+                    {calendarForm.id ? <button type="button" className="landing-btn landing-btn--ghost-dark" onClick={() => setCalendarForm(emptyCalendarForm)}>Cancelar</button> : null}
                   </div>
                 </form>
 
-                <div className="landing-admin__list">
+                <div className="landing-admin__list landing-admin__list--cards">
                   {content.calendar_entries.map((item) => (
-                    <article key={item.id} className="landing-admin__item">
-                      <div>
+                    <article key={item.id} className="landing-admin__card landing-admin__card--calendar">
+                      <div className="landing-admin__calendar-pill">
+                        <strong>{new Date(`${item.event_date}T00:00:00`).getDate()}</strong>
+                        <span>{new Date(`${item.event_date}T00:00:00`).toLocaleDateString("es-CO", { month: "short" })}</span>
+                      </div>
+                      <div className="landing-admin__card-body">
                         <strong>{item.title}</strong>
                         <span>{item.event_date}</span>
+                        <p>{item.detail}</p>
                       </div>
                       <div className="landing-admin__item-actions">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCalendarForm({
-                              id: item.id,
-                              title: item.title,
-                              detail: item.detail,
-                              event_date: item.event_date,
-                              display_order: item.display_order,
-                              is_active: item.is_active,
-                            })
-                          }
-                        >
-                          <PencilLine size={16} />
-                        </button>
-                        <button type="button" onClick={() => handleDelete("calendar", item.id)}>
-                          <Trash2 size={16} />
-                        </button>
+                        <button type="button" onClick={() => setCalendarForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date, display_order: item.display_order, is_active: item.is_active })}><PencilLine size={16} /></button>
+                        <button type="button" onClick={() => handleDelete("calendar", item.id)}><Trash2 size={16} /></button>
                       </div>
                     </article>
                   ))}

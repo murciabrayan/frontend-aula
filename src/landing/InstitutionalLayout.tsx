@@ -2,7 +2,6 @@ import {
   CircleUserRound,
   Facebook,
   Instagram,
-  LogIn,
   LogOut,
   Menu,
   PencilLine,
@@ -22,6 +21,7 @@ import {
 } from "@/commons/Auth/services/auth.service";
 import { LandingContentProvider } from "./LandingContentContext";
 import LandingAdminPanel from "./LandingAdminPanel";
+import LandingLoginModal from "./LandingLoginModal";
 import "./landing.css";
 
 const navItems = [
@@ -48,6 +48,7 @@ const InstitutionalLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const location = useLocation();
   const navigate = useNavigate();
@@ -85,6 +86,26 @@ const InstitutionalLayout = () => {
     setProfileOpen(false);
     navigate("/");
   };
+
+  const handleProfileAction = () => {
+    if (!currentUser) {
+      setLoginOpen(true);
+      return;
+    }
+
+    if (currentUser.role === "ADMIN") {
+      setProfileOpen((current) => !current);
+      return;
+    }
+
+    handleLogout();
+  };
+
+  const profileLabel = !currentUser
+    ? "Iniciar sesion"
+    : currentUser.role === "ADMIN"
+      ? "Mi cuenta"
+      : "Cerrar sesion";
 
   return (
     <LandingContentProvider>
@@ -153,48 +174,37 @@ const InstitutionalLayout = () => {
                   <button
                     type="button"
                     className="landing-profile__trigger"
-                    onClick={() => setProfileOpen((current) => !current)}
-                    aria-label="Perfil"
+                    onClick={handleProfileAction}
+                    aria-label={profileLabel}
                   >
                     <CircleUserRound size={18} />
-                    <span>{currentUser ? "Mi cuenta" : "Perfil"}</span>
+                    <span>{profileLabel}</span>
                   </button>
 
-                  {profileOpen ? (
+                  {profileOpen && currentUser?.role === "ADMIN" ? (
                     <div className="landing-profile__menu">
-                      {currentUser ? (
-                        <>
-                          <div className="landing-profile__summary">
-                            <UserCircle2 size={22} />
-                            <div>
-                              <strong>{currentUser.email}</strong>
-                              <span>{currentUser.role}</span>
-                            </div>
-                          </div>
+                      <div className="landing-profile__summary">
+                        <UserCircle2 size={22} />
+                        <div>
+                          <strong>{currentUser.email}</strong>
+                          <span>{currentUser.role}</span>
+                        </div>
+                      </div>
 
-                          <button type="button" onClick={handlePlatformAccess}>
-                            <LogIn size={16} />
-                            <span>Ir a mi panel</span>
-                          </button>
+                      <button type="button" onClick={handlePlatformAccess}>
+                        <UserCircle2 size={16} />
+                        <span>Ir a mi panel</span>
+                      </button>
 
-                          {currentUser.role === "ADMIN" ? (
-                            <button type="button" onClick={() => setEditorOpen(true)}>
-                              <PencilLine size={16} />
-                              <span>Editar landing</span>
-                            </button>
-                          ) : null}
+                      <button type="button" onClick={() => setEditorOpen(true)}>
+                        <PencilLine size={16} />
+                        <span>Editar landing</span>
+                      </button>
 
-                          <button type="button" onClick={handleLogout}>
-                            <LogOut size={16} />
-                            <span>Cerrar sesion</span>
-                          </button>
-                        </>
-                      ) : (
-                        <button type="button" onClick={() => navigate("/plataforma")}>
-                          <LogIn size={16} />
-                          <span>Iniciar sesion</span>
-                        </button>
-                      )}
+                      <button type="button" onClick={handleLogout}>
+                        <LogOut size={16} />
+                        <span>Cerrar sesion</span>
+                      </button>
                     </div>
                   ) : null}
                 </div>
@@ -265,6 +275,11 @@ const InstitutionalLayout = () => {
           </div>
         </footer>
 
+        <LandingLoginModal
+          open={loginOpen}
+          onClose={() => setLoginOpen(false)}
+          onAuthenticated={(targetRoute) => navigate(targetRoute)}
+        />
         <LandingAdminPanel open={editorOpen} onClose={() => setEditorOpen(false)} />
       </div>
     </LandingContentProvider>
