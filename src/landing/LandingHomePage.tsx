@@ -11,7 +11,8 @@ import {
   Users,
 } from "lucide-react";
 import heroImageA from "@/assets/login-side.jpg";
-import heroImageB from "@/assets/2.png";
+import heroImageB from "@/assets/carrusel2.jpg";
+import heroImageC from "@/assets/carrusel3.jpg";
 import { useLandingContent } from "./LandingContentContext";
 
 const heroSlides = [
@@ -28,7 +29,7 @@ const heroSlides = [
     text: "Creamos espacios donde la ciencia, la convivencia y la creatividad fortalecen el proyecto de vida de cada estudiante.",
   },
   {
-    image: heroImageA,
+    image: heroImageC,
     eyebrow: "Plataforma integral",
     title: "Un colegio conectado con su comunidad educativa.",
     text: "Informacion institucional, gestion academica y comunicacion en una presencia digital ordenada, moderna y confiable.",
@@ -54,7 +55,7 @@ const fallbackNewsItems = [
   },
   {
     id: 3,
-    image_url: heroImageA,
+    image_url: heroImageC,
     title: "Salida pedagogica y cultural para fortalecer aprendizaje significativo",
     published_at: "2026-03-02",
     summary:
