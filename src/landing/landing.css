@@ -1077,6 +1077,56 @@ body {
   gap: 20px;
 }
 
+.landing-school-calendar {
+  display: grid;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.landing-school-calendar__item {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 18px;
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(20, 20, 24, 0.04);
+  border: 1px solid rgba(201, 162, 39, 0.16);
+}
+
+.landing-school-calendar__date {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 12px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #141418 0%, #1c1c24 100%);
+}
+
+.landing-school-calendar__date span {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.landing-school-calendar__date strong {
+  color: var(--landing-gold-soft);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+}
+
+.landing-school-calendar__body h3 {
+  margin: 0 0 8px;
+  color: #141418;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.landing-school-calendar__body p {
+  margin: 0;
+  color: #4f4a42;
+  line-height: 1.7;
+}
+
 .landing-footer {
   padding: 0 0 32px;
 }
@@ -1271,7 +1321,8 @@ body {
   .landing-admissions__step,
   .landing-calendar-card li,
   .landing-contact-banner,
-  .landing-contact-form__grid {
+  .landing-contact-form__grid,
+  .landing-school-calendar__item {
     grid-template-columns: 1fr;
   }
 

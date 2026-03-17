@@ -107,7 +107,7 @@ const InstitutionalLayout = () => {
             <strong>Institucion Educativa</strong>
             <p>
               Formamos lideres con pensamiento critico, excelencia academica y una
-              comunidad que impulsa el futuro profesional.
+              comunidad escolar que impulsa el crecimiento integral de cada estudiante.
             </p>
           </div>
 
@@ -148,7 +148,7 @@ const InstitutionalLayout = () => {
             <div className="landing-footer__contact">
               <span>Tel: +57 601 555 1010</span>
               <span>Email: admisiones@institucion.edu.co</span>
-              <span>Direccion: Avenida del Conocimiento 245, Bogota</span>
+              <span>Direccion: Cl. 8 # 6-87, Simijaca, Cundinamarca</span>
             </div>
           </div>
         </div>

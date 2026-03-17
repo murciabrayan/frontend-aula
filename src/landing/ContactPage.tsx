@@ -4,11 +4,11 @@ import type { FormEvent } from "react";
 const contactCards = [
   {
     title: "Sede principal",
-    text: "Avenida del Conocimiento 245, Bogota. Campus con ambientes academicos, culturales y de bienestar.",
+    text: "Cl. 8 # 6-87, Simijaca, Simijaca, Cundinamarca. Sede principal del colegio con espacios academicos y comunitarios.",
   },
   {
     title: "Linea de atencion",
-    text: "+57 601 555 1010. Equipo disponible para orientar procesos de admision, convenios y vida institucional.",
+    text: "+57 601 555 1010. Equipo disponible para orientar procesos institucionales, matriculas y vida escolar.",
   },
   {
     title: "Correo institucional",
@@ -31,8 +31,8 @@ const ContactPage = () => {
           <span className="landing-section-tag">Contacto</span>
           <h1>Estamos listos para acompanarte en tu proceso</h1>
           <p>
-            Conecta con nuestro equipo institucional para resolver dudas sobre admisiones,
-            programas, servicios y oportunidades de vinculacion.
+            Conecta con nuestro equipo institucional para resolver dudas sobre matriculas,
+            vida escolar, servicios y orientacion para familias.
           </p>
         </div>
       </section>
@@ -64,7 +64,7 @@ const ContactPage = () => {
               </label>
               <label>
                 <span>Asunto</span>
-                <input type="text" name="subject" placeholder="Admision, matriculas, informacion..." required />
+                <input type="text" name="subject" placeholder="Matriculas, informacion, convivencia..." required />
               </label>
             </div>
 
@@ -103,7 +103,7 @@ const ContactPage = () => {
           <div className="landing-map-frame">
             <iframe
               title="Ubicacion de la institucion"
-              src="https://www.google.com/maps?q=Bogota%20Colombia&z=14&output=embed"
+              src="https://www.google.com/maps?q=5.503327,-73.852606&z=17&output=embed"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />

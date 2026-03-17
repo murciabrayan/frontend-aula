@@ -17,20 +17,20 @@ import heroImageC from "@/assets/logo.png";
 const heroSlides = [
   {
     image: heroImageA,
-    eyebrow: "Formacion de alto nivel",
-    title: "Impulsamos talento, liderazgo y futuro academico.",
-    text: "Una experiencia institucional pensada para formar profesionales con vision global, criterio humano y excelencia sostenida.",
+    eyebrow: "Formacion integral",
+    title: "Impulsamos valores, excelencia y futuro academico.",
+    text: "Una experiencia escolar pensada para formar estudiantes con liderazgo, criterio humano y un profundo sentido de pertenencia.",
   },
   {
     image: heroImageB,
-    eyebrow: "Vida universitaria",
-    title: "Innovacion, investigacion y comunidad en un mismo ecosistema.",
-    text: "Creamos entornos que conectan ciencia, creatividad y acompanamiento para que cada estudiante proyecte su mejor version.",
+    eyebrow: "Vida escolar",
+    title: "Aprendizaje, comunidad y crecimiento en un mismo entorno.",
+    text: "Creamos espacios donde la ciencia, la convivencia y la creatividad fortalecen el proyecto de vida de cada estudiante.",
   },
   {
     image: heroImageC,
     eyebrow: "Plataforma integral",
-    title: "Una institucion conectada con su comunidad academica.",
+    title: "Un colegio conectado con su comunidad educativa.",
     text: "Informacion institucional, gestion academica y comunicacion en una presencia digital ordenada, moderna y confiable.",
   },
 ];
@@ -38,63 +38,84 @@ const heroSlides = [
 const newsItems = [
   {
     image: heroImageA,
-    title: "Seminario internacional de liderazgo y excelencia directiva",
+    title: "Encuentro institucional sobre liderazgo, convivencia y proyecto de vida",
     date: "17 de marzo de 2026",
     description:
-      "Una jornada con invitados nacionales e internacionales para fortalecer la toma de decisiones, la vision estrategica y la innovacion educativa.",
+      "Una jornada para fortalecer habilidades de liderazgo estudiantil, sentido de comunidad y formacion en valores.",
   },
   {
     image: heroImageB,
-    title: "Inicio del nuevo ciclo academico con enfoque en investigacion aplicada",
+    title: "Inicio del nuevo periodo academico con experiencias de aula innovadoras",
     date: "10 de marzo de 2026",
     description:
-      "Nuestros programas abren un nuevo periodo con laboratorios, experiencias inmersivas y acompanamiento integral para estudiantes y docentes.",
+      "El colegio inicia una nueva etapa con actividades integradas, laboratorios escolares y acompanamiento permanente.",
   },
   {
     image: heroImageA,
-    title: "Viaje academico y cultural para fortalecer aprendizaje global",
+    title: "Salida pedagogica y cultural para fortalecer aprendizaje significativo",
     date: "2 de marzo de 2026",
     description:
-      "Una experiencia de campo que integra intercambio cultural, pensamiento critico y vivencias reales alineadas con el proyecto formativo.",
+      "Una experiencia que une observacion, trabajo colaborativo y vivencias reales alineadas con el proceso formativo.",
   },
 ];
 
 const galleryItems = [
-  { image: heroImageA, title: "Ceremonia de graduacion", detail: "Excelencia y proyeccion profesional" },
-  { image: heroImageB, title: "Laboratorios especializados", detail: "Aprendizaje aplicado y tecnologia" },
-  { image: heroImageA, title: "Conferencias magistrales", detail: "Expertos invitados y debate academico" },
-  { image: heroImageB, title: "Vida estudiantil", detail: "Cultura, deporte y comunidad" },
-  { image: heroImageA, title: "Eventos institucionales", detail: "Prestigio, red y proyeccion" },
+  { image: heroImageA, title: "Ceremonia de graduacion", detail: "Logros, familia y proyeccion de futuro" },
+  { image: heroImageB, title: "Laboratorios escolares", detail: "Aprendizaje practico y curiosidad cientifica" },
+  { image: heroImageA, title: "Actos institucionales", detail: "Comunidad, identidad y participacion" },
+  { image: heroImageB, title: "Vida estudiantil", detail: "Arte, deporte y crecimiento integral" },
+  { image: heroImageA, title: "Eventos culturales", detail: "Talento, valores y sentido de pertenencia" },
 ];
 
 const featuredPrograms = [
   {
     icon: GraduationCap,
-    title: "Programas de excelencia",
-    text: "Trayectorias formativas orientadas a resultados, rigor academico y empleabilidad.",
+    title: "Formacion academica solida",
+    text: "Procesos pedagógicos orientados al pensamiento critico, la lectura, la ciencia y el desarrollo integral.",
   },
   {
     icon: Sparkles,
-    title: "Modelo integral",
-    text: "Acompanamiento humano, bienestar, orientacion y cultura institucional premium.",
+    title: "Educacion en valores",
+    text: "Convivencia, respeto, responsabilidad y liderazgo como pilares de la vida escolar.",
   },
   {
     icon: Users,
-    title: "Comunidad global",
-    text: "Alianzas, eventos, practicas y redes que amplian el horizonte profesional.",
+    title: "Comunidad educativa cercana",
+    text: "Familias, docentes y estudiantes construyen juntos una experiencia escolar humana y exigente.",
   },
 ];
 
-const admissionSteps = [
-  "Explora la oferta academica y el proyecto institucional.",
-  "Agenda una asesoria con nuestro equipo de admisiones.",
-  "Formaliza tu proceso y accede a acompanamiento personalizado.",
+const schoolCalendar = [
+  {
+    month: "Marzo",
+    date: "22",
+    title: "Izada de bandera y homenaje institucional",
+    detail: "Actividad formativa con protagonismo de primaria y bachillerato.",
+  },
+  {
+    month: "Abril",
+    date: "04",
+    title: "Entrega de informes del primer corte",
+    detail: "Espacio de dialogo entre familias, docentes y direccion de grupo.",
+  },
+  {
+    month: "Abril",
+    date: "18",
+    title: "Semana cultural y deportiva",
+    detail: "Jornadas artisticas, deportivas y de convivencia para toda la comunidad.",
+  },
+];
+
+const institutionalCalendar = [
+  { day: "24 MAR", label: "Consejo academico y planeacion institucional" },
+  { day: "05 ABR", label: "Reunion con familias y seguimiento formativo" },
+  { day: "19 ABR", label: "Muestra de proyectos escolares" },
 ];
 
 const communityItems = [
-  { title: "Instagram", subtitle: "@institucion.premium" },
-  { title: "Facebook", subtitle: "Institucion Educativa Oficial" },
-  { title: "YouTube", subtitle: "Eventos, conferencias y comunidad" },
+  { title: "Instagram", subtitle: "@colegio.simijaca" },
+  { title: "Facebook", subtitle: "Colegio Institucional Simijaca" },
+  { title: "YouTube", subtitle: "Eventos, actos y comunidad escolar" },
 ];
 
 const LandingHomePage = () => {
@@ -129,7 +150,7 @@ const LandingHomePage = () => {
             <p>{currentHero.text}</p>
             <div className="landing-hero__actions">
               <a href="/#programas" className="landing-btn landing-btn--primary">
-                Ver carreras
+                Conocer el colegio
               </a>
               <Link to="/institucional" className="landing-btn landing-btn--ghost">
                 Mas informacion
@@ -138,8 +159,8 @@ const LandingHomePage = () => {
 
             <div className="landing-hero__metrics">
               <article>
-                <strong>25+</strong>
-                <span>Programas y trayectorias formativas</span>
+                <strong>11</strong>
+                <span>Niveles y procesos escolares articulados</span>
               </article>
               <article>
                 <strong>94%</strong>
@@ -147,7 +168,7 @@ const LandingHomePage = () => {
               </article>
               <article>
                 <strong>12</strong>
-                <span>Eventos academicos de alto impacto cada semestre</span>
+                <span>Eventos institucionales de alto impacto cada semestre</span>
               </article>
             </div>
           </div>
@@ -158,8 +179,8 @@ const LandingHomePage = () => {
             </div>
             <div className="landing-hero__panel">
               <span>Excelencia institucional</span>
-              <strong>Admisiones abiertas 2026</strong>
-              <p>Conoce una propuesta academica con prestigio, acompanamiento y vision de futuro.</p>
+              <strong>Formacion escolar con identidad y valores</strong>
+              <p>Conoce un colegio que combina calidad academica, acompanamiento y sentido de comunidad.</p>
             </div>
           </div>
         </div>
@@ -204,7 +225,7 @@ const LandingHomePage = () => {
           <h2>Ultimas Noticias</h2>
           <p>
             Historias, actividades y anuncios que reflejan el dinamismo de nuestra
-            comunidad academica.
+            comunidad educativa.
           </p>
         </div>
 
@@ -236,10 +257,10 @@ const LandingHomePage = () => {
       <section id="programas" className="landing-showcase">
         <div className="landing-section-heading">
           <span className="landing-section-tag">Oferta academica</span>
-          <h2>Una experiencia educativa orientada a la excelencia</h2>
+          <h2>Una experiencia escolar orientada a la excelencia</h2>
           <p>
-            Programas, metodologias y entornos de aprendizaje pensados para lograr
-            prestigio academico y desarrollo integral.
+            Ambientes de aprendizaje, acompanamiento docente y vida escolar pensados
+            para formar estudiantes integros, curiosos y comprometidos.
           </p>
         </div>
 
@@ -265,7 +286,7 @@ const LandingHomePage = () => {
           <span className="landing-section-tag">Vida academica</span>
           <h2>Galeria de Eventos</h2>
           <p>
-            Un recorrido visual por graduaciones, conferencias, laboratorios y momentos
+            Un recorrido visual por actos, graduaciones, actividades escolares y momentos
             que fortalecen nuestra identidad institucional.
           </p>
         </div>
@@ -332,19 +353,25 @@ const LandingHomePage = () => {
       <section id="admisiones" className="landing-admissions">
         <div className="landing-admissions__panel">
           <div className="landing-section-heading">
-            <span className="landing-section-tag landing-section-tag--light">Admision 2026</span>
-            <h2>Un proceso claro, acompanado y alineado con tu proyecto de vida</h2>
+            <span className="landing-section-tag landing-section-tag--light">Agenda escolar</span>
+            <h2>Calendario academico del colegio</h2>
             <p>
-              Nuestro equipo orienta cada etapa para que el ingreso a la institucion
-              sea tan inspirador como la experiencia academica que ofrecemos.
+              Un resumen visual de fechas, actividades y encuentros que organizan la
+              vida institucional durante el periodo escolar.
             </p>
           </div>
 
-          <div className="landing-admissions__steps">
-            {admissionSteps.map((item, index) => (
-              <article key={item} className="landing-admissions__step">
-                <strong>0{index + 1}</strong>
-                <p>{item}</p>
+          <div className="landing-school-calendar">
+            {schoolCalendar.map((item) => (
+              <article key={`${item.month}-${item.date}-${item.title}`} className="landing-school-calendar__item">
+                <div className="landing-school-calendar__date">
+                  <span>{item.month}</span>
+                  <strong>{item.date}</strong>
+                </div>
+                <div className="landing-school-calendar__body">
+                  <h3>{item.title}</h3>
+                  <p>{item.detail}</p>
+                </div>
               </article>
             ))}
           </div>
@@ -357,18 +384,12 @@ const LandingHomePage = () => {
               <span>Calendario institucional</span>
             </div>
             <ul>
-              <li>
-                <strong>24 MAR</strong>
-                <span>Open house de programas y recorridos guiados</span>
-              </li>
-              <li>
-                <strong>05 ABR</strong>
-                <span>Sesion informativa para familias y aspirantes</span>
-              </li>
-              <li>
-                <strong>19 ABR</strong>
-                <span>Inicio de entrevistas y cierre del primer corte</span>
-              </li>
+              {institutionalCalendar.map((item) => (
+                <li key={item.day}>
+                  <strong>{item.day}</strong>
+                  <span>{item.label}</span>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -380,7 +401,7 @@ const LandingHomePage = () => {
           <h2>Conecta con nuestra comunidad</h2>
           <p>
             Sigue conversaciones, eventos y contenidos que amplian la experiencia
-            academica dentro y fuera del campus.
+            escolar dentro y fuera del aula.
           </p>
         </div>
 
