@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import {
-  getDashboardRoute,
-  loginUser,
-  loginWithGoogle,
-} from "@/commons/Auth/services/auth.service";
+import { loginUser, loginWithGoogle } from "@/commons/Auth/services/auth.service";
 import logo from "@/assets/logo.png";
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  onAuthenticated: (targetRoute: string) => void;
+  onAuthenticated: () => void;
 }
 
 const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
@@ -31,8 +27,8 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
     try {
       setLoading(true);
       setErrorMessage("");
-      const userData = await loginUser(email, password);
-      onAuthenticated(getDashboardRoute(userData?.role));
+      await loginUser(email, password);
+      onAuthenticated();
       onClose();
     } catch (error) {
       setErrorMessage("Credenciales incorrectas o error de conexion.");
@@ -45,8 +41,8 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
     try {
       setLoading(true);
       setErrorMessage("");
-      const userData = await loginWithGoogle(credentialResponse.credential);
-      onAuthenticated(getDashboardRoute(userData?.role));
+      await loginWithGoogle(credentialResponse.credential);
+      onAuthenticated();
       onClose();
     } catch (error) {
       setErrorMessage("Error al iniciar sesion con Google.");
@@ -70,7 +66,7 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
         <div className="landing-login__brand">
           <img src={logo} alt="Logo institucional" className="landing-login__logo" />
           <span className="landing-section-tag">Acceso institucional</span>
-          <h2>Inicia sesion sin salir de la landing</h2>
+          <h2>Inicia sesion</h2>
           <p>
             Usa las mismas credenciales de la plataforma institucional para continuar.
           </p>

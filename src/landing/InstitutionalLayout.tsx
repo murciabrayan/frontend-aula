@@ -278,7 +278,7 @@ const InstitutionalLayout = () => {
         <LandingLoginModal
           open={loginOpen}
           onClose={() => setLoginOpen(false)}
-          onAuthenticated={(targetRoute) => navigate(targetRoute)}
+          onAuthenticated={() => setCurrentUser(getCurrentUser())}
         />
         <LandingAdminPanel open={editorOpen} onClose={() => setEditorOpen(false)} />
       </div>
