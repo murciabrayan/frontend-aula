@@ -1572,6 +1572,15 @@ body {
   gap: 12px;
 }
 
+.landing-admin__form-meta {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(201, 162, 39, 0.08);
+  border: 1px solid rgba(201, 162, 39, 0.16);
+  color: #5c4a16;
+  font-weight: 600;
+}
+
 .landing-admin__checkbox {
   display: inline-flex;
   align-items: center;

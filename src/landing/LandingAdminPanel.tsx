@@ -41,11 +41,13 @@ const tabs: Array<{ id: LandingTab; label: string; icon: typeof Newspaper }> = [
   { id: "calendar", label: "Agenda", icon: CalendarDays },
 ];
 
+const getTodayDateValue = () => new Date().toISOString().slice(0, 10);
+
 const emptyNewsForm = {
   id: null as number | null,
   title: "",
   summary: "",
-  published_at: "",
+  published_at: getTodayDateValue(),
   display_order: 0,
   is_active: true,
   image: null as File | null,
@@ -160,7 +162,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       const payload = {
         title: newsForm.title,
         summary: newsForm.summary,
-        published_at: newsForm.published_at,
+        published_at: newsForm.published_at || getTodayDateValue(),
         display_order: String(newsForm.display_order),
         is_active: String(newsForm.is_active),
         image: newsForm.image,
@@ -314,10 +316,10 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </div>
                   <input value={newsForm.title} onChange={(e) => setNewsForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
                   <textarea value={newsForm.summary} onChange={(e) => setNewsForm((c) => ({ ...c, summary: e.target.value }))} placeholder="Resumen" rows={5} required />
-                  <div className="landing-admin__form-row">
-                    <input type="date" value={newsForm.published_at} onChange={(e) => setNewsForm((c) => ({ ...c, published_at: e.target.value }))} required />
-                    <input type="number" value={newsForm.display_order} onChange={(e) => setNewsForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
+                  <div className="landing-admin__form-meta">
+                    <span>Fecha de publicacion: {newsForm.published_at}</span>
                   </div>
+                  <input type="number" value={newsForm.display_order} onChange={(e) => setNewsForm((c) => ({ ...c, display_order: Number(e.target.value) }))} placeholder="Orden" />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
                     <span>{newsForm.image ? newsForm.image.name : "Subir imagen de noticia"}</span>
