@@ -1,55 +1,77 @@
 const documents = [
   {
     title: "Proyecto Educativo Institucional",
-    description: "Resumen institucional para consulta general de la comunidad.",
+    description: "Marco estrategico con lineamientos pedagogicos, horizonte institucional y metas formativas.",
     href: "/documents/pei-resumen.txt",
   },
   {
     title: "Manual de convivencia",
-    description: "Documento base con lineamientos de convivencia y participacion.",
+    description: "Documento institucional con acuerdos, principios de comunidad y rutas de acompanamiento.",
     href: "/documents/manual-convivencia.txt",
   },
+];
+
+const values = [
+  "Excelencia academica con enfoque humano.",
+  "Innovacion metodologica y pensamiento critico.",
+  "Convivencia, respeto y liderazgo transformador.",
 ];
 
 const InstitutionalInfoPage = () => {
   return (
     <div className="landing-page">
-      <section className="landing-section">
-        <p className="landing-eyebrow">Informacion institucional</p>
-        <h1 className="landing-section__title">Identidad y horizonte formativo</h1>
-        <div className="landing-info-grid">
-          <article className="landing-card">
-            <h2>Mision</h2>
-            <p>
-              Formar estudiantes integros con sentido etico, compromiso social y
-              competencias academicas para transformar su entorno.
-            </p>
-          </article>
-          <article className="landing-card">
-            <h2>Vision</h2>
-            <p>
-              Ser una institucion reconocida por su calidad humana, excelencia
-              academica e innovacion en los procesos educativos.
-            </p>
-          </article>
-          <article className="landing-card">
-            <h2>Principios</h2>
-            <p>
-              Respeto, responsabilidad, inclusion, convivencia, participacion y
-              construccion de proyecto de vida.
-            </p>
-          </article>
+      <section className="landing-inner-hero">
+        <div className="landing-section-heading">
+          <span className="landing-section-tag">Nosotros</span>
+          <h1>Una identidad institucional construida para inspirar excelencia</h1>
+          <p>
+            Nuestro proyecto educativo integra rigor academico, acompanamiento humano
+            y una vision moderna de la formacion para responder a los desafios del mundo actual.
+          </p>
         </div>
       </section>
 
-      <section className="landing-section">
-        <h2 className="landing-section__subtitle">Documentos institucionales</h2>
-        <div className="landing-docs">
+      <section className="landing-info-panels">
+        <article className="landing-info-panel">
+          <h2>Mision</h2>
+          <p>
+            Formar estudiantes integros, autonomos y comprometidos con la excelencia,
+            preparados para liderar con criterio etico, pensamiento analitico y sentido social.
+          </p>
+        </article>
+        <article className="landing-info-panel">
+          <h2>Vision</h2>
+          <p>
+            Consolidarnos como una institucion referente por la calidad de sus procesos,
+            el prestigio de su comunidad academica y la proyeccion de sus egresados.
+          </p>
+        </article>
+        <article className="landing-info-panel">
+          <h2>Principios</h2>
+          <ul className="landing-bullet-list">
+            {values.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </article>
+      </section>
+
+      <section className="landing-document-section">
+        <div className="landing-section-heading">
+          <span className="landing-section-tag landing-section-tag--light">Documentacion</span>
+          <h2>Documentos institucionales disponibles para consulta</h2>
+          <p>
+            Facilita el acceso a la informacion clave de la institucion con descargas
+            claras, visibles y alineadas con una experiencia institucional premium.
+          </p>
+        </div>
+
+        <div className="landing-document-grid">
           {documents.map((document) => (
-            <article key={document.title} className="landing-card landing-doc">
+            <article key={document.title} className="landing-document-card">
               <h3>{document.title}</h3>
               <p>{document.description}</p>
-              <a href={document.href} download className="landing-card__link">
+              <a href={document.href} download className="landing-btn landing-btn--primary">
                 Descargar documento
               </a>
             </article>

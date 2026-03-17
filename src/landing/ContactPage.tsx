@@ -1,31 +1,53 @@
+const contactCards = [
+  {
+    title: "Sede principal",
+    text: "Avenida del Conocimiento 245, Bogota. Campus con ambientes academicos, culturales y de bienestar.",
+  },
+  {
+    title: "Linea de atencion",
+    text: "+57 601 555 1010. Equipo disponible para orientar procesos de admision, convenios y vida institucional.",
+  },
+  {
+    title: "Correo institucional",
+    text: "contacto@institucion.edu.co. Respuesta prioritaria para aspirantes, familias y comunidad academica.",
+  },
+];
+
 const ContactPage = () => {
   return (
     <div className="landing-page">
-      <section className="landing-section">
-        <p className="landing-eyebrow">Contactanos</p>
-        <h1 className="landing-section__title">Estamos para atenderte</h1>
-        <div className="landing-contact">
-          <article className="landing-card">
-            <h2>Sede principal</h2>
-            <p>Calle Institucional 123, Ciudad Educativa</p>
-          </article>
-          <article className="landing-card">
-            <h2>Telefono</h2>
-            <p>+57 300 000 0000</p>
-          </article>
-          <article className="landing-card">
-            <h2>Correo</h2>
-            <p>contacto@institucion.edu.co</p>
-          </article>
-        </div>
-
-        <article className="landing-card landing-contact__form">
-          <h2>Canales de atencion</h2>
+      <section className="landing-inner-hero">
+        <div className="landing-section-heading">
+          <span className="landing-section-tag">Contacto</span>
+          <h1>Estamos listos para acompanarte en tu proceso</h1>
           <p>
-            Puedes comunicarte con rectoria, coordinacion academica o secretaria
-            institucional para recibir orientacion.
+            Conecta con nuestro equipo institucional para resolver dudas sobre admisiones,
+            programas, servicios y oportunidades de vinculacion.
           </p>
-        </article>
+        </div>
+      </section>
+
+      <section className="landing-contact-grid">
+        {contactCards.map((item) => (
+          <article key={item.title} className="landing-contact-card">
+            <h2>{item.title}</h2>
+            <p>{item.text}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="landing-contact-banner">
+        <div>
+          <span className="landing-section-tag landing-section-tag--light">Canales de atencion</span>
+          <h2>Agenda una asesoria con nuestro equipo institucional</h2>
+          <p>
+            Rectora, coordinacion academica, bienestar y secretaria te orientan con
+            una atencion clara, humana y profesional.
+          </p>
+        </div>
+        <a href="mailto:admisiones@institucion.edu.co" className="landing-btn landing-btn--primary">
+          Escribir ahora
+        </a>
       </section>
     </div>
   );
