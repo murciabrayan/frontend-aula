@@ -85,25 +85,42 @@ const featuredPrograms = [
   },
 ];
 
-const schoolCalendar = [
-  {
-    month: "Marzo",
-    date: "22",
-    title: "Izada de bandera y homenaje institucional",
-    detail: "Actividad formativa con protagonismo de primaria y bachillerato.",
-  },
-  {
-    month: "Abril",
-    date: "04",
-    title: "Entrega de informes del primer corte",
-    detail: "Espacio de dialogo entre familias, docentes y direccion de grupo.",
-  },
-  {
-    month: "Abril",
-    date: "18",
-    title: "Semana cultural y deportiva",
-    detail: "Jornadas artisticas, deportivas y de convivencia para toda la comunidad.",
-  },
+const schoolCalendarDays = [
+  { day: "30", muted: true },
+  { day: "31", muted: true },
+  { day: "1" },
+  { day: "2" },
+  { day: "3" },
+  { day: "4", highlighted: true, label: "Informes" },
+  { day: "5", highlighted: true, label: "Familias" },
+  { day: "6" },
+  { day: "7" },
+  { day: "8" },
+  { day: "9" },
+  { day: "10" },
+  { day: "11" },
+  { day: "12" },
+  { day: "13" },
+  { day: "14" },
+  { day: "15" },
+  { day: "16" },
+  { day: "17" },
+  { day: "18", highlighted: true, label: "Semana cultural" },
+  { day: "19", highlighted: true, label: "Proyectos" },
+  { day: "20" },
+  { day: "21" },
+  { day: "22" },
+  { day: "23" },
+  { day: "24" },
+  { day: "25" },
+  { day: "26" },
+  { day: "27" },
+  { day: "28" },
+  { day: "29" },
+  { day: "30" },
+  { day: "1", muted: true },
+  { day: "2", muted: true },
+  { day: "3", muted: true },
 ];
 
 const institutionalCalendar = [
@@ -362,18 +379,28 @@ const LandingHomePage = () => {
           </div>
 
           <div className="landing-school-calendar">
-            {schoolCalendar.map((item) => (
-              <article key={`${item.month}-${item.date}-${item.title}`} className="landing-school-calendar__item">
-                <div className="landing-school-calendar__date">
-                  <span>{item.month}</span>
-                  <strong>{item.date}</strong>
-                </div>
-                <div className="landing-school-calendar__body">
-                  <h3>{item.title}</h3>
-                  <p>{item.detail}</p>
-                </div>
-              </article>
-            ))}
+            <div className="landing-school-calendar__topbar">
+              <strong>Abril 2026</strong>
+              <span>Vista mensual escolar</span>
+            </div>
+            <div className="landing-school-calendar__weekdays">
+              {["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"].map((day) => (
+                <span key={day}>{day}</span>
+              ))}
+            </div>
+            <div className="landing-school-calendar__grid">
+              {schoolCalendarDays.map((item, index) => (
+                <article
+                  key={`${item.day}-${index}`}
+                  className={`landing-school-calendar__cell ${item.muted ? "is-muted" : ""} ${
+                    item.highlighted ? "is-highlighted" : ""
+                  }`}
+                >
+                  <strong>{item.day}</strong>
+                  {item.label ? <span>{item.label}</span> : null}
+                </article>
+              ))}
+            </div>
           </div>
         </div>
 
