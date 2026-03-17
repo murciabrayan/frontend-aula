@@ -326,6 +326,7 @@ body {
 }
 
 .landing-login__form input {
+  box-sizing: border-box;
   width: 100%;
   border: 1px solid rgba(201, 162, 39, 0.16);
   border-radius: 18px;
@@ -334,6 +335,10 @@ body {
   padding: 14px 16px;
   outline: none;
   transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.landing-login__form > * {
+  min-width: 0;
 }
 
 .landing-login__form input:focus {
