@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   Check,
+  ChevronRight,
   Layers3,
   LayoutPanelTop,
   Pencil,
@@ -55,6 +56,7 @@ interface User {
   id: number;
   first_name: string;
   last_name: string;
+  email?: string;
 }
 
 interface Area {
@@ -112,6 +114,8 @@ const CourseManagement = ({
     useState<StructureSection>("areas");
   const [courseSearch, setCourseSearch] = useState("");
   const [studentFilter, setStudentFilter] = useState("");
+  const [teacherFilter, setTeacherFilter] = useState("");
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
 
   const [courseForm, setCourseForm] = useState<Course>(emptyCourseForm());
   const [editingCourseId, setEditingCourseId] = useState<number | null>(null);
@@ -206,6 +210,14 @@ const CourseManagement = ({
     );
   }, [studentFilter, students]);
 
+  const filteredTeachers = useMemo(() => {
+    const query = teacherFilter.trim().toLowerCase();
+    if (!query) return teachers;
+    return teachers.filter((teacher) =>
+      `${teacher.first_name} ${teacher.last_name}`.toLowerCase().includes(query)
+    );
+  }, [teacherFilter, teachers]);
+
   const groupedSubjects = useMemo(() => {
     return areas.map((area) => ({
       area,
@@ -224,9 +236,9 @@ const CourseManagement = ({
     return teacher ? `${teacher.first_name} ${teacher.last_name}` : "Sin docente";
   };
 
-  const getStudentName = (studentId: number) => {
-    const student = students.find((item) => item.id === studentId);
-    return student ? `${student.first_name} ${student.last_name}` : "Estudiante";
+  const getStudentCourseName = (studentId: number) => {
+    const assignedCourse = courses.find((course) => course.students.includes(studentId));
+    return assignedCourse?.name || "Sin curso";
   };
 
   const initializeSelectedIndicators = (subjectList: Subject[]) => {
@@ -279,6 +291,14 @@ const CourseManagement = ({
     setCourseForm(emptyCourseForm());
     setEditingCourseId(null);
     setCourseError("");
+    setIsCourseModalOpen(false);
+  };
+
+  const openCreateCourseModal = () => {
+    setCourseForm(emptyCourseForm());
+    setEditingCourseId(null);
+    setCourseError("");
+    setIsCourseModalOpen(true);
   };
 
   const handleEditCourse = (course: Course) => {
@@ -290,6 +310,7 @@ const CourseManagement = ({
       students: course.students,
     });
     setCourseError("");
+    setIsCourseModalOpen(true);
   };
 
   const handleSubmitCourse = async (event: React.FormEvent) => {
@@ -862,27 +883,57 @@ const CourseManagement = ({
             <div className="course-management__card-header">
               <div>
                 <h3>Docente responsable</h3>
-                <p>Selecciona al docente principal en un panel dedicado.</p>
+                <p>Elige el docente desde una lista clara con busqueda.</p>
               </div>
             </div>
 
-            <div className="course-management__select-shell">
-              <span className="course-management__select-label">Docente del curso</span>
-              <select
-                value={selectedTeacher}
-                onChange={(event) =>
-                  setSelectedTeacher(
-                    event.target.value ? Number(event.target.value) : ""
-                  )
-                }
+            <label className="course-management__search course-management__search--compact">
+              <Search size={16} />
+              <input
+                type="text"
+                value={teacherFilter}
+                onChange={(event) => setTeacherFilter(event.target.value)}
+                placeholder="Buscar docente..."
+              />
+            </label>
+
+            <div className="course-management__teacher-list">
+              <button
+                type="button"
+                className={`course-management__teacher-card ${
+                  selectedTeacher === "" ? "is-selected" : ""
+                }`}
+                onClick={() => setSelectedTeacher("")}
               >
-                <option value="">Sin asignar</option>
-                {teachers.map((teacher) => (
-                  <option key={teacher.id} value={teacher.id}>
-                    {teacher.first_name} {teacher.last_name}
-                  </option>
-                ))}
-              </select>
+                <div>
+                  <strong>Sin asignar</strong>
+                  <span>El curso aun no tiene docente principal.</span>
+                </div>
+                {selectedTeacher === "" ? <Check size={14} /> : <ChevronRight size={14} />}
+              </button>
+
+              {filteredTeachers.map((teacher) => (
+                <button
+                  key={teacher.id}
+                  type="button"
+                  className={`course-management__teacher-card ${
+                    selectedTeacher === teacher.id ? "is-selected" : ""
+                  }`}
+                  onClick={() => setSelectedTeacher(teacher.id)}
+                >
+                  <div>
+                    <strong>
+                      {teacher.first_name} {teacher.last_name}
+                    </strong>
+                    <span>{teacher.email || "Docente disponible"}</span>
+                  </div>
+                  {selectedTeacher === teacher.id ? (
+                    <Check size={14} />
+                  ) : (
+                    <ChevronRight size={14} />
+                  )}
+                </button>
+              ))}
             </div>
 
             <div className="course-management__teacher-summary">
@@ -910,40 +961,15 @@ const CourseManagement = ({
             </div>
           </article>
 
-          <article className="course-management__card course-management__selection-panel">
-            <div className="course-management__card-header">
-              <div>
-                <h3>Estudiantes elegidos</h3>
-                <p>Resumen rapido del grupo que ya hace parte del curso.</p>
-              </div>
-            </div>
-
-            <div className="course-management__selected-strip">
-              {selectedStudents.length === 0 ? (
-                <span className="course-management__selected-empty">
-                  Aun no has agregado estudiantes.
-                </span>
-              ) : (
-                selectedStudents.map((studentId) => (
-                  <span
-                    key={studentId}
-                    className="course-management__selected-chip"
-                  >
-                    {getStudentName(studentId)}
-                  </span>
-                ))
-              )}
-            </div>
-          </article>
         </aside>
 
-        <article className="course-management__card course-management__student-bank">
-          <div className="course-management__card-header">
-            <div>
-              <h3>Explorador de estudiantes</h3>
-              <p>Agrega o quita estudiantes desde una grilla amplia y mas comoda de recorrer.</p>
+          <article className="course-management__card course-management__student-bank">
+            <div className="course-management__card-header">
+              <div>
+                <h3>Explorador de estudiantes</h3>
+                <p>Agrega o quita estudiantes desde una tabla pensada para grupos grandes.</p>
+              </div>
             </div>
-          </div>
 
           <div className="course-management__students-topbar">
             <label className="course-management__search course-management__search--compact">
@@ -964,42 +990,57 @@ const CourseManagement = ({
             </div>
           </div>
 
-          <div className="course-management__student-grid">
-            {filteredStudents.map((student) => (
-              <label
-                key={student.id}
-                className={`course-management__student-card ${
-                  selectedStudents.includes(student.id) ? "is-selected" : ""
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedStudents.includes(student.id)}
-                  onChange={() =>
-                    setSelectedStudents((current) =>
-                      current.includes(student.id)
-                        ? current.filter((id) => id !== student.id)
-                        : [...current, student.id]
-                    )
-                  }
-                />
-                <div className="course-management__student-card-body">
-                  <span className="course-management__student-check">
-                    {selectedStudents.includes(student.id) ? <Check size={14} /> : null}
-                  </span>
-                  <div>
-                    <strong>
-                      {student.first_name} {student.last_name}
-                    </strong>
-                    <small>
-                      {selectedStudents.includes(student.id)
-                        ? "Incluido en este curso"
-                        : "Disponible para asignar"}
-                    </small>
-                  </div>
-                </div>
-              </label>
-            ))}
+          <div className="course-management__student-table-wrap">
+            <table className="course-management__student-table">
+              <thead>
+                <tr>
+                  <th>Estudiante</th>
+                  <th>Curso actual</th>
+                  <th>Estado</th>
+                  <th>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map((student) => {
+                  const isSelected = selectedStudents.includes(student.id);
+                  return (
+                    <tr
+                      key={student.id}
+                      className={isSelected ? "is-selected" : ""}
+                    >
+                      <td>
+                        <strong>
+                          {student.first_name} {student.last_name}
+                        </strong>
+                      </td>
+                      <td>{getStudentCourseName(student.id)}</td>
+                      <td>
+                        <span className="course-management__table-badge">
+                          {isSelected ? "Incluido" : "Libre"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className={`course-management__action-pill ${
+                            isSelected ? "is-active" : ""
+                          }`}
+                          onClick={() =>
+                            setSelectedStudents((current) =>
+                              current.includes(student.id)
+                                ? current.filter((id) => id !== student.id)
+                                : [...current, student.id]
+                            )
+                          }
+                        >
+                          {isSelected ? "Quitar" : "Agregar"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </article>
       </div>
@@ -1525,67 +1566,28 @@ const CourseManagement = ({
         </div>
       </div>
 
-      <div className="course-management__layout">
+      <div className={`course-management__layout ${isCourseMode ? "is-course" : ""}`}>
         <aside className="course-management__catalog">
           {isCourseMode ? (
           <article className="course-management__card">
             <div className="course-management__card-header">
               <div>
-                <h3>{editingCourseId ? "Editar curso" : "Nuevo curso"}</h3>
-                <p>
-                  {editingCourseId
-                    ? "Actualiza rapidamente la informacion principal del curso."
-                    : "Crea un curso nuevo y continua con su configuracion."}
-                </p>
+                <h3>Gestion de cursos</h3>
+                <p>Crea un curso nuevo o edita uno existente desde una ventana limpia.</p>
               </div>
-              {editingCourseId ? (
-                <button
-                  type="button"
-                  className="course-management__mini-btn"
-                  onClick={resetCourseForm}
-                >
-                  Limpiar
-                </button>
-              ) : null}
+              <button
+                type="button"
+                className="course-management__mini-btn"
+                onClick={openCreateCourseModal}
+              >
+                <Plus size={14} />
+                <span>Nuevo curso</span>
+              </button>
             </div>
-
-            <form className="course-management__form" onSubmit={handleSubmitCourse}>
-              <label className="course-management__field">
-                <span>Nombre del curso</span>
-                <input
-                  type="text"
-                  value={courseForm.name}
-                  onChange={(event) =>
-                    setCourseForm((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
-                  }
-                  placeholder="Ej: Sexto A"
-                  required
-                />
-              </label>
-
-              {courseError ? (
-                <div className="course-management__error">{courseError}</div>
-              ) : null}
-
-              <div className="course-management__form-actions">
-                <button type="submit" className="course-management__primary-btn">
-                  <Save size={16} />
-                  <span>{editingCourseId ? "Guardar curso" : "Crear curso"}</span>
-                </button>
-                {editingCourseId ? (
-                  <button
-                    type="button"
-                    className="course-management__secondary-btn"
-                    onClick={resetCourseForm}
-                  >
-                    Cancelar
-                  </button>
-                ) : null}
-              </div>
-            </form>
+            <div className="course-management__catalog-note">
+              Elige un curso del catalogo para armar su docente y su grupo de
+              estudiantes.
+            </div>
           </article>
           ) : (
           <article className="course-management__card">
@@ -1654,7 +1656,7 @@ const CourseManagement = ({
                         <small>{course.students.length} estudiantes</small>
                         {selectedCourseId === course.id ? (
                           <span className="course-management__selected-pill">
-                            Abierto
+                            Seleccionado
                           </span>
                         ) : null}
                       </div>
@@ -1672,7 +1674,7 @@ const CourseManagement = ({
                       </button>
                       <button
                         type="button"
-                        className="course-management__action-pill is-danger"
+                        className="course-management__action-pill"
                         onClick={() => void handleDeleteCourse(course.id!)}
                         title="Eliminar curso"
                       >
@@ -1710,6 +1712,66 @@ const CourseManagement = ({
           )}
         </section>
       </div>
+
+      {isCourseMode && isCourseModalOpen ? (
+        <div className="course-management__modal-backdrop">
+          <div className="course-management__modal">
+            <div className="course-management__card-header">
+              <div>
+                <h3>{editingCourseId ? "Editar curso" : "Nuevo curso"}</h3>
+                <p>
+                  {editingCourseId
+                    ? "Actualiza el nombre del curso sin salir del catalogo."
+                    : "Crea un curso nuevo desde esta ventana compacta."}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="course-management__mini-btn"
+                onClick={resetCourseForm}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <form className="course-management__form" onSubmit={handleSubmitCourse}>
+              <label className="course-management__field">
+                <span>Nombre del curso</span>
+                <input
+                  type="text"
+                  value={courseForm.name}
+                  onChange={(event) =>
+                    setCourseForm((current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))
+                  }
+                  placeholder="Ej: Sexto A"
+                  required
+                />
+              </label>
+
+              {courseError ? (
+                <div className="course-management__error">{courseError}</div>
+              ) : null}
+
+              <div className="course-management__form-actions">
+                <button type="submit" className="course-management__primary-btn">
+                  <Save size={16} />
+                  <span>{editingCourseId ? "Guardar curso" : "Crear curso"}</span>
+                </button>
+                <button
+                  type="button"
+                  className="course-management__secondary-btn"
+                  onClick={resetCourseForm}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 };

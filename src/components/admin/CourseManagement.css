@@ -39,6 +39,10 @@
   align-items: start;
 }
 
+.course-management__layout.is-course {
+  grid-template-columns: 430px minmax(0, 1fr);
+}
+
 .course-management__catalog,
 .course-management__workspace,
 .course-management__structure-main {
@@ -111,6 +115,9 @@
 .course-management__secondary-btn {
   min-height: 42px;
   padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .course-management__danger-btn {
@@ -292,7 +299,8 @@
 
 .course-management__course-card.is-active {
   border-color: #d4af37;
-  box-shadow: 0 12px 24px rgba(212, 175, 55, 0.12);
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+  box-shadow: 0 16px 28px rgba(212, 175, 55, 0.14);
 }
 
 .course-management__course-main,
@@ -350,8 +358,17 @@
 }
 
 .course-management__selected-pill {
-  background: #fff3cd;
+  background: #d8b75a;
+  color: #18120a;
+}
+
+.course-management__catalog-note {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
   color: #8b5e00;
+  line-height: 1.55;
+  border: 1px solid rgba(202, 165, 64, 0.18);
 }
 
 .course-management__action-pill {
@@ -368,10 +385,10 @@
   font-weight: 700;
 }
 
-.course-management__action-pill.is-danger {
-  background: #fff1f2;
-  color: #b91c1c;
-  border-color: #fecdd3;
+.course-management__action-pill.is-active {
+  background: linear-gradient(135deg, #d8b75a 0%, #b98b1f 100%);
+  color: #18120a;
+  border-color: transparent;
 }
 
 .course-management__placeholder,
@@ -903,25 +920,56 @@
   gap: 20px;
 }
 
-.course-management__teacher-panel,
-.course-management__selection-panel {
+.course-management__teacher-panel {
   min-height: 100%;
-}
-
-.course-management__selection-panel {
-  background: linear-gradient(180deg, rgba(255, 253, 250, 0.96) 0%, rgba(255, 247, 228, 0.9) 100%);
-}
-
-.course-management__selection-panel .course-management__selected-strip {
-  max-height: 220px;
-  overflow: auto;
-  align-content: flex-start;
 }
 
 .course-management__teacher-summary {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.course-management__teacher-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.course-management__teacher-card {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.course-management__teacher-card strong {
+  display: block;
+  color: #111827;
+}
+
+.course-management__teacher-card span {
+  color: #64748b;
+}
+
+.course-management__teacher-card svg {
+  color: #8b5e00;
+  flex: 0 0 auto;
+}
+
+.course-management__teacher-card.is-selected {
+  border-color: #d4af37;
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+  box-shadow: 0 12px 24px rgba(212, 175, 55, 0.12);
 }
 
 .course-management__select-shell {
@@ -969,6 +1017,78 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
+}
+
+.course-management__student-table-wrap {
+  border: 1px solid #e8edf3;
+  border-radius: 20px;
+  overflow: auto;
+  max-height: 560px;
+}
+
+.course-management__student-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.course-management__student-table thead th {
+  position: sticky;
+  top: 0;
+  background: #fffaf0;
+  color: #8b5e00;
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid #eadfb8;
+}
+
+.course-management__student-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eef2f7;
+  color: #475569;
+}
+
+.course-management__student-table tbody tr.is-selected {
+  background: linear-gradient(180deg, #fffdfa 0%, #fff7e4 100%);
+}
+
+.course-management__student-table tbody tr:hover {
+  background: #fffdf7;
+}
+
+.course-management__table-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.course-management__modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.course-management__modal {
+  width: min(100%, 520px);
+  background: #ffffff;
+  border-radius: 28px;
+  border: 1px solid rgba(202, 165, 64, 0.16);
+  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.22);
+  padding: 24px;
 }
 
 .course-management__builder-layout {
@@ -1125,6 +1245,10 @@
   }
 
   .course-management__students-topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .course-management__layout.is-course {
     grid-template-columns: 1fr;
   }
 }
