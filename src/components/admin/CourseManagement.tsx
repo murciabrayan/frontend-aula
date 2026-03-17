@@ -70,6 +70,7 @@ interface Subject {
 }
 
 type CourseWorkspaceTab = "equipo" | "estructura";
+type StructureSection = "areas" | "materias" | "indicadores";
 
 type PeriodSelectorState = {
   1: number | "";
@@ -101,6 +102,8 @@ const CourseManagement = () => {
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [selectedCourseTab, setSelectedCourseTab] =
     useState<CourseWorkspaceTab>("equipo");
+  const [selectedStructureSection, setSelectedStructureSection] =
+    useState<StructureSection>("areas");
   const [courseSearch, setCourseSearch] = useState("");
   const [studentFilter, setStudentFilter] = useState("");
 
@@ -228,6 +231,7 @@ const CourseManagement = () => {
     setSelectedTeacher(course.teacher || "");
     setSelectedStudents(course.students || []);
     setSelectedCourseTab("equipo");
+    setSelectedStructureSection("areas");
     setStudentFilter("");
     setLoadingWorkspace(true);
 
@@ -1089,7 +1093,50 @@ const CourseManagement = () => {
                   </article>
                 </div>
               ) : (
-                <div className="course-management__structure-layout">
+                <div className="course-management__structure-shell">
+                  <article className="course-management__workspace-hero course-management__workspace-hero--section">
+                    <div>
+                      <p className="course-management__eyebrow">Organizacion interna</p>
+                      <h3>Estructura academica</h3>
+                      <p className="course-management__section-copy">
+                        Ya no necesitas ver todo junto. Entra a una seccion a la vez
+                        para organizar el curso con mas calma y claridad.
+                      </p>
+                    </div>
+
+                    <div className="course-management__section-tabs">
+                      <button
+                        type="button"
+                        className={
+                          selectedStructureSection === "areas" ? "is-active" : ""
+                        }
+                        onClick={() => setSelectedStructureSection("areas")}
+                      >
+                        Areas
+                      </button>
+                      <button
+                        type="button"
+                        className={
+                          selectedStructureSection === "materias" ? "is-active" : ""
+                        }
+                        onClick={() => setSelectedStructureSection("materias")}
+                      >
+                        Materias
+                      </button>
+                      <button
+                        type="button"
+                        className={
+                          selectedStructureSection === "indicadores" ? "is-active" : ""
+                        }
+                        onClick={() => setSelectedStructureSection("indicadores")}
+                      >
+                        Indicadores
+                      </button>
+                    </div>
+                  </article>
+
+                  <div className="course-management__structure-layout">
+                  {selectedStructureSection === "areas" ? (
                   <article className="course-management__card course-management__structure-card">
                     <div className="course-management__card-header">
                       <div>
@@ -1140,7 +1187,9 @@ const CourseManagement = () => {
                       </button>
                     </div>
                   </article>
+                  ) : null}
 
+                  {selectedStructureSection === "materias" ? (
                   <article className="course-management__card course-management__structure-card">
                     <div className="course-management__card-header">
                       <div>
@@ -1211,7 +1260,10 @@ const CourseManagement = () => {
                       </button>
                     </div>
                   </article>
+                  ) : null}
 
+                  {(selectedStructureSection === "materias" ||
+                    selectedStructureSection === "indicadores") ? (
                   <div className="course-management__structure-main">
                     <article className="course-management__card">
                       <div className="course-management__card-header">
@@ -1268,6 +1320,7 @@ const CourseManagement = () => {
                             </select>
                           </label>
 
+                          {selectedStructureSection === "indicadores" ? (
                           <div className="course-management__period-grid">
                             {[1, 2, 3, 4].map((period) => {
                               const typedPeriod = period as 1 | 2 | 3 | 4;
@@ -1359,10 +1412,12 @@ const CourseManagement = () => {
                               );
                             })}
                           </div>
+                          ) : null}
                         </>
                       )}
                     </article>
 
+                    {selectedStructureSection === "indicadores" ? (
                     <article className="course-management__card course-management__indicator-bank">
                       <div className="course-management__card-header">
                         <div>
@@ -1463,7 +1518,10 @@ const CourseManagement = () => {
                         )}
                       </div>
                     </article>
+                    ) : null}
                   </div>
+                  ) : null}
+                </div>
                 </div>
               )}
             </>

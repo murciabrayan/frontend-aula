@@ -359,6 +359,47 @@
   flex-wrap: wrap;
 }
 
+.course-management__workspace-hero--section {
+  align-items: center;
+}
+
+.course-management__structure-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.course-management__section-copy {
+  margin: 10px 0 0;
+  max-width: 720px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.course-management__section-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.course-management__section-tabs button {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+  color: #475569;
+}
+
+.course-management__section-tabs button.is-active {
+  background: linear-gradient(135deg, #d8b75a 0%, #b98b1f 100%);
+  color: #18120a;
+  border-color: transparent;
+  box-shadow: 0 12px 24px rgba(185, 139, 31, 0.18);
+}
+
 .course-management__workspace-tabs button {
   min-height: 44px;
   padding: 0 16px;
@@ -401,9 +442,18 @@
   background: #fff8e6;
 }
 
-.course-management__structure-layout {
+.course-management__structure-layout,
+.course-management__section-panel {
   display: grid;
-  grid-template-columns: 280px 320px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.course-management__section-panel--split,
+.course-management__structure-main {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
 }
@@ -546,16 +596,12 @@
   text-align: center;
 }
 
-@media (max-width: 1400px) {
-  .course-management__structure-layout {
-    grid-template-columns: 260px 280px minmax(0, 1fr);
-  }
-}
-
 @media (max-width: 1200px) {
   .course-management__layout,
   .course-management__team-grid,
-  .course-management__structure-layout {
+  .course-management__structure-layout,
+  .course-management__section-panel--split,
+  .course-management__structure-main {
     grid-template-columns: 1fr;
   }
 
@@ -569,6 +615,7 @@
 
 @media (max-width: 720px) {
   .course-management__workspace-hero,
+  .course-management__workspace-hero--section,
   .course-management__card-header,
   .course-management__subject-detail-header,
   .course-management__inline-form,
@@ -586,6 +633,10 @@
   .course-management__primary-btn,
   .course-management__secondary-btn,
   .course-management__danger-btn {
+    width: 100%;
+  }
+
+  .course-management__section-tabs button {
     width: 100%;
   }
 }
