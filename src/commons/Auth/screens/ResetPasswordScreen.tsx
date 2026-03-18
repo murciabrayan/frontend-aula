@@ -56,7 +56,7 @@ const ResetPasswordScreen = () => {
         buttonText: "Ir al inicio",
         tone: "success",
       });
-      navigate("/");
+      navigate("/plataforma");
     } catch (err: any) {
       await showNotice({
         title: "No se pudo restablecer",

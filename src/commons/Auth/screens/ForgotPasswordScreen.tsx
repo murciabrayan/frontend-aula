@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
 import { useFeedback } from "@/context/FeedbackContext";
-import "@/commons/Auth/styles/login.css";
 import sideImage from "@/assets/login-side.jpg";
 import logo from "@/assets/logo.png";
+import "@/commons/Auth/styles/login.css";
 
 const API_URL = "http://127.0.0.1:8000/api/password-reset/";
 
@@ -22,11 +23,11 @@ const ForgotPasswordScreen = () => {
         title: "Correo enviado",
         message:
           res.data.message ||
-          "Te enviamos un enlace para restablecer tu contraseña.",
+          "Te enviamos un enlace para restablecer tu contrasena.",
         buttonText: "Volver",
         tone: "success",
       });
-      navigate("/");
+      navigate("/plataforma");
     } catch (err: any) {
       await showNotice({
         title: "No se pudo enviar",
@@ -47,43 +48,42 @@ const ForgotPasswordScreen = () => {
             <img src={logo} alt="Logo Institucional" className="login-logo" />
             <div className="login-institution">
               <strong>GIMNASIO LOS CERROS</strong>
-              <div className="login-tagline">
-                Recuperar contraseña
-              </div>
+              <div className="login-tagline">Recuperar contrasena</div>
             </div>
           </div>
 
           <div className="login-card">
-            <h1>Recuperar contraseña</h1>
+            <h1>Recuperar contrasena</h1>
             <form onSubmit={handleSubmit}>
               <input
                 type="email"
-                placeholder="Correo electrónico"
+                placeholder="Correo electronico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
               <button type="submit">Enviar enlace</button>
 
-              <a className="forgot" onClick={() => navigate("/")}>
-                ← Volver al inicio de sesión
+              <a className="forgot" onClick={() => navigate("/plataforma")}>
+                Volver al inicio de sesion
               </a>
             </form>
-             <div
-  className="login-right"
-  style={{
-    backgroundImage: `url(${sideImage})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    width: "50%",
-    height: "100vh",
-    position: "absolute",
-    top: 0,
-    right: 0,
-  }}
-  aria-hidden="true"
-></div>
+
+            <div
+              className="login-right"
+              style={{
+                backgroundImage: `url(${sideImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                width: "50%",
+                height: "100vh",
+                position: "absolute",
+                top: 0,
+                right: 0,
+              }}
+              aria-hidden="true"
+            />
           </div>
         </div>
       </div>
