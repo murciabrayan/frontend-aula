@@ -59,6 +59,7 @@ const StudentAssignmentsList: React.FC = () => {
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
+  const [allAssignments, setAllAssignments] = useState<Assignment[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
@@ -83,6 +84,12 @@ const StudentAssignmentsList: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setAreas(res.data));
+
+    axios
+      .get(`${API_BASE}/assignments/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setAllAssignments(res.data));
 
     reloadSubmissions();
   }, [token]);
@@ -128,7 +135,15 @@ const StudentAssignmentsList: React.FC = () => {
   );
 
   const taskStats = useMemo(() => {
-    const total = assignments.length;
+    const pending = allAssignments.filter((item) => !getSubmission(item.id)).length;
+
+    return {
+      subjects: subjects.length,
+      pending,
+    };
+  }, [allAssignments, submissions, subjects]);
+
+  const activeSubjectStats = useMemo(() => {
     const delivered = assignments.filter((item) => getSubmission(item.id)).length;
     const graded = assignments.filter((item) => {
       const submission = getSubmission(item.id);
@@ -136,13 +151,12 @@ const StudentAssignmentsList: React.FC = () => {
     }).length;
 
     return {
-      subjects: subjects.length,
-      total,
+      total: assignments.length,
       delivered,
-      pending: Math.max(total - delivered, 0),
+      pending: Math.max(assignments.length - delivered, 0),
       graded,
     };
-  }, [assignments, submissions, subjects]);
+  }, [assignments, submissions]);
 
   return (
     <section className="student-tasks">
@@ -160,14 +174,6 @@ const StudentAssignmentsList: React.FC = () => {
           <article className="student-tasks__stat-card">
             <span>Materias</span>
             <strong>{taskStats.subjects}</strong>
-          </article>
-          <article className="student-tasks__stat-card">
-            <span>Tareas del modulo</span>
-            <strong>{taskStats.total}</strong>
-          </article>
-          <article className="student-tasks__stat-card accent">
-            <span>Entregadas</span>
-            <strong>{taskStats.delivered}</strong>
           </article>
           <article className="student-tasks__stat-card warning">
             <span>Pendientes</span>
@@ -276,19 +282,19 @@ const StudentAssignmentsList: React.FC = () => {
               <div className="student-task-modal__summary">
                 <article className="student-task-modal__summary-card">
                   <span>Total</span>
-                  <strong>{assignments.length}</strong>
+                  <strong>{activeSubjectStats.total}</strong>
                 </article>
                 <article className="student-task-modal__summary-card accent">
                   <span>Entregadas</span>
-                  <strong>{taskStats.delivered}</strong>
+                  <strong>{activeSubjectStats.delivered}</strong>
                 </article>
                 <article className="student-task-modal__summary-card warning">
                   <span>Pendientes</span>
-                  <strong>{taskStats.pending}</strong>
+                  <strong>{activeSubjectStats.pending}</strong>
                 </article>
                 <article className="student-task-modal__summary-card">
                   <span>Calificadas</span>
-                  <strong>{taskStats.graded}</strong>
+                  <strong>{activeSubjectStats.graded}</strong>
                 </article>
               </div>
 
