@@ -16,6 +16,7 @@ interface Assignment {
   fecha_entrega: string;
   archivo?: string;
   materia: number;
+  periodo: number;
   materia_nombre?: string;
   curso_nombre?: string;
 }
@@ -31,6 +32,7 @@ interface Submission {
 
 type Row = {
   assignmentId: number;
+  periodo: number;
   titulo: string;
   fechaEntrega: string;
   nota?: number; // undefined si no está calificada
@@ -136,6 +138,7 @@ const StudentGrades: React.FC = () => {
 
       r.rows.push({
         assignmentId: a.id,
+        periodo: a.periodo ?? 1,
         titulo: a.titulo,
         fechaEntrega: a.fecha_entrega,
         nota,
@@ -146,8 +149,25 @@ const StudentGrades: React.FC = () => {
     // promedios y orden
     const out = Array.from(bySubjectId.values()).map((s) => {
       if (s.graded > 0) {
-        const sum = s.rows.reduce((acc, row) => acc + (row.nota ?? 0), 0);
-        s.average = Number((sum / s.graded).toFixed(2));
+        const periodAverages = [1, 2, 3, 4]
+          .map((period) => {
+            const gradedRows = s.rows.filter(
+              (row) => row.periodo === period && row.nota !== undefined,
+            );
+
+            if (gradedRows.length === 0) return null;
+
+            const sum = gradedRows.reduce((acc, row) => acc + (row.nota ?? 0), 0);
+            return Number((sum / gradedRows.length).toFixed(2));
+          })
+          .filter((value): value is number => value !== null);
+
+        if (periodAverages.length > 0) {
+          const finalAverage =
+            periodAverages.reduce((acc, value) => acc + value, 0) /
+            periodAverages.length;
+          s.average = Number(finalAverage.toFixed(2));
+        }
       }
       // Orden por fecha entrega desc (más reciente arriba)
       s.rows.sort((x, y) => (x.fechaEntrega < y.fechaEntrega ? 1 : -1));
@@ -162,15 +182,25 @@ const StudentGrades: React.FC = () => {
   const globalStats = useMemo(() => {
     let totalTasks = 0;
     let graded = 0;
-    let sum = 0;
+    const subjectAverages: number[] = [];
 
     for (const s of report) {
       totalTasks += s.total;
       graded += s.graded;
-      sum += s.rows.reduce((acc, r) => acc + (r.nota ?? 0), 0);
+      if (s.average !== null) {
+        subjectAverages.push(s.average);
+      }
     }
 
-    const avg = graded > 0 ? Number((sum / graded).toFixed(2)) : null;
+    const avg =
+      subjectAverages.length > 0
+        ? Number(
+            (
+              subjectAverages.reduce((acc, value) => acc + value, 0) /
+              subjectAverages.length
+            ).toFixed(2),
+          )
+        : null;
     return { totalTasks, graded, avg };
   }, [report]);
 
