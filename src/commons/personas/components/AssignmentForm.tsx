@@ -6,6 +6,10 @@ const API_BASE = "http://127.0.0.1:8000/api";
 const isPdfFile = (file: File) =>
   file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
+type DateInputWithPicker = HTMLInputElement & {
+  showPicker?: () => void;
+};
+
 interface Assignment {
   id: number;
   titulo: string;
@@ -130,6 +134,14 @@ const AssignmentForm: React.FC<Props> = ({
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
+          onClick={(e) => {
+            const input = e.currentTarget as DateInputWithPicker;
+            input.showPicker?.();
+          }}
+          onFocus={(e) => {
+            const input = e.currentTarget as DateInputWithPicker;
+            input.showPicker?.();
+          }}
           required
         />
       </div>
