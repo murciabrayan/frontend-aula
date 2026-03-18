@@ -1209,17 +1209,20 @@ body {
 
 .landing-contact-form {
   margin-top: 24px;
+  min-width: 0;
 }
 
 .landing-contact-form__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+  min-width: 0;
 }
 
 .landing-contact-form label {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .landing-contact-form label span {
@@ -1229,7 +1232,9 @@ body {
 
 .landing-contact-form input,
 .landing-contact-form textarea {
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   border: 1px solid rgba(201, 162, 39, 0.22);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.86);
@@ -1247,6 +1252,7 @@ body {
 
 .landing-contact-form__full {
   margin-top: 16px;
+  min-width: 0;
 }
 
 .landing-contact-form__footer {
