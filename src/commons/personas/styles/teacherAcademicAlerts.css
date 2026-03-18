@@ -116,7 +116,7 @@
   grid-template-columns: repeat(4, minmax(0, 240px));
   gap: 16px;
   align-items: stretch;
-  justify-content: start;
+  justify-content: center;
 }
 
 .teacher-alerts__summary-card {
@@ -180,9 +180,9 @@
 
 .teacher-alerts__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 320px));
+  grid-template-columns: 1fr;
   gap: 18px;
-  justify-content: start;
+  justify-content: stretch;
 }
 
 .teacher-alert-card {
@@ -194,6 +194,7 @@
   border: 1px solid rgba(201, 162, 39, 0.14);
   box-shadow: 0 16px 32px rgba(24, 33, 47, 0.08);
   align-content: start;
+  width: 100%;
 }
 
 .teacher-alert-card__top {
