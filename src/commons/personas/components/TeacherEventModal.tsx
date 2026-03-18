@@ -4,7 +4,7 @@ import axios from "axios";
 const API_BASE = "http://127.0.0.1:8000/api";
 
 interface Props {
-  date: string; // "YYYY-MM-DD"
+  date: string;
   onClose: () => void;
   onSaved: () => void;
 }
@@ -21,13 +21,9 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [tipo, setTipo] = useState<"EVENT" | "EXAM" | "ACTIVITY">("EVENT");
-
   const [course, setCourse] = useState<TeacherCourse | null>(null);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  // ✅ success toast
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
@@ -37,8 +33,8 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCourse(res.data);
-      } catch (e) {
-        console.error("Error cargando curso del docente", e);
+      } catch (err) {
+        console.error("Error cargando curso del docente", err);
         setError("No se pudo cargar tu curso asignado.");
       }
     };
@@ -48,18 +44,18 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
 
   const saveEvent = async () => {
     if (!course?.id) {
-      setError("No se encontró un curso asignado para crear el evento.");
+      setError("No se encontro un curso asignado para crear el evento.");
       return;
     }
+
     if (!titulo.trim()) {
-      setError("El título es obligatorio.");
+      setError("El titulo es obligatorio.");
       return;
     }
 
     setLoading(true);
     setError("");
 
-    // backend espera DateTimeField
     const fecha_inicio = `${date}T08:00:00`;
     const fecha_fin = `${date}T09:00:00`;
 
@@ -75,20 +71,16 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
           curso: course.id,
           materia: null,
         },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
 
-      // refrescar calendario
       await onSaved();
-
-      // ✅ mostrar confirmación bonita
       setShowSuccess(true);
 
-      // cerrar automático
-      setTimeout(() => {
+      window.setTimeout(() => {
         setShowSuccess(false);
         onClose();
-      }, 1200);
+      }, 1400);
     } catch (err: any) {
       console.error("Error creando evento", err);
 
@@ -100,7 +92,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
       setError(
         backendMsg && backendMsg !== '""'
           ? `No se pudo crear el evento: ${backendMsg}`
-          : "No se pudo crear el evento."
+          : "No se pudo crear el evento.",
       );
     } finally {
       setLoading(false);
@@ -108,33 +100,39 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
   };
 
   const courseName = course?.name || course?.nombre || "Tu curso";
-
   const tipoLabel =
-    tipo === "EVENT" ? "Evento" : tipo === "EXAM" ? "Evaluación" : "Actividad";
+    tipo === "EVENT" ? "Evento" : tipo === "EXAM" ? "Evaluacion" : "Actividad";
 
   return (
     <>
       <div
-        className="modal-backdrop"
-        onClick={(e) => {
-          if (e.target === e.currentTarget && !loading) onClose();
+        className="teacher-calendar-modal-backdrop"
+        onClick={(event) => {
+          if (event.target === event.currentTarget && !loading) {
+            onClose();
+          }
         }}
       >
-        <div className="modal-premium modal-modern">
-          <div className="modal-header-fixed modal-header-modern">
+        <div className="teacher-calendar-modal modal-modern">
+          <div className="teacher-calendar-modal__header modal-header-modern">
             <div>
               <h2>Nuevo evento</h2>
               <p className="modal-subtitle">
-                Crea una actividad para tu curso de forma rápida.
+                Crea una actividad para tu curso de forma rapida.
               </p>
             </div>
 
-            <button className="close-btn" onClick={onClose} disabled={loading}>
-              ✕
+            <button
+              type="button"
+              className="teacher-calendar-close-btn"
+              onClick={onClose}
+              disabled={loading}
+            >
+              ×
             </button>
           </div>
 
-          <div className="modal-body modal-body-modern">
+          <div className="teacher-calendar-modal__body modal-body-modern">
             <div className="meta-row">
               <span className="meta-chip">
                 <strong>Curso:</strong> {courseName}
@@ -147,11 +145,11 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
 
             <div className="form-grid">
               <div className="form-group">
-                <label>Título</label>
+                <label>Titulo</label>
                 <input
                   value={titulo}
-                  onChange={(e) => setTitulo(e.target.value)}
-                  placeholder="Ej: Día del niño, Examen, Actividad..."
+                  onChange={(event) => setTitulo(event.target.value)}
+                  placeholder="Ej: Dia del nino, Examen, Actividad..."
                 />
               </div>
 
@@ -159,29 +157,32 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
                 <label>Tipo</label>
                 <select
                   value={tipo}
-                  onChange={(e) => setTipo(e.target.value as any)}
+                  onChange={(event) =>
+                    setTipo(event.target.value as "EVENT" | "EXAM" | "ACTIVITY")
+                  }
                 >
                   <option value="EVENT">Evento</option>
-                  <option value="EXAM">Evaluación</option>
+                  <option value="EXAM">Evaluacion</option>
                   <option value="ACTIVITY">Actividad</option>
                 </select>
               </div>
             </div>
 
             <div className="form-group">
-              <label>Descripción (opcional)</label>
+              <label>Descripcion (opcional)</label>
               <textarea
                 value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
+                onChange={(event) => setDescripcion(event.target.value)}
                 placeholder="Detalles del evento..."
               />
             </div>
 
-            {error && <p className="msg error">{error}</p>}
+            {error ? <p className="msg error">{error}</p> : null}
           </div>
 
-          <div className="modal-footer modal-footer-modern">
+          <div className="teacher-calendar-modal__footer modal-footer-modern">
             <button
+              type="button"
               className="btn-secondary"
               onClick={onClose}
               disabled={loading}
@@ -189,6 +190,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
               Cancelar
             </button>
             <button
+              type="button"
               className="btn-primary"
               onClick={saveEvent}
               disabled={loading}
@@ -199,16 +201,15 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
         </div>
       </div>
 
-      {/* ✅ MINI MODAL ÉXITO */}
-      {showSuccess && (
-        <div className="success-backdrop">
-          <div className="success-modal">
-            <div className="success-icon">✓</div>
+      {showSuccess ? (
+        <div className="teacher-calendar-success-backdrop">
+          <div className="teacher-calendar-success-modal">
+            <div className="teacher-calendar-success-icon">✓</div>
             <h3>Evento creado</h3>
-            <p>Se agregó correctamente al calendario.</p>
+            <p>Se agrego correctamente al calendario.</p>
           </div>
         </div>
-      )}
+      ) : null}
     </>
   );
 };
