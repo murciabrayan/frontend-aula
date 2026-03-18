@@ -3,7 +3,7 @@ import AdminAttendance from "../../../components/admin/AdminAttendance";
 import CourseRosterManagement from "../../../components/admin/CourseRosterManagement";
 import CourseStructureManagement from "../../../components/admin/CourseStructureManagement";
 import UserList from "../../../components/admin/UserList";
-import sideImage from "@/assets/2.png";
+import sideImage from "@/assets/1.jpg";
 import AdminAcademicAlerts from "../components/AdminAcademicAlerts";
 import AdminProfile from "../components/AdminProfile";
 import AdminReportCards from "../components/AdminReportCards";
