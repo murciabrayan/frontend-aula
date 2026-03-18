@@ -2,7 +2,7 @@
   display: grid;
   gap: 20px;
   padding: 28px;
-  max-width: 1240px;
+  max-width: 1080px;
   margin: 0 auto;
   min-height: 100vh;
   background:
@@ -11,11 +11,9 @@
 }
 
 .teacher-alerts__hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(250px, 320px);
   gap: 20px;
-  flex-wrap: wrap;
   padding: 28px;
   border-radius: 26px;
   background: linear-gradient(135deg, #101010 0%, #1d1d1d 56%, #2d220a 100%);
@@ -25,8 +23,8 @@
 }
 
 .teacher-alerts__hero-copy {
-  flex: 1;
-  min-width: 280px;
+  min-width: 0;
+  max-width: 620px;
 }
 
 .teacher-alerts__badge {
@@ -53,23 +51,21 @@
 
 .teacher-alerts__hero-copy p {
   margin: 0;
-  max-width: 760px;
+  max-width: 560px;
   line-height: 1.65;
   color: rgba(255, 248, 234, 0.76);
 }
 
 .teacher-alerts__hero-actions {
-  display: flex;
-  align-items: flex-end;
+  display: grid;
+  align-content: end;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .teacher-alerts__control-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 220px;
   padding: 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
@@ -93,7 +89,7 @@
 }
 
 .teacher-alerts__primary-btn {
-  min-width: 200px;
+  width: 100%;
   height: 48px;
   border: none;
   border-radius: 14px;
@@ -117,9 +113,10 @@
 
 .teacher-alerts__summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 240px));
   gap: 16px;
   align-items: stretch;
+  justify-content: start;
 }
 
 .teacher-alerts__summary-card {
@@ -183,7 +180,7 @@
 
 .teacher-alerts__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 360px));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 320px));
   gap: 18px;
   justify-content: start;
 }
@@ -300,6 +297,10 @@
     padding: 20px;
   }
 
+  .teacher-alerts__hero {
+    grid-template-columns: 1fr;
+  }
+
   .teacher-alerts__summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -311,7 +312,6 @@
   }
 
   .teacher-alerts__hero-actions,
-  .teacher-alerts__control-card,
   .teacher-alerts__primary-btn {
     width: 100%;
   }

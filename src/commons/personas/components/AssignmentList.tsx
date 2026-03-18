@@ -143,10 +143,9 @@ const AssignmentDashboard: React.FC = () => {
     () => ({
       areas: areas.length,
       subjects: subjects.length,
-      activities: assignments.length,
       currentCourse: course?.name || "Curso activo",
     }),
-    [areas.length, subjects.length, assignments.length, course?.name],
+    [areas.length, subjects.length, course?.name],
   );
 
   const periodoLabel = (periodo: number) => `Periodo ${periodo}`;
@@ -175,10 +174,6 @@ const AssignmentDashboard: React.FC = () => {
           <article className="teacher-task-hero__stat">
             <span>Materias</span>
             <strong>{stats.subjects}</strong>
-          </article>
-          <article className="teacher-task-hero__stat">
-            <span>Tareas materia activa</span>
-            <strong>{stats.activities}</strong>
           </article>
         </div>
       </div>

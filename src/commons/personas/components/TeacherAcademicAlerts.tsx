@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  generateAcademicAlerts,
   getAcademicAlerts,
   resolveAcademicAlert,
 } from "@/commons/personas/services/academicAlertService";
@@ -24,7 +23,7 @@ const TeacherAcademicAlerts: React.FC = () => {
   const [period, setPeriod] = useState<number>(1);
   const [alerts, setAlerts] = useState<AcademicAlert[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [generating, setGenerating] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [resolvingId, setResolvingId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -52,20 +51,19 @@ const TeacherAcademicAlerts: React.FC = () => {
     loadAlerts();
   }, [period]);
 
-  const handleGenerate = async () => {
+  const handleRefresh = async () => {
     try {
-      setGenerating(true);
+      setRefreshing(true);
       setErrorMessage("");
       setSuccessMessage("");
-      await generateAcademicAlerts(0, period);
       await loadAlerts();
-      setSuccessMessage("Las alertas del periodo fueron actualizadas.");
-      setTimeout(() => setSuccessMessage(""), 2200);
+      setSuccessMessage("Las alertas del periodo fueron recargadas.");
+      setTimeout(() => setSuccessMessage(""), 1800);
     } catch (error) {
-      console.error("Error generando alertas", error);
-      setErrorMessage("No se pudieron generar las alertas del periodo.");
+      console.error("Error actualizando alertas", error);
+      setErrorMessage("No se pudieron actualizar las alertas del periodo.");
     } finally {
-      setGenerating(false);
+      setRefreshing(false);
     }
   };
 
@@ -103,8 +101,8 @@ const TeacherAcademicAlerts: React.FC = () => {
           <span className="teacher-alerts__badge">Alertas tempranas</span>
           <h2>Seguimiento preventivo del curso</h2>
           <p>
-            Consulta senales de riesgo, genera alertas del periodo y deja al dia el
-            seguimiento academico de tus estudiantes.
+            Consulta las senales activas del periodo y manten al dia el seguimiento
+            academico de tus estudiantes.
           </p>
         </div>
 
@@ -120,11 +118,12 @@ const TeacherAcademicAlerts: React.FC = () => {
           </label>
 
           <button
+            type="button"
             className="teacher-alerts__primary-btn"
-            onClick={handleGenerate}
-            disabled={generating}
+            onClick={handleRefresh}
+            disabled={refreshing || loading}
           >
-            {generating ? "Generando..." : "Actualizar alertas"}
+            {refreshing ? "Actualizando..." : "Recargar alertas"}
           </button>
         </div>
       </div>
