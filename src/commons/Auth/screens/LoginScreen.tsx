@@ -52,6 +52,16 @@ const LoginScreen = () => {
     <div className="login-shell">
       <div className="login-left">
         <div className="login-left-inner">
+          <div className="login-topbar">
+            <button
+              type="button"
+              className="login-home-link"
+              onClick={() => navigate("/")}
+            >
+              Ir a la pagina principal
+            </button>
+          </div>
+
           <div className="login-header">
             <img src={logo} alt="Logo Institucional" className="login-logo" />
             <div className="login-institution">
