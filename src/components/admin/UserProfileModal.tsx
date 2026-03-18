@@ -438,16 +438,22 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                 documents.map((document) => (
                   <article key={document.id} className="user-document-card">
                     <div className="user-document-card__preview">
-                      {document.file_url ? (
-                        <iframe
-                          src={`${document.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
-                          title={`Vista previa de ${document.title}`}
-                        />
-                      ) : (
-                        <div className="user-document-card__icon">
-                          <FileText size={28} />
+                      <div className="user-document-card__sheet">
+                        <div className="user-document-card__sheet-top">
+                          <div className="user-document-card__icon">
+                            <FileText size={28} />
+                          </div>
+                          <div className="user-document-card__sheet-meta">
+                            <strong>{document.title}</strong>
+                            <span>{document.category || "Documento institucional"}</span>
+                          </div>
                         </div>
-                      )}
+                        <div className="user-document-card__sheet-lines">
+                          <span />
+                          <span />
+                          <span />
+                        </div>
+                      </div>
                       <div className="user-document-card__preview-badge">
                         <FileText size={14} />
                         <span>PDF</span>
