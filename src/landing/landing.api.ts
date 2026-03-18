@@ -1,4 +1,10 @@
+import axios from "axios";
+
 import api from "@/api/axios";
+
+const publicLandingApi = axios.create({
+  baseURL: "http://127.0.0.1:8000",
+});
 
 export interface LandingNewsItem {
   id: number;
@@ -54,12 +60,12 @@ export interface LandingContactPayload {
 }
 
 export const fetchLandingContent = async () => {
-  const response = await api.get<LandingContentPayload>("/api/landing/content/");
+  const response = await publicLandingApi.get<LandingContentPayload>("/api/landing/content/");
   return response.data;
 };
 
 export const sendLandingContactMessage = async (payload: LandingContactPayload) => {
-  const response = await api.post("/api/landing/contact/", payload);
+  const response = await publicLandingApi.post("/api/landing/contact/", payload);
   return response.data;
 };
 
