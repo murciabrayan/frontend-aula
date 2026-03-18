@@ -439,19 +439,31 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                   <article key={document.id} className="user-document-card">
                     <div className="user-document-card__preview">
                       <div className="user-document-card__sheet">
-                        <div className="user-document-card__sheet-top">
-                          <div className="user-document-card__icon">
-                            <FileText size={28} />
+                        <div className="user-document-card__paper">
+                          <div className="user-document-card__paper-fold" />
+                          <div className="user-document-card__paper-header">
+                            <div className="user-document-card__icon">
+                              <FileText size={24} />
+                            </div>
+                            <div className="user-document-card__sheet-meta">
+                              <strong>{document.title}</strong>
+                              <span>{document.category || "Documento institucional"}</span>
+                            </div>
                           </div>
-                          <div className="user-document-card__sheet-meta">
-                            <strong>{document.title}</strong>
-                            <span>{document.category || "Documento institucional"}</span>
+                          <div className="user-document-card__sheet-stamp-row">
+                            <div className="user-document-card__sheet-photo" />
+                            <div className="user-document-card__sheet-stamp" />
                           </div>
-                        </div>
-                        <div className="user-document-card__sheet-lines">
-                          <span />
-                          <span />
-                          <span />
+                          <div className="user-document-card__sheet-lines">
+                            <span />
+                            <span />
+                            <span />
+                            <span />
+                          </div>
+                          <div className="user-document-card__sheet-footer">
+                            <span />
+                            <span />
+                          </div>
                         </div>
                       </div>
                       <div className="user-document-card__preview-badge">
