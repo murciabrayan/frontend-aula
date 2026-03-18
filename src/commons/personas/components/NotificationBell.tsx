@@ -12,18 +12,15 @@ interface Props {
   setActiveModule: (module: string) => void;
 }
 
-const getTargetModule = (notification: Notification): string | null => {
-  const titulo = notification.titulo.toLowerCase();
-  const mensaje = notification.mensaje.toLowerCase();
+const normalizeText = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 
-  if (
-    titulo.includes("calificación") ||
-    titulo.includes("calificacion") ||
-    mensaje.includes("calificación") ||
-    mensaje.includes("calificacion")
-  ) {
-    return "calificaciones";
-  }
+const getTargetModule = (notification: Notification): string | null => {
+  const titulo = normalizeText(notification.titulo);
+  const mensaje = normalizeText(notification.mensaje);
 
   if (
     titulo.includes("alerta") ||
@@ -35,6 +32,13 @@ const getTargetModule = (notification: Notification): string | null => {
     mensaje.includes("no entreg")
   ) {
     return "alertas";
+  }
+
+  if (
+    titulo.includes("calificacion") ||
+    mensaje.includes("calificacion")
+  ) {
+    return "calificaciones";
   }
 
   if (
@@ -110,7 +114,7 @@ export default function NotificationBell({ setActiveModule }: Props) {
         setActiveModule(targetModule);
       }
     } catch (err) {
-      console.error("Error marcando notificación", err);
+      console.error("Error marcando notificacion", err);
     }
   };
 
@@ -124,7 +128,7 @@ export default function NotificationBell({ setActiveModule }: Props) {
       await markAsRead(id);
       await loadData();
     } catch (err) {
-      console.error("Error marcando como leída", err);
+      console.error("Error marcando como leida", err);
     }
   };
 
@@ -138,7 +142,7 @@ export default function NotificationBell({ setActiveModule }: Props) {
       await deleteNotification(id);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {
-      console.error("Error eliminando notificación", err);
+      console.error("Error eliminando notificacion", err);
     }
   };
 
@@ -162,9 +166,7 @@ export default function NotificationBell({ setActiveModule }: Props) {
         <div className="notification-dropdown">
           <div className="notification-dropdown-header">
             <h4>Notificaciones</h4>
-            <span className="notification-counter">
-              {unread} sin leer
-            </span>
+            <span className="notification-counter">{unread} sin leer</span>
           </div>
 
           {loading ? (
@@ -187,7 +189,7 @@ export default function NotificationBell({ setActiveModule }: Props) {
                         <button
                           type="button"
                           className="notification-action-btn"
-                          title="Marcar como leída"
+                          title="Marcar como leida"
                           onClick={(e) => handleMarkAsRead(e, n.id)}
                         >
                           <CheckCheck size={15} />
