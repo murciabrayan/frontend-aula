@@ -71,16 +71,12 @@ const AdminReportCards: React.FC = () => {
 
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
-
   const [students, setStudents] = useState<StudentItem[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<StudentItem | null>(null);
-
   const [report, setReport] = useState<StudentReportResponse | null>(null);
-
   const [loading, setLoading] = useState(true);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingZip, setDownloadingZip] = useState(false);
-
   const [selectedPeriod, setSelectedPeriod] = useState("Tercer periodo");
 
   useEffect(() => {
@@ -118,7 +114,7 @@ const AdminReportCards: React.FC = () => {
 
       const res = await axios.get<CourseStudentsResponse>(
         `${API_BASE}/courses/${course.id}/students/`,
-        { headers: authHeaders }
+        { headers: authHeaders },
       );
 
       setStudents(res.data.estudiantes || []);
@@ -138,12 +134,12 @@ const AdminReportCards: React.FC = () => {
 
       const res = await axios.get<StudentReportResponse>(
         `${API_BASE}/students/${student.id}/report-card/`,
-        { headers: authHeaders }
+        { headers: authHeaders },
       );
 
       setReport(res.data);
     } catch (err) {
-      console.error("Error cargando boletín del estudiante", err);
+      console.error("Error cargando boletin del estudiante", err);
       showToast({
         type: "error",
         title: "Boletin",
@@ -152,13 +148,12 @@ const AdminReportCards: React.FC = () => {
     }
   };
 
-  const buildPeriodSlug = (period: string) => {
-    return period
+  const buildPeriodSlug = (period: string) =>
+    period
       .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, "-");
-  };
 
   const handleGeneratePdf = async () => {
     if (!report || !token) return;
@@ -169,16 +164,13 @@ const AdminReportCards: React.FC = () => {
       const res = await axios.get(
         `${API_BASE}/students/${report.estudiante.id}/report-card/pdf/?periodo=${encodeURIComponent(selectedPeriod)}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
-        }
+        },
       );
 
       const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = url;
 
@@ -189,7 +181,6 @@ const AdminReportCards: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error generando PDF", err);
@@ -212,23 +203,19 @@ const AdminReportCards: React.FC = () => {
       const res = await axios.get(
         `${API_BASE}/courses/${selectedCourse.id}/report-cards/zip/?periodo=${encodeURIComponent(selectedPeriod)}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
-        }
+        },
       );
 
       const blob = new Blob([res.data], { type: "application/zip" });
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = url;
       link.download = `boletines_${selectedCourse.nombre.replace(/\s+/g, "_")}_${buildPeriodSlug(selectedPeriod)}.zip`;
       document.body.appendChild(link);
       link.click();
       link.remove();
-
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Error generando ZIP de boletines", err);
@@ -242,47 +229,70 @@ const AdminReportCards: React.FC = () => {
     }
   };
 
-  const formatScore = (value: number | null) => {
-    return value !== null && value !== undefined ? value.toFixed(1) : "—";
-  };
+  const formatScore = (value: number | null) =>
+    value !== null && value !== undefined ? value.toFixed(1) : "--";
 
   if (loading) {
-    return <p>Cargando boletines...</p>;
+    return <div className="report-empty-state">Cargando boletines...</div>;
   }
 
   return (
     <div className="report-cards-container">
-      {!selectedCourse && (
+      {!selectedCourse ? (
         <>
-          <header className="report-cards-header">
-            <h1>Boletines Académicos</h1>
-            <p>Selecciona un curso para consultar los boletines de los estudiantes.</p>
-          </header>
+          <section className="report-hero">
+            <div className="report-hero__copy">
+              <span className="report-hero__badge">Boletines</span>
+              <h1>Gestion institucional de boletines</h1>
+              <p>
+                Selecciona un curso para consultar el consolidado academico,
+                revisar estudiantes y generar boletines individuales o masivos.
+              </p>
+            </div>
+          </section>
 
           <div className="report-courses-grid">
             {courses.map((course) => (
-              <div
+              <article
                 key={course.id}
                 className="report-course-card"
                 onClick={() => loadStudentsByCourse(course)}
               >
+                <span className="report-card__eyebrow">Curso</span>
                 <h3>{course.nombre}</h3>
                 <p>
                   <strong>Docente:</strong> {course.docente}
                 </p>
                 <span>{course.total_estudiantes} estudiante(s)</span>
-              </div>
+              </article>
             ))}
           </div>
         </>
-      )}
+      ) : null}
 
-      {selectedCourse && !selectedStudent && (
+      {selectedCourse && !selectedStudent ? (
         <>
-          <header className="report-cards-header">
-            <h1>{selectedCourse.nombre}</h1>
-            <p>Selecciona un estudiante para ver su boletín o genera todos los del curso.</p>
-          </header>
+          <section className="report-hero">
+            <div className="report-hero__copy">
+              <span className="report-hero__badge">Curso activo</span>
+              <h1>{selectedCourse.nombre}</h1>
+              <p>
+                Selecciona un estudiante para revisar su boletin o genera el
+                paquete completo del curso.
+              </p>
+            </div>
+
+            <div className="report-hero__stats">
+              <div className="report-hero__stat">
+                <span>Docente</span>
+                <strong>{selectedCourse.docente}</strong>
+              </div>
+              <div className="report-hero__stat">
+                <span>Estudiantes</span>
+                <strong>{selectedCourse.total_estudiantes}</strong>
+              </div>
+            </div>
+          </section>
 
           <div className="report-topbar">
             <button
@@ -294,11 +304,11 @@ const AdminReportCards: React.FC = () => {
                 setReport(null);
               }}
             >
-              ← Volver a cursos
+              Volver a cursos
             </button>
 
             <div className="report-period-card">
-              <div className="report-period-label">Período académico</div>
+              <div className="report-period-label">Periodo academico</div>
               <div className="report-period-select-wrap">
                 <select
                   className="report-period-select"
@@ -329,29 +339,45 @@ const AdminReportCards: React.FC = () => {
               </div>
             ) : (
               students.map((student) => (
-                <div
+                <article
                   key={student.id}
                   className="report-student-card"
                   onClick={() => loadStudentReport(student)}
                 >
+                  <span className="report-card__eyebrow">Estudiante</span>
                   <h3>{student.nombre}</h3>
                   <p>{student.email}</p>
                   <span>C.C. {student.cedula}</span>
-                </div>
+                </article>
               ))
             )}
           </div>
         </>
-      )}
+      ) : null}
 
-      {selectedCourse && selectedStudent && report && (
+      {selectedCourse && selectedStudent && report ? (
         <>
-          <header className="report-cards-header">
-            <h1>Boletín Académico</h1>
-            <p>
-              {report.estudiante.nombre} · {report.curso.nombre}
-            </p>
-          </header>
+          <section className="report-hero">
+            <div className="report-hero__copy">
+              <span className="report-hero__badge">Boletin academico</span>
+              <h1>{report.estudiante.nombre}</h1>
+              <p>
+                Consulta el rendimiento consolidado del estudiante y genera el PDF
+                institucional del periodo.
+              </p>
+            </div>
+
+            <div className="report-hero__stats">
+              <div className="report-hero__stat">
+                <span>Curso</span>
+                <strong>{report.curso.nombre}</strong>
+              </div>
+              <div className="report-hero__stat">
+                <span>Promedio</span>
+                <strong>{formatScore(report.promedio_general)}</strong>
+              </div>
+            </div>
+          </section>
 
           <div className="report-topbar">
             <button
@@ -361,11 +387,11 @@ const AdminReportCards: React.FC = () => {
                 setReport(null);
               }}
             >
-              ← Volver a estudiantes
+              Volver a estudiantes
             </button>
 
             <div className="report-period-card">
-              <div className="report-period-label">Período académico</div>
+              <div className="report-period-label">Periodo academico</div>
               <div className="report-period-select-wrap">
                 <select
                   className="report-period-select"
@@ -395,7 +421,7 @@ const AdminReportCards: React.FC = () => {
               <strong>{report.estudiante.nombre}</strong>
             </div>
             <div className="summary-item">
-              <span>Cédula</span>
+              <span>Cedula</span>
               <strong>{report.estudiante.cedula}</strong>
             </div>
             <div className="summary-item">
@@ -420,34 +446,30 @@ const AdminReportCards: React.FC = () => {
             <table className="report-table">
               <thead>
                 <tr>
-                  <th>Área</th>
+                  <th>Area</th>
                   <th>Materia</th>
                   <th>1P</th>
                   <th>2P</th>
                   <th>3P</th>
                   <th>4P</th>
                   <th>Def.</th>
-                  <th>Desempeño</th>
+                  <th>Desempeno</th>
                 </tr>
               </thead>
-
               <tbody>
                 {report.boletin_agrupado.length === 0 ? (
                   <tr>
-                    <td colSpan={8}>No hay información académica disponible.</td>
+                    <td colSpan={8}>No hay informacion academica disponible.</td>
                   </tr>
                 ) : (
                   report.boletin_agrupado.map((group) =>
                     group.materias.map((row, index) => (
                       <tr key={row.materia_id}>
-                        {index === 0 && (
-                          <td
-                            className="subject-cell"
-                            rowSpan={group.materias.length}
-                          >
+                        {index === 0 ? (
+                          <td className="subject-cell" rowSpan={group.materias.length}>
                             {group.area}
                           </td>
-                        )}
+                        ) : null}
                         <td className="subject-cell">{row.materia}</td>
                         <td>{formatScore(row.p1)}</td>
                         <td>{formatScore(row.p2)}</td>
@@ -458,14 +480,14 @@ const AdminReportCards: React.FC = () => {
                           <span className="performance-pill">{row.desempeno}</span>
                         </td>
                       </tr>
-                    ))
+                    )),
                   )
                 )}
               </tbody>
             </table>
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 };
