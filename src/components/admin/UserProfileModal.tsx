@@ -41,6 +41,11 @@ const buildStateFromUser = (user: User): EditableState => ({
   titulo: user.teacher_profile?.titulo || "",
 });
 
+const getDownloadName = (title: string, fileUrl: string) => {
+  const extension = fileUrl.split(".").pop();
+  return `${title}${extension ? `.${extension}` : ".pdf"}`;
+};
+
 const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   const { showToast, confirm } = useFeedback();
   const [formData, setFormData] = useState<EditableState>(buildStateFromUser(user));
@@ -251,6 +256,26 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     }
   };
 
+  const handleDownloadDocument = async (fileUrl?: string | null, title?: string) => {
+    if (!fileUrl || !title) return;
+
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = getDownloadName(title, fileUrl);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("No se pudo descargar el documento:", error);
+      window.open(fileUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="user-profile-modal" onClick={(event) => event.stopPropagation()}>
@@ -412,8 +437,21 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
               {documents.length ? (
                 documents.map((document) => (
                   <article key={document.id} className="user-document-card">
-                    <div className="user-document-card__icon">
-                      <FileText size={28} />
+                    <div className="user-document-card__preview">
+                      {document.file_url ? (
+                        <iframe
+                          src={`${document.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                          title={`Vista previa de ${document.title}`}
+                        />
+                      ) : (
+                        <div className="user-document-card__icon">
+                          <FileText size={28} />
+                        </div>
+                      )}
+                      <div className="user-document-card__preview-badge">
+                        <FileText size={14} />
+                        <span>PDF</span>
+                      </div>
                     </div>
                     <div className="user-document-card__body">
                       <strong>{document.title}</strong>
@@ -426,10 +464,14 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                             <Eye size={16} />
                             <span>Ver</span>
                           </a>
-                          <a href={document.file_url} target="_blank" rel="noreferrer" className="btn">
+                          <button
+                            type="button"
+                            className="btn"
+                            onClick={() => void handleDownloadDocument(document.file_url, document.title)}
+                          >
                             <Download size={16} />
                             <span>Descargar</span>
-                          </a>
+                          </button>
                         </>
                       ) : null}
                       <button type="button" className="btn btn-delete-text" onClick={() => handleDeleteDocument(document.id)}>
