@@ -27,6 +27,33 @@ const InstitutionalInfoPage = () => {
   const { content } = useLandingContent();
   const documents = content.documents.length ? content.documents : fallbackDocuments;
 
+  const handleDownload = async (fileUrl: string | null, title: string) => {
+    if (!fileUrl) return;
+
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const extension =
+        blob.type === "application/pdf"
+          ? ".pdf"
+          : fileUrl.split(".").pop()
+            ? `.${fileUrl.split(".").pop()}`
+            : "";
+
+      link.href = objectUrl;
+      link.download = `${title}${extension}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      console.error("No se pudo descargar el documento:", error);
+      window.open(fileUrl, "_blank", "noopener,noreferrer");
+    }
+  };
+
   return (
     <div className="landing-page">
       <section className="landing-inner-hero landing-inner-hero--dark">
@@ -91,7 +118,10 @@ const InstitutionalInfoPage = () => {
                 </a>
                 <a
                   href={document.file_url || "#"}
-                  download
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void handleDownload(document.file_url, document.title);
+                  }}
                   className="landing-btn landing-btn--primary"
                 >
                   Descargar
