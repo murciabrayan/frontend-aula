@@ -45,8 +45,21 @@ export interface LandingContentPayload {
   calendar_entries: LandingCalendarEntry[];
 }
 
+export interface LandingContactPayload {
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+}
+
 export const fetchLandingContent = async () => {
   const response = await api.get<LandingContentPayload>("/api/landing/content/");
+  return response.data;
+};
+
+export const sendLandingContactMessage = async (payload: LandingContactPayload) => {
+  const response = await api.post("/api/landing/contact/", payload);
   return response.data;
 };
 

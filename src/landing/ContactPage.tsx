@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 
+import { useFeedback } from "@/context/FeedbackContext";
+import { sendLandingContactMessage } from "@/landing/landing.api";
+
 const contactCards = [
   {
     title: "Sede principal",
@@ -12,16 +15,57 @@ const contactCards = [
   },
   {
     title: "Correo institucional",
-    text: "contacto@institucion.edu.co. Respuesta prioritaria para aspirantes, familias y comunidad academica.",
+    text: "branfer60@gmail.com. Respuesta prioritaria para aspirantes, familias y comunidad academica.",
   },
 ];
 
-const ContactPage = () => {
-  const [submitted, setSubmitted] = useState(false);
+const initialForm = {
+  name: "",
+  email: "",
+  phone: "",
+  subject: "",
+  message: "",
+};
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+const ContactPage = () => {
+  const [form, setForm] = useState(initialForm);
+  const [sending, setSending] = useState(false);
+  const { showNotice } = useFeedback();
+
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = event.target;
+    setForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
+    setSending(true);
+
+    try {
+      const response = await sendLandingContactMessage(form);
+      setForm(initialForm);
+      await showNotice({
+        title: "Mensaje enviado",
+        message:
+          response.message ||
+          "Tu mensaje fue enviado correctamente al equipo institucional.",
+        buttonText: "Entendido",
+        tone: "success",
+      });
+    } catch (error: any) {
+      await showNotice({
+        title: "No se pudo enviar",
+        message:
+          error.response?.data?.error ||
+          "Ocurrio un problema al enviar tu mensaje. Intenta nuevamente.",
+        buttonText: "Entendido",
+        tone: "error",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -52,19 +96,46 @@ const ContactPage = () => {
             <div className="landing-contact-form__grid">
               <label>
                 <span>Nombre completo</span>
-                <input type="text" name="name" placeholder="Tu nombre" required />
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Tu nombre"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                />
               </label>
               <label>
                 <span>Correo electronico</span>
-                <input type="email" name="email" placeholder="correo@ejemplo.com" required />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="correo@ejemplo.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                />
               </label>
               <label>
                 <span>Telefono</span>
-                <input type="tel" name="phone" placeholder="+57 300 000 0000" />
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="+57 300 000 0000"
+                  value={form.phone}
+                  onChange={handleChange}
+                />
               </label>
               <label>
                 <span>Asunto</span>
-                <input type="text" name="subject" placeholder="Matriculas, informacion, convivencia..." required />
+                <input
+                  type="text"
+                  name="subject"
+                  placeholder="Matriculas, informacion, convivencia..."
+                  value={form.subject}
+                  onChange={handleChange}
+                  required
+                />
               </label>
             </div>
 
@@ -74,19 +145,20 @@ const ContactPage = () => {
                 name="message"
                 rows={6}
                 placeholder="Cuentanos como podemos ayudarte"
+                value={form.message}
+                onChange={handleChange}
                 required
               />
             </label>
 
             <div className="landing-contact-form__footer">
-              <button type="submit" className="landing-btn landing-btn--primary">
-                Enviar mensaje
+              <button
+                type="submit"
+                className="landing-btn landing-btn--primary"
+                disabled={sending}
+              >
+                {sending ? "Enviando..." : "Enviar mensaje"}
               </button>
-              {submitted ? (
-                <p className="landing-contact-form__success">
-                  Tu mensaje quedo listo para envio. Ya puedes conectarlo al backend o a un servicio de correo.
-                </p>
-              ) : null}
             </div>
           </form>
         </article>
