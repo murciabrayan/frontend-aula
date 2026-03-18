@@ -35,12 +35,6 @@
   max-width: 420px;
 }
 
-.login-topbar {
-  width: 100%;
-  display: flex;
-  justify-content: flex-start;
-}
-
 .login-home-link {
   appearance: none;
   border: 1px solid rgba(201, 164, 55, 0.45);
@@ -59,6 +53,13 @@
   transform: translateY(-1px);
   background: #fff7e3;
   box-shadow: 0 14px 26px rgba(201, 164, 55, 0.18);
+}
+
+.login-home-link--floating {
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 5;
 }
 
 .login-header {
