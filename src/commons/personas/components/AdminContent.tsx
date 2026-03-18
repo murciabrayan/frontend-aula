@@ -17,19 +17,47 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
     <div className="admin-content">
       {activeModule === "inicio" && (
         <div className="dashboard-home">
-          <div className="dashboard-home__hero">
-            <h2>Bienvenido al panel de administracion</h2>
-            <p>
-              Gestiona usuarios, cursos, asistencia, boletines y alertas desde una
-              experiencia unificada y mas consistente.
-            </p>
-          </div>
+          <section className="dashboard-home__admin-hero">
+            <div className="dashboard-home__admin-copy">
+              <span className="dashboard-home__badge">Panel central</span>
+              <h2>Administra el colegio con una vista clara, moderna y preparada para el dia a dia</h2>
+              <p>
+                Gestiona usuarios, cursos, estructura academica, asistencia,
+                boletines y alertas desde un punto de control mas visual y mejor
+                organizado.
+              </p>
 
-          <div
-            className="dashboard-home__media"
-            style={{ backgroundImage: `url(${sideImage})` }}
-            aria-hidden="true"
-          />
+              <div className="dashboard-home__admin-pills">
+                <span>Usuarios</span>
+                <span>Cursos</span>
+                <span>Boletines</span>
+                <span>Alertas</span>
+              </div>
+            </div>
+
+            <div className="dashboard-home__admin-media-shell">
+              <div
+                className="dashboard-home__admin-media"
+                style={{ backgroundImage: `url(${sideImage})` }}
+                aria-hidden="true"
+              />
+            </div>
+          </section>
+
+          <section className="dashboard-home__admin-grid">
+            <article className="dashboard-home__admin-card">
+              <span>Gestion unificada</span>
+              <strong>Todo el ecosistema escolar en un mismo panel</strong>
+            </article>
+            <article className="dashboard-home__admin-card">
+              <span>Operacion diaria</span>
+              <strong>Acceso rapido a los modulos mas importantes</strong>
+            </article>
+            <article className="dashboard-home__admin-card">
+              <span>Experiencia</span>
+              <strong>Una portada institucional mas solida para el rol administrativo</strong>
+            </article>
+          </section>
         </div>
       )}
 
