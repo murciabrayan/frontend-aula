@@ -24,6 +24,8 @@ interface EditableState {
   titulo: string;
 }
 
+const onlyNumbers = (value: string) => value.replace(/\D/g, "");
+
 const buildStateFromUser = (user: User): EditableState => ({
   first_name: user.first_name || "",
   last_name: user.last_name || "",
@@ -66,7 +68,14 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   }, [user]);
 
   const handleFieldChange = (name: keyof EditableState, value: string) => {
-    setFormData((current) => ({ ...current, [name]: value }));
+    const normalizedValue =
+      name === "cedula"
+        ? onlyNumbers(value)
+        : name === "acudiente_telefono"
+          ? onlyNumbers(value).slice(0, 10)
+          : value;
+
+    setFormData((current) => ({ ...current, [name]: normalizedValue }));
   };
 
   const refreshDocuments = async () => {
@@ -81,6 +90,37 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   const handleSaveProfile = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!token || !user.id) return;
+
+    if (!formData.email.includes("@")) {
+      showToast({
+        type: "warning",
+        title: "Correo invalido",
+        message: "Ingresa un correo valido que incluya arroba.",
+      });
+      return;
+    }
+
+    if (!formData.cedula.trim()) {
+      showToast({
+        type: "warning",
+        title: "Cedula",
+        message: "La cedula es obligatoria y solo puede contener numeros.",
+      });
+      return;
+    }
+
+    if (
+      user.role === "STUDENT" &&
+      formData.acudiente_telefono &&
+      formData.acudiente_telefono.length !== 10
+    ) {
+      showToast({
+        type: "warning",
+        title: "Telefono",
+        message: "El telefono del acudiente debe tener exactamente 10 numeros.",
+      });
+      return;
+    }
 
     const payload: Record<string, string> = {
       first_name: formData.first_name.trim(),
@@ -235,11 +275,24 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
               </label>
               <label>
                 <span>Documento</span>
-                <input value={formData.cedula} onChange={(e) => handleFieldChange("cedula", e.target.value)} />
+                <input
+                  value={formData.cedula}
+                  onChange={(e) => handleFieldChange("cedula", e.target.value)}
+                  inputMode="numeric"
+                  maxLength={20}
+                />
               </label>
               <label>
                 <span>Correo</span>
-                <input type="email" value={formData.email} onChange={(e) => handleFieldChange("email", e.target.value)} />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleFieldChange("email", e.target.value)}
+                  onInvalid={(e) =>
+                    e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
+                  }
+                  onInput={(e) => e.currentTarget.setCustomValidity("")}
+                />
               </label>
 
               {user.role === "STUDENT" ? (
@@ -254,11 +307,24 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                   </label>
                   <label>
                     <span>Telefono del acudiente</span>
-                    <input value={formData.acudiente_telefono} onChange={(e) => handleFieldChange("acudiente_telefono", e.target.value)} />
+                    <input
+                      value={formData.acudiente_telefono}
+                      onChange={(e) => handleFieldChange("acudiente_telefono", e.target.value)}
+                      inputMode="numeric"
+                      maxLength={10}
+                    />
                   </label>
                   <label>
                     <span>Correo del acudiente</span>
-                    <input type="email" value={formData.acudiente_email} onChange={(e) => handleFieldChange("acudiente_email", e.target.value)} />
+                    <input
+                      type="email"
+                      value={formData.acudiente_email}
+                      onChange={(e) => handleFieldChange("acudiente_email", e.target.value)}
+                      onInvalid={(e) =>
+                        e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
+                      }
+                      onInput={(e) => e.currentTarget.setCustomValidity("")}
+                    />
                   </label>
                 </>
               ) : null}

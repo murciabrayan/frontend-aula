@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useFeedback } from "@/context/FeedbackContext";
 import "./UserManagement.css";
@@ -25,6 +25,17 @@ interface UserFormState {
   especialidad: string;
   titulo: string;
 }
+
+const PASSWORD_MESSAGE =
+  "La contrasena debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.";
+
+const onlyNumbers = (value: string) => value.replace(/\D/g, "");
+
+const isStrongPassword = (value: string) =>
+  value.length >= 8 &&
+  /[A-Z]/.test(value) &&
+  /\d/.test(value) &&
+  /[^A-Za-z0-9]/.test(value);
 
 const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   email: "",
@@ -61,21 +72,29 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         especialidad: user.teacher_profile?.especialidad || "",
         titulo: user.teacher_profile?.titulo || "",
       });
-    } else {
-      setFormData(emptyForm(role));
+      return;
     }
+
+    setFormData(emptyForm(role));
   }, [user, role]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    const normalizedValue =
+      name === "cedula"
+        ? onlyNumbers(value)
+        : name === "acudiente_telefono"
+          ? onlyNumbers(value).slice(0, 10)
+          : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: normalizedValue,
     }));
   };
 
   const buildPayload = () => {
-    const basePayload: Record<string, any> = {
+    const basePayload: Record<string, string> = {
       email: formData.email.trim(),
       cedula: formData.cedula.trim(),
       first_name: formData.first_name.trim(),
@@ -102,8 +121,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     return basePayload;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     const token = localStorage.getItem("access_token");
 
@@ -112,6 +131,46 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         type: "warning",
         title: "Sesion expirada",
         message: "Por favor, inicia sesion nuevamente.",
+      });
+      return;
+    }
+
+    if (!formData.email.includes("@")) {
+      showToast({
+        type: "warning",
+        title: "Correo invalido",
+        message: "Ingresa un correo valido que incluya arroba.",
+      });
+      return;
+    }
+
+    if (!formData.cedula.trim()) {
+      showToast({
+        type: "warning",
+        title: "Cedula",
+        message: "La cedula es obligatoria y solo puede contener numeros.",
+      });
+      return;
+    }
+
+    if (
+      role === "STUDENT" &&
+      formData.acudiente_telefono &&
+      formData.acudiente_telefono.length !== 10
+    ) {
+      showToast({
+        type: "warning",
+        title: "Telefono",
+        message: "El telefono del acudiente debe tener exactamente 10 numeros.",
+      });
+      return;
+    }
+
+    if (!user && !isStrongPassword(formData.password)) {
+      showToast({
+        type: "warning",
+        title: "Contrasena insegura",
+        message: PASSWORD_MESSAGE,
       });
       return;
     }
@@ -125,11 +184,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
     try {
       if (user) {
-        await axios.patch(
-          `http://127.0.0.1:8000/api/users/${user.id}/`,
-          payload,
-          { headers }
-        );
+        await axios.patch(`http://127.0.0.1:8000/api/users/${user.id}/`, payload, {
+          headers,
+        });
       } else {
         await axios.post("http://127.0.0.1:8000/api/users/", payload, {
           headers,
@@ -146,8 +203,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
           : "El usuario se creo correctamente.",
       });
     } catch (error: any) {
-      console.error("❌ Error al guardar el usuario:", error);
-
       const backendErrors = error?.response?.data;
 
       if (error.response?.status === 401) {
@@ -185,7 +240,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     <div className="modal-overlay">
       <div className="modal-container">
         <button className="close-btn" onClick={onClose}>
-          ✕
+          x
         </button>
 
         <h2 className="modal-title">
@@ -216,9 +271,13 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
           <input
             type="email"
             name="email"
-            placeholder="Correo electrónico"
+            placeholder="Correo electronico"
             value={formData.email}
             onChange={handleChange}
+            onInvalid={(e) =>
+              e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
+            }
+            onInput={(e) => e.currentTarget.setCustomValidity("")}
             required
             className="input-field"
           />
@@ -226,26 +285,30 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
           <input
             type="text"
             name="cedula"
-            placeholder="Cédula"
+            placeholder="Cedula"
             value={formData.cedula}
             onChange={handleChange}
+            inputMode="numeric"
+            maxLength={20}
             required
             className="input-field"
           />
 
-          {!user && (
+          {!user ? (
             <input
               type="password"
               name="password"
-              placeholder="Contraseña"
+              placeholder="Contrasena"
               value={formData.password}
               onChange={handleChange}
+              minLength={8}
+              title={PASSWORD_MESSAGE}
               required
               className="input-field"
             />
-          )}
+          ) : null}
 
-          {role === "TEACHER" && (
+          {role === "TEACHER" ? (
             <>
               <input
                 type="text"
@@ -258,15 +321,15 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               <input
                 type="text"
                 name="titulo"
-                placeholder="Título académico"
+                placeholder="Titulo academico"
                 value={formData.titulo}
                 onChange={handleChange}
                 className="input-field"
               />
             </>
-          )}
+          ) : null}
 
-          {role === "STUDENT" && (
+          {role === "STUDENT" ? (
             <>
               <input
                 type="text"
@@ -287,9 +350,11 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               <input
                 type="text"
                 name="acudiente_telefono"
-                placeholder="Teléfono del acudiente"
+                placeholder="Telefono del acudiente"
                 value={formData.acudiente_telefono}
                 onChange={handleChange}
+                inputMode="numeric"
+                maxLength={10}
                 className="input-field"
               />
               <input
@@ -298,10 +363,14 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 placeholder="Correo del acudiente"
                 value={formData.acudiente_email}
                 onChange={handleChange}
+                onInvalid={(e) =>
+                  e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
+                }
+                onInput={(e) => e.currentTarget.setCustomValidity("")}
                 className="input-field"
               />
             </>
-          )}
+          ) : null}
 
           <button type="submit" className="btn-primary full">
             {user ? "Guardar Cambios" : "Crear Usuario"}

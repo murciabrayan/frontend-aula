@@ -37,6 +37,15 @@ const AVATAR_STYLES = [
 const buildDiceBearUrl = (style: string, seed: string) =>
   `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear`;
 
+const PASSWORD_MESSAGE =
+  "La contrasena debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.";
+
+const isStrongPassword = (value: string) =>
+  value.length >= 8 &&
+  /[A-Z]/.test(value) &&
+  /\d/.test(value) &&
+  /[^A-Za-z0-9]/.test(value);
+
 const baseSummary = [
   { key: "first_name", label: "Nombre", icon: User },
   { key: "last_name", label: "Apellido", icon: User },
@@ -194,6 +203,11 @@ const ProfileModule = ({
     event.preventDefault();
     setError("");
     setSuccess("");
+
+    if (!isStrongPassword(passwordData.new_password)) {
+      setError(PASSWORD_MESSAGE);
+      return;
+    }
 
     try {
       const response = await api.post("/api/change-password/", passwordData);
@@ -484,6 +498,8 @@ const ProfileModule = ({
                 <input
                   type="password"
                   value={passwordData.new_password}
+                  minLength={8}
+                  title={PASSWORD_MESSAGE}
                   onChange={(event) =>
                     setPasswordData((current) => ({
                       ...current,

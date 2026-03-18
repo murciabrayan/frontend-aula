@@ -1,11 +1,19 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { useFeedback } from "@/context/FeedbackContext";
 import "@/commons/Auth/styles/login.css";
 import sideImage from "@/assets/login-side.jpg";
-
 import logo from "@/assets/logo.png";
+
+const PASSWORD_MESSAGE =
+  "La contrasena debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.";
+
+const isStrongPassword = (value: string) =>
+  value.length >= 8 &&
+  /[A-Z]/.test(value) &&
+  /\d/.test(value) &&
+  /[^A-Za-z0-9]/.test(value);
 
 const ResetPasswordScreen = () => {
   const { uid, token } = useParams();
@@ -19,8 +27,18 @@ const ResetPasswordScreen = () => {
 
     if (password !== confirm) {
       await showNotice({
-        title: "Contraseñas distintas",
-        message: "Las contraseñas no coinciden. Verifica e intenta nuevamente.",
+        title: "Contrasenas distintas",
+        message: "Las contrasenas no coinciden. Verifica e intenta nuevamente.",
+        buttonText: "Entendido",
+        tone: "warning",
+      });
+      return;
+    }
+
+    if (!isStrongPassword(password)) {
+      await showNotice({
+        title: "Contrasena insegura",
+        message: PASSWORD_MESSAGE,
         buttonText: "Entendido",
         tone: "warning",
       });
@@ -30,12 +48,11 @@ const ResetPasswordScreen = () => {
     try {
       const res = await axios.post(
         `http://127.0.0.1:8000/api/password-reset/${uid}/${token}/`,
-        { password }
+        { password },
       );
       await showNotice({
-        title: "Contraseña actualizada",
-        message:
-          res.data.message || "Tu contraseña fue restablecida exitosamente.",
+        title: "Contrasena actualizada",
+        message: res.data.message || "Tu contrasena fue restablecida exitosamente.",
         buttonText: "Ir al inicio",
         tone: "success",
       });
@@ -45,7 +62,7 @@ const ResetPasswordScreen = () => {
         title: "No se pudo restablecer",
         message:
           err.response?.data?.error ||
-          "Ocurrio un error al restablecer la contraseña.",
+          "Ocurrio un error al restablecer la contrasena.",
         buttonText: "Entendido",
         tone: "error",
       });
@@ -60,46 +77,46 @@ const ResetPasswordScreen = () => {
             <img src={logo} alt="Logo Institucional" className="login-logo" />
             <div className="login-institution">
               <strong>GIMNASIO LOS CERROS</strong>
-              <div className="login-tagline">
-                Restablecer contraseña
-              </div>
+              <div className="login-tagline">Restablecer contrasena</div>
             </div>
           </div>
 
           <div className="login-card">
-            <h1>Nueva contraseña</h1>
+            <h1>Nueva contrasena</h1>
             <form onSubmit={handleSubmit}>
               <input
                 type="password"
-                placeholder="Nueva contraseña"
+                placeholder="Nueva contrasena"
                 value={password}
+                minLength={8}
+                title={PASSWORD_MESSAGE}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
               <input
                 type="password"
-                placeholder="Confirmar contraseña"
+                placeholder="Confirmar contrasena"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 required
               />
-              <button type="submit">Guardar contraseña</button>
+              <button type="submit">Guardar contrasena</button>
             </form>
-             <div
-  className="login-right"
-  style={{
-    backgroundImage: `url(${sideImage})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
-    width: "50%",
-    height: "100vh",
-    position: "absolute",
-    top: 0,
-    right: 0,
-  }}
-  aria-hidden="true"
-></div>
+            <div
+              className="login-right"
+              style={{
+                backgroundImage: `url(${sideImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                width: "50%",
+                height: "100vh",
+                position: "absolute",
+                top: 0,
+                right: 0,
+              }}
+              aria-hidden="true"
+            ></div>
           </div>
         </div>
       </div>
