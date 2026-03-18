@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { logoutUser } from "@/commons/Auth/services/auth.service";
-import loginSideImage from "@/assets/login-side.jpg";
+import questionImage from "@/assets/pregunta.jpg";
 import "@/commons/personas/styles/dashboardLayout.css";
 
 export interface DashboardModuleItem {
@@ -152,7 +152,7 @@ const DashboardLayout = ({
         <div className="dashboard-inactivity-backdrop">
           <div className="dashboard-inactivity-modal">
             <div className="dashboard-inactivity-modal__media">
-              <img src={loginSideImage} alt="Sesion inactiva" />
+              <img src={questionImage} alt="Sesion inactiva" />
             </div>
 
             <div className="dashboard-inactivity-modal__content">
