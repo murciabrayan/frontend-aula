@@ -1353,8 +1353,10 @@ body {
 
 .landing-school-calendar__cell span {
   color: #6b5d3c;
-  font-size: 0.74rem;
-  line-height: 1.35;
+  font-size: 0.7rem;
+  line-height: 1.25;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .landing-school-calendar__cell.is-muted {

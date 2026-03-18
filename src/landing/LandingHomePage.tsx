@@ -17,8 +17,8 @@ import { useLandingContent } from "./LandingContentContext";
 
 const heroSlides = [
   {
-    image: heroImageA,
     eyebrow: "Formacion integral",
+    image: heroImageA,
     title: "Impulsamos valores, excelencia y futuro academico.",
     text: "Una experiencia escolar pensada para formar estudiantes con liderazgo, criterio humano y un profundo sentido de pertenencia.",
   },
@@ -169,7 +169,7 @@ const buildMonthlyCalendar = (
     cells.push({
       day: String(day),
       highlighted: Boolean(label),
-      label: label ? label.split(" ").slice(0, 2).join(" ") : undefined,
+      label: label || undefined,
     });
   }
 
@@ -244,15 +244,15 @@ const LandingHomePage = () => {
 
             <div className="landing-hero__metrics">
               <article>
-                <strong>11</strong>
+                <strong></strong>
                 <span>Niveles y procesos escolares articulados</span>
               </article>
               <article>
-                <strong>94%</strong>
+                <strong></strong>
                 <span>Satisfaccion de estudiantes y familias</span>
               </article>
               <article>
-                <strong>12</strong>
+                <strong></strong>
                 <span>Eventos institucionales de alto impacto cada semestre</span>
               </article>
             </div>
