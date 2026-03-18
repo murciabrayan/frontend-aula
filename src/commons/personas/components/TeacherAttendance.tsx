@@ -53,6 +53,18 @@ const TeacherAttendance: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const summary = students.reduce(
+    (acc, student) => {
+      acc.total += 1;
+      if (student.local_status === "PRESENT") acc.present += 1;
+      if (student.local_status === "ABSENT") acc.absent += 1;
+      if (student.local_status === "LATE") acc.late += 1;
+      if (student.is_justified) acc.justified += 1;
+      return acc;
+    },
+    { total: 0, present: 0, absent: 0, late: 0, justified: 0 },
+  );
+
   const openDatePicker = () => {
     const input = dateInputRef.current;
     if (!input) return;
@@ -254,6 +266,25 @@ const TeacherAttendance: React.FC = () => {
           </div>
         </div>
       )}
+
+      <div className="attendance-summary-grid">
+        <div className="attendance-summary-card">
+          <span>Total estudiantes</span>
+          <strong>{summary.total}</strong>
+        </div>
+        <div className="attendance-summary-card present">
+          <span>Presentes</span>
+          <strong>{summary.present}</strong>
+        </div>
+        <div className="attendance-summary-card absent">
+          <span>Ausentes</span>
+          <strong>{summary.absent}</strong>
+        </div>
+        <div className="attendance-summary-card late">
+          <span>Tardanzas</span>
+          <strong>{summary.late}</strong>
+        </div>
+      </div>
 
       {successMessage && (
         <div className="attendance-message success">{successMessage}</div>
