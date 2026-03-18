@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://127.0.0.1:8000/api/notifications";
+const API_BASE = "http://127.0.0.1:8000/api";
 
 export interface Notification {
   id: number;
@@ -18,7 +18,7 @@ const getAuthHeaders = () => {
 };
 
 export const getNotifications = async (): Promise<Notification[]> => {
-  const response = await axios.get<Notification[]>(`${API_BASE}/`, {
+  const response = await axios.get<Notification[]>(`${API_BASE}/mis-notificaciones/`, {
     headers: getAuthHeaders(),
   });
   return response.data;
@@ -26,7 +26,7 @@ export const getNotifications = async (): Promise<Notification[]> => {
 
 export const markAsRead = async (id: number) => {
   const response = await axios.patch(
-    `${API_BASE}/${id}/`,
+    `${API_BASE}/notificaciones/${id}/`,
     { leida: true },
     {
       headers: getAuthHeaders(),
@@ -36,7 +36,7 @@ export const markAsRead = async (id: number) => {
 };
 
 export const deleteNotification = async (id: number) => {
-  const response = await axios.delete(`${API_BASE}/${id}/`, {
+  const response = await axios.delete(`${API_BASE}/notificaciones/${id}/`, {
     headers: getAuthHeaders(),
   });
   return response.data;
