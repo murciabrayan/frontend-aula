@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { FiEye, FiUpload } from "react-icons/fi";
+import { Download, Eye, PencilLine } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
 
 const API_BASE = "http://127.0.0.1:8000/api";
@@ -20,18 +20,23 @@ interface Submission {
   retroalimentacion?: string | null;
 }
 
+const formatDateTime = (value: string) => {
+  try {
+    return new Date(value).toLocaleString("es-CO");
+  } catch {
+    return value;
+  }
+};
+
 const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
   const { showToast } = useFeedback();
   const token = localStorage.getItem("access_token");
 
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
-
   const [grade, setGrade] = useState("");
   const [feedback, setFeedback] = useState("");
-
   const [saving, setSaving] = useState(false);
 
   const loadSubmissions = async () => {
@@ -43,8 +48,8 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
       });
 
       setSubmissions(res.data || []);
-    } catch (err) {
-      console.error("Error cargando entregas", err);
+    } catch (error) {
+      console.error("Error cargando entregas", error);
     } finally {
       setLoading(false);
     }
@@ -54,20 +59,22 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
     loadSubmissions();
   }, [assignmentId]);
 
-  const orderedSubmissions = useMemo(() => {
-    return [...submissions].sort((a, b) =>
-      a.estudiante_nombre.localeCompare(b.estudiante_nombre, "es", {
-        sensitivity: "base",
-      })
-    );
-  }, [submissions]);
+  const orderedSubmissions = useMemo(
+    () =>
+      [...submissions].sort((a, b) =>
+        a.estudiante_nombre.localeCompare(b.estudiante_nombre, "es", {
+          sensitivity: "base",
+        }),
+      ),
+    [submissions],
+  );
 
   const openGradeModal = (submission: Submission) => {
     setSelectedSubmission(submission);
     setGrade(
       submission.calificacion !== null && submission.calificacion !== undefined
         ? String(submission.calificacion)
-        : ""
+        : "",
     );
     setFeedback(submission.retroalimentacion || "");
   };
@@ -86,7 +93,7 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       await loadSubmissions();
@@ -97,8 +104,8 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
         message: "La calificacion se guardo correctamente.",
       });
       setSelectedSubmission(null);
-    } catch (err) {
-      console.error("Error guardando calificación", err);
+    } catch (error) {
+      console.error("Error guardando calificacion", error);
       showToast({
         type: "error",
         title: "Calificacion",
@@ -110,37 +117,33 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
   };
 
   return (
-    <div className="section-block">
-      <div className="section-block-header">
+    <div className="teacher-submission-panel">
+      <div className="teacher-submission-panel__head">
         <h3>Entregas de estudiantes</h3>
-        <p>Consulta archivos, fechas y registra calificaciones.</p>
+        <p>Consulta archivos, fechas y registra calificaciones con un flujo mas claro.</p>
       </div>
 
       {loading ? (
-        <div className="empty-state-box">Cargando entregas...</div>
+        <div className="teacher-task-empty">Cargando entregas...</div>
       ) : orderedSubmissions.length === 0 ? (
-        <div className="empty-state-box">
-          Aún no hay entregas para esta tarea.
-        </div>
+        <div className="teacher-task-empty">Aun no hay entregas para esta tarea.</div>
       ) : (
-        <div className="teacher-table-wrapper">
-          <table className="teacher-data-table">
+        <div className="teacher-submission-table-wrap">
+          <table className="teacher-submission-table">
             <thead>
               <tr>
                 <th>Estudiante</th>
                 <th>Archivo</th>
                 <th>Fecha de entrega</th>
                 <th>Nota</th>
-                <th>Retroalimentación</th>
-                <th>Acción</th>
+                <th>Retroalimentacion</th>
+                <th>Accion</th>
               </tr>
             </thead>
             <tbody>
               {orderedSubmissions.map((submission) => (
                 <tr key={submission.id}>
-                  <td className="table-title-cell">
-                    {submission.estudiante_nombre}
-                  </td>
+                  <td className="teacher-task-table__title">{submission.estudiante_nombre}</td>
 
                   <td>
                     {submission.archivo ? (
@@ -148,39 +151,40 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
                         href={submission.archivo}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="table-file-link"
+                        className="teacher-file-link"
                       >
-                        <FiUpload size={14} />
+                        <Download size={14} />
                         Ver archivo
                       </a>
                     ) : (
-                      <span className="muted-cell">Sin archivo</span>
+                      <span className="teacher-muted">Sin archivo</span>
                     )}
                   </td>
 
-                  <td>{new Date(submission.fecha_entrega).toLocaleString()}</td>
+                  <td>{formatDateTime(submission.fecha_entrega)}</td>
 
                   <td>
                     {submission.calificacion !== null &&
                     submission.calificacion !== undefined ? (
-                      <span className="grade-chip">
+                      <span className="teacher-grade-chip">
                         {Number(submission.calificacion).toFixed(1)}
                       </span>
                     ) : (
-                      <span className="muted-cell">Sin calificar</span>
+                      <span className="teacher-muted">Sin calificar</span>
                     )}
                   </td>
 
-                  <td className="table-description-cell">
-                    {submission.retroalimentacion || "—"}
+                  <td className="teacher-task-table__description">
+                    {submission.retroalimentacion || "Sin observaciones"}
                   </td>
 
                   <td>
                     <button
-                      className="table-primary-btn"
+                      type="button"
+                      className="teacher-task-action-btn primary"
                       onClick={() => openGradeModal(submission)}
                     >
-                      <FiEye size={14} />
+                      <PencilLine size={15} />
                       {submission.calificacion !== null &&
                       submission.calificacion !== undefined
                         ? "Editar"
@@ -195,24 +199,27 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
       )}
 
       {selectedSubmission && (
-        <div className="modal-backdrop">
-          <div className="modal-premium">
-            <div className="modal-header-fixed">
-              <h2>Calificar entrega</h2>
+        <div className="teacher-task-modal-backdrop layer-2">
+          <div className="teacher-task-modal form">
+            <div className="teacher-task-modal__header">
+              <div className="teacher-task-modal__headline">
+                <span>Calificacion</span>
+                <h2>{selectedSubmission.estudiante_nombre}</h2>
+              </div>
               <button
-                className="close-btn"
+                type="button"
+                className="teacher-task-close-btn"
                 onClick={() => setSelectedSubmission(null)}
+                aria-label="Cerrar calificacion"
               >
-                ✕
+                ×
               </button>
             </div>
 
-            <div className="modal-body">
-              <div className="submission-student-box">
-                <strong>{selectedSubmission.estudiante_nombre}</strong>
-                <span>
-                  {new Date(selectedSubmission.fecha_entrega).toLocaleString()}
-                </span>
+            <div className="teacher-task-modal__body teacher-grade-modal__body">
+              <div className="teacher-grade-modal__student">
+                <strong>Entrega recibida</strong>
+                <span>{formatDateTime(selectedSubmission.fecha_entrega)}</span>
               </div>
 
               {selectedSubmission.archivo && (
@@ -220,15 +227,15 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
                   href={selectedSubmission.archivo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="table-file-link file-link-large"
+                  className="teacher-file-link large"
                 >
-                  <FiUpload size={15} />
+                  <Eye size={15} />
                   Abrir archivo entregado
                 </a>
               )}
 
               <div className="teacher-grade-form">
-                <label>Calificación</label>
+                <label>Calificacion</label>
                 <input
                   type="number"
                   min="0"
@@ -239,7 +246,7 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
                   placeholder="Ej: 4.5"
                 />
 
-                <label>Retroalimentación</label>
+                <label>Retroalimentacion</label>
                 <textarea
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
@@ -248,15 +255,21 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
               </div>
             </div>
 
-            <div className="modal-footer">
+            <div className="teacher-task-modal__footer">
               <button
-                className="btn-secondary"
+                type="button"
+                className="teacher-btn-secondary"
                 onClick={() => setSelectedSubmission(null)}
               >
                 Cancelar
               </button>
-              <button className="btn-primary" onClick={saveGrade} disabled={saving}>
-                {saving ? "Guardando..." : "Guardar calificación"}
+              <button
+                type="button"
+                className="teacher-btn-primary"
+                onClick={saveGrade}
+                disabled={saving}
+              >
+                {saving ? "Guardando..." : "Guardar calificacion"}
               </button>
             </div>
           </div>

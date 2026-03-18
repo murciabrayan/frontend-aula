@@ -1,13 +1,18 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import {
+  BookOpen,
+  ChevronRight,
+  Eye,
+  Pencil,
+  PlusCircle,
+  Trash2,
+} from "lucide-react";
 import AssignmentForm from "./AssignmentForm";
 import SubmissionList from "./SubmissionList";
-import { FiBookOpen, FiTrash2, FiEdit2, FiEye } from "react-icons/fi";
 import "./teacherAssignments.css";
 
 const API_BASE = "http://127.0.0.1:8000/api";
-
-/* ================= TIPOS ================= */
 
 interface Area {
   id: number;
@@ -18,7 +23,6 @@ interface Subject {
   id: number;
   nombre: string;
   area?: number | null;
-  area_nombre?: string;
 }
 
 interface Assignment {
@@ -34,29 +38,17 @@ interface Course {
   name: string;
 }
 
-/* ================= COMPONENT ================= */
-
 const AssignmentDashboard: React.FC = () => {
   const [course, setCourse] = useState<Course | null>(null);
-
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
-
   const [activeSubject, setActiveSubject] = useState<Subject | null>(null);
-
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [selectedAssignment, setSelectedAssignment] =
-    useState<Assignment | null>(null);
-
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [mode, setMode] = useState<"create" | "grade">("create");
-
-  const [editingAssignment, setEditingAssignment] =
-    useState<Assignment | null>(null);
-
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [assignmentToDelete, setAssignmentToDelete] =
-    useState<Assignment | null>(null);
-
+  const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -93,15 +85,28 @@ const AssignmentDashboard: React.FC = () => {
       })
       .then((res) =>
         setAssignments(
-          res.data.map((a: any) => ({
-            id: a.id,
-            titulo: a.titulo,
-            descripcion: a.descripcion ?? "",
-            fecha_entrega: a.fecha_entrega ?? "",
-            periodo: a.periodo ?? 1,
-          }))
-        )
+          res.data.map((assignment: any) => ({
+            id: assignment.id,
+            titulo: assignment.titulo,
+            descripcion: assignment.descripcion ?? "",
+            fecha_entrega: assignment.fecha_entrega ?? "",
+            periodo: assignment.periodo ?? 1,
+          })),
+        ),
       );
+  };
+
+  const openSubject = (subject: Subject) => {
+    setActiveSubject(subject);
+    setMode("create");
+    setSelectedAssignment(null);
+    loadAssignments(subject.id);
+  };
+
+  const closeSubjectModal = () => {
+    setActiveSubject(null);
+    setSelectedAssignment(null);
+    setEditingAssignment(null);
   };
 
   const confirmDelete = async () => {
@@ -111,139 +116,188 @@ const AssignmentDashboard: React.FC = () => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (activeSubject) loadAssignments(activeSubject.id);
+    if (activeSubject) {
+      loadAssignments(activeSubject.id);
+    }
 
     setShowConfirm(false);
     setAssignmentToDelete(null);
     setSelectedAssignment(null);
-
     setSuccessMessage("Tarea eliminada exitosamente");
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 1400);
   };
 
-  const groupedSubjects = useMemo(() => {
-    return areas.map((area) => ({
-      area,
-      subjects: subjects.filter((s) => s.area === area.id),
-    }));
-  }, [areas, subjects]);
+  const groupedSubjects = useMemo(
+    () =>
+      areas.map((area) => ({
+        area,
+        subjects: subjects.filter((subject) => subject.area === area.id),
+      })),
+    [areas, subjects],
+  );
 
-  const subjectsWithoutArea = useMemo(
-    () => subjects.filter((s) => !s.area),
-    [subjects]
+  const subjectsWithoutArea = useMemo(() => subjects.filter((subject) => !subject.area), [subjects]);
+
+  const stats = useMemo(
+    () => ({
+      areas: areas.length,
+      subjects: subjects.length,
+      activities: assignments.length,
+      currentCourse: course?.name || "Curso activo",
+    }),
+    [areas.length, subjects.length, assignments.length, course?.name],
   );
 
   const periodoLabel = (periodo: number) => `Periodo ${periodo}`;
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>{course?.name || "Curso"}</h1>
-        <p>Panel de gestión académica</p>
-      </header>
+    <section className="teacher-task-page">
+      <div className="teacher-task-hero">
+        <div className="teacher-task-hero__copy">
+          <span className="teacher-task-hero__badge">Gestion de tareas</span>
+          <h1>{course?.name || "Curso activo"}</h1>
+          <p>
+            Organiza las materias del curso, crea nuevas actividades y revisa entregas
+            con una vista mucho mas clara para calificar.
+          </p>
+        </div>
 
-      <div className="areas-wrapper">
-        {groupedSubjects.map(({ area, subjects }) => (
-          <div key={area.id} className="area-card">
-            <div className="area-title">{area.nombre}</div>
+        <div className="teacher-task-hero__stats">
+          <article className="teacher-task-hero__stat">
+            <span>Curso</span>
+            <strong>{stats.currentCourse}</strong>
+          </article>
+          <article className="teacher-task-hero__stat">
+            <span>Areas</span>
+            <strong>{stats.areas}</strong>
+          </article>
+          <article className="teacher-task-hero__stat">
+            <span>Materias</span>
+            <strong>{stats.subjects}</strong>
+          </article>
+          <article className="teacher-task-hero__stat">
+            <span>Tareas materia activa</span>
+            <strong>{stats.activities}</strong>
+          </article>
+        </div>
+      </div>
 
-            <div className="area-subjects">
-              {subjects.length === 0 && (
-                <div className="empty-area">Sin materias</div>
-              )}
+      <div className="teacher-task-section-head">
+        <h3>Materias del curso</h3>
+        <p>Abre una materia para crear actividades o revisar entregas ya registradas.</p>
+      </div>
 
-              {subjects.map((s) => (
-                <div
-                  key={s.id}
-                  className="subject-card"
-                  onClick={() => {
-                    setActiveSubject(s);
-                    loadAssignments(s.id);
-                    setMode("create");
-                    setSelectedAssignment(null);
-                  }}
-                >
-                  <div className="subject-icon">
-                    <FiBookOpen size={22} />
-                  </div>
-                  <span>{s.nombre}</span>
-                </div>
-              ))}
+      <div className="teacher-task-areas">
+        {groupedSubjects.map(({ area, subjects: areaSubjects }) => (
+          <article key={area.id} className="teacher-task-area-card">
+            <div className="teacher-task-area-card__top">
+              <span className="teacher-task-area-card__pill">Area</span>
+              <strong>{area.nombre}</strong>
             </div>
-          </div>
+
+            <div className="teacher-task-subject-grid">
+              {areaSubjects.length === 0 ? (
+                <div className="teacher-task-empty-area">Sin materias en esta area.</div>
+              ) : (
+                areaSubjects.map((subject) => (
+                  <button
+                    key={subject.id}
+                    type="button"
+                    className="teacher-task-subject-card"
+                    onClick={() => openSubject(subject)}
+                  >
+                    <div className="teacher-task-subject-card__icon">
+                      <BookOpen size={20} />
+                    </div>
+                    <div className="teacher-task-subject-card__copy">
+                      <strong>{subject.nombre}</strong>
+                      <span>Abrir espacio de trabajo</span>
+                    </div>
+                    <ChevronRight size={18} />
+                  </button>
+                ))
+              )}
+            </div>
+          </article>
         ))}
 
         {subjectsWithoutArea.length > 0 && (
-          <div className="area-card">
-            <div className="area-title">Sin área</div>
+          <article className="teacher-task-area-card">
+            <div className="teacher-task-area-card__top">
+              <span className="teacher-task-area-card__pill">Libre</span>
+              <strong>Materias sin area</strong>
+            </div>
 
-            <div className="area-subjects">
-              {subjectsWithoutArea.map((s) => (
-                <div
-                  key={s.id}
-                  className="subject-card"
-                  onClick={() => {
-                    setActiveSubject(s);
-                    loadAssignments(s.id);
-                    setMode("create");
-                    setSelectedAssignment(null);
-                  }}
+            <div className="teacher-task-subject-grid">
+              {subjectsWithoutArea.map((subject) => (
+                <button
+                  key={subject.id}
+                  type="button"
+                  className="teacher-task-subject-card"
+                  onClick={() => openSubject(subject)}
                 >
-                  <div className="subject-icon">
-                    <FiBookOpen size={22} />
+                  <div className="teacher-task-subject-card__icon">
+                    <BookOpen size={20} />
                   </div>
-                  <span>{s.nombre}</span>
-                </div>
+                  <div className="teacher-task-subject-card__copy">
+                    <strong>{subject.nombre}</strong>
+                    <span>Abrir espacio de trabajo</span>
+                  </div>
+                  <ChevronRight size={18} />
+                </button>
               ))}
             </div>
-          </div>
+          </article>
         )}
       </div>
 
       {activeSubject && (
-        <div className="modal-backdrop">
-          <div
-            className={`modal-premium ${
-              mode === "grade" ? "modal-premium-ultrawide" : "modal-premium-form"
-            }`}
-          >
-            <div className="modal-header-fixed">
-              <h2>{activeSubject.nombre}</h2>
+        <div className="teacher-task-modal-backdrop">
+          <div className={`teacher-task-modal ${mode === "create" ? "form" : ""}`}>
+            <div className="teacher-task-modal__header">
+              <div className="teacher-task-modal__headline">
+                <span>Materia activa</span>
+                <h2>{activeSubject.nombre}</h2>
+              </div>
 
-              <div className="modal-actions">
-                <button
-                  className={mode === "create" ? "active" : ""}
-                  onClick={() => setMode("create")}
-                >
-                  Subir tarea
-                </button>
+              <div className="teacher-task-modal__header-actions">
+                <div className="teacher-task-mode-switch">
+                  <button
+                    type="button"
+                    className={mode === "create" ? "active" : ""}
+                    onClick={() => setMode("create")}
+                  >
+                    <PlusCircle size={16} />
+                    Crear tarea
+                  </button>
+                  <button
+                    type="button"
+                    className={mode === "grade" ? "active" : ""}
+                    onClick={() => setMode("grade")}
+                  >
+                    <Eye size={16} />
+                    Revisar entregas
+                  </button>
+                </div>
 
                 <button
-                  className={mode === "grade" ? "active" : ""}
-                  onClick={() => setMode("grade")}
+                  type="button"
+                  className="teacher-task-close-btn"
+                  onClick={closeSubjectModal}
+                  aria-label="Cerrar modal"
                 >
-                  Calificar
-                </button>
-
-                <button
-                  className="close-btn"
-                  onClick={() => {
-                    setActiveSubject(null);
-                    setSelectedAssignment(null);
-                  }}
-                >
-                  ✕
+                  ×
                 </button>
               </div>
             </div>
 
-            <div className="modal-body">
+            <div className="teacher-task-modal__body">
               {mode === "create" && (
-                <div className="assignment-form-shell">
+                <div className="teacher-task-form-shell">
                   <AssignmentForm
                     subjectId={activeSubject.id}
-                    onClose={() => setActiveSubject(null)}
+                    onClose={closeSubjectModal}
                     onSuccess={() => {
                       loadAssignments(activeSubject.id);
                       setSuccessMessage("Tarea creada exitosamente");
@@ -258,81 +312,76 @@ const AssignmentDashboard: React.FC = () => {
               )}
 
               {mode === "grade" && (
-                <div className="section-block">
-                  <div className="section-block-header">
+                <div className="teacher-task-panel">
+                  <div className="teacher-task-panel__head">
                     <h3>Tareas creadas</h3>
-                    <p>Haz clic en una fila para ver las entregas de esa tarea.</p>
+                    <p>
+                      Selecciona una actividad para abrir sus entregas y calificar sin
+                      salir del flujo.
+                    </p>
                   </div>
 
                   {assignments.length === 0 ? (
-                    <div className="empty-state-box">
+                    <div className="teacher-task-empty">
                       No hay tareas creadas en esta materia.
                     </div>
                   ) : (
-                    <div className="teacher-table-wrapper">
-                      <table className="teacher-data-table">
+                    <div className="teacher-task-table-wrap">
+                      <table className="teacher-task-table">
                         <thead>
                           <tr>
-                            <th>Título</th>
+                            <th>Titulo</th>
                             <th>Periodo</th>
                             <th>Fecha de entrega</th>
-                            <th>Descripción</th>
-                            <th>Ver entregas</th>
+                            <th>Descripcion</th>
+                            <th>Entregas</th>
                             <th>Acciones</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {assignments.map((a) => (
-                            <tr
-                              key={a.id}
-                              className="clickable-row"
-                              onClick={() => setSelectedAssignment(a)}
-                            >
-                              <td className="table-title-cell">{a.titulo}</td>
+                          {assignments.map((assignment) => (
+                            <tr key={assignment.id}>
+                              <td className="teacher-task-table__title">{assignment.titulo}</td>
                               <td>
-                                <span className="assignment-period-badge table-badge">
-                                  {periodoLabel(a.periodo)}
+                                <span className="teacher-task-period-badge">
+                                  {periodoLabel(assignment.periodo)}
                                 </span>
                               </td>
-                              <td>{a.fecha_entrega}</td>
-                              <td className="table-description-cell">
-                                {a.descripcion || "Sin descripción"}
+                              <td>{assignment.fecha_entrega}</td>
+                              <td className="teacher-task-table__description">
+                                {assignment.descripcion || "Sin descripcion"}
                               </td>
                               <td>
                                 <button
-                                  className="table-primary-btn"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedAssignment(a);
-                                  }}
+                                  type="button"
+                                  className="teacher-task-action-btn primary"
+                                  onClick={() => setSelectedAssignment(assignment)}
                                 >
-                                  <FiEye size={14} />
+                                  <Eye size={15} />
                                   Ver
                                 </button>
                               </td>
                               <td>
-                                <div className="table-actions">
+                                <div className="teacher-task-table__actions">
                                   <button
-                                    className="icon-action-btn edit"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setEditingAssignment(a);
-                                    }}
-                                    title="Editar tarea"
+                                    type="button"
+                                    className="teacher-task-action-btn edit"
+                                    onClick={() => setEditingAssignment(assignment)}
                                   >
-                                    <FiEdit2 size={16} />
+                                    <Pencil size={15} />
+                                    Editar
                                   </button>
 
                                   <button
-                                    className="icon-action-btn delete"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setAssignmentToDelete(a);
+                                    type="button"
+                                    className="teacher-task-action-btn delete"
+                                    onClick={() => {
+                                      setAssignmentToDelete(assignment);
                                       setShowConfirm(true);
                                     }}
-                                    title="Eliminar tarea"
                                   >
-                                    <FiTrash2 size={16} />
+                                    <Trash2 size={15} />
+                                    Eliminar
                                   </button>
                                 </div>
                               </td>
@@ -350,19 +399,24 @@ const AssignmentDashboard: React.FC = () => {
       )}
 
       {selectedAssignment && (
-        <div className="modal-backdrop modal-layer-2">
-          <div className="modal-premium modal-premium-ultrawide">
-            <div className="modal-header-fixed">
-              <h2>Entregas · {selectedAssignment.titulo}</h2>
+        <div className="teacher-task-modal-backdrop layer-2">
+          <div className="teacher-task-modal">
+            <div className="teacher-task-modal__header">
+              <div className="teacher-task-modal__headline">
+                <span>Entregas</span>
+                <h2>{selectedAssignment.titulo}</h2>
+              </div>
               <button
-                className="close-btn"
+                type="button"
+                className="teacher-task-close-btn"
                 onClick={() => setSelectedAssignment(null)}
+                aria-label="Cerrar entregas"
               >
-                ✕
+                ×
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="teacher-task-modal__body">
               <SubmissionList assignmentId={selectedAssignment.id} />
             </div>
           </div>
@@ -370,20 +424,25 @@ const AssignmentDashboard: React.FC = () => {
       )}
 
       {editingAssignment && activeSubject && (
-        <div className="modal-backdrop modal-layer-2">
-          <div className="modal-premium modal-premium-form">
-            <div className="modal-header-fixed">
-              <h2>Editar tarea</h2>
+        <div className="teacher-task-modal-backdrop layer-2">
+          <div className="teacher-task-modal form">
+            <div className="teacher-task-modal__header">
+              <div className="teacher-task-modal__headline">
+                <span>Edicion</span>
+                <h2>Actualizar tarea</h2>
+              </div>
               <button
-                className="close-btn"
+                type="button"
+                className="teacher-task-close-btn"
                 onClick={() => setEditingAssignment(null)}
+                aria-label="Cerrar edicion"
               >
-                ✕
+                ×
               </button>
             </div>
 
-            <div className="modal-body">
-              <div className="assignment-form-shell">
+            <div className="teacher-task-modal__body">
+              <div className="teacher-task-form-shell">
                 <AssignmentForm
                   subjectId={activeSubject.id}
                   assignmentToEdit={editingAssignment}
@@ -403,19 +462,21 @@ const AssignmentDashboard: React.FC = () => {
       )}
 
       {showConfirm && assignmentToDelete && (
-        <div className="confirm-backdrop">
-          <div className="confirm-modal">
-            <h3>¿Eliminar tarea?</h3>
+        <div className="teacher-confirm-backdrop">
+          <div className="teacher-confirm-modal">
+            <h3>Eliminar tarea</h3>
             <p>
-              Estás a punto de eliminar <strong>{assignmentToDelete.titulo}</strong>.
+              Esta accion eliminara <strong>{assignmentToDelete.titulo}</strong> y sus
+              entregas asociadas.
             </p>
 
-            <div className="confirm-actions">
-              <button className="btn-danger" onClick={confirmDelete}>
-                Sí, eliminar
+            <div className="teacher-confirm-actions">
+              <button type="button" className="teacher-btn-danger" onClick={confirmDelete}>
+                Eliminar
               </button>
               <button
-                className="btn-secondary"
+                type="button"
+                className="teacher-btn-secondary"
                 onClick={() => {
                   setShowConfirm(false);
                   setAssignmentToDelete(null);
@@ -429,14 +490,14 @@ const AssignmentDashboard: React.FC = () => {
       )}
 
       {showSuccess && (
-        <div className="success-backdrop">
-          <div className="success-modal">
-            <div className="success-icon">✓</div>
+        <div className="teacher-success-backdrop">
+          <div className="teacher-success-modal">
+            <div className="teacher-success-icon">✓</div>
             <h3>{successMessage}</h3>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

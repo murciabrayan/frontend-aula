@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { FiBookOpen } from "react-icons/fi";
+import { BookOpen, ChevronRight, LayoutGrid, Users } from "lucide-react";
 import "../styles/teacherGrades.css";
 
 const API_BASE = "http://127.0.0.1:8000/api";
@@ -17,7 +17,6 @@ interface Assignment {
   fecha_entrega: string;
   materia: number;
   periodo: number;
-  periodo_nombre?: string;
 }
 
 interface Submission {
@@ -46,11 +45,9 @@ const TeacherGrades: React.FC = () => {
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
-
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [students, setStudents] = useState<User[]>([]);
-
   const [selectedPeriod, setSelectedPeriod] = useState<number>(1);
   const [loading, setLoading] = useState(true);
 
@@ -70,8 +67,8 @@ const TeacherGrades: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSubjects(res.data);
-    } catch (err) {
-      console.error("Error cargando materias", err);
+    } catch (error) {
+      console.error("Error cargando materias", error);
     } finally {
       setLoading(false);
     }
@@ -81,112 +78,158 @@ const TeacherGrades: React.FC = () => {
     try {
       setSelectedSubject(subject);
 
-      const [assignmentsRes, submissionsRes, courseRes, usersRes] =
-        await Promise.all([
-          axios.get(
-            `${API_BASE}/assignments/?subject=${subject.id}&periodo=${period}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          ),
-          axios.get(`${API_BASE}/submissions/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${API_BASE}/courses/teacher/course/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${API_BASE}/users/`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+      const [assignmentsRes, submissionsRes, courseRes, usersRes] = await Promise.all([
+        axios.get(`${API_BASE}/assignments/?subject=${subject.id}&periodo=${period}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${API_BASE}/submissions/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${API_BASE}/courses/teacher/course/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${API_BASE}/users/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
       const subjectAssignments: Assignment[] = assignmentsRes.data || [];
       const allSubmissions: Submission[] = submissionsRes.data || [];
       const teacherCourse: Course = courseRes.data;
       const allUsers: User[] = usersRes.data || [];
 
-      const assignmentIds = subjectAssignments.map((a) => a.id);
-
-      const filteredSubmissions = allSubmissions.filter((s) =>
-        assignmentIds.includes(s.tarea)
+      const assignmentIds = subjectAssignments.map((assignment) => assignment.id);
+      const filteredSubmissions = allSubmissions.filter((submission) =>
+        assignmentIds.includes(submission.tarea),
       );
 
       const courseStudents = allUsers.filter(
-        (u) => teacherCourse.students.includes(u.id) && u.role === "STUDENT"
+        (user) => teacherCourse.students.includes(user.id) && user.role === "STUDENT",
       );
 
       setAssignments(subjectAssignments);
       setSubmissions(filteredSubmissions);
       setStudents(courseStudents);
-    } catch (err) {
-      console.error("Error cargando notas", err);
+    } catch (error) {
+      console.error("Error cargando notas", error);
     }
   };
 
   const gradeMap = useMemo(() => {
     const map: Record<string, number | null> = {};
 
-    submissions.forEach((s) => {
-      map[`${s.estudiante}-${s.tarea}`] =
-        s.calificacion !== null && s.calificacion !== undefined
-          ? Number(s.calificacion)
+    submissions.forEach((submission) => {
+      map[`${submission.estudiante}-${submission.tarea}`] =
+        submission.calificacion !== null && submission.calificacion !== undefined
+          ? Number(submission.calificacion)
           : null;
     });
 
     return map;
   }, [submissions]);
 
+  const subjectStats = useMemo(
+    () => ({
+      subjects: subjects.length,
+      students: students.length,
+      assignments: assignments.length,
+    }),
+    [subjects.length, students.length, assignments.length],
+  );
+
   if (loading) {
-    return <p>Cargando materias...</p>;
+    return <div className="teacher-grades-empty">Cargando materias...</div>;
   }
 
   return (
-    <div className="teacher-grades-container">
+    <section className="teacher-grades-page">
       {!selectedSubject ? (
         <>
-          <header className="teacher-grades-page-header">
-            <h1>Notas por Materia</h1>
-            <p>Selecciona una materia para ver la tabla de calificaciones</p>
-          </header>
+          <div className="teacher-grades-hero">
+            <div className="teacher-grades-hero__copy">
+              <span className="teacher-grades-hero__badge">Notas</span>
+              <h1>Vista academica por materia</h1>
+              <p>
+                Selecciona una materia para revisar la matriz de calificaciones por
+                estudiante y periodo en una vista mas limpia.
+              </p>
+            </div>
 
-          <div className="teacher-subjects-grid">
+            <div className="teacher-grades-hero__stats">
+              <article className="teacher-grades-hero__stat">
+                <span>Materias</span>
+                <strong>{subjectStats.subjects}</strong>
+              </article>
+              <article className="teacher-grades-hero__stat">
+                <span>Curso</span>
+                <strong>Activo</strong>
+              </article>
+            </div>
+          </div>
+
+          <div className="teacher-grades-grid">
             {subjects.map((subject) => (
-              <div
+              <button
                 key={subject.id}
-                className="teacher-subject-card"
+                type="button"
+                className="teacher-grades-subject-card"
                 onClick={() => {
                   setSelectedPeriod(1);
                   loadGradeData(subject, 1);
                 }}
               >
-                <div className="teacher-subject-icon">
-                  <FiBookOpen size={24} />
+                <div className="teacher-grades-subject-card__icon">
+                  <BookOpen size={22} />
                 </div>
-                <div className="teacher-subject-name">{subject.nombre}</div>
-              </div>
+                <div className="teacher-grades-subject-card__copy">
+                  <strong>{subject.nombre}</strong>
+                  <span>Ver matriz de notas</span>
+                </div>
+                <ChevronRight size={18} />
+              </button>
             ))}
           </div>
         </>
       ) : (
         <>
-          <header className="teacher-grades-page-header">
-            <h1>{selectedSubject.nombre}</h1>
-            <p>Tabla de estudiantes y calificaciones por actividad</p>
-          </header>
+          <div className="teacher-grades-hero compact">
+            <div className="teacher-grades-hero__copy">
+              <span className="teacher-grades-hero__badge">Materia activa</span>
+              <h1>{selectedSubject.nombre}</h1>
+              <p>
+                Consulta las notas registradas para el periodo y el avance del curso
+                por actividad.
+              </p>
+            </div>
 
-          <div className="teacher-grades-topbar">
+            <div className="teacher-grades-hero__stats">
+              <article className="teacher-grades-hero__stat">
+                <span>Estudiantes</span>
+                <strong>{subjectStats.students}</strong>
+              </article>
+              <article className="teacher-grades-hero__stat">
+                <span>Actividades</span>
+                <strong>{subjectStats.assignments}</strong>
+              </article>
+            </div>
+          </div>
+
+          <div className="teacher-grades-toolbar">
             <button
-              className="teacher-back-btn"
+              type="button"
+              className="teacher-grades-back-btn"
               onClick={() => setSelectedSubject(null)}
             >
-              ← Volver a materias
+              <LayoutGrid size={16} />
+              Volver a materias
             </button>
 
-            <div className="teacher-period-tabs">
+            <div className="teacher-grades-period-tabs">
               {[1, 2, 3, 4].map((period) => (
                 <button
                   key={period}
-                  className={`teacher-period-btn ${
+                  type="button"
+                  className={`teacher-grades-period-btn ${
                     selectedPeriod === period ? "active" : ""
                   }`}
                   onClick={() => setSelectedPeriod(period)}
@@ -197,71 +240,92 @@ const TeacherGrades: React.FC = () => {
             </div>
           </div>
 
-          <div className="grades-table-wrapper">
-            <table className="grades-excel-table">
-              <thead>
-                <tr>
-                  <th className="student-col">Estudiante</th>
-                  {assignments.map((assignment) => (
-                    <th key={assignment.id} className="assignment-col">
-                      <div className="assignment-title">{assignment.titulo}</div>
-                      <div className="assignment-date">
-                        {assignment.fecha_entrega}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+          <div className="teacher-grades-summary-row">
+            <article className="teacher-grades-summary-card">
+              <span>Estudiantes activos</span>
+              <strong>{subjectStats.students}</strong>
+            </article>
+            <article className="teacher-grades-summary-card accent">
+              <span>Actividades del periodo</span>
+              <strong>{subjectStats.assignments}</strong>
+            </article>
+            <article className="teacher-grades-summary-card dark">
+              <span>Vista</span>
+              <strong>
+                <Users size={18} />
+                Matriz
+              </strong>
+            </article>
+          </div>
 
-              <tbody>
-                {students.length === 0 ? (
+          <div className="teacher-grades-table-shell">
+            <div className="teacher-grades-table-header">
+              <h3>Calificaciones del periodo</h3>
+              <p>
+                La tabla resume las actividades creadas y la nota registrada por
+                estudiante.
+              </p>
+            </div>
+
+            <div className="teacher-grades-table-wrapper">
+              <table className="teacher-grades-table">
+                <thead>
                   <tr>
-                    <td colSpan={assignments.length + 1}>
-                      No hay estudiantes en este curso.
-                    </td>
+                    <th className="student-col">Estudiante</th>
+                    {assignments.map((assignment) => (
+                      <th key={assignment.id} className="assignment-col">
+                        <div className="assignment-title">{assignment.titulo}</div>
+                        <div className="assignment-date">{assignment.fecha_entrega}</div>
+                      </th>
+                    ))}
                   </tr>
-                ) : assignments.length === 0 ? (
-                  <tr>
-                    <td colSpan={students.length + 1}>
-                      No hay actividades registradas en este periodo.
-                    </td>
-                  </tr>
-                ) : (
-                  students.map((student) => (
-                    <tr key={student.id}>
-                      <td className="student-name-cell">
-                        {student.first_name} {student.last_name}
-                      </td>
+                </thead>
 
-                      {assignments.map((assignment) => {
-                        const grade = gradeMap[`${student.id}-${assignment.id}`];
-
-                        const hasGrade =
-                          grade !== undefined &&
-                          grade !== null &&
-                          !isNaN(grade);
-
-                        return (
-                          <td key={assignment.id} className="grade-cell">
-                            <div
-                              className={`grade-box-teacher ${
-                                hasGrade ? "good" : "empty"
-                              }`}
-                            >
-                              {hasGrade ? Number(grade).toFixed(1) : "—"}
-                            </div>
-                          </td>
-                        );
-                      })}
+                <tbody>
+                  {students.length === 0 ? (
+                    <tr>
+                      <td colSpan={assignments.length + 1}>No hay estudiantes en este curso.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : assignments.length === 0 ? (
+                    <tr>
+                      <td colSpan={students.length + 1}>
+                        No hay actividades registradas en este periodo.
+                      </td>
+                    </tr>
+                  ) : (
+                    students.map((student) => (
+                      <tr key={student.id}>
+                        <td className="teacher-grades-student-cell">
+                          {student.first_name} {student.last_name}
+                        </td>
+
+                        {assignments.map((assignment) => {
+                          const grade = gradeMap[`${student.id}-${assignment.id}`];
+                          const hasGrade =
+                            grade !== undefined && grade !== null && !isNaN(grade);
+
+                          return (
+                            <td key={assignment.id} className="teacher-grades-grade-cell">
+                              <div
+                                className={`teacher-grades-grade-box ${
+                                  hasGrade ? "good" : "empty"
+                                }`}
+                              >
+                                {hasGrade ? Number(grade).toFixed(1) : "-"}
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}
-    </div>
+    </section>
   );
 };
 
