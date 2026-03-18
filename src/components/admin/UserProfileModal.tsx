@@ -50,6 +50,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   const { showToast, confirm } = useFeedback();
   const [formData, setFormData] = useState<EditableState>(buildStateFromUser(user));
   const [documents, setDocuments] = useState<UserDocument[]>(user.documents || []);
+  const [documentPreviewUrls, setDocumentPreviewUrls] = useState<Record<number, string>>({});
   const [documentTitle, setDocumentTitle] = useState("");
   const [documentCategory, setDocumentCategory] = useState("");
   const [documentFile, setDocumentFile] = useState<File | null>(null);
@@ -59,6 +60,46 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     setFormData(buildStateFromUser(user));
     setDocuments(user.documents || []);
   }, [user]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const objectUrls: string[] = [];
+
+    const loadPreviews = async () => {
+      const entries = await Promise.all(
+        documents.map(async (document) => {
+          if (!document.id || !document.file_url) return null;
+
+          try {
+            const response = await fetch(document.file_url);
+            const blob = await response.blob();
+            const objectUrl = window.URL.createObjectURL(blob);
+            objectUrls.push(objectUrl);
+            return [document.id, `${objectUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`] as const;
+          } catch (error) {
+            console.error("No se pudo generar la vista previa del documento:", error);
+            return null;
+          }
+        }),
+      );
+
+      if (!isMounted) return;
+
+      setDocumentPreviewUrls(
+        entries.reduce<Record<number, string>>((accumulator, entry) => {
+          if (entry) accumulator[entry[0]] = entry[1];
+          return accumulator;
+        }, {}),
+      );
+    };
+
+    void loadPreviews();
+
+    return () => {
+      isMounted = false;
+      objectUrls.forEach((objectUrl) => window.URL.revokeObjectURL(objectUrl));
+    };
+  }, [documents]);
 
   const token = localStorage.getItem("access") || localStorage.getItem("access_token");
 
@@ -438,34 +479,20 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                 documents.map((document) => (
                   <article key={document.id} className="user-document-card">
                     <div className="user-document-card__preview">
-                      <div className="user-document-card__sheet">
-                        <div className="user-document-card__paper">
-                          <div className="user-document-card__paper-fold" />
-                          <div className="user-document-card__paper-header">
-                            <div className="user-document-card__icon">
-                              <FileText size={24} />
-                            </div>
-                            <div className="user-document-card__sheet-meta">
-                              <strong>{document.title}</strong>
-                              <span>{document.category || "Documento institucional"}</span>
-                            </div>
+                      {document.id && documentPreviewUrls[document.id] ? (
+                        <iframe
+                          src={documentPreviewUrls[document.id]}
+                          title={`Vista previa de ${document.title}`}
+                        />
+                      ) : (
+                        <div className="user-document-card__sheet user-document-card__sheet--fallback">
+                          <div className="user-document-card__icon">
+                            <FileText size={24} />
                           </div>
-                          <div className="user-document-card__sheet-stamp-row">
-                            <div className="user-document-card__sheet-photo" />
-                            <div className="user-document-card__sheet-stamp" />
-                          </div>
-                          <div className="user-document-card__sheet-lines">
-                            <span />
-                            <span />
-                            <span />
-                            <span />
-                          </div>
-                          <div className="user-document-card__sheet-footer">
-                            <span />
-                            <span />
-                          </div>
+                          <strong>{document.title}</strong>
+                          <span>{document.category || "Documento institucional"}</span>
                         </div>
-                      </div>
+                      )}
                       <div className="user-document-card__preview-badge">
                         <FileText size={14} />
                         <span>PDF</span>
