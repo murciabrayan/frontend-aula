@@ -264,7 +264,10 @@ const StudentAssignmentsList: React.FC = () => {
                 <span className="student-task-modal__eyebrow">Materia activa</span>
                 <h2>{activeSubject.nombre}</h2>
               </div>
-              <button className="close-btn" onClick={() => setActiveSubject(null)}>
+              <button
+                className="student-task-modal__close-btn"
+                onClick={() => setActiveSubject(null)}
+              >
                 ×
               </button>
             </div>
@@ -384,7 +387,10 @@ const StudentAssignmentsList: React.FC = () => {
                     <span className="student-task-modal__eyebrow">Detalle de tarea</span>
                     <h3>{showDetails.titulo}</h3>
                   </div>
-                  <button className="close-btn" onClick={() => setShowDetails(null)}>
+                  <button
+                    className="student-task-modal__close-btn"
+                    onClick={() => setShowDetails(null)}
+                  >
                     ×
                   </button>
                 </div>
@@ -476,7 +482,10 @@ const StudentAssignmentsList: React.FC = () => {
                 <span className="student-task-modal__eyebrow">Entrega</span>
                 <h3>Subir archivo</h3>
               </div>
-              <button className="close-btn" onClick={() => setShowUpload(false)}>
+              <button
+                className="student-task-modal__close-btn"
+                onClick={() => setShowUpload(false)}
+              >
                 ×
               </button>
             </div>
@@ -518,7 +527,10 @@ const StudentAssignmentsList: React.FC = () => {
                 <span className="student-task-modal__eyebrow">Resultado</span>
                 <h3>Calificacion recibida</h3>
               </div>
-              <button className="close-btn" onClick={() => setShowGrade(null)}>
+              <button
+                className="student-task-modal__close-btn"
+                onClick={() => setShowGrade(null)}
+              >
                 ×
               </button>
             </div>
