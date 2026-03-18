@@ -80,6 +80,9 @@ const justificationLabel = (value: string) => {
   return "Sin justificar";
 };
 
+const isPdfFile = (file: File) =>
+  file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
 const AdminAttendance: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -658,9 +661,18 @@ const AdminAttendance: React.FC = () => {
                     <input
                       ref={fileInputRef}
                       type="file"
-                      onChange={(e) =>
-                        setSelectedFile(e.target.files?.[0] || null)
-                      }
+                      accept=".pdf,application/pdf"
+                      onChange={(e) => {
+                        const selectedFile = e.target.files?.[0] || null;
+                        if (selectedFile && !isPdfFile(selectedFile)) {
+                          setErrorMessage("Solo se permiten archivos PDF para los soportes.");
+                          e.currentTarget.value = "";
+                          setSelectedFile(null);
+                          return;
+                        }
+                        setErrorMessage("");
+                        setSelectedFile(selectedFile);
+                      }}
                     />
 
                     {currentRecord.attachment_url && !selectedFile && (

@@ -3,6 +3,9 @@ import axios from "axios";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
+const isPdfFile = (file: File) =>
+  file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
 interface Assignment {
   id: number;
   titulo: string;
@@ -146,10 +149,21 @@ const AssignmentForm: React.FC<Props> = ({
       </div>
 
       <div className="form-group">
-        <label>Archivo (opcional)</label>
+        <label>Archivo PDF (opcional)</label>
         <input
           type="file"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          accept=".pdf,application/pdf"
+          onChange={(e) => {
+            const selectedFile = e.target.files?.[0] || null;
+            if (selectedFile && !isPdfFile(selectedFile)) {
+              setError("Solo se permiten archivos PDF.");
+              e.currentTarget.value = "";
+              setFile(null);
+              return;
+            }
+            setError("");
+            setFile(selectedFile);
+          }}
         />
       </div>
 

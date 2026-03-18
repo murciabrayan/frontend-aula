@@ -25,6 +25,8 @@ interface EditableState {
 }
 
 const onlyNumbers = (value: string) => value.replace(/\D/g, "");
+const isPdfFile = (file: File) =>
+  file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
 const buildStateFromUser = (user: User): EditableState => ({
   first_name: user.first_name || "",
@@ -174,6 +176,15 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
         type: "warning",
         title: "Documentos",
         message: "Agrega un titulo y selecciona un archivo antes de subirlo.",
+      });
+      return;
+    }
+
+    if (!isPdfFile(documentFile)) {
+      showToast({
+        type: "warning",
+        title: "Documentos",
+        message: "Solo se permiten archivos PDF.",
       });
       return;
     }
@@ -373,7 +384,24 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
               <label className="user-documents-upload__file">
                 <Upload size={16} />
                 <span>{documentFile ? documentFile.name : "Seleccionar archivo"}</span>
-                <input type="file" onChange={(e) => setDocumentFile(e.target.files?.[0] || null)} />
+                <input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={(e) => {
+                    const selectedFile = e.target.files?.[0] || null;
+                    if (selectedFile && !isPdfFile(selectedFile)) {
+                      showToast({
+                        type: "warning",
+                        title: "Documentos",
+                        message: "Solo se permiten archivos PDF.",
+                      });
+                      e.currentTarget.value = "";
+                      setDocumentFile(null);
+                      return;
+                    }
+                    setDocumentFile(selectedFile);
+                  }}
+                />
               </label>
               <button type="submit" className="btn btn-primary">
                 Subir documento

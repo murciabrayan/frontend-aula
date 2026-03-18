@@ -3,6 +3,9 @@ import axios from "axios";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
+const isPdfFile = (file: File) =>
+  file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+
 interface Props {
   assignmentId: number;
   onClose: () => void;
@@ -17,7 +20,15 @@ const UploadSubmissionForm: React.FC<Props> = ({ assignmentId, onClose, onSucces
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.length) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      if (!isPdfFile(selectedFile)) {
+        setError("Solo se permiten archivos PDF.");
+        e.target.value = "";
+        setFile(null);
+        return;
+      }
+      setError("");
+      setFile(selectedFile);
     }
   };
 
@@ -55,7 +66,12 @@ const UploadSubmissionForm: React.FC<Props> = ({ assignmentId, onClose, onSucces
   return (
     <form onSubmit={handleSubmit} className="assignment-form">
       <label>Archivo de la entrega:</label>
-      <input type="file" onChange={handleFileChange} required />
+      <input
+        type="file"
+        accept=".pdf,application/pdf"
+        onChange={handleFileChange}
+        required
+      />
 
       {error && <p className="msg error">{error}</p>}
 
