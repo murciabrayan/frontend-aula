@@ -1,7 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import {
+  BookOpen,
+  CalendarDays,
+  ChevronRight,
+  ClipboardCheck,
+  Eye,
+  FileText,
+  Upload,
+} from "lucide-react";
 import UploadSubmissionForm from "./UploadSubmissionForm";
-import { FiBookOpen } from "react-icons/fi";
 import "./../styles/assignments.css";
 
 const API_BASE = "http://127.0.0.1:8000/api";
@@ -34,6 +42,18 @@ interface Submission {
   retroalimentacion?: string;
 }
 
+const formatDate = (value: string) => {
+  try {
+    return new Date(value).toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return value;
+  }
+};
+
 const StudentAssignmentsList: React.FC = () => {
   const token = localStorage.getItem("access_token");
 
@@ -43,9 +63,7 @@ const StudentAssignmentsList: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   const [activeSubject, setActiveSubject] = useState<Subject | null>(null);
-  const [selectedAssignment, setSelectedAssignment] =
-    useState<Assignment | null>(null);
-
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [showUpload, setShowUpload] = useState(false);
   const [showGrade, setShowGrade] = useState<Submission | null>(null);
   const [showDetails, setShowDetails] = useState<Assignment | null>(null);
@@ -77,9 +95,10 @@ const StudentAssignmentsList: React.FC = () => {
       .then((res) => setSubmissions(res.data));
   };
 
-  const loadAssignments = (subjectId: number) => {
+  const loadAssignments = (subject: Subject) => {
+    setActiveSubject(subject);
     axios
-      .get(`${API_BASE}/assignments/?subject=${subjectId}`, {
+      .get(`${API_BASE}/assignments/?subject=${subject.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setAssignments(res.data));
@@ -95,10 +114,12 @@ const StudentAssignmentsList: React.FC = () => {
   };
 
   const groupedSubjects = useMemo(() => {
-    return areas.map((area) => ({
-      area,
-      subjects: subjects.filter((s) => s.area === area.id),
-    }));
+    return areas
+      .map((area) => ({
+        area,
+        subjects: subjects.filter((s) => s.area === area.id),
+      }))
+      .filter((item) => item.subjects.length > 0);
   }, [areas, subjects]);
 
   const subjectsWithoutArea = useMemo(
@@ -106,61 +127,119 @@ const StudentAssignmentsList: React.FC = () => {
     [subjects]
   );
 
+  const taskStats = useMemo(() => {
+    const total = assignments.length;
+    const delivered = assignments.filter((item) => getSubmission(item.id)).length;
+    const graded = assignments.filter((item) => {
+      const submission = getSubmission(item.id);
+      return submission?.calificacion !== undefined;
+    }).length;
+
+    return {
+      subjects: subjects.length,
+      total,
+      delivered,
+      pending: Math.max(total - delivered, 0),
+      graded,
+    };
+  }, [assignments, submissions, subjects]);
+
   return (
-    <div className="dashboard">
-      <h1>Selecciona una materia</h1>
+    <section className="student-tasks">
+      <div className="student-tasks__hero">
+        <div className="student-tasks__hero-copy">
+          <span className="student-tasks__badge">Tareas</span>
+          <h2>Organiza tus entregas por materia</h2>
+          <p>
+            Elige una materia, revisa actividades pendientes y consulta el estado de
+            cada entrega en un espacio mas claro y comodo de seguir.
+          </p>
+        </div>
 
-      <div className="areas-wrapper">
+        <div className="student-tasks__stats">
+          <article className="student-tasks__stat-card">
+            <span>Materias</span>
+            <strong>{taskStats.subjects}</strong>
+          </article>
+          <article className="student-tasks__stat-card">
+            <span>Tareas del modulo</span>
+            <strong>{taskStats.total}</strong>
+          </article>
+          <article className="student-tasks__stat-card accent">
+            <span>Entregadas</span>
+            <strong>{taskStats.delivered}</strong>
+          </article>
+          <article className="student-tasks__stat-card warning">
+            <span>Pendientes</span>
+            <strong>{taskStats.pending}</strong>
+          </article>
+        </div>
+      </div>
+
+      <div className="student-tasks__section-head">
+        <div>
+          <h3>Mapa academico</h3>
+          <p>Accede a cada materia desde su area y abre su panel de actividades.</p>
+        </div>
+      </div>
+
+      <div className="student-tasks__areas">
         {groupedSubjects.map(({ area, subjects: areaSubjects }) => (
-          <div key={area.id} className="area-card">
-            <div className="area-title">{area.nombre}</div>
+          <article key={area.id} className="student-tasks__area-card">
+            <div className="student-tasks__area-top">
+              <span className="student-tasks__area-pill">Area</span>
+              <strong>{area.nombre}</strong>
+            </div>
 
-            <div className="area-subjects">
-              {areaSubjects.length === 0 && (
-                <div className="empty-area">Sin materias</div>
-              )}
-
-              {areaSubjects.map((s) => (
-                <div
-                  key={s.id}
-                  className="subject-card"
-                  onClick={() => {
-                    setActiveSubject(s);
-                    loadAssignments(s.id);
-                  }}
+            <div className="student-tasks__subject-grid">
+              {areaSubjects.map((subject) => (
+                <button
+                  key={subject.id}
+                  type="button"
+                  className="student-tasks__subject-card"
+                  onClick={() => loadAssignments(subject)}
                 >
-                  <div className="subject-icon">
-                    <FiBookOpen size={26} />
+                  <div className="student-tasks__subject-icon">
+                    <BookOpen size={20} />
                   </div>
-                  <span>{s.nombre}</span>
-                </div>
+                  <div className="student-tasks__subject-copy">
+                    <strong>{subject.nombre}</strong>
+                    <span>Abrir actividades</span>
+                  </div>
+                  <ChevronRight size={18} />
+                </button>
               ))}
             </div>
-          </div>
+          </article>
         ))}
 
         {subjectsWithoutArea.length > 0 && (
-          <div className="area-card">
-            <div className="area-title">Sin área</div>
+          <article className="student-tasks__area-card">
+            <div className="student-tasks__area-top">
+              <span className="student-tasks__area-pill">Libre</span>
+              <strong>Materias sin area</strong>
+            </div>
 
-            <div className="area-subjects">
-              {subjectsWithoutArea.map((s) => (
-                <div
-                  key={s.id}
-                  className="subject-card"
-                  onClick={() => {
-                    setActiveSubject(s);
-                    loadAssignments(s.id);
-                  }}
+            <div className="student-tasks__subject-grid">
+              {subjectsWithoutArea.map((subject) => (
+                <button
+                  key={subject.id}
+                  type="button"
+                  className="student-tasks__subject-card"
+                  onClick={() => loadAssignments(subject)}
                 >
-                  <div className="subject-icon">
-                    <FiBookOpen size={26} />
+                  <div className="student-tasks__subject-icon">
+                    <BookOpen size={20} />
                   </div>
-                  <span>{s.nombre}</span>
-                </div>
+                  <div className="student-tasks__subject-copy">
+                    <strong>{subject.nombre}</strong>
+                    <span>Abrir actividades</span>
+                  </div>
+                  <ChevronRight size={18} />
+                </button>
               ))}
             </div>
-          </div>
+          </article>
         )}
       </div>
 
@@ -168,12 +247,9 @@ const StudentAssignmentsList: React.FC = () => {
         <div className="toast-backdrop" onClick={() => setShowToast(false)}>
           <div className="toast-success" onClick={(e) => e.stopPropagation()}>
             <div>
-              <strong>✅ Listo</strong> — {toastMsg}
+              <strong>Listo</strong> - {toastMsg}
             </div>
-            <button
-              className="btn-secondary"
-              onClick={() => setShowToast(false)}
-            >
+            <button className="btn-secondary" onClick={() => setShowToast(false)}>
               Cerrar
             </button>
           </div>
@@ -182,66 +258,111 @@ const StudentAssignmentsList: React.FC = () => {
 
       {activeSubject && (
         <div className="modal-backdrop">
-          <div className="modal-premium">
+          <div className="modal-premium modal-premium--wide">
             <div className="modal-header-fixed">
-              <h2>{activeSubject.nombre}</h2>
-              <button
-                className="close-btn"
-                onClick={() => setActiveSubject(null)}
-              >
-                ✕
+              <div className="student-task-modal__headline">
+                <span className="student-task-modal__eyebrow">Materia activa</span>
+                <h2>{activeSubject.nombre}</h2>
+              </div>
+              <button className="close-btn" onClick={() => setActiveSubject(null)}>
+                ×
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="modal-body student-task-modal__body">
+              <div className="student-task-modal__summary">
+                <article className="student-task-modal__summary-card">
+                  <span>Total</span>
+                  <strong>{assignments.length}</strong>
+                </article>
+                <article className="student-task-modal__summary-card accent">
+                  <span>Entregadas</span>
+                  <strong>{taskStats.delivered}</strong>
+                </article>
+                <article className="student-task-modal__summary-card warning">
+                  <span>Pendientes</span>
+                  <strong>{taskStats.pending}</strong>
+                </article>
+                <article className="student-task-modal__summary-card">
+                  <span>Calificadas</span>
+                  <strong>{taskStats.graded}</strong>
+                </article>
+              </div>
+
               {assignments.length === 0 ? (
-                <p>No hay tareas asignadas aún.</p>
+                <div className="student-task-modal__empty">
+                  No hay tareas asignadas aun para esta materia.
+                </div>
               ) : (
-                <div className="assignment-picker">
-                  {assignments.map((a) => {
-                    const entrega = getSubmission(a.id);
+                <div className="student-task-modal__list">
+                  {assignments.map((assignment) => {
+                    const submission = getSubmission(assignment.id);
 
                     return (
-                      <div key={a.id} className="assignment-pill">
-                        <div>
-                          <strong>{a.titulo}</strong>
-                          <p>{a.fecha_entrega}</p>
+                      <article key={assignment.id} className="student-task-item">
+                        <div className="student-task-item__content">
+                          <div className="student-task-item__top">
+                            <h4>{assignment.titulo}</h4>
+                            <span className="student-task-item__date">
+                              <CalendarDays size={14} />
+                              {formatDate(assignment.fecha_entrega)}
+                            </span>
+                          </div>
+
+                          <div className="student-task-item__state-row">
+                            {!submission && (
+                              <span className="student-task-item__status pending">
+                                Pendiente por entregar
+                              </span>
+                            )}
+
+                            {submission && submission.calificacion === undefined && (
+                              <span className="student-task-item__status delivered">
+                                Entregada, pendiente de revision
+                              </span>
+                            )}
+
+                            {submission?.calificacion !== undefined && (
+                              <span className="student-task-item__status graded">
+                                Calificada: {submission.calificacion}
+                              </span>
+                            )}
+                          </div>
                         </div>
 
-                        <div className="assignment-actions">
+                        <div className="student-task-item__actions">
                           <button
                             className="btn-secondary"
-                            onClick={() => setShowDetails(a)}
+                            onClick={() => setShowDetails(assignment)}
                           >
-                            Ver detalles
+                            <Eye size={16} />
+                            Ver
                           </button>
 
-                          {!entrega && (
+                          {!submission && (
                             <button
                               className="btn-primary"
                               onClick={() => {
-                                setSelectedAssignment(a);
+                                setSelectedAssignment(assignment);
                                 setShowUpload(true);
                               }}
                             >
-                              Subir entrega
+                              <Upload size={16} />
+                              Entregar
                             </button>
                           )}
 
-                          {entrega && entrega.calificacion === undefined && (
-                            <span className="badge pending">✅ Entregado</span>
-                          )}
-
-                          {entrega?.calificacion !== undefined && (
+                          {submission?.calificacion !== undefined && (
                             <button
-                              className="btn-secondary"
-                              onClick={() => setShowGrade(entrega)}
+                              className="btn-primary btn-primary--dark"
+                              onClick={() => setShowGrade(submission)}
                             >
-                              Ver calificación
+                              <ClipboardCheck size={16} />
+                              Ver nota
                             </button>
                           )}
                         </div>
-                      </div>
+                      </article>
                     );
                   })}
                 </div>
@@ -253,72 +374,67 @@ const StudentAssignmentsList: React.FC = () => {
 
       {showDetails &&
         (() => {
-          const entrega = getSubmission(showDetails.id);
+          const submission = getSubmission(showDetails.id);
 
           return (
             <div className="modal-backdrop">
               <div className="modal-premium">
                 <div className="modal-header-fixed">
-                  <h3>{showDetails.titulo}</h3>
-                  <button
-                    className="close-btn"
-                    onClick={() => setShowDetails(null)}
-                  >
-                    ✕
+                  <div className="student-task-modal__headline">
+                    <span className="student-task-modal__eyebrow">Detalle de tarea</span>
+                    <h3>{showDetails.titulo}</h3>
+                  </div>
+                  <button className="close-btn" onClick={() => setShowDetails(null)}>
+                    ×
                   </button>
                 </div>
 
-                <div className="modal-body">
-                  <p>
-                    <strong>Fecha de entrega:</strong> {showDetails.fecha_entrega}
-                  </p>
+                <div className="modal-body student-task-modal__detail">
+                  <div className="student-task-modal__info-grid">
+                    <div className="student-task-modal__info-card">
+                      <span>Entrega</span>
+                      <strong>{formatDate(showDetails.fecha_entrega)}</strong>
+                    </div>
+                    <div className="student-task-modal__info-card">
+                      <span>Estado</span>
+                      <strong>
+                        {!submission
+                          ? "Pendiente"
+                          : submission.calificacion !== undefined
+                            ? "Calificada"
+                            : "Entregada"}
+                      </strong>
+                    </div>
+                  </div>
 
                   {showDetails.descripcion && (
-                    <>
-                      <strong>Descripción:</strong>
-                      <p className="assignment-description">
-                        {showDetails.descripcion}
-                      </p>
-                    </>
+                    <div className="assignment-description">
+                      <strong>Descripcion</strong>
+                      <p>{showDetails.descripcion}</p>
+                    </div>
                   )}
 
                   {showDetails.archivo && (
-                    <div className="assignment-file">
-                      <strong>Archivo del docente:</strong>
+                    <div className="student-task-modal__file-box">
+                      <div>
+                        <strong>Archivo del docente</strong>
+                        <p>Puedes revisar el material de apoyo antes de entregar.</p>
+                      </div>
                       <a
                         href={showDetails.archivo}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="file-link"
                       >
+                        <FileText size={16} />
                         Descargar archivo
                       </a>
-                    </div>
-                  )}
-
-                  {entrega && (
-                    <div style={{ marginTop: 12 }}>
-                      {entrega.calificacion === undefined ? (
-                        <span className="badge pending">
-                          ✅ Tarea entregada correctamente
-                        </span>
-                      ) : (
-                        <button
-                          className="btn-secondary"
-                          onClick={() => {
-                            setShowDetails(null);
-                            setShowGrade(entrega);
-                          }}
-                        >
-                          Ver calificación
-                        </button>
-                      )}
                     </div>
                   )}
                 </div>
 
                 <div className="modal-footer">
-                  {!entrega ? (
+                  {!submission ? (
                     <button
                       className="btn-primary"
                       onClick={() => {
@@ -327,13 +443,22 @@ const StudentAssignmentsList: React.FC = () => {
                         setShowUpload(true);
                       }}
                     >
+                      <Upload size={16} />
                       Subir entrega
                     </button>
-                  ) : (
+                  ) : submission.calificacion !== undefined ? (
                     <button
-                      className="btn-secondary"
-                      onClick={() => setShowDetails(null)}
+                      className="btn-primary btn-primary--dark"
+                      onClick={() => {
+                        setShowDetails(null);
+                        setShowGrade(submission);
+                      }}
                     >
+                      <ClipboardCheck size={16} />
+                      Ver calificacion
+                    </button>
+                  ) : (
+                    <button className="btn-secondary" onClick={() => setShowDetails(null)}>
                       Cerrar
                     </button>
                   )}
@@ -347,13 +472,24 @@ const StudentAssignmentsList: React.FC = () => {
         <div className="modal-backdrop">
           <div className="modal-premium">
             <div className="modal-header-fixed">
-              <h3>Subir entrega</h3>
+              <div className="student-task-modal__headline">
+                <span className="student-task-modal__eyebrow">Entrega</span>
+                <h3>Subir archivo</h3>
+              </div>
               <button className="close-btn" onClick={() => setShowUpload(false)}>
-                ✕
+                ×
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="modal-body student-task-modal__detail">
+              <div className="student-task-modal__upload-note">
+                <strong>{selectedAssignment.titulo}</strong>
+                <p>
+                  Carga tu archivo final y asegúrate de que corresponda a la tarea
+                  indicada.
+                </p>
+              </div>
+
               <UploadSubmissionForm
                 assignmentId={selectedAssignment.id}
                 onClose={() => setShowUpload(false)}
@@ -366,10 +502,7 @@ const StudentAssignmentsList: React.FC = () => {
             </div>
 
             <div className="modal-footer">
-              <button
-                className="btn-secondary"
-                onClick={() => setShowUpload(false)}
-              >
+              <button className="btn-secondary" onClick={() => setShowUpload(false)}>
                 Cancelar
               </button>
             </div>
@@ -381,21 +514,24 @@ const StudentAssignmentsList: React.FC = () => {
         <div className="modal-backdrop">
           <div className="modal-premium">
             <div className="modal-header-fixed">
-              <h3>Calificación</h3>
+              <div className="student-task-modal__headline">
+                <span className="student-task-modal__eyebrow">Resultado</span>
+                <h3>Calificacion recibida</h3>
+              </div>
               <button className="close-btn" onClick={() => setShowGrade(null)}>
-                ✕
+                ×
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="modal-body student-task-modal__detail">
               <div className="grade-box">
-                <p>
-                  <strong>Nota:</strong> {showGrade.calificacion}
-                </p>
-                <p>
-                  <strong>Retroalimentación:</strong>
-                </p>
-                <p>{showGrade.retroalimentacion}</p>
+                <div className="grade-number">
+                  {showGrade.calificacion !== undefined ? showGrade.calificacion : "--"}
+                </div>
+                <div className="student-task-modal__feedback">
+                  <strong>Retroalimentacion</strong>
+                  <p>{showGrade.retroalimentacion || "Aun no hay observaciones registradas."}</p>
+                </div>
               </div>
             </div>
 
@@ -407,7 +543,7 @@ const StudentAssignmentsList: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
