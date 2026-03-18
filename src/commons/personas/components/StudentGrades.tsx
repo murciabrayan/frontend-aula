@@ -81,12 +81,7 @@ const StudentGrades: React.FC = () => {
       setSubjects(subjectsRes.data || []);
       setAssignments(assignmentsRes.data || []);
       setSubmissions(submissionsRes.data || []);
-
-      // abrir por defecto la primera materia (si existe)
-      const subsList: Subject[] = subjectsRes.data || [];
-      if (subsList.length > 0) {
-        setOpenSubjects((prev) => ({ ...prev, [subsList[0].id]: true }));
-      }
+      setOpenSubjects({});
     } catch (e) {
       console.error(e);
       setError("No se pudo cargar el boletín. Intenta nuevamente.");
