@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import StyledSelect from "@/components/StyledSelect";
 import { useFeedback } from "@/context/FeedbackContext";
 import { getCourses, updateCourse } from "../../services/courseService";
 import { getTeachers, getStudents } from "../../services/userService";
@@ -539,7 +540,7 @@ export default function CourseAssign() {
         <span>{subject.nombre}</span>
 
         <div className="subject-actions-inline">
-          <select
+          <StyledSelect
             value={subject.area ?? ""}
             disabled={savingSubjectId === subject.id}
             onChange={(e) =>
@@ -555,7 +556,7 @@ export default function CourseAssign() {
                 {a.nombre}
               </option>
             ))}
-          </select>
+          </StyledSelect>
 
           <button className="danger" onClick={() => removeSubject(subject.id)}>
             🗑
@@ -576,7 +577,7 @@ export default function CourseAssign() {
               <div className="subject-period-header">Periodo {period}</div>
 
               <div className="indicator-period-actions">
-                <select
+                <StyledSelect
                   value={selectedIndicators[subject.id]?.[typedPeriod] ?? ""}
                   onChange={(e) =>
                     handleSelectedIndicatorChange(
@@ -592,7 +593,7 @@ export default function CourseAssign() {
                       {truncateIndicator(indicator.descripcion)}
                     </option>
                   ))}
-                </select>
+                </StyledSelect>
 
                 <button
                   className="primary"
@@ -665,8 +666,15 @@ export default function CourseAssign() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>{activeCourse.name}</h3>
-              <button onClick={closeModal}>✕</button>
+              <div>
+                <h3>{activeCourse.name}</h3>
+                <p>
+                  Gestiona docentes, estudiantes, materias y estructura academica del curso.
+                </p>
+              </div>
+              <button type="button" onClick={closeModal} aria-label="Cerrar modal">
+                x
+              </button>
             </div>
 
             <div className="tabs">
@@ -694,7 +702,7 @@ export default function CourseAssign() {
               {tab === "teacher" && (
                 <>
                   <label>Docente asignado</label>
-                  <select
+                  <StyledSelect
                     value={selectedTeacher}
                     onChange={(e) =>
                       setSelectedTeacher(
@@ -708,7 +716,7 @@ export default function CourseAssign() {
                         {t.first_name} {t.last_name}
                       </option>
                     ))}
-                  </select>
+                  </StyledSelect>
                 </>
               )}
 
@@ -901,7 +909,7 @@ export default function CourseAssign() {
                         value={newSubjectName}
                         onChange={(e) => setNewSubjectName(e.target.value)}
                       />
-                      <select
+                      <StyledSelect
                         value={newSubjectArea}
                         onChange={(e) =>
                           setNewSubjectArea(
@@ -915,7 +923,7 @@ export default function CourseAssign() {
                             {a.nombre}
                           </option>
                         ))}
-                      </select>
+                      </StyledSelect>
                       <button className="primary" onClick={addSubject}>
                         Crear materia
                       </button>

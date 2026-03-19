@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import StyledSelect from "@/components/StyledSelect";
 import {
   getAcademicAlerts,
   resolveAcademicAlert,
@@ -109,12 +110,12 @@ const TeacherAcademicAlerts: React.FC = () => {
         <div className="teacher-alerts__hero-actions">
           <label className="teacher-alerts__control-card">
             <span>Periodo</span>
-            <select value={period} onChange={(e) => setPeriod(Number(e.target.value))}>
+            <StyledSelect value={period} onChange={(e) => setPeriod(Number(e.target.value))}>
               <option value={1}>Periodo 1</option>
               <option value={2}>Periodo 2</option>
               <option value={3}>Periodo 3</option>
               <option value={4}>Periodo 4</option>
-            </select>
+            </StyledSelect>
           </label>
 
           <button

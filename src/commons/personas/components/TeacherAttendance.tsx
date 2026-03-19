@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import StyledSelect from "@/components/StyledSelect";
 import {
   getTeacherAttendanceByDate,
   saveTeacherAttendanceBulk,
@@ -229,7 +230,7 @@ const TeacherAttendance: React.FC = () => {
 
             <div className="attendance-date-card">
               <label>Periodo</label>
-              <select
+              <StyledSelect
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(Number(e.target.value) as PeriodType)}
                 className="attendance-period-select"
@@ -238,7 +239,7 @@ const TeacherAttendance: React.FC = () => {
                 <option value={2}>Periodo 2</option>
                 <option value={3}>Periodo 3</option>
                 <option value={4}>Periodo 4</option>
-              </select>
+              </StyledSelect>
             </div>
 
             <button

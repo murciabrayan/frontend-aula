@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import StyledSelect from "@/components/StyledSelect";
 import {
   getMyAttendanceRecords,
   type StudentAttendanceRecord,
@@ -86,7 +87,7 @@ const StudentAttendance: React.FC = () => {
 
         <div className="student-attendance-filter-card">
           <label>Filtrar por estado</label>
-          <select
+          <StyledSelect
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -94,7 +95,7 @@ const StudentAttendance: React.FC = () => {
             <option value="PRESENT">Presente</option>
             <option value="ABSENT">Ausente</option>
             <option value="LATE">Tarde</option>
-          </select>
+          </StyledSelect>
         </div>
       </section>
 

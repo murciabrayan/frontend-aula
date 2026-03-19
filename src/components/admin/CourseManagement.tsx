@@ -11,6 +11,7 @@ import {
   UserSquare2,
   Users,
 } from "lucide-react";
+import StyledSelect from "@/components/StyledSelect";
 import { useFeedback } from "@/context/FeedbackContext";
 import {
   createCourse,
@@ -921,7 +922,7 @@ const CourseManagement = ({
 
             <div className="course-management__select-shell">
               <span className="course-management__select-label">Docente del curso</span>
-              <select
+              <StyledSelect
                 value={selectedTeacher}
                 onChange={(event) =>
                   setSelectedTeacher(
@@ -935,7 +936,7 @@ const CourseManagement = ({
                     {teacher.first_name} {teacher.last_name}
                   </option>
                 ))}
-              </select>
+              </StyledSelect>
             </div>
 
             <div className="course-management__teacher-summary">
@@ -1240,7 +1241,7 @@ const CourseManagement = ({
                           <span>{selectedSubject.area_nombre || "Sin area"}</span>
                         </div>
                       </div>
-                      <select
+                      <StyledSelect
                         value={selectedSubject.area ?? ""}
                         disabled={savingSubjectId === selectedSubject.id}
                         onChange={(event) =>
@@ -1256,7 +1257,7 @@ const CourseManagement = ({
                             {area.nombre}
                           </option>
                         ))}
-                      </select>
+                      </StyledSelect>
                       <button
                         type="button"
                         className="course-management__action-pill is-danger"
@@ -1633,7 +1634,7 @@ const CourseManagement = ({
       {isCourseMode && isCourseModalOpen ? (
         <div className="course-management__modal-backdrop">
           <div className="course-management__modal">
-            <div className="course-management__card-header">
+            <div className="course-management__modal-header">
               <div>
                 <h3>{editingCourseId ? "Editar curso" : "Nuevo curso"}</h3>
                 <p>
@@ -1644,10 +1645,11 @@ const CourseManagement = ({
               </div>
               <button
                 type="button"
-                className="course-management__mini-btn"
+                className="course-management__modal-close"
                 onClick={resetCourseForm}
+                aria-label="Cerrar modal"
               >
-                Cerrar
+                x
               </button>
             </div>
 
@@ -1693,17 +1695,18 @@ const CourseManagement = ({
       {!isCourseMode && isSubjectModalOpen ? (
         <div className="course-management__modal-backdrop">
           <div className="course-management__modal">
-            <div className="course-management__card-header">
+            <div className="course-management__modal-header">
               <div>
                 <h3>Nueva materia</h3>
                 <p>Crea una materia y, si quieres, asignala de una vez a un area.</p>
               </div>
               <button
                 type="button"
-                className="course-management__mini-btn"
+                className="course-management__modal-close"
                 onClick={resetSubjectDraft}
+                aria-label="Cerrar modal"
               >
-                Cerrar
+                x
               </button>
             </div>
 
@@ -1714,7 +1717,7 @@ const CourseManagement = ({
                 onChange={(event) => setNewSubjectName(event.target.value)}
                 placeholder="Nombre de la materia"
               />
-              <select
+              <StyledSelect
                 value={newSubjectArea}
                 onChange={(event) =>
                   setNewSubjectArea(
@@ -1728,7 +1731,7 @@ const CourseManagement = ({
                     {area.nombre}
                   </option>
                 ))}
-              </select>
+              </StyledSelect>
               <div className="course-management__form-actions">
                 <button
                   type="button"
@@ -1754,22 +1757,23 @@ const CourseManagement = ({
       {!isCourseMode && isAssignIndicatorModalOpen ? (
         <div className="course-management__modal-backdrop">
           <div className="course-management__modal">
-            <div className="course-management__card-header">
+            <div className="course-management__modal-header">
               <div>
                 <h3>Asignar indicador</h3>
                 <p>Selecciona la materia, el periodo y el indicador que quieres relacionar.</p>
               </div>
               <button
                 type="button"
-                className="course-management__mini-btn"
+                className="course-management__modal-close"
                 onClick={resetIndicatorAssignmentDraft}
+                aria-label="Cerrar modal"
               >
-                Cerrar
+                x
               </button>
             </div>
 
             <div className="course-management__stack-form">
-              <select
+              <StyledSelect
                 value={assignmentSubjectId}
                 onChange={(event) =>
                   setAssignmentSubjectId(
@@ -1783,9 +1787,9 @@ const CourseManagement = ({
                     {subject.nombre}
                   </option>
                 ))}
-              </select>
+              </StyledSelect>
 
-              <select
+              <StyledSelect
                 value={assignmentPeriod}
                 onChange={(event) =>
                   setAssignmentPeriod(
@@ -1798,9 +1802,9 @@ const CourseManagement = ({
                 <option value="2">Periodo 2</option>
                 <option value="3">Periodo 3</option>
                 <option value="4">Periodo 4</option>
-              </select>
+              </StyledSelect>
 
-              <select
+              <StyledSelect
                 value={assignmentIndicatorId}
                 onChange={(event) =>
                   setAssignmentIndicatorId(
@@ -1814,7 +1818,7 @@ const CourseManagement = ({
                     {indicator.descripcion}
                   </option>
                 ))}
-              </select>
+              </StyledSelect>
 
               <div className="course-management__form-actions">
                 <button
@@ -1841,7 +1845,7 @@ const CourseManagement = ({
       {!isCourseMode && isSubjectIndicatorsModalOpen ? (
         <div className="course-management__modal-backdrop">
           <div className="course-management__modal course-management__modal--wide">
-            <div className="course-management__card-header">
+            <div className="course-management__modal-header">
               <div>
                 <h3>
                   {selectedSubject
@@ -1852,10 +1856,11 @@ const CourseManagement = ({
               </div>
               <button
                 type="button"
-                className="course-management__mini-btn"
+                className="course-management__modal-close"
                 onClick={() => setIsSubjectIndicatorsModalOpen(false)}
+                aria-label="Cerrar modal"
               >
-                Cerrar
+                x
               </button>
             </div>
 

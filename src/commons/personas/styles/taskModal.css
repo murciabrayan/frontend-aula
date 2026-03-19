@@ -9,17 +9,56 @@
 }
 
 .modal-card {
-  background: #ffffff;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f2e7 100%);
   width: 420px;
   border-radius: 18px;
-  padding: 24px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  border: 1px solid rgba(184, 155, 45, 0.22);
+}
+
+.task-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 22px 24px 18px;
+  background: linear-gradient(135deg, #0d0d10 0%, #171821 55%, #2c210c 100%);
+  border-bottom: 1px solid rgba(184, 155, 45, 0.18);
 }
 
 .modal-card h2 {
-  margin-bottom: 16px;
-  color: #111827;
+  margin: 0 0 6px;
+  color: #fff8ea;
   font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.task-modal__subtitle {
+  margin: 0;
+  color: rgba(255, 248, 234, 0.74);
+  line-height: 1.5;
+}
+
+.task-modal__close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff8ea;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.modal-info p {
+  margin: 0;
+}
+
+.modal-info {
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px 0;
 }
 
 .modal-info p {
@@ -29,7 +68,7 @@
 }
 
 .modal-description {
-  margin-top: 14px;
+  margin: 14px 24px 0;
   padding: 14px;
   background: #faf7ed;
   border-left: 4px solid #b89b2d;
@@ -43,6 +82,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  padding: 0 24px 24px;
 }
 
 .btn-primary {

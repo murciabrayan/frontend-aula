@@ -239,13 +239,21 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-container">
-        <button className="close-btn" onClick={onClose}>
-          x
-        </button>
+        <div className="modal-shell__header">
+          <div>
+            <span className="modal-shell__eyebrow">Administracion</span>
+            <h2 className="modal-title">
+              {user ? "Editar usuario" : "Agregar nuevo usuario"}
+            </h2>
+            <p className="modal-shell__subtitle">
+              Completa la informacion principal del perfil administrativo, docente o estudiantil.
+            </p>
+          </div>
 
-        <h2 className="modal-title">
-          {user ? "Editar Usuario" : "Agregar Nuevo Usuario"}
-        </h2>
+          <button className="close-btn" onClick={onClose} aria-label="Cerrar modal">
+            x
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="form">
           <input

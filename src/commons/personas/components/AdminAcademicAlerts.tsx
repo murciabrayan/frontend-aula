@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import StyledSelect from "@/components/StyledSelect";
 import {
   generateAcademicAlerts,
   getAcademicAlerts,
@@ -208,7 +209,7 @@ const AdminAcademicAlerts: React.FC = () => {
         <div className="admin-alerts-controls">
           <div className="admin-alerts-control-card">
             <label>Curso</label>
-            <select
+            <StyledSelect
               value={selectedCourse}
               onChange={(e) =>
                 setSelectedCourse(e.target.value ? Number(e.target.value) : "")
@@ -220,12 +221,12 @@ const AdminAcademicAlerts: React.FC = () => {
                   {course.nombre}
                 </option>
               ))}
-            </select>
+            </StyledSelect>
           </div>
 
           <div className="admin-alerts-control-card">
             <label>Período</label>
-            <select
+            <StyledSelect
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(Number(e.target.value))}
             >
@@ -233,12 +234,12 @@ const AdminAcademicAlerts: React.FC = () => {
               <option value={2}>Periodo 2</option>
               <option value={3}>Periodo 3</option>
               <option value={4}>Periodo 4</option>
-            </select>
+            </StyledSelect>
           </div>
 
           <div className="admin-alerts-control-card">
             <label>Tipo</label>
-            <select
+            <StyledSelect
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as AlertType | "")}
             >
@@ -246,12 +247,12 @@ const AdminAcademicAlerts: React.FC = () => {
               <option value="LOW_GRADE">Bajo rendimiento</option>
               <option value="ABSENCE_RISK">Inasistencia</option>
               <option value="MISSING_ASSIGNMENTS">No entregas</option>
-            </select>
+            </StyledSelect>
           </div>
 
           <div className="admin-alerts-control-card">
             <label>Estado</label>
-            <select
+            <StyledSelect
               value={filterStatus}
               onChange={(e) =>
                 setFilterStatus(e.target.value as AlertStatus | "")
@@ -260,7 +261,7 @@ const AdminAcademicAlerts: React.FC = () => {
               <option value="">Todos</option>
               <option value="ACTIVE">Activas</option>
               <option value="RESOLVED">Resueltas</option>
-            </select>
+            </StyledSelect>
           </div>
 
           <button

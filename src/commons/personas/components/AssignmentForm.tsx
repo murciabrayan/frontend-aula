@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import StyledSelect from "@/components/StyledSelect";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
@@ -148,7 +149,7 @@ const AssignmentForm: React.FC<Props> = ({
 
       <div className="form-group">
         <label>Periodo</label>
-        <select
+        <StyledSelect
           value={periodo}
           onChange={(e) => setPeriodo(e.target.value)}
           required
@@ -157,7 +158,7 @@ const AssignmentForm: React.FC<Props> = ({
           <option value="2">Periodo 2</option>
           <option value="3">Periodo 3</option>
           <option value="4">Periodo 4</option>
-        </select>
+        </StyledSelect>
       </div>
 
       <div className="form-group">

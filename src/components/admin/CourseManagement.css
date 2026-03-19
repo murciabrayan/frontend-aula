@@ -123,8 +123,9 @@
 .course-management__danger-btn {
   min-height: 42px;
   padding: 0 16px;
-  background: #991b1b;
-  color: #ffffff;
+  background: #111827;
+  color: #fff8ea;
+  border: 1px solid #111827;
 }
 
 .course-management__icon-btn {
@@ -136,8 +137,8 @@
 }
 
 .course-management__icon-btn.is-danger {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: rgba(17, 24, 39, 0.08);
+  color: #111827;
 }
 
 .course-management__primary-btn {
@@ -170,6 +171,13 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.course-management__modal .course-management__form,
+.course-management__modal .course-management__stack-form,
+.course-management__modal .course-management__student-table-wrap,
+.course-management__modal .course-management__empty--large {
+  padding: 22px 24px 24px;
 }
 
 .course-management__field {
@@ -405,6 +413,12 @@
   background: linear-gradient(135deg, #d8b75a 0%, #b98b1f 100%);
   color: #18120a;
   border-color: transparent;
+}
+
+.course-management__action-pill.is-danger {
+  background: #111827;
+  color: #fff8ea;
+  border-color: #111827;
 }
 
 .course-management__placeholder,
@@ -1046,15 +1060,58 @@
 
 .course-management__modal {
   width: min(100%, 520px);
-  background: #ffffff;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fffef9 0%, #f5efe1 100%);
   border-radius: 28px;
   border: 1px solid rgba(202, 165, 64, 0.16);
   box-shadow: 0 28px 60px rgba(15, 23, 42, 0.22);
-  padding: 24px;
 }
 
 .course-management__modal--wide {
   width: min(100%, 860px);
+}
+
+.course-management__modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 18px;
+  background: linear-gradient(135deg, #0d0d10 0%, #171821 55%, #2c210c 100%);
+  border-bottom: 1px solid rgba(202, 165, 64, 0.18);
+}
+
+.course-management__modal-header h3 {
+  margin: 0 0 6px;
+  color: #fff8ea;
+  font-size: 1.35rem;
+}
+
+.course-management__modal-header p {
+  margin: 0;
+  color: rgba(255, 248, 234, 0.74);
+  line-height: 1.5;
+}
+
+.course-management__modal-close {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(202, 165, 64, 0.26);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff8ea;
+  cursor: pointer;
+  font-weight: 800;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.course-management__modal-close:hover {
+  background: rgba(202, 165, 64, 0.16);
 }
 
 .course-management__builder-layout {

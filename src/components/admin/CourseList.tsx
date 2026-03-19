@@ -163,11 +163,27 @@ export default function CourseList() {
 
       {/* MODAL */}
       {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3 className="modal-title">
-              {formData.id ? "Editar curso" : "Crear curso"}
-            </h3>
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal" onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <div>
+                <h3 className="modal-title">
+                  {formData.id ? "Editar curso" : "Crear curso"}
+                </h3>
+                <p className="modal-subtitle">
+                  Configura rapidamente la informacion principal del curso.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="modal-close"
+                onClick={closeModal}
+                aria-label="Cerrar modal"
+              >
+                x
+              </button>
+            </div>
 
             <form onSubmit={handleSubmit} className="modal-form">
               <input

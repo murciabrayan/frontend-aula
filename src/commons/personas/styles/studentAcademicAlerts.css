@@ -72,7 +72,7 @@
   letter-spacing: 0.08em;
 }
 
-.student-alerts__control-card select {
+.student-alerts__control-card .styled-select__trigger {
   height: 46px;
   border-radius: 14px;
   border: 1px solid rgba(201, 162, 39, 0.2);
@@ -80,6 +80,12 @@
   color: #fff8ea;
   padding: 0 14px;
   font-weight: 800;
+  box-shadow: none;
+}
+
+.student-alerts__control-card .styled-select__value,
+.student-alerts__control-card .styled-select__icon {
+  color: #fff8ea;
 }
 
 .student-alerts__summary-grid {

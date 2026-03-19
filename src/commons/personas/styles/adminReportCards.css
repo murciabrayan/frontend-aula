@@ -163,6 +163,8 @@
 
 .report-period-select-wrap {
   position: relative;
+  width: 100%;
+  min-width: 0;
 }
 
 .report-period-select-wrap::after {
@@ -193,6 +195,31 @@
   outline: none;
   border-color: #c9a437;
   box-shadow: 0 0 0 4px rgba(201, 164, 55, 0.14);
+}
+
+.report-period-select-wrap::after {
+  display: none;
+}
+
+.report-period-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.report-period-select .styled-select__trigger {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  box-sizing: border-box;
+  border: 1px solid #e1d3ae;
+  background: #fffdf8;
+  color: #1f2937;
+  box-shadow: none;
+}
+
+.report-period-select .styled-select__value,
+.report-period-select .styled-select__icon {
+  color: #1f2937;
 }
 
 .report-courses-grid,

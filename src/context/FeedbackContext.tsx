@@ -178,18 +178,22 @@ export const FeedbackProvider = ({ children }: { children: ReactNode }) => {
             aria-modal="true"
             onClick={(event) => event.stopPropagation()}
           >
-            <div
-              className={`feedback-confirm__badge ${
-                confirmState.tone === "danger"
-                  ? "feedback-confirm__badge--danger"
-                  : ""
-              }`}
-            >
-              <TriangleAlert size={18} />
-            </div>
+            <div className="feedback-confirm__header">
+              <div
+                className={`feedback-confirm__badge ${
+                  confirmState.tone === "danger"
+                    ? "feedback-confirm__badge--danger"
+                    : ""
+                }`}
+              >
+                <TriangleAlert size={18} />
+              </div>
 
-            <h3>{confirmState.title}</h3>
-            <p>{confirmState.message}</p>
+              <div>
+                <h3>{confirmState.title}</h3>
+                <p>{confirmState.message}</p>
+              </div>
+            </div>
 
             <div className="feedback-confirm__actions">
               <button
@@ -223,19 +227,23 @@ export const FeedbackProvider = ({ children }: { children: ReactNode }) => {
             aria-modal="true"
             onClick={(event) => event.stopPropagation()}
           >
-            <div
-              className={`feedback-confirm__badge feedback-confirm__badge--${
-                noticeState.tone || "success"
-              }`}
-            >
-              {(() => {
-                const Icon = iconByType[noticeState.tone || "success"];
-                return <Icon size={18} />;
-              })()}
-            </div>
+            <div className="feedback-confirm__header feedback-confirm__header--center">
+              <div
+                className={`feedback-confirm__badge feedback-confirm__badge--${
+                  noticeState.tone || "success"
+                }`}
+              >
+                {(() => {
+                  const Icon = iconByType[noticeState.tone || "success"];
+                  return <Icon size={18} />;
+                })()}
+              </div>
 
-            <h3>{noticeState.title}</h3>
-            <p>{noticeState.message}</p>
+              <div>
+                <h3>{noticeState.title}</h3>
+                <p>{noticeState.message}</p>
+              </div>
+            </div>
 
             <div className="feedback-confirm__actions feedback-confirm__actions--single">
               <button

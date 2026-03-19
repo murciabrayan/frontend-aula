@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
+import StyledSelect from "@/components/StyledSelect";
 import {
   createAttendanceRecord,
   getAttendanceByCourseAndDate,
@@ -376,7 +377,7 @@ const AdminAttendance: React.FC = () => {
         <div className="admin-attendance-hero-actions">
           <div className="admin-attendance-input-card">
             <label>Curso</label>
-            <select
+            <StyledSelect
               value={selectedCourse?.id || ""}
               onChange={(e) => {
                 const course = courses.find((c) => c.id === Number(e.target.value)) || null;
@@ -391,7 +392,7 @@ const AdminAttendance: React.FC = () => {
                   {course.nombre}
                 </option>
               ))}
-            </select>
+            </StyledSelect>
           </div>
 
           <div className="admin-attendance-input-card">
@@ -405,7 +406,7 @@ const AdminAttendance: React.FC = () => {
 
           <div className="admin-attendance-input-card">
             <label>Periodo</label>
-            <select
+            <StyledSelect
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(Number(e.target.value) as PeriodType)}
             >
@@ -413,7 +414,7 @@ const AdminAttendance: React.FC = () => {
               <option value={2}>Periodo 2</option>
               <option value={3}>Periodo 3</option>
               <option value={4}>Periodo 4</option>
-            </select>
+            </StyledSelect>
           </div>
 
           <button
@@ -587,7 +588,7 @@ const AdminAttendance: React.FC = () => {
               <div className="admin-attendance-form-grid">
                 <div className="admin-attendance-form-block">
                   <label>Periodo</label>
-                  <select
+                  <StyledSelect
                     value={currentRecord.periodo}
                     onChange={(e) =>
                       updateCurrentRecord("periodo", Number(e.target.value) as PeriodType)
@@ -597,12 +598,12 @@ const AdminAttendance: React.FC = () => {
                     <option value={2}>Periodo 2</option>
                     <option value={3}>Periodo 3</option>
                     <option value={4}>Periodo 4</option>
-                  </select>
+                  </StyledSelect>
                 </div>
 
                 <div className="admin-attendance-form-block">
                   <label>Estado</label>
-                  <select
+                  <StyledSelect
                     value={currentRecord.status}
                     onChange={(e) =>
                       updateCurrentRecord("status", e.target.value as AttendanceStatus)
@@ -611,7 +612,7 @@ const AdminAttendance: React.FC = () => {
                     <option value="PRESENT">Presente</option>
                     <option value="ABSENT">Ausente</option>
                     <option value="LATE">Tarde</option>
-                  </select>
+                  </StyledSelect>
                 </div>
 
                 <div className="admin-attendance-form-block checkbox-block">
@@ -628,7 +629,7 @@ const AdminAttendance: React.FC = () => {
 
                 <div className="admin-attendance-form-block">
                   <label>Tipo de justificación</label>
-                  <select
+                  <StyledSelect
                     value={currentRecord.justification_type}
                     onChange={(e) =>
                       updateCurrentRecord(
@@ -643,7 +644,7 @@ const AdminAttendance: React.FC = () => {
                     <option value="PERMISSION">Permiso</option>
                     <option value="CALAMITY">Calamidad</option>
                     <option value="OTHER">Otra</option>
-                  </select>
+                  </StyledSelect>
                 </div>
 
                 <div className="admin-attendance-form-block full">

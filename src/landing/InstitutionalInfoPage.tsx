@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { FileText } from "lucide-react";
 import { useLandingContent } from "./LandingContentContext";
 
 const fallbackDocuments = [
@@ -26,6 +28,53 @@ const values = [
 const InstitutionalInfoPage = () => {
   const { content } = useLandingContent();
   const documents = content.documents.length ? content.documents : fallbackDocuments;
+  const [documentPreviewUrls, setDocumentPreviewUrls] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const objectUrls: string[] = [];
+
+    const loadPreviews = async () => {
+      const entries = await Promise.all(
+        documents.map(async (document) => {
+          if (!document.file_url) return null;
+
+          try {
+            const response = await fetch(document.file_url);
+            const blob = await response.blob();
+            const isPdf =
+              blob.type === "application/pdf" ||
+              document.file_url.toLowerCase().endsWith(".pdf");
+
+            if (!isPdf) return null;
+
+            const objectUrl = window.URL.createObjectURL(blob);
+            objectUrls.push(objectUrl);
+            return [document.id, `${objectUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`] as const;
+          } catch (error) {
+            console.error("No se pudo generar la vista previa del documento institucional:", error);
+            return null;
+          }
+        }),
+      );
+
+      if (!isMounted) return;
+
+      setDocumentPreviewUrls(
+        entries.reduce<Record<number, string>>((accumulator, entry) => {
+          if (entry) accumulator[entry[0]] = entry[1];
+          return accumulator;
+        }, {}),
+      );
+    };
+
+    void loadPreviews();
+
+    return () => {
+      isMounted = false;
+      objectUrls.forEach((objectUrl) => window.URL.revokeObjectURL(objectUrl));
+    };
+  }, [documents]);
 
   const handleDownload = async (fileUrl: string | null, title: string) => {
     if (!fileUrl) return;
@@ -69,26 +118,38 @@ const InstitutionalInfoPage = () => {
 
       <section className="landing-info-panels">
         <article className="landing-info-panel">
-          <h2>Mision</h2>
-          <p>
-            Formar estudiantes integros, autonomos y comprometidos con la excelencia,
-            preparados para liderar con criterio etico, pensamiento analitico y sentido social.
-          </p>
+          <div className="landing-info-panel__header">
+            <h2>Mision</h2>
+          </div>
+          <div className="landing-info-panel__body">
+            <p>
+              Formar estudiantes integros, autonomos y comprometidos con la excelencia,
+              preparados para liderar con criterio etico, pensamiento analitico y sentido social.
+            </p>
+          </div>
         </article>
         <article className="landing-info-panel">
-          <h2>Vision</h2>
-          <p>
-            Consolidarnos como una institucion referente por la calidad de sus procesos,
-            el prestigio de su comunidad academica y la proyeccion de sus egresados.
-          </p>
+          <div className="landing-info-panel__header">
+            <h2>Vision</h2>
+          </div>
+          <div className="landing-info-panel__body">
+            <p>
+              Consolidarnos como una institucion referente por la calidad de sus procesos,
+              el prestigio de su comunidad academica y la proyeccion de sus egresados.
+            </p>
+          </div>
         </article>
         <article className="landing-info-panel">
-          <h2>Principios</h2>
-          <ul className="landing-bullet-list">
-            {values.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <div className="landing-info-panel__header">
+            <h2>Principios</h2>
+          </div>
+          <div className="landing-info-panel__body">
+            <ul className="landing-bullet-list">
+              {values.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         </article>
       </section>
 
@@ -105,6 +166,26 @@ const InstitutionalInfoPage = () => {
         <div className="landing-document-grid">
           {documents.map((document) => (
             <article key={document.id} className="landing-document-card">
+              <div className="landing-document-card__preview">
+                {documentPreviewUrls[document.id] ? (
+                  <iframe
+                    src={documentPreviewUrls[document.id]}
+                    title={`Vista previa de ${document.title}`}
+                  />
+                ) : (
+                  <div className="landing-document-card__preview-fallback">
+                    <div className="landing-document-card__icon">
+                      <FileText size={24} />
+                    </div>
+                    <strong>{document.title}</strong>
+                    <span>Vista previa no disponible</span>
+                  </div>
+                )}
+                <div className="landing-document-card__preview-badge">
+                  <FileText size={14} />
+                  <span>PDF</span>
+                </div>
+              </div>
               <h3>{document.title}</h3>
               <p>{document.description}</p>
               <div className="landing-document-card__actions">

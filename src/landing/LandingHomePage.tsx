@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -9,6 +9,7 @@ import {
   Newspaper,
   Sparkles,
   Users,
+  X,
 } from "lucide-react";
 import heroImageA from "@/assets/carrusel.jpg";
 import heroImageB from "@/assets/carrusel2.jpg";
@@ -186,6 +187,8 @@ const buildMonthlyCalendar = (
 const LandingHomePage = () => {
   const [activeHero, setActiveHero] = useState(0);
   const [activeGallery, setActiveGallery] = useState(0);
+  const [allNewsOpen, setAllNewsOpen] = useState(false);
+  const lockedScrollY = useRef(0);
   const { content } = useLandingContent();
 
   useEffect(() => {
@@ -203,8 +206,44 @@ const LandingHomePage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!allNewsOpen) {
+      return undefined;
+    }
+
+    lockedScrollY.current = window.scrollY;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyPosition = document.body.style.position;
+    const previousBodyTop = document.body.style.top;
+    const previousBodyLeft = document.body.style.left;
+    const previousBodyRight = document.body.style.right;
+    const previousBodyWidth = document.body.style.width;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${lockedScrollY.current}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.position = previousBodyPosition;
+      document.body.style.top = previousBodyTop;
+      document.body.style.left = previousBodyLeft;
+      document.body.style.right = previousBodyRight;
+      document.body.style.width = previousBodyWidth;
+      window.scrollTo({ top: lockedScrollY.current, behavior: "auto" });
+    };
+  }, [allNewsOpen]);
+
   const currentHero = heroSlides[activeHero];
   const newsItems = content.news.length ? content.news : fallbackNewsItems;
+  const latestNewsItems = [...newsItems].slice(0, 3);
+  const allNewsItems = [...newsItems].sort((a, b) => b.published_at.localeCompare(a.published_at));
   const galleryItems = content.gallery.length ? content.gallery : fallbackGalleryItems;
   const calendarEntries = content.calendar_entries.length
     ? [...content.calendar_entries].sort((a, b) => a.event_date.localeCompare(b.event_date))
@@ -310,7 +349,7 @@ const LandingHomePage = () => {
         </div>
 
         <div className="landing-news-grid">
-          {newsItems.slice(0, 3).map((item) => (
+          {latestNewsItems.map((item) => (
             <article key={item.id} className="landing-news-card">
               <div className="landing-news-card__image-wrap">
                 <img
@@ -334,11 +373,60 @@ const LandingHomePage = () => {
         </div>
 
         <div className="landing-news-section__action">
-          <a href="/#noticias" className="landing-btn landing-btn--primary">
+          <button
+            type="button"
+            className="landing-btn landing-btn--primary"
+            onClick={() => setAllNewsOpen(true)}
+          >
             Ver todas las noticias
-          </a>
+          </button>
         </div>
       </section>
+
+      {allNewsOpen ? (
+        <div className="landing-news-modal__overlay" onClick={() => setAllNewsOpen(false)}>
+          <div className="landing-news-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="landing-news-modal__header">
+              <div>
+                <span className="landing-section-tag landing-section-tag--light">Historico</span>
+                <h2>Todas las noticias</h2>
+                <p>Consulta el registro completo de publicaciones institucionales de la landing.</p>
+              </div>
+              <button
+                type="button"
+                className="landing-news-modal__close"
+                onClick={() => setAllNewsOpen(false)}
+                aria-label="Cerrar historial de noticias"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="landing-news-modal__body">
+              <div className="landing-news-modal__grid">
+                {allNewsItems.map((item) => (
+                  <article key={`all-news-${item.id}`} className="landing-news-card">
+                    <div className="landing-news-card__image-wrap">
+                      <img
+                        src={item.image_url || heroImageA}
+                        alt={item.title}
+                        className="landing-news-card__image"
+                      />
+                      <span className="landing-news-card__date">
+                        {formatDisplayDate(item.published_at)}
+                      </span>
+                    </div>
+                    <div className="landing-news-card__body">
+                      <h3>{item.title}</h3>
+                      <p>{item.summary}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <section id="programas" className="landing-showcase">
         <div className="landing-section-heading">

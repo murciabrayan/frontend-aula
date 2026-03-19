@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import StyledSelect from "@/components/StyledSelect";
 
 const API_BASE = "http://127.0.0.1:8000/api";
 
@@ -155,7 +156,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
 
               <div className="form-group">
                 <label>Tipo</label>
-                <select
+                <StyledSelect
                   value={tipo}
                   onChange={(event) =>
                     setTipo(event.target.value as "EVENT" | "EXAM" | "ACTIVITY")
@@ -164,7 +165,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
                   <option value="EVENT">Evento</option>
                   <option value="EXAM">Evaluacion</option>
                   <option value="ACTIVITY">Actividad</option>
-                </select>
+                </StyledSelect>
               </div>
             </div>
 

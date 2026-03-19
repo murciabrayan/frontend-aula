@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useFeedback } from "@/context/FeedbackContext";
+import StyledSelect from "@/components/StyledSelect";
 import "../styles/adminReportCards.css";
 
 const API_BASE = "http://127.0.0.1:8000/api/report-cards";
@@ -310,7 +311,7 @@ const AdminReportCards: React.FC = () => {
             <div className="report-period-card">
               <div className="report-period-label">Periodo academico</div>
               <div className="report-period-select-wrap">
-                <select
+                <StyledSelect
                   className="report-period-select"
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
@@ -319,7 +320,7 @@ const AdminReportCards: React.FC = () => {
                   <option value="Segundo periodo">Segundo periodo</option>
                   <option value="Tercer periodo">Tercer periodo</option>
                   <option value="Cuarto periodo">Cuarto periodo</option>
-                </select>
+                </StyledSelect>
               </div>
             </div>
 
@@ -393,7 +394,7 @@ const AdminReportCards: React.FC = () => {
             <div className="report-period-card">
               <div className="report-period-label">Periodo academico</div>
               <div className="report-period-select-wrap">
-                <select
+                <StyledSelect
                   className="report-period-select"
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
@@ -402,7 +403,7 @@ const AdminReportCards: React.FC = () => {
                   <option value="Segundo periodo">Segundo periodo</option>
                   <option value="Tercer periodo">Tercer periodo</option>
                   <option value="Cuarto periodo">Cuarto periodo</option>
-                </select>
+                </StyledSelect>
               </div>
             </div>
 

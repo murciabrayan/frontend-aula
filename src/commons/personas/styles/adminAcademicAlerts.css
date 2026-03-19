@@ -350,28 +350,34 @@
   align-items: flex-start;
   gap: 12px;
   padding: 22px 24px;
-  border-bottom: 1px solid rgba(201, 162, 39, 0.12);
+  border-bottom: 1px solid rgba(201, 162, 39, 0.18);
+  background: linear-gradient(135deg, #0d0d10 0%, #171821 55%, #2c210c 100%);
 }
 
 .admin-alerts-modal-header h2 {
   margin: 0;
-  color: #111827;
+  color: #fff8ea;
 }
 
 .admin-alerts-modal-header p {
   margin: 8px 0 0;
-  color: #6b7280;
+  color: rgba(255, 248, 234, 0.74);
 }
 
 .admin-alerts-close-btn {
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  border: 1px solid #e5dfd0;
-  background: #fff;
+  border: 1px solid rgba(201, 162, 39, 0.28);
+  background: rgba(255, 255, 255, 0.08);
   cursor: pointer;
   font-size: 18px;
-  color: #111827;
+  color: #fff8ea;
+  padding: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .admin-alerts-modal-body {

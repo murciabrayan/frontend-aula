@@ -211,8 +211,9 @@
 }
 
 .course-assign button.danger {
-  background: #ef4444;
-  color: white;
+  background: #111827;
+  color: #fff8ea;
+  border: 1px solid #111827;
 }
 
 /* ===================================================== */
@@ -444,12 +445,13 @@
 /* ===== BOTONES PELIGRO (ELIMINAR) ===== */
 
 .course-assign button.danger {
-  background: #991b1b;
-  color: white;
+  background: #111827;
+  color: #fff8ea;
+  border: 1px solid #111827;
 }
 
 .course-assign button.danger:hover {
-  background: #7f1d1d;
+  background: #000000;
 }
 /* ===================================================== */
 /* ======   MEJORAS VISUALES CURSO / ÁREAS / MATERIAS ===== */
@@ -476,6 +478,12 @@
   font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: 0.2px;
+}
+
+.modal-header p {
+  margin: 6px 0 0;
+  color: rgba(255, 248, 234, 0.74);
+  line-height: 1.5;
 }
 
 .modal-header button {
@@ -802,13 +810,14 @@
 }
 
 .course-assign button.danger {
-  background: #991b1b;
-  color: #ffffff;
+  background: #111827;
+  color: #fff8ea;
   box-shadow: none;
+  border: 1px solid #111827;
 }
 
 .course-assign button.danger:hover {
-  background: #7f1d1d;
+  background: #000000;
 }
 
 .modal-footer {

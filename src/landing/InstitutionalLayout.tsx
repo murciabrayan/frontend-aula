@@ -10,7 +10,7 @@ import {
   Youtube,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import {
@@ -50,6 +50,7 @@ const InstitutionalLayout = () => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
+  const profileRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -70,6 +71,24 @@ const InstitutionalLayout = () => {
     setProfileOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!profileOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!profileRef.current?.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [profileOpen]);
+
   const platformTarget = useMemo(
     () => getDashboardRoute(currentUser?.role || null),
     [currentUser],
@@ -78,6 +97,7 @@ const InstitutionalLayout = () => {
   const isRouteActive = (href: string) => location.pathname === href;
 
   const handlePlatformAccess = () => {
+    setProfileOpen(false);
     navigate(platformTarget);
   };
 
@@ -160,7 +180,7 @@ const InstitutionalLayout = () => {
                   Plataforma institucional
                 </button>
 
-                <div className="landing-profile">
+                <div className="landing-profile" ref={profileRef}>
                   <button
                     type="button"
                     className="landing-profile__trigger"
@@ -196,7 +216,13 @@ const InstitutionalLayout = () => {
                           </button>
 
                           {currentUser.role === "ADMIN" ? (
-                            <button type="button" onClick={() => setEditorOpen(true)}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setProfileOpen(false);
+                                setEditorOpen(true);
+                              }}
+                            >
                               <PencilLine size={16} />
                               <span>Editar landing</span>
                             </button>
