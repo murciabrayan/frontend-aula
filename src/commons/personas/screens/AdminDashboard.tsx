@@ -12,13 +12,14 @@ import AdminContent from "../components/AdminContent";
 import DashboardLayout, {
   type DashboardModuleItem,
 } from "../components/DashboardLayout";
+import NotificationBell from "../components/NotificationBell";
 import "@/commons/personas/styles/adminDashboard.css";
 
 const adminModules: DashboardModuleItem[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "usuarios", label: "Gestionar usuarios", icon: Users },
   { id: "cursos", label: "Cursos y equipo", icon: BookOpen },
-  { id: "estructuraCursos", label: "Estructura academica", icon: FileText },
+  { id: "estructuraCursos", label: "Estructura académica", icon: FileText },
   { id: "boletines", label: "Boletines", icon: FileText },
   { id: "asistencia", label: "Asistencia", icon: ClipboardCheck },
   { id: "alertasAcademicas", label: "Alertas tempranas", icon: TriangleAlert },
@@ -34,6 +35,13 @@ const AdminDashboard: React.FC = () => {
       modules={adminModules}
       activeModule={activeModule}
       onModuleChange={setActiveModule}
+      topbarContent={
+        <NotificationBell
+          setActiveModule={setActiveModule}
+          mode="alerts"
+          alertModuleId="alertasAcademicas"
+        />
+      }
     >
       <AdminContent activeModule={activeModule} />
     </DashboardLayout>

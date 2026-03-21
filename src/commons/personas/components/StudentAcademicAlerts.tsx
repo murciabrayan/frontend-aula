@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import StyledSelect from "@/components/StyledSelect";
 import {
   getAcademicAlerts,
@@ -6,9 +6,12 @@ import {
 } from "@/commons/personas/services/academicAlertService";
 import type {
   AcademicAlert,
+  AcademicAlertEvent,
   StudentAcademicSummaryResponse,
 } from "@/commons/personas/services/academicAlertService";
 import "../styles/studentAcademicAlerts.css";
+
+const AUTO_REFRESH_MS = 15000;
 
 interface StudentSummary {
   average: number | null;
@@ -24,6 +27,24 @@ const alertToneLabel = (type: string) => {
   if (type === "MISSING_ASSIGNMENTS") return "Entregas";
   return "Seguimiento";
 };
+
+const eventTitleLabel = (event: AcademicAlertEvent) => {
+  if (event.event_type === "ALERT_CREATED" || event.event_type === "ALERT_REOPENED") {
+    return "Alerta inicial";
+  }
+  if (event.event_type === "TEACHER_INITIAL_SUBMITTED") {
+    return "Primer seguimiento docente";
+  }
+  if (event.event_type === "TEACHER_FINAL_SUBMITTED") {
+    return "Segundo seguimiento docente";
+  }
+  if (event.event_type === "ADMIN_CLOSED_POSITIVE" || event.event_type === "ADMIN_CLOSED_NEGATIVE") {
+    return "Observación final";
+  }
+  return event.title;
+};
+
+const formatDateTime = (value: string) => new Date(value).toLocaleString("es-CO");
 
 const StudentAcademicAlerts: React.FC = () => {
   const [period, setPeriod] = useState<number>(1);
@@ -49,7 +70,17 @@ const StudentAcademicAlerts: React.FC = () => {
   };
 
   useEffect(() => {
-    loadData();
+    void loadData();
+  }, [period]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      void loadData();
+    }, AUTO_REFRESH_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
   }, [period]);
 
   const completionRate = useMemo(() => {
@@ -61,16 +92,16 @@ const StudentAcademicAlerts: React.FC = () => {
     <section className="student-alerts">
       <div className="student-alerts__hero">
         <div className="student-alerts__hero-copy">
-          <span className="student-alerts__badge">Alertas academicas</span>
-          <h2>Senales de seguimiento del periodo</h2>
+          <span className="student-alerts__badge">Alertas académicas</span>
+          <h2>Ruta de seguimiento del período</h2>
           <p>
-            Revisa tu estado academico, detecta riesgos a tiempo y mantente al dia
-            con asistencia, promedio y entregas.
+            Aquí ves la alerta inicial, los seguimientos del docente y la observación final
+            de coordinación cuando el proceso ya haya sido cerrado.
           </p>
         </div>
 
         <label className="student-alerts__control-card">
-          <span>Periodo</span>
+          <span>Período</span>
           <StyledSelect value={period} onChange={(e) => setPeriod(Number(e.target.value))}>
             <option value={1}>Periodo 1</option>
             <option value={2}>Periodo 2</option>
@@ -81,7 +112,7 @@ const StudentAcademicAlerts: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="student-alerts__empty">Cargando informacion...</div>
+        <div className="student-alerts__empty">Cargando información...</div>
       ) : (
         <>
           {summary ? (
@@ -103,7 +134,7 @@ const StudentAcademicAlerts: React.FC = () => {
                 <strong>{summary.missing_assignments}</strong>
               </article>
               <article className="student-alerts__summary-card">
-                <span>Avance academico</span>
+                <span>Avance académico</span>
                 <strong>{completionRate}%</strong>
               </article>
             </div>
@@ -113,21 +144,50 @@ const StudentAcademicAlerts: React.FC = () => {
             {alerts.length === 0 ? (
               <article className="student-alert-card student-alert-card--empty">
                 <h4>Sin alertas activas</h4>
-                <p>No tienes alertas academicas en este periodo. Sigue asi.</p>
+                <p>No tienes alertas académicas en este período. Sigue así.</p>
               </article>
             ) : (
-              alerts.map((alert) => (
-                <article key={alert.id} className="student-alert-card">
-                  <div className="student-alert-card__top">
-                    <span className={`student-alert-card__type ${alert.level.toLowerCase()}`}>
-                      {alertToneLabel(alert.alert_type)}
-                    </span>
-                    <span className="student-alert-card__period">Periodo {alert.period}</span>
-                  </div>
-                  <h4>{alert.title}</h4>
-                  <p>{alert.message_student}</p>
-                </article>
-              ))
+              alerts.map((alert) => {
+                const studentTimeline = alert.events.filter(
+                  (event) =>
+                    event.visible_to_student &&
+                    [
+                      "ALERT_CREATED",
+                      "ALERT_REOPENED",
+                      "TEACHER_INITIAL_SUBMITTED",
+                      "TEACHER_FINAL_SUBMITTED",
+                      "ADMIN_CLOSED_POSITIVE",
+                      "ADMIN_CLOSED_NEGATIVE",
+                    ].includes(event.event_type),
+                );
+
+                return (
+                  <article key={alert.id} className="student-alert-card student-alert-card--timeline">
+                    <div className="student-alert-card__top">
+                      <span className={`student-alert-card__type ${alert.level.toLowerCase()}`}>
+                        {alertToneLabel(alert.alert_type)}
+                      </span>
+                      <span className="student-alert-card__period">Periodo {alert.period}</span>
+                    </div>
+
+                    <h4>{alert.title}</h4>
+                    <p className="student-alert-card__intro">{alert.message_student}</p>
+
+                    <div className="student-alert-card__timeline">
+                      {studentTimeline.map((event) => (
+                        <div key={event.id} className="student-alert-card__timeline-item">
+                          <div className="student-alert-card__timeline-dot" />
+                          <div className="student-alert-card__timeline-content">
+                            <strong>{eventTitleLabel(event)}</strong>
+                            <span>{formatDateTime(event.created_at)}</span>
+                            {event.notes ? <p>{event.notes}</p> : null}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                );
+              })
             )}
           </div>
         </>

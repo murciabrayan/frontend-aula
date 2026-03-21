@@ -1,24 +1,7 @@
-// src/services/userService.ts
-import axios from "axios";
+import api from "@/api/axios";
 
-const API_URL = "http://127.0.0.1:8000/api/users/";
+const API_URL = "/api/users/";
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("access_token");
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  };
-};
+export const getTeachers = async () => api.get(`${API_URL}?role=teacher`);
 
-// ✅ obtener todos los docentes
-export const getTeachers = async () => {
-  return axios.get(`${API_URL}?role=teacher`, getAuthHeaders());
-};
-
-// ✅ obtener todos los estudiantes
-export const getStudents = async () => {
-  return axios.get(`${API_URL}?role=student`, getAuthHeaders());
-};
+export const getStudents = async () => api.get(`${API_URL}?role=student`);

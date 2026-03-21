@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import {
   BookOpen,
   ChevronRight,
@@ -11,8 +11,6 @@ import {
 import AssignmentForm from "./AssignmentForm";
 import SubmissionList from "./SubmissionList";
 import "./teacherAssignments.css";
-
-const API_BASE = "http://127.0.0.1:8000/api";
 
 interface Area {
   id: number;
@@ -52,37 +50,27 @@ const AssignmentDashboard: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const token = localStorage.getItem("access_token");
-
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/courses/teacher/course/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/courses/teacher/course/")
       .then((res) => setCourse(res.data));
-  }, [token]);
+  }, []);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/subjects/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/subjects/")
       .then((res) => setSubjects(res.data));
-  }, [token]);
+  }, []);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/areas/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/areas/")
       .then((res) => setAreas(res.data));
-  }, [token]);
+  }, []);
 
   const loadAssignments = (subjectId: number) => {
-    axios
-      .get(`${API_BASE}/assignments/?subject=${subjectId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get(`/api/assignments/?subject=${subjectId}`)
       .then((res) =>
         setAssignments(
           res.data.map((assignment: any) => ({
@@ -112,9 +100,7 @@ const AssignmentDashboard: React.FC = () => {
   const confirmDelete = async () => {
     if (!assignmentToDelete) return;
 
-    await axios.delete(`${API_BASE}/assignments/${assignmentToDelete.id}/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await api.delete(`/api/assignments/${assignmentToDelete.id}/`);
 
     if (activeSubject) {
       loadAssignments(activeSubject.id);
@@ -154,7 +140,7 @@ const AssignmentDashboard: React.FC = () => {
     <section className="teacher-task-page">
       <div className="teacher-task-hero">
         <div className="teacher-task-hero__copy">
-          <span className="teacher-task-hero__badge">Gestion de tareas</span>
+          <span className="teacher-task-hero__badge">Gestión de tareas</span>
           <h1>{course?.name || "Curso activo"}</h1>
           <p>
             Organiza las materias del curso, crea nuevas actividades y revisa entregas
@@ -325,10 +311,10 @@ const AssignmentDashboard: React.FC = () => {
                       <table className="teacher-task-table">
                         <thead>
                           <tr>
-                            <th>Titulo</th>
+                            <th>Título</th>
                             <th>Periodo</th>
                             <th>Fecha de entrega</th>
-                            <th>Descripcion</th>
+                            <th>Descripción</th>
                             <th>Entregas</th>
                             <th>Acciones</th>
                           </tr>

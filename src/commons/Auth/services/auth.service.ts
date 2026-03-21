@@ -17,6 +17,7 @@ export interface StoredUser {
   first_name?: string;
   last_name?: string;
   role: "ADMIN" | "TEACHER" | "STUDENT";
+  must_change_password?: boolean;
   photo_url?: string | null;
   avatar_url?: string | null;
   avatar_style?: string;
@@ -60,6 +61,7 @@ export const loginUser = async (email: string, password: string) => {
       email: user?.email || decoded.email,
       cedula: user?.cedula || decoded.cedula,
       role: user?.role || decoded.role,
+      must_change_password: user?.must_change_password || false,
       photo_url: user?.photo_url || null,
       avatar_url: user?.avatar_url || user?.photo_url || null,
       avatar_style: user?.avatar_style,
@@ -70,7 +72,7 @@ export const loginUser = async (email: string, password: string) => {
 
     notifyAuthChange();
 
-    return decoded; // devuelve el usuario con su rol, email, etc.
+    return storedUser;
   } catch (error: any) {
     console.error("Error en login:", error.response?.data || error.message);
     throw error;
@@ -119,6 +121,23 @@ export const getCurrentUser = (): StoredUser | null => {
 export const setCurrentUser = (user: StoredUser) => {
   localStorage.setItem("user", JSON.stringify(user));
   notifyAuthChange();
+};
+
+export const completeInitialPassword = async (newPassword: string) => {
+  const response = await api.post<{ message: string; user: StoredUser }>(
+    "/api/complete-initial-password/",
+    { new_password: newPassword },
+  );
+
+  const currentUser = getCurrentUser();
+  const updatedUser: StoredUser = {
+    ...(currentUser || {}),
+    ...response.data.user,
+    must_change_password: false,
+  };
+
+  setCurrentUser(updatedUser);
+  return response.data;
 };
 
 export const isAuthenticated = () => Boolean(localStorage.getItem("access_token"));

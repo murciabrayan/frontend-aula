@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Camera, Eye, LockKeyhole, Mail, PencilLine, Save, Shield, User, X } from "lucide-react";
 import api from "@/api/axios";
+import PasswordRequirements from "@/components/PasswordRequirements";
 import { getCurrentUser, setCurrentUser } from "@/commons/Auth/services/auth.service";
+import { isStrongPassword } from "@/utils/passwordValidation";
 import "./profile.css";
 
 type FieldType = "text" | "email";
@@ -37,15 +39,6 @@ const AVATAR_STYLES = [
 const buildDiceBearUrl = (style: string, seed: string) =>
   `https://api.dicebear.com/9.x/${style}/svg?seed=${encodeURIComponent(seed)}&backgroundType=gradientLinear`;
 
-const PASSWORD_MESSAGE =
-  "La contrasena debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.";
-
-const isStrongPassword = (value: string) =>
-  value.length >= 8 &&
-  /[A-Z]/.test(value) &&
-  /\d/.test(value) &&
-  /[^A-Za-z0-9]/.test(value);
-
 const baseSummary = [
   { key: "first_name", label: "Nombre", icon: User },
   { key: "last_name", label: "Apellido", icon: User },
@@ -66,6 +59,7 @@ const ProfileModule = ({
     old_password: "",
     new_password: "",
   });
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -205,7 +199,7 @@ const ProfileModule = ({
     setSuccess("");
 
     if (!isStrongPassword(passwordData.new_password)) {
-      setError(PASSWORD_MESSAGE);
+      setPasswordTouched(true);
       return;
     }
 
@@ -213,9 +207,10 @@ const ProfileModule = ({
       const response = await api.post("/api/change-password/", passwordData);
       setSuccess(response.data.message || "Contrasena actualizada correctamente.");
       setPasswordData({ old_password: "", new_password: "" });
+      setPasswordTouched(false);
       setShowPasswordModal(false);
     } catch (err: any) {
-      setError(err.response?.data?.error || "No se pudo cambiar la contrasena.");
+      setError(err.response?.data?.error || "No se pudo cambiar la contraseña.");
     }
   };
 
@@ -243,7 +238,7 @@ const ProfileModule = ({
             onClick={() => setShowPasswordModal(true)}
           >
             <LockKeyhole size={18} />
-            <span>Cambiar contrasena</span>
+            <span>Cambiar contraseña</span>
           </button>
 
           {!editing ? (
@@ -382,7 +377,7 @@ const ProfileModule = ({
         <article className="profile-card profile-card--form">
           <div className="profile-card__header">
             <h3>Datos del perfil</h3>
-            <span>{editing ? "Edita y guarda los cambios" : "Consulta tu informacion actual"}</span>
+            <span>{editing ? "Edita y guarda los cambios" : "Consulta tu información actual"}</span>
           </div>
 
           <form className="profile-form" onSubmit={handleSaveProfile}>
@@ -461,7 +456,10 @@ const ProfileModule = ({
             <button
               type="button"
               className="profile-modal__close"
-              onClick={() => setShowPasswordModal(false)}
+              onClick={() => {
+                setShowPasswordModal(false);
+                setPasswordTouched(false);
+              }}
               aria-label="Cerrar modal"
             >
               <X size={18} />
@@ -472,7 +470,7 @@ const ProfileModule = ({
                 <LockKeyhole size={18} />
               </div>
               <div>
-                <h3 id="password-modal-title">Cambiar contrasena</h3>
+                <h3 id="password-modal-title">Cambiar contraseña</h3>
                 <p>Actualiza tu acceso de forma segura.</p>
               </div>
             </div>
@@ -494,20 +492,25 @@ const ProfileModule = ({
               </label>
 
               <label className="profile-form__field profile-form__field--wide">
-                <span>Nueva contrasena</span>
+                <span>Nueva contraseña</span>
                 <input
                   type="password"
                   value={passwordData.new_password}
-                  minLength={8}
-                  title={PASSWORD_MESSAGE}
                   onChange={(event) =>
                     setPasswordData((current) => ({
                       ...current,
                       new_password: event.target.value,
                     }))
                   }
+                  onBlur={() => setPasswordTouched(true)}
                   required
                 />
+                {(passwordTouched || passwordData.new_password) ? (
+                  <PasswordRequirements
+                    password={passwordData.new_password}
+                    className="profile-password-requirements"
+                  />
+                ) : null}
               </label>
 
               <div className="profile-modal__actions">
@@ -519,7 +522,10 @@ const ProfileModule = ({
                 <button
                   type="button"
                   className="profile-btn profile-btn--secondary"
-                  onClick={() => setShowPasswordModal(false)}
+                  onClick={() => {
+                    setShowPasswordModal(false);
+                    setPasswordTouched(false);
+                  }}
                 >
                   <X size={18} />
                   <span>Cancelar</span>

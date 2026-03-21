@@ -1,15 +1,6 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8000/api/calendar/";
+import api from "@/api/axios";
 
 export const getCalendarEvents = async () => {
-  const token = localStorage.getItem("access_token");
-
-  const res = await axios.get(API_URL, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
+  const res = await api.get("/api/calendar/");
   return res.data;
 };

@@ -22,10 +22,10 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
               <section className="dashboard-home__admin-hero">
                 <div className="dashboard-home__admin-copy">
                   <span className="dashboard-home__badge">Panel central</span>
-                  <h2>Administra el colegio con una vista clara, moderna y preparada para el dia a dia</h2>
+                  <h2>Administra el colegio con una vista clara, moderna y preparada para el día a día</h2>
                   <p>
-                    Gestiona usuarios, cursos, estructura academica, asistencia,
-                    boletines y alertas desde un punto de control mas visual y mejor
+                    Gestiona usuarios, cursos, estructura académica, asistencia,
+                    boletines y alertas desde un punto de control más visual y mejor
                     organizado.
                   </p>
 
@@ -40,16 +40,16 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
 
               <section className="dashboard-home__admin-grid">
                 <article className="dashboard-home__admin-card">
-                  <span>Gestion unificada</span>
+                  <span>Gestión unificada</span>
                   <strong>Todo el ecosistema escolar en un mismo panel</strong>
                 </article>
                 <article className="dashboard-home__admin-card">
-                  <span>Operacion diaria</span>
-                  <strong>Acceso rapido a los modulos mas importantes</strong>
+                  <span>Operación diaria</span>
+                  <strong>Acceso rápido a los módulos más importantes</strong>
                 </article>
                 <article className="dashboard-home__admin-card">
                   <span>Experiencia</span>
-                  <strong>Una portada institucional mas solida para el rol administrativo</strong>
+                  <strong>Una portada institucional más sólida para el rol administrativo</strong>
                 </article>
               </section>
             </div>
@@ -73,8 +73,8 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
 
       {activeModule === "configuracion" && (
         <div>
-          <h2>Configuracion del sistema</h2>
-          <p>Proximamente...</p>
+          <h2>Configuración del sistema</h2>
+          <p>Próximamente...</p>
         </div>
       )}
     </div>

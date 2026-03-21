@@ -16,7 +16,7 @@ const TaskModal: React.FC<Props> = ({ event, onClose, onGoToTask }) => {
         <div className="task-modal__header">
           <div>
             <h2>{event.title}</h2>
-            <p className="task-modal__subtitle">Consulta la informacion principal de la actividad.</p>
+            <p className="task-modal__subtitle">Consulta la información principal de la actividad.</p>
           </div>
 
           <button type="button" className="task-modal__close" onClick={onClose} aria-label="Cerrar modal">

@@ -23,7 +23,7 @@ const ForgotPasswordScreen = () => {
         title: "Correo enviado",
         message:
           res.data.message ||
-          "Te enviamos un enlace para restablecer tu contrasena.",
+          "Te enviamos un enlace para restablecer tu contraseña.",
         buttonText: "Volver",
         tone: "success",
       });
@@ -33,7 +33,7 @@ const ForgotPasswordScreen = () => {
         title: "No se pudo enviar",
         message:
           err.response?.data?.error ||
-          "Ocurrio un error al enviar el correo de recuperacion.",
+          "Ocurrió un error al enviar el correo de recuperación.",
         buttonText: "Entendido",
         tone: "error",
       });
@@ -48,16 +48,16 @@ const ForgotPasswordScreen = () => {
             <img src={logo} alt="Logo Institucional" className="login-logo" />
             <div className="login-institution">
               <strong>GIMNASIO LOS CERROS</strong>
-              <div className="login-tagline">Recuperar contrasena</div>
+              <div className="login-tagline">Recuperar contraseña</div>
             </div>
           </div>
 
           <div className="login-card">
-            <h1>Recuperar contrasena</h1>
+            <h1>Recuperar contraseña</h1>
             <form onSubmit={handleSubmit}>
               <input
                 type="email"
-                placeholder="Correo electronico"
+                placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -65,7 +65,7 @@ const ForgotPasswordScreen = () => {
               <button type="submit">Enviar enlace</button>
 
               <a className="forgot" onClick={() => navigate("/plataforma")}>
-                Volver al inicio de sesion
+                Volver al inicio de sesión
               </a>
             </form>
 

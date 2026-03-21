@@ -1,4 +1,4 @@
-import {
+﻿import {
   Facebook,
   Instagram,
   LogOut,
@@ -39,7 +39,7 @@ const socialLinks = [
 
 const quickLinks = [
   { label: "Agenda escolar", href: "/#admisiones" },
-  { label: "Oferta academica", href: "/#programas" },
+  { label: "Oferta académica", href: "/#programas" },
   { label: "Noticias", href: "/#noticias" },
   { label: "Contacto", href: "/contacto" },
 ];
@@ -112,10 +112,10 @@ const InstitutionalLayout = () => {
   };
 
   const profileLabel = !currentUser
-    ? "Iniciar sesion"
+    ? "Iniciar sesión"
     : currentUser.role === "ADMIN"
       ? "Mi cuenta"
-      : "Cerrar sesion";
+      : "Cerrar sesión";
 
   return (
     <LandingContentProvider>
@@ -126,7 +126,7 @@ const InstitutionalLayout = () => {
               <img src={logo} alt="Logo institucional" className="landing-header__logo" />
               <div>
                 <strong>Gimnasio los cerros</strong>
-                <span>Un camino feliz hacia la construccion del conocimiento</span>
+                <span>Un camino feliz hacia la construcción del conocimiento</span>
               </div>
             </Link>
 
@@ -134,7 +134,7 @@ const InstitutionalLayout = () => {
               type="button"
               className="landing-header__toggle"
               onClick={() => setMenuOpen((current) => !current)}
-              aria-label={menuOpen ? "Cerrar menu" : "Abrir menu"}
+              aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
             >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -230,7 +230,7 @@ const InstitutionalLayout = () => {
 
                           <button type="button" onClick={handleLogout}>
                             <LogOut size={16} />
-                            <span>Cerrar sesion</span>
+                            <span>Cerrar sesión</span>
                           </button>
                         </>
                       ) : (
@@ -242,7 +242,7 @@ const InstitutionalLayout = () => {
                           }}
                         >
                           <UserCircle2 size={16} />
-                          <span>Iniciar sesion</span>
+                          <span>Iniciar sesión</span>
                         </button>
                       )}
                     </div>
@@ -261,15 +261,15 @@ const InstitutionalLayout = () => {
           <div className="landing-footer__grid">
             <div className="landing-footer__brand">
               <img src={logo} alt="Logo institucional" className="landing-footer__logo" />
-              <strong>Institucion Educativa</strong>
+              <strong>Institución Educativa</strong>
               <p>
-                Formamos lideres con pensamiento critico, excelencia academica y una
+                Formamos líderes con pensamiento crítico, excelencia académica y una
                 comunidad escolar que impulsa el crecimiento integral de cada estudiante.
               </p>
             </div>
 
             <div>
-              <h3>Enlaces rapidos</h3>
+              <h3>Enlaces rápidos</h3>
               <div className="landing-footer__links">
                 {quickLinks.map((item) => (
                   <a key={item.label} href={item.href}>
@@ -280,7 +280,7 @@ const InstitutionalLayout = () => {
             </div>
 
             <div>
-              <h3>Siguenos</h3>
+              <h3>Síguenos</h3>
               <div className="landing-footer__social">
                 {socialLinks.map((item) => {
                   const Icon = item.icon;
@@ -305,13 +305,13 @@ const InstitutionalLayout = () => {
               <div className="landing-footer__contact">
                 <span>Tel: +57 601 555 1010</span>
                 <span>Email: admisiones@institucion.edu.co</span>
-                <span>Direccion: Cl. 8 # 6-87, Simijaca, Cundinamarca</span>
+                <span>Dirección: Cl. 8 # 6-87, Simijaca, Cundinamarca</span>
               </div>
             </div>
           </div>
 
           <div className="landing-footer__bottom">
-            <span>&copy; 2026 Institucion Educativa. Todos los derechos reservados.</span>
+            <span>&copy; 2026 Institución Educativa. Todos los derechos reservados.</span>
           </div>
         </footer>
 

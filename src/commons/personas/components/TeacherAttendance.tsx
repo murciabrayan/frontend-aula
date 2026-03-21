@@ -1,5 +1,6 @@
-import React, { useRef, useState } from "react";
+﻿import React, { useRef, useState } from "react";
 import StyledSelect from "@/components/StyledSelect";
+import { exportRowsToPdf } from "@/utils/exportPdf";
 import {
   getTeacherAttendanceByDate,
   saveTeacherAttendanceBulk,
@@ -12,7 +13,7 @@ type PeriodType = 1 | 2 | 3 | 4;
 
 interface EditableAttendanceStudent extends TeacherAttendanceStudent {
   local_status: AttendanceStatus;
-  local_notes: string;
+  local_teacher_notes: string;
 }
 
 const getToday = () => {
@@ -29,11 +30,31 @@ const formatPrettyDate = (value: string) => {
   return `${day}/${month}/${year}`;
 };
 
+const formatDateTime = (value?: string | null) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("es-CO", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+};
+
 const statusLabel = (status: AttendanceStatus) => {
   if (status === "PRESENT") return "Presente";
   if (status === "ABSENT") return "Ausente";
   return "Tarde";
 };
+
+const roleLabel = (role?: string | null) => {
+  if (role === "ADMIN") return "Coordinación";
+  if (role === "TEACHER") return "Docente";
+  return "Sistema";
+};
+
+const hasAdminIntervention = (student: EditableAttendanceStudent) =>
+  student.updated_by_role === "ADMIN" || Boolean(student.latest_admin_event);
 
 const TeacherAttendance: React.FC = () => {
   const dateInputRef = useRef<HTMLInputElement | null>(null);
@@ -89,7 +110,7 @@ const TeacherAttendance: React.FC = () => {
       const loadedStudents = (res.data.students || []).map((student) => ({
         ...student,
         local_status: student.status,
-        local_notes: student.notes || "",
+        local_teacher_notes: student.teacher_notes || student.notes || "",
       }));
 
       setCourseName(res.data.course.nombre);
@@ -138,7 +159,7 @@ const TeacherAttendance: React.FC = () => {
     if (!selectedStudent) return;
     setSelectedStudent({
       ...selectedStudent,
-      local_notes: notes,
+      local_teacher_notes: notes,
     });
   };
 
@@ -157,7 +178,7 @@ const TeacherAttendance: React.FC = () => {
           {
             student: selectedStudent.id,
             status: selectedStudent.local_status,
-            notes: selectedStudent.local_notes,
+            notes: selectedStudent.local_teacher_notes,
           },
         ],
       });
@@ -168,13 +189,24 @@ const TeacherAttendance: React.FC = () => {
             ? {
                 ...student,
                 local_status: selectedStudent.local_status,
-                local_notes: selectedStudent.local_notes,
+                local_teacher_notes: selectedStudent.local_teacher_notes,
                 status: selectedStudent.local_status,
-                notes: selectedStudent.local_notes,
+                notes: selectedStudent.local_teacher_notes,
+                teacher_notes: selectedStudent.local_teacher_notes,
                 periodo: selectedPeriod,
+                latest_teacher_event: {
+                  summary: student.attendance_id
+                    ? "El docente actualizó la asistencia"
+                    : "El docente registró la asistencia inicial",
+                  notes: selectedStudent.local_teacher_notes,
+                  actor_name: student.updated_by_role === "TEACHER"
+                    ? student.updated_by_name || null
+                    : null,
+                  created_at: new Date().toISOString(),
+                },
               }
-            : student
-        )
+            : student,
+        ),
       );
 
       closeStudentModal();
@@ -191,7 +223,52 @@ const TeacherAttendance: React.FC = () => {
       setSaving(false);
     }
   };
+  const handleExportPdf = () => {
+    const exportRows = students.map((student) => ({
+      estudiante: student.student_name,
+      periodo: student.periodo,
+      estado: statusLabel(student.local_status),
+      justificada: student.is_justified ? "Sí" : "No",
+      observacion_docente:
+        student.teacher_notes || student.local_teacher_notes || "Sin observación",
+      revision_administrativa:
+        student.latest_admin_event?.summary || "Sin revisión administrativa",
+      observacion_administrativa:
+        student.admin_notes || student.latest_admin_event?.notes || "Sin observación",
+    }));
 
+    exportRowsToPdf({
+      filename: `asistencia-docente-${loadedDate || selectedDate}.pdf`,
+      title: `Asistencia docente - ${courseName || "Curso"}`,
+      subtitle: `Fecha ${formatPrettyDate(loadedDate || selectedDate)} • Periodo ${selectedPeriod}`,
+      summary: [
+        { label: "Presentes", value: summary.present },
+        { label: "Ausentes", value: summary.absent },
+        { label: "Tardanzas", value: summary.late },
+        { label: "Justificadas", value: summary.justified },
+      ],
+      columns: [
+        { header: "Estudiante", key: "estudiante" },
+        { header: "Periodo", key: "periodo" },
+        { header: "Estado", key: "estado" },
+        { header: "Justificada", key: "justificada" },
+        { header: "Observación docente", key: "observacion_docente" },
+        { header: "Revisión administrativa", key: "revision_administrativa" },
+        { header: "Observación administrativa", key: "observacion_administrativa" },
+      ].map((column) => ({
+        ...column,
+        width:
+          column.key === "estudiante"
+            ? 170
+            : column.key.includes("observacion")
+              ? 155
+              : column.key === "revision_administrativa"
+                ? 145
+                : 72,
+      })),
+      rows: exportRows,
+    });
+  };
   return (
     <div className="teacher-attendance-page">
       <section className="teacher-attendance-hero">
@@ -242,14 +319,25 @@ const TeacherAttendance: React.FC = () => {
               </StyledSelect>
             </div>
 
-            <button
-              type="button"
-              className="btn-primary attendance-view-btn"
-              onClick={loadAttendance}
-              disabled={loading}
-            >
-              {loading ? "Cargando..." : "Ver asistencia"}
-            </button>
+            <div className="attendance-action-group">
+              <button
+                type="button"
+                className="btn-primary attendance-view-btn"
+                onClick={loadAttendance}
+                disabled={loading}
+              >
+                {loading ? "Cargando..." : "Ver asistencia"}
+              </button>
+
+              <button
+                type="button"
+                className="btn-secondary attendance-export-btn"
+                onClick={handleExportPdf}
+                disabled={!students.length}
+              >
+                Exportar PDF
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -311,8 +399,8 @@ const TeacherAttendance: React.FC = () => {
             <div>
               <h3>Estudiantes del día</h3>
               <p>
-                La tabla solo muestra la información. Usa el botón gestionar para
-                editar el registro.
+                La tabla muestra el registro del docente y si coordinación hizo
+                una corrección o una justificación posterior.
               </p>
             </div>
           </div>
@@ -326,6 +414,7 @@ const TeacherAttendance: React.FC = () => {
                   <th>Estado</th>
                   <th>Observación</th>
                   <th>Justificada</th>
+                  <th>Control administrativo</th>
                   <th>Acción</th>
                 </tr>
               </thead>
@@ -342,13 +431,32 @@ const TeacherAttendance: React.FC = () => {
                       </span>
                     </td>
                     <td className="attendance-observation-cell">
-                      {student.local_notes || "Sin observación"}
+                      {student.teacher_notes || student.local_teacher_notes || "Sin observación"}
                     </td>
                     <td>
                       {student.is_justified ? (
                         <span className="attendance-justified yes">Sí</span>
                       ) : (
                         <span className="attendance-justified no">No</span>
+                      )}
+                    </td>
+                    <td className="attendance-admin-trace-cell">
+                      {hasAdminIntervention(student) ? (
+                        <div className="attendance-admin-trace">
+                          <span className="attendance-admin-badge">
+                            {student.is_justified
+                              ? "Justificada"
+                              : "Ajustada por coordinación"}
+                          </span>
+                          <small>
+                            {student.latest_admin_event?.summary ||
+                              `Último cambio por ${roleLabel(student.updated_by_role)}`}
+                          </small>
+                        </div>
+                      ) : (
+                        <span className="attendance-muted-note">
+                          Sin cambios de coordinación
+                        </span>
                       )}
                     </td>
                     <td>
@@ -375,8 +483,7 @@ const TeacherAttendance: React.FC = () => {
               <div>
                 <h2>{selectedStudent.student_name}</h2>
                 <p>
-                  Edita la asistencia del día{" "}
-                  <strong>{formatPrettyDate(loadedDate)}</strong>
+                  Edita la asistencia del día <strong>{formatPrettyDate(loadedDate)}</strong>
                 </p>
               </div>
 
@@ -385,7 +492,7 @@ const TeacherAttendance: React.FC = () => {
                 className="attendance-close-btn"
                 onClick={closeStudentModal}
               >
-                ✕
+                ×
               </button>
             </div>
 
@@ -443,10 +550,67 @@ const TeacherAttendance: React.FC = () => {
               <div className="attendance-notes-card">
                 <label>Observación</label>
                 <textarea
-                  value={selectedStudent.local_notes}
+                  value={selectedStudent.local_teacher_notes}
                   onChange={(e) => updateSelectedStudentNotes(e.target.value)}
                   placeholder="Escribe una observación si es necesario..."
                 />
+              </div>
+
+              <div className="attendance-audit-grid">
+                <div className="attendance-audit-card">
+                  <span className="attendance-mini-label">Registro docente</span>
+                  <strong>
+                    {selectedStudent.latest_teacher_event?.summary ||
+                      "Este registro aún no tiene historial previo."}
+                  </strong>
+                  {selectedStudent.latest_teacher_event?.actor_name && (
+                    <p>
+                      {selectedStudent.latest_teacher_event.actor_name} • {" "}
+                      {formatDateTime(selectedStudent.latest_teacher_event.created_at)}
+                    </p>
+                  )}
+                  {selectedStudent.latest_teacher_event?.notes && (
+                    <div className="attendance-audit-note">
+                      {selectedStudent.latest_teacher_event.notes}
+                    </div>
+                  )}
+                </div>
+
+                <div className="attendance-audit-card admin">
+                  <span className="attendance-mini-label">Revisión administrativa</span>
+                  <strong>
+                    {selectedStudent.latest_admin_event?.summary ||
+                      "Aún no hay revisión de coordinación."}
+                  </strong>
+                  {selectedStudent.latest_admin_event ? (
+                    <>
+                      <p>
+                        {selectedStudent.latest_admin_event.actor_name || "Coordinación"} •{" "}
+                        {formatDateTime(selectedStudent.latest_admin_event.created_at)}
+                      </p>
+                      {selectedStudent.latest_admin_event.notes && (
+                        <div className="attendance-audit-note">
+                          {selectedStudent.latest_admin_event.notes}
+                        </div>
+                      )}
+                      {selectedStudent.attachment_url && (
+                        <a
+                          href={selectedStudent.attachment_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="attendance-support-link"
+                        >
+                          Ver soporte adjunto
+                        </a>
+                      )}
+                    </>
+                  ) : (
+                    <p>
+                      Cuando coordinación justifique o corrija esta asistencia,
+                      aparecerá aquí para que el docente lo tenga visible.
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -475,3 +639,8 @@ const TeacherAttendance: React.FC = () => {
 };
 
 export default TeacherAttendance;
+
+
+
+
+

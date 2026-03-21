@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { ClipboardCheck, ClipboardList, Home, Star, TriangleAlert, User } from "lucide-react";
 
 import NotificationBell from "../components/NotificationBell";
@@ -49,11 +49,11 @@ const StudentDashboard: React.FC = () => {
           <div className="dashboard-home dashboard-home--student">
             <section className="dashboard-home__hero-panel">
               <div className="dashboard-home__hero-copy">
-                <span className="dashboard-home__badge">Ruta academica</span>
-                <h2>Calendario academico</h2>
+                <span className="dashboard-home__badge">Ruta académica</span>
+                <h2>Calendario académico</h2>
                 <p>
-                  Consulta tareas, revisa alertas y sigue tu calendario academico con
-                  una vista inicial mas moderna y facil de leer.
+                  Consulta tareas, revisa alertas y sigue tu calendario académico con
+                  una vista inicial más moderna y fácil de leer.
                 </p>
               </div>
             </section>
@@ -64,7 +64,7 @@ const StudentDashboard: React.FC = () => {
                   <span>Calendario</span>
                   <h3>Calendario del estudiante</h3>
                 </div>
-                <p>Abre una tarea desde el calendario para ir directo al modulo correspondiente.</p>
+                <p>Abre una tarea desde el calendario para ir directo al módulo correspondiente.</p>
               </div>
 
               <StudentCalendar />

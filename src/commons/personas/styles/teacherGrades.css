@@ -2,8 +2,8 @@
   display: grid;
   gap: 22px;
   padding: 28px;
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
   background:
     radial-gradient(circle at top left, rgba(201, 162, 39, 0.1), transparent 24%),
     linear-gradient(180deg, #fffdf8 0%, #f5efe1 100%);

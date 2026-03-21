@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { Download, Eye, FileText, Save, Upload, UserRound, X } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
 import type { User, UserDocument } from "../../types/User";
@@ -101,8 +101,6 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     };
   }, [documents]);
 
-  const token = localStorage.getItem("access") || localStorage.getItem("access_token");
-
   const roleLabel = useMemo(
     () => (user.role === "STUDENT" ? "Estudiante" : "Docente"),
     [user.role],
@@ -127,22 +125,19 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   };
 
   const refreshDocuments = async () => {
-    if (!token || !user.id) return;
-    const response = await axios.get(
-      `http://127.0.0.1:8000/api/users/${user.id}/documents/`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+    if (!user.id) return;
+    const response = await api.get(`/api/users/${user.id}/documents/`);
     setDocuments(response.data);
   };
 
   const handleSaveProfile = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!token || !user.id) return;
+    if (!user.id) return;
 
     if (!formData.email.includes("@")) {
       showToast({
         type: "warning",
-        title: "Correo invalido",
+        title: "Correo inválido",
         message: "Ingresa un correo valido que incluya arroba.",
       });
       return;
@@ -192,12 +187,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
 
     try {
       setSaving(true);
-      await axios.patch(`http://127.0.0.1:8000/api/users/${user.id}/`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      await api.patch(`/api/users/${user.id}/`, payload);
       await onSave();
       showToast({
         type: "success",
@@ -217,7 +207,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
 
   const handleUploadDocument = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!token || !user.id || !documentFile || !documentTitle.trim()) {
+    if (!user.id || !documentFile || !documentTitle.trim()) {
       showToast({
         type: "warning",
         title: "Documentos",
@@ -241,9 +231,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     payload.append("file", documentFile);
 
     try {
-      await axios.post(`http://127.0.0.1:8000/api/users/${user.id}/documents/`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post(`/api/users/${user.id}/documents/`, payload);
       setDocumentTitle("");
       setDocumentCategory("");
       setDocumentFile(null);
@@ -264,7 +252,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   };
 
   const handleDeleteDocument = async (documentId?: number) => {
-    if (!token || !user.id || !documentId) return;
+    if (!user.id || !documentId) return;
 
     const accepted = await confirm({
       title: "Eliminar documento",
@@ -277,10 +265,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     if (!accepted) return;
 
     try {
-      await axios.delete(
-        `http://127.0.0.1:8000/api/users/${user.id}/documents/${documentId}/`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      await api.delete(`/api/users/${user.id}/documents/${documentId}/`);
       await refreshDocuments();
       await onSave();
       showToast({
@@ -413,7 +398,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                     <input value={formData.especialidad} onChange={(e) => handleFieldChange("especialidad", e.target.value)} />
                   </label>
                   <label>
-                    <span>Titulo academico</span>
+                    <span>Título académico</span>
                     <input value={formData.titulo} onChange={(e) => handleFieldChange("titulo", e.target.value)} />
                   </label>
                 </>

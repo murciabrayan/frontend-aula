@@ -136,7 +136,7 @@ export default function CourseAssign() {
   const notifyError = (message: string) => {
     showToast({
       type: "error",
-      title: "Gestion de cursos",
+      title: "Gestión de cursos",
       message,
     });
   };
@@ -144,7 +144,7 @@ export default function CourseAssign() {
   const notifySuccess = (message: string) => {
     showToast({
       type: "success",
-      title: "Gestion de cursos",
+      title: "Gestión de cursos",
       message,
     });
   };
@@ -540,8 +540,8 @@ export default function CourseAssign() {
         <span>{subject.nombre}</span>
 
         <div className="subject-actions-inline">
-          <StyledSelect
-            value={subject.area ?? ""}
+            <StyledSelect
+              value={subject.area ?? ""}
             disabled={savingSubjectId === subject.id}
             onChange={(e) =>
               handleAssignAreaToSubject(
@@ -669,7 +669,7 @@ export default function CourseAssign() {
               <div>
                 <h3>{activeCourse.name}</h3>
                 <p>
-                  Gestiona docentes, estudiantes, materias y estructura academica del curso.
+                  Gestiona docentes, estudiantes, materias y estructura académica del curso.
                 </p>
               </div>
               <button type="button" onClick={closeModal} aria-label="Cerrar modal">

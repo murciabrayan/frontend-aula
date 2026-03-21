@@ -1,17 +1,20 @@
-import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+﻿import React, { useEffect, useMemo, useState } from "react";
+import api from "@/api/axios";
 import StyledSelect from "@/components/StyledSelect";
 import {
+  closeAcademicAlert,
   generateAcademicAlerts,
   getAcademicAlerts,
-  resolveAcademicAlert,
+  reviewAcademicAlert,
   type AcademicAlert,
-  type AlertStatus,
   type AlertType,
 } from "@/commons/personas/services/academicAlertService";
 import "./../styles/adminAcademicAlerts.css";
 
-const API_COURSES = "http://127.0.0.1:8000/api/report-cards/courses/";
+const API_COURSES = "/api/report-cards/courses/";
+
+type AdminView = "PENDING_REVIEW" | "IN_PROGRESS" | "CLOSED";
+type CourseFilterValue = number | "ALL";
 
 interface CourseItem {
   id: number;
@@ -31,60 +34,61 @@ const alertLevelLabel = (level: string) => {
   return "Advertencia";
 };
 
-const alertStatusLabel = (status: string) => {
-  if (status === "RESOLVED") return "Resuelta";
-  return "Activa";
+const alertStatusLabel = (status: AcademicAlert["status"]) => {
+  switch (status) {
+    case "TEACHER_INITIAL_PENDING":
+      return "Pendiente docente";
+    case "ADMIN_INITIAL_REVIEW":
+      return "Revisión inicial";
+    case "MONITORING":
+      return "En seguimiento";
+    case "TEACHER_FINAL_PENDING":
+      return "Confirmación docente";
+    case "ADMIN_FINAL_REVIEW":
+      return "Cierre pendiente";
+    case "RESOLVED_POSITIVE":
+      return "Cierre satisfactorio";
+    case "RESOLVED_NEGATIVE":
+      return "Cierre no satisfactorio";
+    default:
+      return status;
+  }
 };
 
 const formatDateTime = (value: string | null) => {
   if (!value) return "—";
-  return new Date(value).toLocaleString();
+  return new Date(value).toLocaleString("es-CO");
 };
 
 const AdminAcademicAlerts: React.FC = () => {
-  const token = localStorage.getItem("access_token");
-
   const [courses, setCourses] = useState<CourseItem[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<number | "">("");
+  const [selectedCourse, setSelectedCourse] = useState<CourseFilterValue>("ALL");
   const [selectedPeriod, setSelectedPeriod] = useState<number>(1);
-
   const [filterType, setFilterType] = useState<AlertType | "">("");
-  const [filterStatus, setFilterStatus] = useState<AlertStatus | "">("ACTIVE");
-
+  const [activeView, setActiveView] = useState<AdminView>("PENDING_REVIEW");
   const [alerts, setAlerts] = useState<AcademicAlert[]>([]);
-
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [loadingAlerts, setLoadingAlerts] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [resolvingId, setResolvingId] = useState<number | null>(null);
-
-  const [showResolveModal, setShowResolveModal] = useState(false);
+  const [processingAlertId, setProcessingAlertId] = useState<number | null>(null);
+  const [showActionModal, setShowActionModal] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<AcademicAlert | null>(null);
-  const [resolutionNotes, setResolutionNotes] = useState("");
-
+  const [adminNotes, setAdminNotes] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    loadCourses();
+    void loadCourses();
   }, []);
 
   useEffect(() => {
-    if (selectedCourse !== "") {
-      loadAlerts();
-    }
-  }, [selectedCourse, selectedPeriod, filterType, filterStatus]);
-
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-  };
+    void loadAlerts();
+  }, [selectedCourse, selectedPeriod, filterType]);
 
   const loadCourses = async () => {
     try {
       setLoadingCourses(true);
-      const res = await axios.get<CourseItem[]>(API_COURSES, {
-        headers: authHeaders,
-      });
+      const res = await api.get<CourseItem[]>(API_COURSES);
       setCourses(res.data || []);
     } catch (error) {
       console.error("Error cargando cursos", error);
@@ -95,17 +99,14 @@ const AdminAcademicAlerts: React.FC = () => {
   };
 
   const loadAlerts = async () => {
-    if (selectedCourse === "") return;
-
     try {
       setLoadingAlerts(true);
       setErrorMessage("");
 
       const res = await getAcademicAlerts({
-        course: Number(selectedCourse),
+        course: selectedCourse === "ALL" ? undefined : Number(selectedCourse),
         period: selectedPeriod,
         alert_type: filterType,
-        status: filterStatus,
       });
 
       setAlerts(res.data || []);
@@ -118,8 +119,8 @@ const AdminAcademicAlerts: React.FC = () => {
   };
 
   const handleGenerateAlerts = async () => {
-    if (selectedCourse === "") {
-      setErrorMessage("Debes seleccionar un curso.");
+    if (selectedCourse === "ALL") {
+      setErrorMessage("Para generar alertas debes escoger un curso específico.");
       return;
     }
 
@@ -127,68 +128,102 @@ const AdminAcademicAlerts: React.FC = () => {
       setGenerating(true);
       setErrorMessage("");
       setSuccessMessage("");
-
-      const res = await generateAcademicAlerts(Number(selectedCourse), selectedPeriod);
-
-      setSuccessMessage(
-        `${res.data.detail} Se generaron ${res.data.count} alerta(s).`
-      );
-
+      const res = await generateAcademicAlerts(selectedCourse, selectedPeriod);
+      setSuccessMessage(`${res.data.detail} Se generaron ${res.data.count} alerta(s).`);
       await loadAlerts();
-      setTimeout(() => setSuccessMessage(""), 2500);
+      window.setTimeout(() => setSuccessMessage(""), 2500);
     } catch (error: any) {
       console.error("Error generando alertas", error);
-      setErrorMessage(
-        error?.response?.data?.detail || "No se pudieron generar las alertas."
-      );
+      setErrorMessage(error?.response?.data?.detail || "No se pudieron generar las alertas.");
     } finally {
       setGenerating(false);
     }
   };
 
-  const openResolveModal = (alert: AcademicAlert) => {
+  const categorizedAlerts = useMemo(() => {
+    const pendingReview = alerts.filter((alert) =>
+      ["ADMIN_INITIAL_REVIEW", "ADMIN_FINAL_REVIEW"].includes(alert.status),
+    );
+    const inProgress = alerts.filter((alert) =>
+      ["TEACHER_INITIAL_PENDING", "MONITORING", "TEACHER_FINAL_PENDING"].includes(alert.status),
+    );
+    const closed = alerts.filter((alert) =>
+      ["RESOLVED_POSITIVE", "RESOLVED_NEGATIVE"].includes(alert.status),
+    );
+    return { pendingReview, inProgress, closed };
+  }, [alerts]);
+
+  const visibleAlerts = useMemo(() => {
+    if (activeView === "PENDING_REVIEW") return categorizedAlerts.pendingReview;
+    if (activeView === "IN_PROGRESS") return categorizedAlerts.inProgress;
+    return categorizedAlerts.closed;
+  }, [activeView, categorizedAlerts]);
+
+  const summary = useMemo(
+    () => ({
+      total: alerts.length,
+      pendingReview: categorizedAlerts.pendingReview.length,
+      inProgress: categorizedAlerts.inProgress.length,
+      closed: categorizedAlerts.closed.length,
+    }),
+    [alerts, categorizedAlerts],
+  );
+
+  const openActionModal = (alert: AcademicAlert) => {
     setSelectedAlert(alert);
-    setResolutionNotes(alert.resolution_notes || "");
-    setShowResolveModal(true);
+    setAdminNotes(alert.resolution_notes || "");
+    setShowActionModal(true);
   };
 
-  const closeResolveModal = () => {
-    setShowResolveModal(false);
+  const closeActionModal = () => {
+    setShowActionModal(false);
     setSelectedAlert(null);
-    setResolutionNotes("");
+    setAdminNotes("");
   };
 
-  const handleResolveAlert = async () => {
+  const handleAdminReview = async (decision: "APPROVE" | "REJECT") => {
     if (!selectedAlert) return;
-
     try {
-      setResolvingId(selectedAlert.id);
+      setProcessingAlertId(selectedAlert.id);
       setErrorMessage("");
-
-      await resolveAcademicAlert(selectedAlert.id, resolutionNotes);
-
-      setSuccessMessage("Alerta resuelta correctamente.");
-      closeResolveModal();
-      await loadAlerts();
-      setTimeout(() => setSuccessMessage(""), 2200);
-    } catch (error: any) {
-      console.error("Error resolviendo alerta", error);
-      setErrorMessage(
-        error?.response?.data?.detail || "No se pudo resolver la alerta."
+      await reviewAcademicAlert(selectedAlert.id, { decision, notes: adminNotes });
+      setSuccessMessage(
+        decision === "APPROVE"
+          ? "El seguimiento inicial fue aprobado."
+          : "El seguimiento inicial fue rechazado y volvió al docente."
       );
+      closeActionModal();
+      await loadAlerts();
+      window.setTimeout(() => setSuccessMessage(""), 2200);
+    } catch (error: any) {
+      console.error("Error revisando seguimiento", error);
+      setErrorMessage(error?.response?.data?.detail || "No se pudo registrar la revisión.");
     } finally {
-      setResolvingId(null);
+      setProcessingAlertId(null);
     }
   };
 
-  const summary = useMemo(() => {
-    return {
-      total: alerts.length,
-      active: alerts.filter((a) => a.status === "ACTIVE").length,
-      critical: alerts.filter((a) => a.level === "CRITICAL").length,
-      warning: alerts.filter((a) => a.level === "WARNING").length,
-    };
-  }, [alerts]);
+  const handleAdminClose = async (outcome: "POSITIVE" | "NEGATIVE") => {
+    if (!selectedAlert) return;
+    try {
+      setProcessingAlertId(selectedAlert.id);
+      setErrorMessage("");
+      await closeAcademicAlert(selectedAlert.id, { outcome, notes: adminNotes });
+      setSuccessMessage(
+        outcome === "POSITIVE"
+          ? "La alerta fue cerrada satisfactoriamente."
+          : "La alerta fue cerrada con resultado no satisfactorio."
+      );
+      closeActionModal();
+      await loadAlerts();
+      window.setTimeout(() => setSuccessMessage(""), 2200);
+    } catch (error: any) {
+      console.error("Error cerrando alerta", error);
+      setErrorMessage(error?.response?.data?.detail || "No se pudo cerrar la alerta.");
+    } finally {
+      setProcessingAlertId(null);
+    }
+  };
 
   if (loadingCourses) {
     return <div className="admin-alerts-empty">Cargando alertas académicas...</div>;
@@ -201,8 +236,8 @@ const AdminAcademicAlerts: React.FC = () => {
           <span className="admin-alerts-badge">Alertas tempranas</span>
           <h1>Seguimiento académico preventivo</h1>
           <p>
-            Genera y consulta alertas por bajo rendimiento, inasistencia y no
-            entrega de actividades antes de finalizar el período.
+            Coordina el flujo completo de revisión: alerta inicial, seguimiento docente,
+            monitoreo semanal y cierre final con trazabilidad.
           </p>
         </div>
 
@@ -212,10 +247,12 @@ const AdminAcademicAlerts: React.FC = () => {
             <StyledSelect
               value={selectedCourse}
               onChange={(e) =>
-                setSelectedCourse(e.target.value ? Number(e.target.value) : "")
+                setSelectedCourse(
+                  e.target.value === "ALL" ? "ALL" : Number(e.target.value),
+                )
               }
             >
-              <option value="">Selecciona un curso</option>
+              <option value="ALL">Todos los cursos</option>
               {courses.map((course) => (
                 <option key={course.id} value={course.id}>
                   {course.nombre}
@@ -226,10 +263,7 @@ const AdminAcademicAlerts: React.FC = () => {
 
           <div className="admin-alerts-control-card">
             <label>Período</label>
-            <StyledSelect
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(Number(e.target.value))}
-            >
+            <StyledSelect value={selectedPeriod} onChange={(e) => setSelectedPeriod(Number(e.target.value))}>
               <option value={1}>Periodo 1</option>
               <option value={2}>Periodo 2</option>
               <option value={3}>Periodo 3</option>
@@ -239,10 +273,7 @@ const AdminAcademicAlerts: React.FC = () => {
 
           <div className="admin-alerts-control-card">
             <label>Tipo</label>
-            <StyledSelect
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as AlertType | "")}
-            >
+            <StyledSelect value={filterType} onChange={(e) => setFilterType(e.target.value as AlertType | "") }>
               <option value="">Todos</option>
               <option value="LOW_GRADE">Bajo rendimiento</option>
               <option value="ABSENCE_RISK">Inasistencia</option>
@@ -250,38 +281,49 @@ const AdminAcademicAlerts: React.FC = () => {
             </StyledSelect>
           </div>
 
-          <div className="admin-alerts-control-card">
-            <label>Estado</label>
-            <StyledSelect
-              value={filterStatus}
-              onChange={(e) =>
-                setFilterStatus(e.target.value as AlertStatus | "")
-              }
-            >
-              <option value="">Todos</option>
-              <option value="ACTIVE">Activas</option>
-              <option value="RESOLVED">Resueltas</option>
-            </StyledSelect>
-          </div>
-
           <button
             type="button"
             className="admin-alerts-generate-btn"
             onClick={handleGenerateAlerts}
-            disabled={generating || selectedCourse === ""}
+            disabled={generating || selectedCourse === "ALL"}
           >
             {generating ? "Generando..." : "Generar alertas"}
           </button>
         </div>
       </section>
 
-      {successMessage && (
-        <div className="admin-alerts-message success">{successMessage}</div>
-      )}
+      <div className="admin-alerts-status-tabs" role="tablist" aria-label="Vista de alertas">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeView === "PENDING_REVIEW"}
+          className={`admin-alerts-status-tab ${activeView === "PENDING_REVIEW" ? "is-active" : ""}`}
+          onClick={() => setActiveView("PENDING_REVIEW")}
+        >
+          Por revisar
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeView === "IN_PROGRESS"}
+          className={`admin-alerts-status-tab ${activeView === "IN_PROGRESS" ? "is-active" : ""}`}
+          onClick={() => setActiveView("IN_PROGRESS")}
+        >
+          En curso
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeView === "CLOSED"}
+          className={`admin-alerts-status-tab ${activeView === "CLOSED" ? "is-active" : ""}`}
+          onClick={() => setActiveView("CLOSED")}
+        >
+          Cerradas
+        </button>
+      </div>
 
-      {errorMessage && (
-        <div className="admin-alerts-message error">{errorMessage}</div>
-      )}
+      {successMessage ? <div className="admin-alerts-message success">{successMessage}</div> : null}
+      {errorMessage ? <div className="admin-alerts-message error">{errorMessage}</div> : null}
 
       <section className="admin-alerts-summary-grid">
         <div className="admin-alerts-summary-card">
@@ -289,36 +331,45 @@ const AdminAcademicAlerts: React.FC = () => {
           <strong>{summary.total}</strong>
         </div>
         <div className="admin-alerts-summary-card active">
-          <span>Activas</span>
-          <strong>{summary.active}</strong>
-        </div>
-        <div className="admin-alerts-summary-card critical">
-          <span>Críticas</span>
-          <strong>{summary.critical}</strong>
+          <span>Por revisar</span>
+          <strong>{summary.pendingReview}</strong>
         </div>
         <div className="admin-alerts-summary-card warning">
-          <span>Advertencias</span>
-          <strong>{summary.warning}</strong>
+          <span>En curso</span>
+          <strong>{summary.inProgress}</strong>
+        </div>
+        <div className="admin-alerts-summary-card critical">
+          <span>Cerradas</span>
+          <strong>{summary.closed}</strong>
         </div>
       </section>
 
-      {!selectedCourse ? (
-        <div className="admin-alerts-empty">
-          Selecciona un curso para ver y generar alertas.
-        </div>
-      ) : loadingAlerts ? (
+      {loadingAlerts ? (
         <div className="admin-alerts-empty">Cargando alertas...</div>
-      ) : alerts.length === 0 ? (
+      ) : visibleAlerts.length === 0 ? (
         <div className="admin-alerts-empty">
-          No hay alertas para los filtros seleccionados.
+          {activeView === "PENDING_REVIEW"
+            ? "No hay alertas pendientes de revisión administrativa."
+            : activeView === "IN_PROGRESS"
+              ? "No hay alertas en curso para los filtros seleccionados."
+              : "No hay alertas cerradas para los filtros seleccionados."}
         </div>
       ) : (
         <section className="admin-alerts-table-section">
           <div className="admin-alerts-table-header">
-            <h3>Listado de alertas</h3>
+            <h3>
+              {activeView === "PENDING_REVIEW"
+                ? "Bandeja de revisión administrativa"
+                : activeView === "IN_PROGRESS"
+                  ? "Alertas en curso"
+                  : "Historial de cierres"}
+            </h3>
             <p>
-              Consulta el detalle de cada estudiante y resuelve las alertas cuando
-              ya exista seguimiento.
+              {activeView === "PENDING_REVIEW"
+                ? "Aquí decides si el seguimiento docente inicial se aprueba o vuelve para ajustes, y también realizas el cierre final."
+                : activeView === "IN_PROGRESS"
+                  ? "Consulta qué alertas siguen en manos del docente o están esperando la segunda verificación semanal."
+                  : "Mantén la trazabilidad de los cierres satisfactorios y no satisfactorios del proceso."}
             </p>
           </div>
 
@@ -338,82 +389,89 @@ const AdminAcademicAlerts: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {alerts.map((alert) => (
-                  <tr key={alert.id}>
-                    <td className="admin-alerts-student-cell">
-                      {alert.student_name}
-                    </td>
-                    <td>{alert.course_name}</td>
-                    <td>{alert.period}</td>
-                    <td>{alertTypeLabel(alert.alert_type)}</td>
-                    <td>
-                      <span
-                        className={`alert-level-pill ${alert.level.toLowerCase()}`}
-                      >
-                        {alertLevelLabel(alert.level)}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={`alert-status-pill ${alert.status.toLowerCase()}`}
-                      >
-                        {alertStatusLabel(alert.status)}
-                      </span>
-                    </td>
-                    <td className="admin-alerts-message-cell">
-                      {alert.message_admin}
-                    </td>
-                    <td>
-                      {alert.metric_value !== null ? alert.metric_value : "—"}
-                    </td>
-                    <td>
-                      {alert.status === "ACTIVE" ? (
-                        <button
-                          type="button"
-                          className="admin-alerts-resolve-btn"
-                          onClick={() => openResolveModal(alert)}
-                        >
-                          Resolver
-                        </button>
-                      ) : (
-                        <div className="admin-alerts-resolved-box">
-                          <span>Resuelta</span>
-                          <small>{formatDateTime(alert.resolved_at)}</small>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {visibleAlerts.map((alert) => {
+                  const latestTeacherEvent = [...alert.events]
+                    .reverse()
+                    .find((event) =>
+                      ["TEACHER_INITIAL_SUBMITTED", "TEACHER_FINAL_SUBMITTED"].includes(event.event_type),
+                    );
+
+                  return (
+                    <tr key={alert.id}>
+                      <td className="admin-alerts-student-cell">{alert.student_name}</td>
+                      <td>{alert.course_name}</td>
+                      <td>{alert.period}</td>
+                      <td>{alertTypeLabel(alert.alert_type)}</td>
+                      <td>
+                        <span className={`alert-level-pill ${alert.level.toLowerCase()}`}>
+                          {alertLevelLabel(alert.level)}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`alert-status-pill ${alert.status.toLowerCase()}`}>
+                          {alertStatusLabel(alert.status)}
+                        </span>
+                      </td>
+                      <td className="admin-alerts-message-cell">{alert.message_admin}</td>
+                      <td>{alert.metric_value !== null ? alert.metric_value : "—"}</td>
+                      <td>
+                        {alert.status === "ADMIN_INITIAL_REVIEW" || alert.status === "ADMIN_FINAL_REVIEW" ? (
+                          <button
+                            type="button"
+                            className="admin-alerts-resolve-btn"
+                            onClick={() => openActionModal(alert)}
+                          >
+                            {alert.status === "ADMIN_INITIAL_REVIEW" ? "Revisar" : "Cerrar"}
+                          </button>
+                        ) : alert.status === "MONITORING" ? (
+                          <div className="admin-alerts-resolved-box">
+                            <span>Próxima verificación</span>
+                            <small>{formatDateTime(alert.next_follow_up_due_at)}</small>
+                          </div>
+                        ) : alert.status === "TEACHER_INITIAL_PENDING" || alert.status === "TEACHER_FINAL_PENDING" ? (
+                          <div className="admin-alerts-resolved-box">
+                            <span>Esperando docente</span>
+                            <small>
+                              {latestTeacherEvent
+                                ? `Último envío: ${formatDateTime(latestTeacherEvent.created_at)}`
+                                : "Aún sin seguimiento"}
+                            </small>
+                          </div>
+                        ) : (
+                          <div className="admin-alerts-resolved-box">
+                            <span>{alert.resolved_by_name ? `Por ${alert.resolved_by_name}` : "Cerrada"}</span>
+                            <small>{formatDateTime(alert.resolved_at)}</small>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </section>
       )}
 
-      {showResolveModal && selectedAlert && (
+      {showActionModal && selectedAlert ? (
         <div className="admin-alerts-modal-backdrop">
           <div className="admin-alerts-modal">
             <div className="admin-alerts-modal-header">
               <div>
-                <h2>Resolver alerta</h2>
-                <p>{selectedAlert.title}</p>
+                <h2>
+                  {selectedAlert.status === "ADMIN_INITIAL_REVIEW"
+                    ? "Revisión del seguimiento docente"
+                    : "Cierre final de la alerta"}
+                </h2>
+                <p>{selectedAlert.student_name}</p>
               </div>
-
-              <button
-                type="button"
-                className="admin-alerts-close-btn"
-                onClick={closeResolveModal}
-              >
+              <button type="button" className="admin-alerts-close-btn" onClick={closeActionModal}>
                 ✕
               </button>
             </div>
 
             <div className="admin-alerts-modal-body">
               <div className="admin-alerts-detail-card">
-                <div>
-                  <span>Estudiante</span>
-                  <strong>{selectedAlert.student_name}</strong>
-                </div>
                 <div>
                   <span>Curso</span>
                   <strong>{selectedAlert.course_name}</strong>
@@ -426,6 +484,10 @@ const AdminAcademicAlerts: React.FC = () => {
                   <span>Tipo</span>
                   <strong>{alertTypeLabel(selectedAlert.alert_type)}</strong>
                 </div>
+                <div>
+                  <span>Estado</span>
+                  <strong>{alertStatusLabel(selectedAlert.status)}</strong>
+                </div>
               </div>
 
               <div className="admin-alerts-full-message">
@@ -433,38 +495,100 @@ const AdminAcademicAlerts: React.FC = () => {
                 <div>{selectedAlert.message_admin}</div>
               </div>
 
+              {[...selectedAlert.events]
+                .filter((event) =>
+                  selectedAlert.status === "ADMIN_INITIAL_REVIEW"
+                    ? event.event_type === "TEACHER_INITIAL_SUBMITTED"
+                    : event.event_type === "TEACHER_FINAL_SUBMITTED",
+                )
+                .slice(-1)
+                .map((event) => (
+                  <div key={event.id} className="admin-alerts-full-message">
+                    <label>{event.title}</label>
+                    <div>
+                      <strong>{event.actor_name || "Docente"}</strong>
+                      <br />
+                      <small>{formatDateTime(event.created_at)}</small>
+                      {event.notes ? (
+                        <p className="admin-alerts-event-notes">{event.notes}</p>
+                      ) : null}
+                      {event.metadata?.improvement_confirmed !== undefined ? (
+                        <p className="admin-alerts-event-notes">
+                          {event.metadata.improvement_confirmed
+                            ? "El docente reportó mejora en el estudiante."
+                            : "El docente reportó que no hubo mejora."}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+
               <div className="admin-alerts-notes-block">
-                <label>Observación de seguimiento</label>
+                <label>
+                  {selectedAlert.status === "ADMIN_INITIAL_REVIEW"
+                    ? "Observación de revisión"
+                    : "Observación final"}
+                </label>
                 <textarea
-                  value={resolutionNotes}
-                  onChange={(e) => setResolutionNotes(e.target.value)}
-                  placeholder="Describe la acción realizada, reunión, seguimiento o acuerdo..."
+                  value={adminNotes}
+                  onChange={(e) => setAdminNotes(e.target.value)}
+                  placeholder={
+                    selectedAlert.status === "ADMIN_INITIAL_REVIEW"
+                      ? "Indica por qué apruebas o rechazas el seguimiento docente..."
+                      : "Registra el comentario final del cierre satisfactorio o no satisfactorio..."
+                  }
                 />
               </div>
             </div>
 
-            <div className="admin-alerts-modal-footer">
-              <button
-                type="button"
-                className="admin-alerts-secondary-btn"
-                onClick={closeResolveModal}
-              >
+            <div className="admin-alerts-modal-footer admin-alerts-modal-footer--spread">
+              <button type="button" className="admin-alerts-secondary-btn" onClick={closeActionModal}>
                 Cancelar
               </button>
-              <button
-                type="button"
-                className="admin-alerts-primary-btn"
-                onClick={handleResolveAlert}
-                disabled={resolvingId === selectedAlert.id}
-              >
-                {resolvingId === selectedAlert.id
-                  ? "Resolviendo..."
-                  : "Marcar como resuelta"}
-              </button>
+
+              {selectedAlert.status === "ADMIN_INITIAL_REVIEW" ? (
+                <div className="admin-alerts-modal-footer-actions">
+                  <button
+                    type="button"
+                    className="admin-alerts-danger-btn"
+                    onClick={() => handleAdminReview("REJECT")}
+                    disabled={processingAlertId === selectedAlert.id}
+                  >
+                    Rechazar
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-alerts-primary-btn"
+                    onClick={() => handleAdminReview("APPROVE")}
+                    disabled={processingAlertId === selectedAlert.id}
+                  >
+                    Aprobar seguimiento
+                  </button>
+                </div>
+              ) : (
+                <div className="admin-alerts-modal-footer-actions">
+                  <button
+                    type="button"
+                    className="admin-alerts-danger-btn"
+                    onClick={() => handleAdminClose("NEGATIVE")}
+                    disabled={processingAlertId === selectedAlert.id}
+                  >
+                    Cierre negativo
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-alerts-primary-btn"
+                    onClick={() => handleAdminClose("POSITIVE")}
+                    disabled={processingAlertId === selectedAlert.id}
+                  >
+                    Cierre satisfactorio
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

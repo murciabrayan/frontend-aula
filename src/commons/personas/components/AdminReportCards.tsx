@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { useFeedback } from "@/context/FeedbackContext";
 import StyledSelect from "@/components/StyledSelect";
 import "../styles/adminReportCards.css";
-
-const API_BASE = "http://127.0.0.1:8000/api/report-cards";
 
 interface CourseItem {
   id: number;
@@ -68,7 +66,6 @@ interface StudentReportResponse {
 
 const AdminReportCards: React.FC = () => {
   const { showToast } = useFeedback();
-  const token = localStorage.getItem("access_token");
 
   const [courses, setCourses] = useState<CourseItem[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
@@ -84,16 +81,10 @@ const AdminReportCards: React.FC = () => {
     loadCourses();
   }, []);
 
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-  };
-
   const loadCourses = async () => {
     try {
       setLoading(true);
-      const res = await axios.get<CourseItem[]>(`${API_BASE}/courses/`, {
-        headers: authHeaders,
-      });
+      const res = await api.get<CourseItem[]>("/api/report-cards/courses/");
       setCourses(res.data || []);
     } catch (err) {
       console.error("Error cargando cursos para boletines", err);
@@ -113,9 +104,8 @@ const AdminReportCards: React.FC = () => {
       setSelectedStudent(null);
       setReport(null);
 
-      const res = await axios.get<CourseStudentsResponse>(
-        `${API_BASE}/courses/${course.id}/students/`,
-        { headers: authHeaders },
+      const res = await api.get<CourseStudentsResponse>(
+        `/api/report-cards/courses/${course.id}/students/`,
       );
 
       setStudents(res.data.estudiantes || []);
@@ -133,9 +123,8 @@ const AdminReportCards: React.FC = () => {
     try {
       setSelectedStudent(student);
 
-      const res = await axios.get<StudentReportResponse>(
-        `${API_BASE}/students/${student.id}/report-card/`,
-        { headers: authHeaders },
+      const res = await api.get<StudentReportResponse>(
+        `/api/report-cards/students/${student.id}/report-card/`,
       );
 
       setReport(res.data);
@@ -143,7 +132,7 @@ const AdminReportCards: React.FC = () => {
       console.error("Error cargando boletin del estudiante", err);
       showToast({
         type: "error",
-        title: "Boletin",
+        title: "Boletín",
         message: "No se pudo cargar el boletin del estudiante.",
       });
     }
@@ -157,15 +146,14 @@ const AdminReportCards: React.FC = () => {
       .replace(/\s+/g, "-");
 
   const handleGeneratePdf = async () => {
-    if (!report || !token) return;
+    if (!report) return;
 
     try {
       setDownloadingPdf(true);
 
-      const res = await axios.get(
-        `${API_BASE}/students/${report.estudiante.id}/report-card/pdf/?periodo=${encodeURIComponent(selectedPeriod)}`,
+      const res = await api.get(
+        `/api/report-cards/students/${report.estudiante.id}/report-card/pdf/?periodo=${encodeURIComponent(selectedPeriod)}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
         },
       );
@@ -196,15 +184,14 @@ const AdminReportCards: React.FC = () => {
   };
 
   const handleGenerateCourseZip = async () => {
-    if (!selectedCourse || !token) return;
+    if (!selectedCourse) return;
 
     try {
       setDownloadingZip(true);
 
-      const res = await axios.get(
-        `${API_BASE}/courses/${selectedCourse.id}/report-cards/zip/?periodo=${encodeURIComponent(selectedPeriod)}`,
+      const res = await api.get(
+        `/api/report-cards/courses/${selectedCourse.id}/report-cards/zip/?periodo=${encodeURIComponent(selectedPeriod)}`,
         {
-          headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
         },
       );
@@ -246,7 +233,7 @@ const AdminReportCards: React.FC = () => {
               <span className="report-hero__badge">Boletines</span>
               <h1>Gestion institucional de boletines</h1>
               <p>
-                Selecciona un curso para consultar el consolidado academico,
+                Selecciona un curso para consultar el consolidado académico,
                 revisar estudiantes y generar boletines individuales o masivos.
               </p>
             </div>
@@ -309,7 +296,7 @@ const AdminReportCards: React.FC = () => {
             </button>
 
             <div className="report-period-card">
-              <div className="report-period-label">Periodo academico</div>
+              <div className="report-period-label">Período académico</div>
               <div className="report-period-select-wrap">
                 <StyledSelect
                   className="report-period-select"
@@ -360,7 +347,7 @@ const AdminReportCards: React.FC = () => {
         <>
           <section className="report-hero">
             <div className="report-hero__copy">
-              <span className="report-hero__badge">Boletin academico</span>
+              <span className="report-hero__badge">Boletín académico</span>
               <h1>{report.estudiante.nombre}</h1>
               <p>
                 Consulta el rendimiento consolidado del estudiante y genera el PDF
@@ -392,7 +379,7 @@ const AdminReportCards: React.FC = () => {
             </button>
 
             <div className="report-period-card">
-              <div className="report-period-label">Periodo academico</div>
+              <div className="report-period-label">Período académico</div>
               <div className="report-period-select-wrap">
                 <StyledSelect
                   className="report-period-select"
@@ -460,7 +447,7 @@ const AdminReportCards: React.FC = () => {
               <tbody>
                 {report.boletin_agrupado.length === 0 ? (
                   <tr>
-                    <td colSpan={8}>No hay informacion academica disponible.</td>
+                    <td colSpan={8}>No hay información académica disponible.</td>
                   </tr>
                 ) : (
                   report.boletin_agrupado.map((group) =>

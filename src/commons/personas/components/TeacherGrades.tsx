@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { BookOpen, ChevronRight, LayoutGrid, Users } from "lucide-react";
 import "../styles/teacherGrades.css";
-
-const API_BASE = "http://127.0.0.1:8000/api";
 
 interface Subject {
   id: number;
@@ -41,8 +39,6 @@ interface User {
 }
 
 const TeacherGrades: React.FC = () => {
-  const token = localStorage.getItem("access_token");
-
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -63,9 +59,7 @@ const TeacherGrades: React.FC = () => {
 
   const loadSubjects = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/subjects/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/api/subjects/");
       setSubjects(res.data);
     } catch (error) {
       console.error("Error cargando materias", error);
@@ -79,18 +73,10 @@ const TeacherGrades: React.FC = () => {
       setSelectedSubject(subject);
 
       const [assignmentsRes, submissionsRes, courseRes, usersRes] = await Promise.all([
-        axios.get(`${API_BASE}/assignments/?subject=${subject.id}&periodo=${period}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${API_BASE}/submissions/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${API_BASE}/courses/teacher/course/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        axios.get(`${API_BASE}/users/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        api.get(`/api/assignments/?subject=${subject.id}&periodo=${period}`),
+        api.get("/api/submissions/"),
+        api.get("/api/courses/teacher/course/"),
+        api.get("/api/users/"),
       ]);
 
       const subjectAssignments: Assignment[] = assignmentsRes.data || [];
@@ -148,7 +134,7 @@ const TeacherGrades: React.FC = () => {
           <div className="teacher-grades-hero">
             <div className="teacher-grades-hero__copy">
               <span className="teacher-grades-hero__badge">Notas</span>
-              <h1>Vista academica por materia</h1>
+              <h1>Vista académica por materia</h1>
               <p>
                 Selecciona una materia para revisar la matriz de calificaciones por
                 estudiante y periodo en una vista mas limpia.

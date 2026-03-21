@@ -352,6 +352,24 @@
   box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.15);
 }
 
+.password-field-block {
+  display: grid;
+}
+
+.password-field-block .password-requirements {
+  margin-top: 2px;
+}
+
+.user-form__generated-password {
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(201, 164, 55, 0.26);
+  background: linear-gradient(180deg, rgba(255, 252, 244, 0.96), rgba(253, 247, 232, 0.94));
+  color: #6b4c1e;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
 .btn-primary.full {
   width: 100%;
   justify-content: center;

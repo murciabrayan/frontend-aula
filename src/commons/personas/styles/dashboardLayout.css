@@ -108,6 +108,24 @@ body,
 
 .dashboard-sidebar__footer {
   margin-top: auto;
+  display: grid;
+  gap: 14px;
+}
+
+.dashboard-sidebar__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0 4px;
+  margin-top: -28px;
+}
+
+.dashboard-sidebar__brand-logo {
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.2));
 }
 
 .dashboard-sidebar__logout {
@@ -172,6 +190,17 @@ body,
   justify-content: center;
   padding-left: 12px;
   padding-right: 12px;
+}
+
+.dashboard-layout--collapsed .dashboard-sidebar__brand {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.dashboard-layout--collapsed .dashboard-sidebar__brand-logo {
+  width: 72px;
+  height: 72px;
 }
 
 .dashboard-panel {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+
+import api from "@/api/axios";
 import { useFeedback } from "@/context/FeedbackContext";
 import "./UserManagement.css";
 import type { User } from "../../types/User";
@@ -16,7 +17,6 @@ interface UserFormState {
   cedula: string;
   first_name: string;
   last_name: string;
-  password: string;
   role: "STUDENT" | "TEACHER";
   grado: string;
   acudiente_nombre: string;
@@ -26,23 +26,13 @@ interface UserFormState {
   titulo: string;
 }
 
-const PASSWORD_MESSAGE =
-  "La contrasena debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.";
-
 const onlyNumbers = (value: string) => value.replace(/\D/g, "");
-
-const isStrongPassword = (value: string) =>
-  value.length >= 8 &&
-  /[A-Z]/.test(value) &&
-  /\d/.test(value) &&
-  /[^A-Za-z0-9]/.test(value);
 
 const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   email: "",
   cedula: "",
   first_name: "",
   last_name: "",
-  password: "",
   role,
   grado: "",
   acudiente_nombre: "",
@@ -63,7 +53,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         cedula: user.cedula || "",
         first_name: user.first_name || "",
         last_name: user.last_name || "",
-        password: "",
         role,
         grado: user.student_profile?.grado || "",
         acudiente_nombre: user.student_profile?.acudiente_nombre || "",
@@ -102,10 +91,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       role: formData.role,
     };
 
-    if (!user && formData.password.trim()) {
-      basePayload.password = formData.password;
-    }
-
     if (role === "TEACHER") {
       basePayload.especialidad = formData.especialidad.trim();
       basePayload.titulo = formData.titulo.trim();
@@ -123,17 +108,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      showToast({
-        type: "warning",
-        title: "Sesion expirada",
-        message: "Por favor, inicia sesion nuevamente.",
-      });
-      return;
-    }
 
     if (!formData.email.includes("@")) {
       showToast({
@@ -166,31 +140,13 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       return;
     }
 
-    if (!user && !isStrongPassword(formData.password)) {
-      showToast({
-        type: "warning",
-        title: "Contrasena insegura",
-        message: PASSWORD_MESSAGE,
-      });
-      return;
-    }
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    };
-
     const payload = buildPayload();
 
     try {
       if (user) {
-        await axios.patch(`http://127.0.0.1:8000/api/users/${user.id}/`, payload, {
-          headers,
-        });
+        await api.patch(`/api/users/${user.id}/`, payload);
       } else {
-        await axios.post("http://127.0.0.1:8000/api/users/", payload, {
-          headers,
-        });
+        await api.post("/api/users/", payload);
       }
 
       onSave();
@@ -200,7 +156,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         title: user ? "Usuario actualizado" : "Usuario creado",
         message: user
           ? "Los cambios del usuario se guardaron correctamente."
-          : "El usuario se creo correctamente.",
+          : "El usuario se creo y la contrasena temporal fue enviada al correo.",
       });
     } catch (error: any) {
       const backendErrors = error?.response?.data;
@@ -246,7 +202,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               {user ? "Editar usuario" : "Agregar nuevo usuario"}
             </h2>
             <p className="modal-shell__subtitle">
-              Completa la informacion principal del perfil administrativo, docente o estudiantil.
+              Completa la informacion principal. La contrasena inicial se generara automaticamente y se enviara al correo del usuario.
             </p>
           </div>
 
@@ -303,17 +259,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
           />
 
           {!user ? (
-            <input
-              type="password"
-              name="password"
-              placeholder="Contrasena"
-              value={formData.password}
-              onChange={handleChange}
-              minLength={8}
-              title={PASSWORD_MESSAGE}
-              required
-              className="input-field"
-            />
+            <div className="user-form__generated-password">
+              La contrasena temporal se asignara automaticamente y se enviara al correo ingresado.
+            </div>
           ) : null}
 
           {role === "TEACHER" ? (
@@ -381,7 +329,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
           ) : null}
 
           <button type="submit" className="btn-primary full">
-            {user ? "Guardar Cambios" : "Crear Usuario"}
+            {user ? "Guardar cambios" : "Crear usuario"}
           </button>
         </form>
       </div>

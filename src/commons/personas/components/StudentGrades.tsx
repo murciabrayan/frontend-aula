@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import "../styles/studentGrades.css";
-
-const API_BASE = "http://127.0.0.1:8000/api";
 
 interface Subject {
   id: number;
@@ -50,8 +48,6 @@ type SubjectReport = {
 };
 
 const StudentGrades: React.FC = () => {
-  const token = localStorage.getItem("access_token");
-
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -70,12 +66,10 @@ const StudentGrades: React.FC = () => {
     setError("");
 
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-
       const [subjectsRes, assignmentsRes, submissionsRes] = await Promise.all([
-        axios.get(`${API_BASE}/subjects/`, { headers }),
-        axios.get(`${API_BASE}/assignments/`, { headers }),
-        axios.get(`${API_BASE}/submissions/`, { headers }),
+        api.get("/api/subjects/"),
+        api.get("/api/assignments/"),
+        api.get("/api/submissions/"),
       ]);
 
       setSubjects(subjectsRes.data || []);

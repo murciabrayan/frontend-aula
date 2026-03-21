@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ClipboardCheck, ClipboardList, Home, Star, TriangleAlert, User } from "lucide-react";
 
 import AssignmentList from "../components/AssignmentList";
+import NotificationBell from "../components/NotificationBell";
 import TeacherAcademicAlerts from "../components/TeacherAcademicAlerts";
 import TeacherAttendance from "../components/TeacherAttendance";
 import TeacherCalendar from "../components/TeacherCalendar";
@@ -14,7 +15,7 @@ import DashboardLayout, {
 const teacherModules: DashboardModuleItem[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "notas", label: "Notas", icon: Star },
-  { id: "tareas", label: "Gestion de tareas", icon: ClipboardList },
+  { id: "tareas", label: "Gestión de tareas", icon: ClipboardList },
   { id: "asistencia", label: "Asistencia", icon: ClipboardCheck },
   { id: "alertas", label: "Alertas", icon: TriangleAlert },
   { id: "perfil", label: "Perfil", icon: User },
@@ -29,6 +30,13 @@ const TeacherDashboard = () => {
       modules={teacherModules}
       activeModule={activeModule}
       onModuleChange={setActiveModule}
+      topbarContent={
+        <NotificationBell
+          setActiveModule={setActiveModule}
+          mode="alerts"
+          alertModuleId="alertas"
+        />
+      }
     >
       <div>
         {activeModule === "inicio" && (
@@ -38,8 +46,8 @@ const TeacherDashboard = () => {
                 <span className="dashboard-home__badge">Agenda docente</span>
                 <h2>Calendario docente</h2>
                 <p>
-                  Visualiza el calendario academico, registra eventos importantes y
-                  mantente al dia con la dinamica del grupo desde una portada mas clara.
+                  Visualiza el calendario académico, registra eventos importantes y
+                  mantente al día con la dinámica del grupo desde una portada más clara.
                 </p>
               </div>
             </section>
@@ -47,10 +55,10 @@ const TeacherDashboard = () => {
             <section className="dashboard-home__calendar-shell">
               <div className="dashboard-home__section-head">
                 <div>
-                  <span>Calendario</span>
-                  <h3>Calendario academico del docente</h3>
+                  <span>Calendario académico del docente</span>
+                  
                 </div>
-                <p>Haz clic en el dia que quieras para registrar un evento o una actividad del curso.</p>
+                <p>Haz clic en el día que quieras para registrar un evento o una actividad del curso.</p>
               </div>
 
               <TeacherCalendar />

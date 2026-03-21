@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, loginWithGoogle } from "@/commons/Auth/services/auth.service";
+import {
+  getDashboardRoute,
+  loginUser,
+  loginWithGoogle,
+} from "@/commons/Auth/services/auth.service";
 import { GoogleLogin } from "@react-oauth/google";
 import "@/commons/Auth/styles/login.css";
 
@@ -24,9 +28,8 @@ const LoginScreen = () => {
       const userData = await loginUser(email, password);
       const role = userData?.role;
 
-      if (role === "ADMIN") navigate("/admin");
-      else if (role === "TEACHER") navigate("/teacher");
-      else if (role === "STUDENT") navigate("/student");
+      if (userData?.must_change_password) navigate("/primer-acceso");
+      else if (role) navigate(getDashboardRoute(role));
       else setErrorMessage("Rol no autorizado");
     } catch (error) {
       setErrorMessage("Credenciales incorrectas o error de conexión");
@@ -39,9 +42,8 @@ const LoginScreen = () => {
       const userData = await loginWithGoogle(googleToken);
       const role = userData?.role;
 
-      if (role === "ADMIN") navigate("/admin");
-      else if (role === "TEACHER") navigate("/teacher");
-      else if (role === "STUDENT") navigate("/student");
+      if (userData?.must_change_password) navigate("/primer-acceso");
+      else if (role) navigate(getDashboardRoute(role));
       else setErrorMessage("Rol no autorizado");
     } catch (error) {
       setErrorMessage("Error al iniciar sesión con Google");
@@ -98,19 +100,25 @@ const LoginScreen = () => {
                 Ingresar
               </button>
 
-              <div
-                style={{
-                  marginTop: "12px",
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={() =>
-                    setErrorMessage("Error al iniciar con Google")
-                  }
-                />
+              <div className="login-social-block">
+                <div className="login-social-divider">
+                  <span>o continúa con</span>
+                </div>
+
+                <div className="login-google-wrap">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() =>
+                      setErrorMessage("Error al iniciar con Google")
+                    }
+                    theme="outline"
+                    size="large"
+                    text="continue_with"
+                    shape="pill"
+                    logo_alignment="left"
+                    width="312"
+                  />
+                </div>
               </div>
 
               <a

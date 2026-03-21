@@ -67,6 +67,13 @@
   border: 1px solid rgba(255, 248, 234, 0.14);
 }
 
+.student-attendance-filter-group {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
 .student-attendance-filter-card label {
   font-size: 0.82rem;
   font-weight: 700;
@@ -82,6 +89,26 @@
   font-weight: 700;
   background: rgba(10, 10, 10, 0.42);
   color: #fff8ea;
+}
+
+.student-attendance-filter-card input {
+  height: 48px;
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  border-radius: 14px;
+  padding: 0 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: linear-gradient(180deg, #fffdfa 0%, #fffaf2 100%);
+  color: #111827;
+  box-sizing: border-box;
+  width: 100%;
+  color-scheme: light;
+}
+
+.student-attendance-filter-card input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.78;
+  filter: invert(16%) sepia(9%) saturate(963%) hue-rotate(180deg) brightness(94%) contrast(91%);
 }
 
 .student-attendance-summary-grid {
@@ -113,15 +140,15 @@
 }
 
 .student-attendance-summary-card.absent strong {
-  color: #b91c1c;
+  color: #111827;
 }
 
 .student-attendance-summary-card.late strong {
-  color: #9a3412;
+  color: #6b7280;
 }
 
 .student-attendance-summary-card.justified strong {
-  color: #166534;
+  color: #8b6b1d;
 }
 
 .student-attendance-message {
@@ -132,9 +159,9 @@
 }
 
 .student-attendance-message.error {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background: rgba(17, 24, 39, 0.96);
+  color: #fff8ea;
+  border: 1px solid rgba(201, 162, 39, 0.22);
 }
 
 .student-attendance-empty-box {
@@ -218,21 +245,21 @@
 }
 
 .student-attendance-status-pill.present {
-  background: #ecfdf5;
-  color: #166534;
-  border-color: #bbf7d0;
+  background: rgba(255, 251, 239, 0.96);
+  color: #8b6b1d;
+  border-color: rgba(201, 162, 39, 0.28);
 }
 
 .student-attendance-status-pill.absent {
-  background: #fef2f2;
-  color: #991b1b;
-  border-color: #fecaca;
+  background: #111827;
+  color: #fff8ea;
+  border-color: rgba(201, 162, 39, 0.2);
 }
 
 .student-attendance-status-pill.late {
-  background: #fff7ed;
-  color: #9a3412;
-  border-color: #fed7aa;
+  background: rgba(243, 235, 219, 0.96);
+  color: #4b5563;
+  border-color: rgba(201, 162, 39, 0.18);
 }
 
 .student-attendance-justified {
@@ -248,13 +275,13 @@
 }
 
 .student-attendance-justified.yes {
-  background: #ecfdf5;
-  color: #166534;
+  background: rgba(255, 251, 239, 0.96);
+  color: #8b6b1d;
 }
 
 .student-attendance-justified.no {
-  background: #f8fafc;
-  color: #64748b;
+  background: #111827;
+  color: #fff8ea;
 }
 
 .student-attendance-observation-cell {
@@ -293,6 +320,10 @@
   }
 
   .student-attendance-filter-card {
+    width: 100%;
+  }
+
+  .student-attendance-filter-group {
     width: 100%;
   }
 

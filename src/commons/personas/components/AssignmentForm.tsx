@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import StyledSelect from "@/components/StyledSelect";
-
-const API_BASE = "http://127.0.0.1:8000/api";
 
 const isPdfFile = (file: File) =>
   file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
@@ -40,9 +38,6 @@ const AssignmentForm: React.FC<Props> = ({
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const token = localStorage.getItem("access_token");
-
   useEffect(() => {
     if (assignmentToEdit) {
       setTitle(assignmentToEdit.titulo);
@@ -80,23 +75,9 @@ const AssignmentForm: React.FC<Props> = ({
 
     try {
       if (assignmentToEdit) {
-        await axios.put(
-          `${API_BASE}/assignments/${assignmentToEdit.id}/`,
-          data,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        await api.put(`/api/assignments/${assignmentToEdit.id}/`, data);
       } else {
-        await axios.post(`${API_BASE}/assignments/`, data, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await api.post("/api/assignments/", data);
       }
 
       resetForm();

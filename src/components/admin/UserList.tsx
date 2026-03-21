@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { ArrowRight, GraduationCap, Search, UserPlus2, Users } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
 import UserForm from "./UserForm";
@@ -15,19 +15,9 @@ const UserList = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const getToken = () => localStorage.getItem("access") || localStorage.getItem("access_token");
-
   const fetchUsers = async () => {
-    const token = getToken();
-    if (!token) {
-      window.location.href = "/";
-      return [];
-    }
-
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/users/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get("/api/users/");
       setUsers(response.data);
       return response.data as User[];
     } catch (err: any) {
@@ -35,7 +25,7 @@ const UserList = () => {
         showToast({
           type: "warning",
           title: "Sesion expirada",
-          message: "Tu sesion ha expirado. Por favor inicia sesion nuevamente.",
+          message: "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
         });
         localStorage.clear();
         window.location.href = "/";
@@ -68,7 +58,7 @@ const UserList = () => {
     <section className="user-workspace">
       <div className="user-workspace__hero">
         <div>
-          <p className="user-workspace__eyebrow">Gestion de usuarios</p>
+          <p className="user-workspace__eyebrow">Gestión de usuarios</p>
           <h2>{filterRole === "STUDENT" ? "Estudiantes" : "Docentes"}</h2>
           <p>
             Consulta el listado, abre cada perfil para actualizar informacion y administra

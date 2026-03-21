@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import StyledSelect from "@/components/StyledSelect";
-
-const API_BASE = "http://127.0.0.1:8000/api";
 
 interface Props {
   date: string;
@@ -17,8 +15,6 @@ interface TeacherCourse {
 }
 
 const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
-  const token = localStorage.getItem("access_token");
-
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [tipo, setTipo] = useState<"EVENT" | "EXAM" | "ACTIVITY">("EVENT");
@@ -30,9 +26,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
   useEffect(() => {
     const loadCourse = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/courses/teacher/course/`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/api/courses/teacher/course/");
         setCourse(res.data);
       } catch (err) {
         console.error("Error cargando curso del docente", err);
@@ -41,11 +35,11 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
     };
 
     loadCourse();
-  }, [token]);
+  }, []);
 
   const saveEvent = async () => {
     if (!course?.id) {
-      setError("No se encontro un curso asignado para crear el evento.");
+      setError("No se encontró un curso asignado para crear el evento.");
       return;
     }
 
@@ -61,8 +55,8 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
     const fecha_fin = `${date}T09:00:00`;
 
     try {
-      await axios.post(
-        `${API_BASE}/calendar/events/`,
+      await api.post(
+        "/api/calendar/events/",
         {
           titulo: titulo.trim(),
           descripcion: descripcion.trim(),
@@ -72,7 +66,6 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
           curso: course.id,
           materia: null,
         },
-        { headers: { Authorization: `Bearer ${token}` } },
       );
 
       await onSaved();
@@ -102,7 +95,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
 
   const courseName = course?.name || course?.nombre || "Tu curso";
   const tipoLabel =
-    tipo === "EVENT" ? "Evento" : tipo === "EXAM" ? "Evaluacion" : "Actividad";
+    tipo === "EVENT" ? "Evento" : tipo === "EXAM" ? "Evaluación" : "Actividad";
 
   return (
     <>
@@ -119,7 +112,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
             <div>
               <h2>Nuevo evento</h2>
               <p className="modal-subtitle">
-                Crea una actividad para tu curso de forma rapida.
+                Crea una actividad para tu curso de forma rápida.
               </p>
             </div>
 
@@ -146,11 +139,11 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
 
             <div className="form-grid">
               <div className="form-group">
-                <label>Titulo</label>
+                <label>Título</label>
                 <input
                   value={titulo}
                   onChange={(event) => setTitulo(event.target.value)}
-                  placeholder="Ej: Dia del nino, Examen, Actividad..."
+                  placeholder="Ej: Día del niño, Examen, Actividad..."
                 />
               </div>
 
@@ -163,14 +156,14 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
                   }
                 >
                   <option value="EVENT">Evento</option>
-                  <option value="EXAM">Evaluacion</option>
+                  <option value="EXAM">Evaluación</option>
                   <option value="ACTIVITY">Actividad</option>
                 </StyledSelect>
               </div>
             </div>
 
             <div className="form-group">
-              <label>Descripcion (opcional)</label>
+              <label>Descripción (opcional)</label>
               <textarea
                 value={descripcion}
                 onChange={(event) => setDescripcion(event.target.value)}
@@ -207,7 +200,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
           <div className="teacher-calendar-success-modal">
             <div className="teacher-calendar-success-icon">✓</div>
             <h3>Evento creado</h3>
-            <p>Se agrego correctamente al calendario.</p>
+            <p>Se agregó correctamente al calendario.</p>
           </div>
         </div>
       ) : null}

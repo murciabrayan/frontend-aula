@@ -10,6 +10,8 @@ import "@/commons/personas/styles/notificationBell.css";
 
 interface Props {
   setActiveModule: (module: string) => void;
+  mode?: "all" | "alerts";
+  alertModuleId?: string;
 }
 
 const normalizeText = (value: string) =>
@@ -24,9 +26,11 @@ const getTargetModule = (notification: Notification): string | null => {
 
   if (
     titulo.includes("alerta") ||
+    titulo.includes("seguimiento") ||
     titulo.includes("bajo rendimiento") ||
     titulo.includes("inasistencia") ||
     titulo.includes("no entreg") ||
+    mensaje.includes("seguimiento") ||
     mensaje.includes("bajo rendimiento") ||
     mensaje.includes("inasistencia") ||
     mensaje.includes("no entreg")
@@ -61,7 +65,11 @@ const formatNotificationDate = (value: string) => {
   }
 };
 
-export default function NotificationBell({ setActiveModule }: Props) {
+export default function NotificationBell({
+  setActiveModule,
+  mode = "all",
+  alertModuleId = "alertas",
+}: Props) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -85,6 +93,14 @@ export default function NotificationBell({ setActiveModule }: Props) {
     return () => clearInterval(interval);
   }, []);
 
+  const visibleNotifications = useMemo(() => {
+    if (mode === "alerts") {
+      return notifications.filter((notification) => getTargetModule(notification) === "alertas");
+    }
+
+    return notifications;
+  }, [mode, notifications]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -105,7 +121,8 @@ export default function NotificationBell({ setActiveModule }: Props) {
         await markAsRead(n.id);
       }
 
-      const targetModule = getTargetModule(n);
+      const targetModule =
+        mode === "alerts" ? alertModuleId : getTargetModule(n);
 
       await loadData();
       setOpen(false);
@@ -147,8 +164,8 @@ export default function NotificationBell({ setActiveModule }: Props) {
   };
 
   const unread = useMemo(
-    () => notifications.filter((n) => !n.leida).length,
-    [notifications]
+    () => visibleNotifications.filter((n) => !n.leida).length,
+    [visibleNotifications]
   );
 
   return (
@@ -171,11 +188,13 @@ export default function NotificationBell({ setActiveModule }: Props) {
 
           {loading ? (
             <p className="empty">Cargando...</p>
-          ) : notifications.length === 0 ? (
-            <p className="empty">Sin notificaciones</p>
+          ) : visibleNotifications.length === 0 ? (
+            <p className="empty">
+              {mode === "alerts" ? "Sin notificaciones de alertas" : "Sin notificaciones"}
+            </p>
           ) : (
             <div className="notification-list">
-              {notifications.map((n) => (
+              {visibleNotifications.map((n) => (
                 <div
                   key={n.id}
                   className={`notification-item ${n.leida ? "read" : "unread"}`}

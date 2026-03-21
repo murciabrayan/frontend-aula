@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import {
   BookOpen,
   CalendarDays,
@@ -11,8 +11,6 @@ import {
 } from "lucide-react";
 import UploadSubmissionForm from "./UploadSubmissionForm";
 import "./../styles/assignments.css";
-
-const API_BASE = "http://127.0.0.1:8000/api";
 
 interface Area {
   id: number;
@@ -55,8 +53,6 @@ const formatDate = (value: string) => {
 };
 
 const StudentAssignmentsList: React.FC = () => {
-  const token = localStorage.getItem("access_token");
-
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [allAssignments, setAllAssignments] = useState<Assignment[]>([]);
@@ -73,41 +69,31 @@ const StudentAssignmentsList: React.FC = () => {
   const [toastMsg, setToastMsg] = useState("");
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/subjects/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/subjects/")
       .then((res) => setSubjects(res.data));
 
-    axios
-      .get(`${API_BASE}/areas/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/areas/")
       .then((res) => setAreas(res.data));
 
-    axios
-      .get(`${API_BASE}/assignments/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/assignments/")
       .then((res) => setAllAssignments(res.data));
 
     reloadSubmissions();
-  }, [token]);
+  }, []);
 
   const reloadSubmissions = () => {
-    axios
-      .get(`${API_BASE}/submissions/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get("/api/submissions/")
       .then((res) => setSubmissions(res.data));
   };
 
   const loadAssignments = (subject: Subject) => {
     setActiveSubject(subject);
-    axios
-      .get(`${API_BASE}/assignments/?subject=${subject.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get(`/api/assignments/?subject=${subject.id}`)
       .then((res) => setAssignments(res.data));
   };
 
@@ -184,7 +170,7 @@ const StudentAssignmentsList: React.FC = () => {
 
       <div className="student-tasks__section-head">
         <div>
-          <h3>Mapa academico</h3>
+          <h3>Mapa académico</h3>
           <p>Accede a cada materia desde su area y abre su panel de actividades.</p>
         </div>
       </div>
@@ -421,7 +407,7 @@ const StudentAssignmentsList: React.FC = () => {
 
                   {showDetails.descripcion && (
                     <div className="assignment-description">
-                      <strong>Descripcion</strong>
+                      <strong>Descripción</strong>
                       <p>{showDetails.descripcion}</p>
                     </div>
                   )}

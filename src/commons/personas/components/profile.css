@@ -494,6 +494,10 @@
   margin-top: 4px;
 }
 
+.profile-password-requirements {
+  margin-top: 2px;
+}
+
 @media (max-width: 980px) {
   .profile-grid {
     grid-template-columns: 1fr;

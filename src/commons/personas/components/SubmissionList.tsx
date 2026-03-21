@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "@/api/axios";
 import { Download, Eye, PencilLine } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
-
-const API_BASE = "http://127.0.0.1:8000/api";
 
 interface Props {
   assignmentId: number;
@@ -30,7 +28,6 @@ const formatDateTime = (value: string) => {
 
 const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
   const { showToast } = useFeedback();
-  const token = localStorage.getItem("access_token");
 
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,9 +40,7 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
     try {
       setLoading(true);
 
-      const res = await axios.get(`${API_BASE}/submissions/?assignment=${assignmentId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get(`/api/submissions/?assignment=${assignmentId}`);
 
       setSubmissions(res.data || []);
     } catch (error) {
@@ -85,14 +80,11 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
     try {
       setSaving(true);
 
-      await axios.post(
-        `${API_BASE}/submissions/${selectedSubmission.id}/calificar/`,
+      await api.post(
+        `/api/submissions/${selectedSubmission.id}/calificar/`,
         {
           calificacion: grade,
           retroalimentacion: feedback,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         },
       );
 

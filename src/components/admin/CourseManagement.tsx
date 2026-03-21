@@ -1,16 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  BookOpen,
-  Layers3,
-  LayoutPanelTop,
-  Pencil,
-  Plus,
-  Save,
-  Search,
-  Trash2,
-  UserSquare2,
-  Users,
-} from "lucide-react";
+﻿import { useEffect, useMemo, useState } from "react";
+import { BookOpen, Pencil, Plus, Save, Search, Trash2 } from "lucide-react";
 import StyledSelect from "@/components/StyledSelect";
 import { useFeedback } from "@/context/FeedbackContext";
 import {
@@ -33,7 +22,6 @@ import {
 } from "../../commons/personas/services/subjectService";
 import {
   createAssignment,
-  createIndicator,
   deleteAssignment,
   deleteIndicator,
   getAssignmentsByCourse,
@@ -42,6 +30,8 @@ import {
   type Indicator,
   type SubjectIndicatorAssignment,
 } from "../../commons/personas/services/indicatorService";
+import CourseStructureBoard from "./CourseStructureBoard";
+import CourseTeamBoard from "./CourseTeamBoard";
 import "./CourseManagement.css";
 
 interface Course {
@@ -72,9 +62,7 @@ interface Subject {
   area_nombre?: string;
 }
 
-type StructureSection = "areas" | "materias" | "indicadores";
 type CourseManagementMode = "course" | "structure";
-type IndicatorSection = "materias" | "creacion";
 
 type PeriodSelectorState = {
   1: number | "";
@@ -110,13 +98,11 @@ const CourseManagement = ({
   const [students, setStudents] = useState<User[]>([]);
 
   const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
-  const [selectedStructureSection, setSelectedStructureSection] =
-    useState<StructureSection>("areas");
-  const [indicatorSection, setIndicatorSection] =
-    useState<IndicatorSection>("materias");
   const [courseSearch, setCourseSearch] = useState("");
   const [studentFilter, setStudentFilter] = useState("");
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
 
   const [courseForm, setCourseForm] = useState<Course>(emptyCourseForm());
   const [editingCourseId, setEditingCourseId] = useState<number | null>(null);
@@ -132,6 +118,7 @@ const CourseManagement = ({
   const [newAreaName, setNewAreaName] = useState("");
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
+  const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [isAssignIndicatorModalOpen, setIsAssignIndicatorModalOpen] =
     useState(false);
@@ -140,6 +127,7 @@ const CourseManagement = ({
   const [assignmentSubjectId, setAssignmentSubjectId] = useState<number | "">("");
   const [assignmentPeriod, setAssignmentPeriod] = useState<1 | 2 | 3 | 4 | "">("");
   const [assignmentIndicatorId, setAssignmentIndicatorId] = useState<number | "">("");
+  const [assignmentIndicatorSearch, setAssignmentIndicatorSearch] = useState("");
 
   const [indicatorBank, setIndicatorBank] = useState<Indicator[]>([]);
   const [indicatorAssignments, setIndicatorAssignments] = useState<
@@ -148,7 +136,6 @@ const CourseManagement = ({
   const [selectedIndicators, setSelectedIndicators] = useState<
     Record<number, PeriodSelectorState>
   >({});
-  const [newIndicatorDescription, setNewIndicatorDescription] = useState("");
   const [editingIndicatorId, setEditingIndicatorId] = useState<number | null>(
     null
   );
@@ -183,7 +170,7 @@ const CourseManagement = ({
       showToast({
         type: "error",
         title: "Cursos",
-        message: "No se pudo cargar la informacion de cursos.",
+        message: "No se pudo cargar la información de cursos.",
       });
     } finally {
       setLoading(false);
@@ -195,6 +182,14 @@ const CourseManagement = ({
     if (!query) return courses;
     return courses.filter((course) => course.name.toLowerCase().includes(query));
   }, [courseSearch, courses]);
+
+  const filteredAssignmentIndicators = useMemo(() => {
+    const query = assignmentIndicatorSearch.trim().toLowerCase();
+    if (!query) return indicatorBank;
+    return indicatorBank.filter((indicator) =>
+      indicator.descripcion.toLowerCase().includes(query)
+    );
+  }, [assignmentIndicatorSearch, indicatorBank]);
 
   const selectedCourse = useMemo(
     () => courses.find((course) => course.id === selectedCourseId) ?? null,
@@ -215,18 +210,6 @@ const CourseManagement = ({
         .includes(query)
     );
   }, [studentFilter, students]);
-
-  const groupedSubjects = useMemo(() => {
-    return areas.map((area) => ({
-      area,
-      subjects: subjects.filter((subject) => subject.area === area.id),
-    }));
-  }, [areas, subjects]);
-
-  const subjectsWithoutArea = useMemo(
-    () => subjects.filter((subject) => !subject.area),
-    [subjects]
-  );
 
   const getTeacherName = (teacherId: number | null) => {
     if (!teacherId) return "Sin docente";
@@ -253,8 +236,6 @@ const CourseManagement = ({
     setSelectedCourseId(course.id);
     setSelectedTeacher(course.teacher || "");
     setSelectedStudents(course.students || []);
-    setSelectedStructureSection("areas");
-    setIndicatorSection("materias");
     setStudentFilter("");
     setLoadingWorkspace(true);
 
@@ -285,6 +266,35 @@ const CourseManagement = ({
     } finally {
       setLoadingWorkspace(false);
     }
+  };
+
+  const openTeamModal = async (course: Course) => {
+    await openCourseWorkspace(course);
+    setIsTeamModalOpen(true);
+  };
+
+  const closeTeamModal = () => {
+    setIsTeamModalOpen(false);
+    setSelectedCourseId(null);
+    setStudentFilter("");
+  };
+
+  const openStructureModal = async (course: Course) => {
+    await openCourseWorkspace(course);
+    setIsStructureModalOpen(true);
+  };
+
+  const closeStructureModal = () => {
+    setIsStructureModalOpen(false);
+    setSelectedCourseId(null);
+    setSelectedSubjectId(null);
+    setNewAreaName("");
+    setNewSubjectName("");
+    setNewSubjectArea("");
+    setIsAreaModalOpen(false);
+    setIsSubjectModalOpen(false);
+    setIsAssignIndicatorModalOpen(false);
+    setIsSubjectIndicatorsModalOpen(false);
   };
 
   const resetCourseForm = () => {
@@ -547,10 +557,16 @@ const CourseManagement = ({
     setIsSubjectModalOpen(false);
   };
 
+  const resetAreaDraft = () => {
+    setNewAreaName("");
+    setIsAreaModalOpen(false);
+  };
+
   const resetIndicatorAssignmentDraft = () => {
     setAssignmentSubjectId(selectedSubjectId ?? "");
     setAssignmentPeriod("");
     setAssignmentIndicatorId("");
+    setAssignmentIndicatorSearch("");
     setIsAssignIndicatorModalOpen(false);
   };
 
@@ -614,36 +630,6 @@ const CourseManagement = ({
       });
     } finally {
       setSavingSubjectId(null);
-    }
-  };
-
-  const addIndicatorToBank = async () => {
-    const descripcion = newIndicatorDescription.trim();
-    if (!descripcion) return;
-
-    try {
-      const response = await createIndicator({ descripcion });
-      setIndicatorBank((current) =>
-        [...current, response.data].sort((a, b) =>
-          a.descripcion.localeCompare(b.descripcion)
-        )
-      );
-      setNewIndicatorDescription("");
-      showToast({
-        type: "success",
-        title: "Indicador creado",
-        message: "El indicador se creo correctamente.",
-      });
-    } catch (error: any) {
-      showToast({
-        type: "error",
-        title: "Indicador",
-        message:
-          error?.response?.data?.descripcion?.[0] ||
-          error?.response?.data?.detail ||
-          error?.response?.data?.non_field_errors?.[0] ||
-          "No se pudo crear el indicador.",
-      });
     }
   };
 
@@ -846,622 +832,79 @@ const CourseManagement = ({
       (assignment) => assignment.materia === subjectId && assignment.periodo === period
     );
 
-  const renderSubjectsGroup = (title: string, list: Subject[]) => {
-    if (list.length === 0) return null;
-
-    return (
-      <div className="course-management__subject-group">
-        <div className="course-management__subject-group-title">{title}</div>
-        {list.map((subject) => (
-          <button
-            key={subject.id}
-            type="button"
-            className={`course-management__subject-item ${
-              selectedSubjectId === subject.id ? "is-active" : ""
-            }`}
-            onClick={() => setSelectedSubjectId(subject.id)}
-          >
-            <div>
-              <strong>{subject.nombre}</strong>
-              <span>{subject.area_nombre || "Sin area"}</span>
-            </div>
-            <span className="course-management__subject-chevron">&gt;</span>
-          </button>
-        ))}
-      </div>
-    );
-  };
-
   const renderCourseWorkspace = () => (
-    <div className="course-management__roster-shell">
-      <article className="course-management__card course-management__roster-hero">
-        <div>
-          <p className="course-management__eyebrow">Configuracion del curso</p>
-          <h3>{selectedCourse?.name}</h3>
-          <p className="course-management__section-copy">
-            Un espacio para armar el curso con calma: define el docente, revisa
-            el grupo y ajusta estudiantes sin salir de la misma vista.
-          </p>
-        </div>
-        <div className="course-management__hero-meta">
-          <span>
-            <UserSquare2 size={15} />
-            {getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
-          </span>
-          <span>
-            <Users size={15} />
-            {selectedStudents.length} estudiantes asignados
-          </span>
-        </div>
-      </article>
-
-      <div className="course-management__roster-overview">
-        <div className="course-management__roster-stat">
-          <span className="course-management__roster-stat-label">Docente</span>
-          <strong>{getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}</strong>
-        </div>
-        <div className="course-management__roster-stat">
-          <span className="course-management__roster-stat-label">Estudiantes</span>
-          <strong>{selectedStudents.length}</strong>
-        </div>
-        <div className="course-management__roster-stat">
-          <span className="course-management__roster-stat-label">Estado</span>
-          <strong>{selectedStudents.length > 0 ? "Conformado" : "En preparacion"}</strong>
-        </div>
-      </div>
-
-      <div className="course-management__roster-grid">
-        <aside className="course-management__roster-side">
-          <article className="course-management__card course-management__teacher-panel">
-            <div className="course-management__card-header">
-              <div>
-                <h3>Docente responsable</h3>
-                <p>Elige el docente desde un desplegable mas limpio y facil de leer.</p>
-              </div>
-            </div>
-
-            <div className="course-management__select-shell">
-              <span className="course-management__select-label">Docente del curso</span>
-              <StyledSelect
-                value={selectedTeacher}
-                onChange={(event) =>
-                  setSelectedTeacher(
-                    event.target.value ? Number(event.target.value) : ""
-                  )
-                }
-              >
-                <option value="">Sin asignar</option>
-                {teachers.map((teacher) => (
-                  <option key={teacher.id} value={teacher.id}>
-                    {teacher.first_name} {teacher.last_name}
-                  </option>
-                ))}
-              </StyledSelect>
-            </div>
-
-            <div className="course-management__teacher-summary">
-              <div className="course-management__summary-chip">
-                <UserSquare2 size={16} />
-                <div>
-                  <strong>Responsable actual</strong>
-                  <span>
-                    {getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="course-management__sticky-actions">
-              <button
-                type="button"
-                className="course-management__primary-btn"
-                onClick={() => void saveCoursePeople()}
-                disabled={savingCoursePeople}
-              >
-                <Save size={16} />
-                <span>{savingCoursePeople ? "Guardando..." : "Guardar equipo"}</span>
-              </button>
-            </div>
-          </article>
-
-        </aside>
-
-          <article className="course-management__card course-management__student-bank">
-            <div className="course-management__card-header">
-              <div>
-                <h3>Explorador de estudiantes</h3>
-                <p>Agrega o quita estudiantes desde una tabla pensada para grupos grandes.</p>
-              </div>
-            </div>
-
-          <div className="course-management__students-topbar">
-            <label className="course-management__search course-management__search--compact">
-              <Search size={16} />
-              <input
-                type="text"
-                value={studentFilter}
-                onChange={(event) => setStudentFilter(event.target.value)}
-                placeholder="Buscar estudiante..."
-              />
-            </label>
-            <div className="course-management__summary-chip">
-              <Users size={16} />
-              <div>
-                <strong>Seleccion actual</strong>
-                <span>{selectedStudents.length} marcados</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="course-management__student-table-wrap">
-            <table className="course-management__student-table">
-              <thead>
-                <tr>
-                  <th>Estudiante</th>
-                  <th>Curso actual</th>
-                  <th>Accion</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.map((student) => {
-                  const isSelected = selectedStudents.includes(student.id);
-                  return (
-                    <tr
-                      key={student.id}
-                      className={isSelected ? "is-selected" : ""}
-                    >
-                      <td>
-                        <strong>
-                          {student.first_name} {student.last_name}
-                        </strong>
-                      </td>
-                      <td>{getStudentCourseName(student.id)}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className={`course-management__action-pill ${
-                            isSelected ? "is-active" : ""
-                          }`}
-                          onClick={() =>
-                            setSelectedStudents((current) =>
-                              current.includes(student.id)
-                                ? current.filter((id) => id !== student.id)
-                                : [...current, student.id]
-                            )
-                          }
-                        >
-                          {isSelected ? "Quitar" : "Agregar"}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </div>
-    </div>
+    <CourseTeamBoard
+      courseName={selectedCourse?.name || ""}
+      allStudents={filteredStudents}
+      teacherName={getTeacherName(selectedTeacher === "" ? null : selectedTeacher)}
+      teachers={teachers}
+      selectedTeacher={selectedTeacher}
+      onTeacherChange={setSelectedTeacher}
+      selectedStudentIds={selectedStudents}
+      studentFilter={studentFilter}
+      onStudentFilterChange={setStudentFilter}
+      onAddStudent={(studentId) =>
+        setSelectedStudents((current) =>
+          current.includes(studentId) ? current : [...current, studentId]
+        )
+      }
+      onRemoveStudent={(studentId) =>
+        setSelectedStudents((current) => current.filter((id) => id !== studentId))
+      }
+      onSave={() => void saveCoursePeople()}
+      saving={savingCoursePeople}
+      getStudentCourseName={getStudentCourseName}
+      onClose={closeTeamModal}
+      loading={loadingWorkspace}
+    />
   );
 
   const renderStructureWorkspace = () => (
-    <div className="course-management__builder-shell">
-      <article className="course-management__card course-management__builder-hero">
-        <div>
-          <p className="course-management__eyebrow">Arquitectura del curso</p>
-          <h3>{selectedCourse?.name}</h3>
-        </div>
-        <div className="course-management__hero-meta">
-          <span>
-            <Layers3 size={15} />
-            {areas.length} areas
-          </span>
-          <span>
-            <BookOpen size={15} />
-            {subjects.length} materias
-          </span>
-          <span>
-            <LayoutPanelTop size={15} />
-            {indicatorBank.length} indicadores
-          </span>
-        </div>
-      </article>
-
-      <div className="course-management__builder-layout">
-        <aside className="course-management__builder-nav">
-          <button
-            type="button"
-            className={`course-management__builder-tab ${
-              selectedStructureSection === "areas" ? "is-active" : ""
-            }`}
-            onClick={() => setSelectedStructureSection("areas")}
-          >
-            <div>
-              <strong>Areas</strong>
-              <small>Bloques del curso</small>
-            </div>
-          </button>
-          <button
-            type="button"
-            className={`course-management__builder-tab ${
-              selectedStructureSection === "materias" ? "is-active" : ""
-            }`}
-            onClick={() => setSelectedStructureSection("materias")}
-          >
-            <div>
-              <strong>Materias</strong>
-              <small>Mapa academico</small>
-            </div>
-          </button>
-          <button
-            type="button"
-            className={`course-management__builder-tab ${
-              selectedStructureSection === "indicadores" ? "is-active" : ""
-            }`}
-            onClick={() => setSelectedStructureSection("indicadores")}
-          >
-            <div>
-              <strong>Indicadores</strong>
-              <small>Evaluacion por periodo</small>
-            </div>
-          </button>
-        </aside>
-
-        <div className="course-management__builder-stage">
-          {selectedStructureSection === "areas" ? (
-            <div className="course-management__areas-stage">
-              <article className="course-management__card">
-                <div className="course-management__card-header">
-                  <div>
-                    <h3>Panel de areas</h3>
-                    <p>Crea y revisa las areas en un tablero amplio.</p>
-                  </div>
-                </div>
-                <div className="course-management__scroll-panel">
-                  {areas.length === 0 ? (
-                    <div className="course-management__empty">
-                      Aun no hay areas creadas.
-                    </div>
-                  ) : (
-                    areas.map((area) => (
-                      <div key={area.id} className="course-management__simple-row">
-                        <div>
-                          <strong>{area.nombre}</strong>
-                        </div>
-                        <button
-                          type="button"
-                          className="course-management__action-pill is-danger"
-                          onClick={() => void removeArea(area.id)}
-                        >
-                          <Trash2 size={14} />
-                          <span>Eliminar</span>
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </article>
-
-              <article className="course-management__card">
-                <div className="course-management__card-header">
-                  <div>
-                    <h3>Nueva area</h3>
-                    <p>Agrega una nueva area sin competir con otras configuraciones.</p>
-                  </div>
-                </div>
-                <div className="course-management__stack-form">
-                  <input
-                    type="text"
-                    value={newAreaName}
-                    onChange={(event) => setNewAreaName(event.target.value)}
-                    placeholder="Nombre del area"
-                  />
-                  <button
-                    type="button"
-                    className="course-management__primary-btn"
-                    onClick={() => void addArea()}
-                  >
-                    <Plus size={15} />
-                    <span>Crear area</span>
-                  </button>
-                </div>
-              </article>
-            </div>
-          ) : null}
-
-          {selectedStructureSection === "materias" ? (
-            <div className="course-management__subjects-stage">
-              <article className="course-management__card">
-                <div className="course-management__card-header">
-                  <div>
-                    <h3>Biblioteca de materias</h3>
-                    <p>Selecciona una materia y revisa su configuracion con mas espacio.</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="course-management__primary-btn course-management__primary-btn--compact"
-                    onClick={() => setIsSubjectModalOpen(true)}
-                  >
-                    <Plus size={14} />
-                    <span>Nueva materia</span>
-                  </button>
-                </div>
-                <div className="course-management__scroll-panel">
-                  {groupedSubjects.map((group) =>
-                    renderSubjectsGroup(group.area.nombre, group.subjects)
-                  )}
-                  {subjectsWithoutArea.length > 0 ? (
-                    <div className="course-management__subject-group">
-                      <div className="course-management__subject-group-title">
-                        Sin area
-                      </div>
-                      {subjectsWithoutArea.map((subject) => (
-                        <button
-                          key={subject.id}
-                          type="button"
-                          className={`course-management__subject-item ${
-                            selectedSubjectId === subject.id ? "is-active" : ""
-                          }`}
-                          onClick={() => setSelectedSubjectId(subject.id)}
-                        >
-                          <div>
-                            <strong>{subject.nombre}</strong>
-                            <span>Sin area</span>
-                          </div>
-                          <span className="course-management__subject-chevron">&gt;</span>
-                        </button>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              </article>
-
-              <div className="course-management__subjects-side">
-                <article className="course-management__card">
-                  <div className="course-management__card-header">
-                    <div>
-                      <h3>Detalle activo</h3>
-                      <p>
-                        {selectedSubject
-                          ? "Administra una sola materia a la vez."
-                          : "Selecciona una materia para editar su area."}
-                      </p>
-                    </div>
-                  </div>
-                  {!selectedSubject ? (
-                    <div className="course-management__empty course-management__empty--large">
-                      Selecciona una materia del listado.
-                    </div>
-                  ) : (
-                    <div className="course-management__stack-form">
-                      <div className="course-management__summary-chip">
-                        <BookOpen size={16} />
-                        <div>
-                          <strong>{selectedSubject.nombre}</strong>
-                          <span>{selectedSubject.area_nombre || "Sin area"}</span>
-                        </div>
-                      </div>
-                      <StyledSelect
-                        value={selectedSubject.area ?? ""}
-                        disabled={savingSubjectId === selectedSubject.id}
-                        onChange={(event) =>
-                          void handleAssignAreaToSubject(
-                            selectedSubject.id,
-                            event.target.value ? Number(event.target.value) : ""
-                          )
-                        }
-                      >
-                        <option value="">Sin area</option>
-                        {areas.map((area) => (
-                          <option key={area.id} value={area.id}>
-                            {area.nombre}
-                          </option>
-                        ))}
-                      </StyledSelect>
-                      <button
-                        type="button"
-                        className="course-management__action-pill is-danger"
-                        onClick={() => void removeSubject(selectedSubject.id)}
-                      >
-                        <Trash2 size={14} />
-                        <span>Eliminar materia</span>
-                      </button>
-                    </div>
-                  )}
-                </article>
-              </div>
-            </div>
-          ) : null}
-
-          {selectedStructureSection === "indicadores" ? (
-            <div className="course-management__indicators-stage">
-              <article className="course-management__card">
-                <div className="course-management__card-header">
-                  <div>
-                    <h3>Indicadores</h3>
-                    <p>Cambia entre materias e indicadores creados sin mezclar ambos flujos.</p>
-                  </div>
-                  <div className="course-management__indicator-switch">
-                    <button
-                      type="button"
-                      className={indicatorSection === "materias" ? "is-active" : ""}
-                      onClick={() => setIndicatorSection("materias")}
-                    >
-                      Materias
-                    </button>
-                    <button
-                      type="button"
-                      className={indicatorSection === "creacion" ? "is-active" : ""}
-                      onClick={() => setIndicatorSection("creacion")}
-                    >
-                      Creacion de indicadores
-                    </button>
-                  </div>
-                </div>
-              </article>
-
-              {indicatorSection === "materias" ? (
-                <div className="course-management__indicators-layout">
-                  <article className="course-management__card">
-                    <div className="course-management__card-header">
-                      <div>
-                        <h3>Materias</h3>
-                        <p>Selecciona una materia para visualizar sus indicadores guardados.</p>
-                      </div>
-                    </div>
-                    <div className="course-management__assignment-overview">
-                      {subjects.length === 0 ? (
-                        <div className="course-management__empty">
-                          Crea materias antes de asignar indicadores.
-                        </div>
-                      ) : (
-                        subjects.map((subject) => {
-                          const totalAssignments = indicatorAssignments.filter(
-                            (assignment) => assignment.materia === subject.id
-                          ).length;
-                          return (
-                            <div
-                              key={subject.id}
-                              className={`course-management__assignment-summary-card ${
-                                selectedSubjectId === subject.id ? "is-active" : ""
-                              }`}
-                              onClick={() => {
-                                setSelectedSubjectId(subject.id);
-                                setIsSubjectIndicatorsModalOpen(true);
-                              }}
-                              role="button"
-                              tabIndex={0}
-                            >
-                              <strong>{subject.nombre}</strong>
-                              <span>{subject.area_nombre || "Sin area"}</span>
-                              <small>{totalAssignments} indicadores guardados</small>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </article>
-                </div>
-              ) : null}
-
-              {indicatorSection === "creacion" ? (
-                <div className="course-management__indicators-layout is-single">
-                  <article className="course-management__card course-management__indicator-bank">
-                    <div className="course-management__card-header">
-                      <div>
-                        <h3>Banco de indicadores</h3>
-                        <p>Crea, edita y revisa los indicadores disponibles.</p>
-                      </div>
-                      <button
-                        type="button"
-                        className="course-management__primary-btn course-management__primary-btn--compact"
-                        onClick={() => {
-                          setAssignmentSubjectId(selectedSubjectId ?? "");
-                          setAssignmentPeriod("");
-                          setAssignmentIndicatorId("");
-                          setIsAssignIndicatorModalOpen(true);
-                        }}
-                      >
-                        <Plus size={14} />
-                        <span>Asignar indicador</span>
-                      </button>
-                    </div>
-                    <div className="course-management__inline-form course-management__inline-form--column">
-                      <textarea
-                        value={newIndicatorDescription}
-                        onChange={(event) =>
-                          setNewIndicatorDescription(event.target.value)
-                        }
-                        placeholder="Escribe un indicador para reutilizarlo..."
-                      />
-                      <button
-                        type="button"
-                        className="course-management__primary-btn"
-                        onClick={() => void addIndicatorToBank()}
-                      >
-                        <Plus size={15} />
-                        <span>Crear indicador</span>
-                      </button>
-                    </div>
-                    <div className="course-management__indicator-list">
-                      {indicatorBank.length === 0 ? (
-                        <div className="course-management__empty">
-                          Aun no hay indicadores creados.
-                        </div>
-                      ) : (
-                        indicatorBank.map((indicator) => (
-                          <div
-                            key={indicator.id}
-                            className="course-management__indicator-item"
-                          >
-                            {editingIndicatorId === indicator.id ? (
-                              <>
-                                <textarea
-                                  value={editingIndicatorDescription}
-                                  onChange={(event) =>
-                                    setEditingIndicatorDescription(event.target.value)
-                                  }
-                                />
-                                <div className="course-management__indicator-actions">
-                                  <button
-                                    type="button"
-                                    className="course-management__primary-btn"
-                                    onClick={() => void saveEditedIndicator()}
-                                  >
-                                    Guardar
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="course-management__secondary-btn"
-                                    onClick={() => {
-                                      setEditingIndicatorId(null);
-                                      setEditingIndicatorDescription("");
-                                    }}
-                                  >
-                                    Cancelar
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <p>{indicator.descripcion}</p>
-                                <div className="course-management__indicator-actions">
-                                  <button
-                                    type="button"
-                                    className="course-management__secondary-btn"
-                                    onClick={() => {
-                                      setEditingIndicatorId(indicator.id);
-                                      setEditingIndicatorDescription(indicator.descripcion);
-                                    }}
-                                  >
-                                    Editar
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="course-management__danger-btn"
-                                    onClick={() =>
-                                      void removeIndicatorFromBank(indicator.id)
-                                    }
-                                  >
-                                    Eliminar
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </article>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
+    <CourseStructureBoard
+      courseName={selectedCourse?.name || ""}
+      onClose={closeStructureModal}
+      loading={loadingWorkspace}
+      areas={areas}
+      subjects={subjects}
+      selectedSubjectId={selectedSubjectId}
+      onSelectSubject={setSelectedSubjectId}
+      onOpenAreaModal={() => setIsAreaModalOpen(true)}
+      onRemoveArea={(areaId) => void removeArea(areaId)}
+      onOpenSubjectModal={() => setIsSubjectModalOpen(true)}
+      savingSubjectId={savingSubjectId}
+      onAssignAreaToSubject={(subjectId, areaId) =>
+        void handleAssignAreaToSubject(subjectId, areaId)
+      }
+      onRemoveSubject={(subjectId) => void removeSubject(subjectId)}
+      onOpenSubjectIndicators={(subjectId) => {
+        setSelectedSubjectId(subjectId);
+        setIsSubjectIndicatorsModalOpen(true);
+      }}
+      indicatorBank={indicatorBank}
+      editingIndicatorId={editingIndicatorId}
+      editingIndicatorDescription={editingIndicatorDescription}
+      onEditingIndicatorDescriptionChange={setEditingIndicatorDescription}
+      onStartEditIndicator={(indicatorId, description) => {
+        setEditingIndicatorId(indicatorId);
+        setEditingIndicatorDescription(description);
+      }}
+      onSaveEditedIndicator={() => void saveEditedIndicator()}
+      onCancelEditIndicator={() => {
+        setEditingIndicatorId(null);
+        setEditingIndicatorDescription("");
+      }}
+      onRemoveIndicatorFromBank={(indicatorId) =>
+        void removeIndicatorFromBank(indicatorId)
+      }
+      indicatorAssignments={indicatorAssignments}
+      onOpenAssignIndicator={(subjectId, period) => {
+        setAssignmentSubjectId(subjectId);
+        setAssignmentPeriod(period);
+        setAssignmentIndicatorId("");
+        setIsAssignIndicatorModalOpen(true);
+      }}
+    />
   );
-
   if (loading) {
     return <div className="course-management__state">Cargando gestion de cursos...</div>;
   }
@@ -1470,11 +913,11 @@ const CourseManagement = ({
     <section className="course-management">
       <div className="course-management__header">
         <div>
-          <p className="course-management__eyebrow">Administracion academica</p>
+          <p className="course-management__eyebrow">Administración académica</p>
           <h2>
             {isCourseMode
-              ? "Cursos y equipo academico"
-              : "Estructura academica por curso"}
+              ? "Cursos y equipo académico"
+              : "Estructura académica por curso"}
           </h2>
           <p>
             {isCourseMode
@@ -1484,61 +927,45 @@ const CourseManagement = ({
         </div>
       </div>
 
-      <div className={`course-management__layout ${isCourseMode ? "is-course" : ""}`}>
-        <aside className="course-management__catalog">
-          {isCourseMode ? (
-          <article className="course-management__card">
-            <div className="course-management__card-header">
-              <div>
-                <h3>Gestion de cursos</h3>
-                <p>Crea un curso nuevo o edita uno existente desde una ventana limpia.</p>
-              </div>
+      <section className="course-management__command-center">
+        <div className="course-management__command-top">
+          <div>
+            <p className="course-management__flow-step">
+              {isCourseMode ? "Sala de cursos" : "Mesa de estructura"}
+            </p>
+            <h3>
+              {isCourseMode
+                ? "Abre un curso y arma su equipo como tablero"
+                : "Abre un curso y construye su estructura en carriles"}
+            </h3>
+            <p>
+              {isCourseMode
+                ? "Primero eliges el curso y luego trabajas con bandejas separadas de docente, disponibles y equipo final."
+                : "Primero eliges el curso y luego construyes areas, materias e indicadores en un workspace nuevo."}
+            </p>
+          </div>
+
+          <div className="course-management__command-actions">
+            {isCourseMode ? (
               <button
                 type="button"
-                className="course-management__primary-btn course-management__primary-btn--compact"
+                className="course-management__primary-btn"
                 onClick={openCreateCourseModal}
               >
                 <Plus size={14} />
                 <span>Nuevo curso</span>
               </button>
-            </div>
-            <div className="course-management__catalog-note">
-              Elige un curso del catalogo para armar su docente y su grupo de
-              estudiantes.
-            </div>
-          </article>
-          ) : (
-          <article className="course-management__card">
-            <div className="course-management__card-header">
-              <div>
-                <h3>Seleccion de curso</h3>
-                <p>Elige el curso sobre el que vas a construir su estructura academica.</p>
+            ) : (
+              <div className="course-management__summary-chip">
+                <BookOpen size={16} />
+                <div>
+                  <strong>Curso activo</strong>
+                  <span>{selectedCourse?.name || "Selecciona un curso"}</span>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="course-management__summary-chip">
-              <BookOpen size={16} />
-              <div>
-                <strong>Curso activo</strong>
-                <span>{selectedCourse?.name || "Aun no has seleccionado un curso"}</span>
-              </div>
-            </div>
-          </article>
-          )}
-
-          <article className="course-management__card course-management__card--fill">
-            <div className="course-management__card-header">
-              <div>
-                <h3>{isCourseMode ? "Catalogo de cursos" : "Cursos disponibles"}</h3>
-                <p>
-                  {isCourseMode
-                    ? "Selecciona un curso para gestionar su equipo en el panel derecho."
-                    : "Selecciona un curso para administrar sus areas, materias e indicadores."}
-                </p>
-              </div>
-            </div>
-
-            <label className="course-management__search">
+            <label className="course-management__search course-management__search--wide">
               <Search size={16} />
               <input
                 type="text"
@@ -1547,89 +974,68 @@ const CourseManagement = ({
                 placeholder="Buscar curso..."
               />
             </label>
+          </div>
+        </div>
 
-            <div className="course-management__course-list">
-              {filteredCourses.length === 0 ? (
-                <div className="course-management__empty">
-                  No hay cursos que coincidan con la busqueda.
-                </div>
-              ) : (
-                filteredCourses.map((course) => (
-                  <div
-                    key={course.id}
-                    className={`course-management__course-card ${
-                      selectedCourseId === course.id ? "is-active" : ""
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      className="course-management__course-main"
-                      onClick={() => void openCourseWorkspace(course)}
-                    >
-                      <div>
-                        <strong>{course.name}</strong>
-                        <span>{getTeacherName(course.teacher)}</span>
-                      </div>
-                      <div className="course-management__course-badges">
-                        <small>{course.students.length} estudiantes</small>
-                        {selectedCourseId === course.id ? (
-                          <span className="course-management__selected-pill">
-                            Seleccionado
-                          </span>
-                        ) : null}
-                      </div>
-                    </button>
-
-                    <div className="course-management__course-actions">
-                      <button
-                        type="button"
-                        className="course-management__action-pill"
-                        onClick={() => handleEditCourse(course)}
-                        title="Editar curso"
-                      >
-                        <Pencil size={15} />
-                        <span>Editar</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="course-management__action-pill"
-                        onClick={() => void handleDeleteCourse(course.id!)}
-                        title="Eliminar curso"
-                      >
-                        <Trash2 size={15} />
-                        <span>Eliminar</span>
-                      </button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </article>
-        </aside>
-
-        <section className="course-management__workspace">
-          {!selectedCourse ? (
-            <div className="course-management__placeholder">
-              <BookOpen size={26} />
-              <h3>Selecciona un curso</h3>
-              <p>
-                Cuando elijas un curso, podras administrar docente, estudiantes,
-                {isCourseMode
-                  ? " y la asignacion del equipo sin salir de esta pantalla."
-                  : " y toda su estructura academica sin salir de esta pantalla."}
-              </p>
-            </div>
-          ) : loadingWorkspace ? (
-            <div className="course-management__state">
-              Cargando configuracion de {selectedCourse.name}...
+        <div className="course-management__course-rail">
+          {filteredCourses.length === 0 ? (
+            <div className="course-management__empty">
+              No hay cursos que coincidan con la busqueda.
             </div>
           ) : (
-            <>
-              {isCourseMode ? renderCourseWorkspace() : renderStructureWorkspace()}
-            </>
+            filteredCourses.map((course) => (
+              <article
+                key={course.id}
+                className={`course-management__rail-card ${
+                  selectedCourseId === course.id ? "is-active" : ""
+                }`}
+              >
+                <button
+                  type="button"
+                  className="course-management__rail-card-main"
+                  onClick={() =>
+                    void (isCourseMode ? openTeamModal(course) : openStructureModal(course))
+                  }
+                >
+                  <span className="course-management__rail-card-kicker">Curso</span>
+                  <strong>{course.name}</strong>
+                  <small>{getTeacherName(course.teacher)}</small>
+                  <div className="course-management__rail-card-meta">
+                    <span>{course.students.length} estudiantes</span>
+                    {selectedCourseId === course.id ? (
+                      <span className="course-management__selected-pill">Activo</span>
+                    ) : null}
+                  </div>
+                </button>
+
+                {isCourseMode ? (
+                  <div className="course-management__rail-card-actions">
+                    <button
+                      type="button"
+                      className="course-management__action-pill"
+                      onClick={() => handleEditCourse(course)}
+                    >
+                      <Pencil size={15} />
+                      <span>Editar</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="course-management__action-pill"
+                      onClick={() => void handleDeleteCourse(course.id!)}
+                    >
+                      <Trash2 size={15} />
+                      <span>Eliminar</span>
+                    </button>
+                  </div>
+                ) : null}
+              </article>
+            ))
           )}
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {isCourseMode && isTeamModalOpen ? renderCourseWorkspace() : null}
+      {!isCourseMode && isStructureModalOpen ? renderStructureWorkspace() : null}
 
       {isCourseMode && isCourseModalOpen ? (
         <div className="course-management__modal-backdrop">
@@ -1688,6 +1094,56 @@ const CourseManagement = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {!isCourseMode && isAreaModalOpen ? (
+        <div className="course-management__modal-backdrop">
+          <div className="course-management__modal">
+            <div className="course-management__modal-header">
+              <div>
+                <h3>Nueva area</h3>
+                <p>Crea un area base para organizar las materias del curso.</p>
+              </div>
+              <button
+                type="button"
+                className="course-management__modal-close"
+                onClick={resetAreaDraft}
+                aria-label="Cerrar modal"
+              >
+                x
+              </button>
+            </div>
+
+            <div className="course-management__stack-form">
+              <input
+                type="text"
+                value={newAreaName}
+                onChange={(event) => setNewAreaName(event.target.value)}
+                placeholder="Nombre del area"
+              />
+              <div className="course-management__form-actions">
+                <button
+                  type="button"
+                  className="course-management__primary-btn"
+                  onClick={async () => {
+                    await addArea();
+                    setIsAreaModalOpen(false);
+                  }}
+                >
+                  <Plus size={15} />
+                  <span>Crear area</span>
+                </button>
+                <button
+                  type="button"
+                  className="course-management__secondary-btn"
+                  onClick={resetAreaDraft}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ) : null}
@@ -1804,21 +1260,36 @@ const CourseManagement = ({
                 <option value="4">Periodo 4</option>
               </StyledSelect>
 
-              <StyledSelect
-                value={assignmentIndicatorId}
-                onChange={(event) =>
-                  setAssignmentIndicatorId(
-                    event.target.value ? Number(event.target.value) : ""
-                  )
-                }
-              >
-                <option value="">Selecciona un indicador</option>
-                {indicatorBank.map((indicator) => (
-                  <option key={indicator.id} value={indicator.id}>
-                    {indicator.descripcion}
-                  </option>
-                ))}
-              </StyledSelect>
+              <label className="course-management__search course-management__search--wide">
+                <Search size={16} />
+                <input
+                  type="text"
+                  value={assignmentIndicatorSearch}
+                  onChange={(event) => setAssignmentIndicatorSearch(event.target.value)}
+                  placeholder="Buscar indicador..."
+                />
+              </label>
+
+              <div className="course-management__indicator-picker">
+                {filteredAssignmentIndicators.length === 0 ? (
+                  <div className="course-management__empty">
+                    No hay indicadores que coincidan con la busqueda.
+                  </div>
+                ) : (
+                  filteredAssignmentIndicators.map((indicator) => (
+                    <button
+                      key={indicator.id}
+                      type="button"
+                      className={`course-management__indicator-choice ${
+                        assignmentIndicatorId === indicator.id ? "is-active" : ""
+                      }`}
+                      onClick={() => setAssignmentIndicatorId(indicator.id)}
+                    >
+                      <span>{indicator.descripcion}</span>
+                    </button>
+                  ))
+                )}
+              </div>
 
               <div className="course-management__form-actions">
                 <button
@@ -1923,4 +1394,6 @@ const CourseManagement = ({
 };
 
 export default CourseManagement;
+
+
 

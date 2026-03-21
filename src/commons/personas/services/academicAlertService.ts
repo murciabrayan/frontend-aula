@@ -1,13 +1,6 @@
-import axios from "axios";
+﻿import api from "@/api/axios";
 
-const API_BASE = "http://127.0.0.1:8000/api/academic-alerts";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("access_token");
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
+const API_BASE = "/api/academic-alerts";
 
 export type AlertType =
   | "LOW_GRADE"
@@ -15,7 +8,37 @@ export type AlertType =
   | "MISSING_ASSIGNMENTS";
 
 export type AlertLevel = "WARNING" | "CRITICAL";
-export type AlertStatus = "ACTIVE" | "RESOLVED";
+export type AlertStatus =
+  | "TEACHER_INITIAL_PENDING"
+  | "ADMIN_INITIAL_REVIEW"
+  | "MONITORING"
+  | "TEACHER_FINAL_PENDING"
+  | "ADMIN_FINAL_REVIEW"
+  | "RESOLVED_POSITIVE"
+  | "RESOLVED_NEGATIVE";
+
+export type AlertEventType =
+  | "ALERT_CREATED"
+  | "ALERT_REOPENED"
+  | "TEACHER_INITIAL_SUBMITTED"
+  | "ADMIN_REVIEW_APPROVED"
+  | "ADMIN_REVIEW_REJECTED"
+  | "SECOND_FOLLOW_UP_REQUESTED"
+  | "TEACHER_FINAL_SUBMITTED"
+  | "ADMIN_CLOSED_POSITIVE"
+  | "ADMIN_CLOSED_NEGATIVE";
+
+export interface AcademicAlertEvent {
+  id: number;
+  event_type: AlertEventType;
+  title: string;
+  notes: string;
+  metadata: Record<string, any>;
+  visible_to_student: boolean;
+  actor: number | null;
+  actor_name: string | null;
+  created_at: string;
+}
 
 export interface AcademicAlert {
   id: number;
@@ -34,12 +57,14 @@ export interface AcademicAlert {
   metric_value: number | null;
   threshold_value: number | null;
   details: Record<string, any>;
+  next_follow_up_due_at: string | null;
   resolved_by: number | null;
   resolved_by_name: string | null;
   resolution_notes: string | null;
   resolved_at: string | null;
   created_at: string;
   updated_at: string;
+  events: AcademicAlertEvent[];
 }
 
 export interface GenerateAlertsResponse {
@@ -67,43 +92,32 @@ export interface StudentAcademicSummaryResponse {
   };
 }
 
-export const generateAcademicAlerts = (course: number, period: number) => {
-  return axios.post<GenerateAlertsResponse>(
-    `${API_BASE}/generate/`,
-    { course, period },
-    { headers: getAuthHeaders() }
-  );
-};
+export const generateAcademicAlerts = (course: number, period: number) =>
+  api.post<GenerateAlertsResponse>(`${API_BASE}/generate/`, { course, period });
 
 export const getAcademicAlerts = (params?: {
   course?: number;
   period?: number;
   alert_type?: AlertType | "";
   status?: AlertStatus | "";
-}) => {
-  return axios.get<AcademicAlert[]>(`${API_BASE}/`, {
-    headers: getAuthHeaders(),
-    params,
-  });
-};
+}) => api.get<AcademicAlert[]>(`${API_BASE}/`, { params });
 
-export const resolveAcademicAlert = (
+export const submitTeacherFollowUp = (
   alertId: number,
-  resolution_notes: string
-) => {
-  return axios.post<AcademicAlert>(
-    `${API_BASE}/${alertId}/resolve/`,
-    { resolution_notes },
-    { headers: getAuthHeaders() }
-  );
-};
+  payload: { notes: string; improvement_confirmed?: boolean },
+) => api.post<AcademicAlert>(`${API_BASE}/${alertId}/teacher-follow-up/`, payload);
 
-export const getStudentAcademicSummary = (period: number) => {
-  return axios.get<StudentAcademicSummaryResponse>(
-    `${API_BASE}/student-summary/`,
-    {
-      headers: getAuthHeaders(),
-      params: { period },
-    }
-  );
-};
+export const reviewAcademicAlert = (
+  alertId: number,
+  payload: { decision: "APPROVE" | "REJECT"; notes: string },
+) => api.post<AcademicAlert>(`${API_BASE}/${alertId}/admin-review/`, payload);
+
+export const closeAcademicAlert = (
+  alertId: number,
+  payload: { outcome: "POSITIVE" | "NEGATIVE"; notes: string },
+) => api.post<AcademicAlert>(`${API_BASE}/${alertId}/admin-close/`, payload);
+
+export const getStudentAcademicSummary = (period: number) =>
+  api.get<StudentAcademicSummaryResponse>(`${API_BASE}/student-summary/`, {
+    params: { period },
+  });

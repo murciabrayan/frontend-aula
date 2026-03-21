@@ -1,20 +1,6 @@
-import axios from "axios";
+import api from "@/api/axios";
 
-const API_BASE = "http://127.0.0.1:8000/api";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("access_token");
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
-
-const getMultipartHeaders = () => {
-  const token = localStorage.getItem("access_token");
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
+const API_BASE = "/api";
 
 export interface TeacherAttendanceStudent {
   id: number;
@@ -24,8 +10,32 @@ export interface TeacherAttendanceStudent {
   is_justified: boolean;
   justification_type: string;
   notes: string;
+  teacher_notes?: string | null;
+  admin_notes?: string | null;
   periodo: number;
   attachment_url: string | null;
+  created_by_name?: string | null;
+  updated_by_name?: string | null;
+  updated_by_role?: string | null;
+  latest_admin_event?: AttendanceEventSummary | null;
+  latest_teacher_event?: AttendanceEventSummary | null;
+}
+
+export interface AttendanceEventSummary {
+  summary: string;
+  notes: string;
+  actor_name: string | null;
+  created_at: string;
+  details?: {
+    changes?: Record<
+      string,
+      {
+        label: string;
+        from: string | number | boolean | null;
+        to: string | number | boolean | null;
+      }
+    >;
+  };
 }
 
 export interface TeacherAttendanceDayResponse {
@@ -65,12 +75,45 @@ export interface StudentAttendanceRecord {
   is_justified: boolean;
   justification_type: string;
   notes: string | null;
+  teacher_notes?: string | null;
+  admin_notes?: string | null;
   attachment: string | null;
   attachment_url: string | null;
   created_by: number | null;
   updated_by: number | null;
+  created_by_name?: string | null;
+  updated_by_name?: string | null;
+  updated_by_role?: string | null;
   created_at: string;
   updated_at: string;
+  events?: AttendanceHistoryEvent[];
+}
+
+export interface AttendanceHistoryEvent {
+  id: number;
+  action:
+    | "TEACHER_CREATED"
+    | "TEACHER_UPDATED"
+    | "ADMIN_CREATED"
+    | "ADMIN_UPDATED"
+    | "ADMIN_JUSTIFIED"
+    | "ADMIN_SUPPORT_ADDED";
+  summary: string;
+  notes: string;
+  details?: {
+    changes?: Record<
+      string,
+      {
+        label: string;
+        from: string | number | boolean | null;
+        to: string | number | boolean | null;
+      }
+    >;
+  };
+  actor: number | null;
+  actor_name: string | null;
+  actor_role: string | null;
+  created_at: string;
 }
 
 export interface AdminCourseAttendanceSummary {
@@ -86,56 +129,27 @@ export interface AdminCourseAttendanceSummary {
   total: number;
 }
 
-export const getTeacherAttendanceByDate = (date: string) => {
-  return axios.get<TeacherAttendanceDayResponse>(
-    `${API_BASE}/attendance/teacher/course-day/?date=${date}`,
-    {
-      headers: getAuthHeaders(),
-    }
+export const getTeacherAttendanceByDate = (date: string) =>
+  api.get<TeacherAttendanceDayResponse>(
+    `${API_BASE}/attendance/teacher/course-day/?date=${date}`
   );
-};
 
-export const saveTeacherAttendanceBulk = (data: BulkAttendancePayload) => {
-  return axios.post(`${API_BASE}/attendance/teacher/bulk-save/`, data, {
-    headers: getAuthHeaders(),
-  });
-};
+export const saveTeacherAttendanceBulk = (data: BulkAttendancePayload) =>
+  api.post(`${API_BASE}/attendance/teacher/bulk-save/`, data);
 
-export const getMyAttendanceRecords = () => {
-  return axios.get<StudentAttendanceRecord[]>(
-    `${API_BASE}/attendance/my-records/`,
-    {
-      headers: getAuthHeaders(),
-    }
+export const getMyAttendanceRecords = () =>
+  api.get<StudentAttendanceRecord[]>(`${API_BASE}/attendance/my-records/`);
+
+export const getAttendanceByCourseAndDate = (courseId: number, date: string) =>
+  api.get<StudentAttendanceRecord[]>(`${API_BASE}/attendance/?course=${courseId}&date=${date}`);
+
+export const getAttendanceCourseSummary = (courseId: number, date: string) =>
+  api.get<AdminCourseAttendanceSummary>(
+    `${API_BASE}/attendance/course-summary/?course=${courseId}&date=${date}`
   );
-};
 
-export const getAttendanceByCourseAndDate = (courseId: number, date: string) => {
-  return axios.get<StudentAttendanceRecord[]>(
-    `${API_BASE}/attendance/?course=${courseId}&date=${date}`,
-    {
-      headers: getAuthHeaders(),
-    }
-  );
-};
+export const createAttendanceRecord = (data: FormData) =>
+  api.post(`${API_BASE}/attendance/`, data);
 
-export const getAttendanceCourseSummary = (courseId: number, date: string) => {
-  return axios.get<AdminCourseAttendanceSummary>(
-    `${API_BASE}/attendance/course-summary/?course=${courseId}&date=${date}`,
-    {
-      headers: getAuthHeaders(),
-    }
-  );
-};
-
-export const createAttendanceRecord = (data: FormData) => {
-  return axios.post(`${API_BASE}/attendance/`, data, {
-    headers: getMultipartHeaders(),
-  });
-};
-
-export const updateAttendanceRecord = (attendanceId: number, data: FormData) => {
-  return axios.patch(`${API_BASE}/attendance/${attendanceId}/`, data, {
-    headers: getMultipartHeaders(),
-  });
-};
+export const updateAttendanceRecord = (attendanceId: number, data: FormData) =>
+  api.patch(`${API_BASE}/attendance/${attendanceId}/`, data);

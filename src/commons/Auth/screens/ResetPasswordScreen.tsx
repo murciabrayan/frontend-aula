@@ -1,19 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import PasswordRequirements from "@/components/PasswordRequirements";
 import { useFeedback } from "@/context/FeedbackContext";
 import "@/commons/Auth/styles/login.css";
 import sideImage from "@/assets/login-side.jpg";
 import logo from "@/assets/logo.png";
-
-const PASSWORD_MESSAGE =
-  "La contrasena debe tener minimo 8 caracteres, una mayuscula, un numero y un caracter especial.";
-
-const isStrongPassword = (value: string) =>
-  value.length >= 8 &&
-  /[A-Z]/.test(value) &&
-  /\d/.test(value) &&
-  /[^A-Za-z0-9]/.test(value);
+import { isStrongPassword } from "@/utils/passwordValidation";
 
 const ResetPasswordScreen = () => {
   const { uid, token } = useParams();
@@ -21,6 +14,7 @@ const ResetPasswordScreen = () => {
   const { showNotice } = useFeedback();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [passwordTouched, setPasswordTouched] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +22,7 @@ const ResetPasswordScreen = () => {
     if (password !== confirm) {
       await showNotice({
         title: "Contrasenas distintas",
-        message: "Las contrasenas no coinciden. Verifica e intenta nuevamente.",
+        message: "Las contraseñas no coinciden. Verifica e intenta nuevamente.",
         buttonText: "Entendido",
         tone: "warning",
       });
@@ -36,12 +30,7 @@ const ResetPasswordScreen = () => {
     }
 
     if (!isStrongPassword(password)) {
-      await showNotice({
-        title: "Contrasena insegura",
-        message: PASSWORD_MESSAGE,
-        buttonText: "Entendido",
-        tone: "warning",
-      });
+      setPasswordTouched(true);
       return;
     }
 
@@ -52,7 +41,7 @@ const ResetPasswordScreen = () => {
       );
       await showNotice({
         title: "Contrasena actualizada",
-        message: res.data.message || "Tu contrasena fue restablecida exitosamente.",
+        message: res.data.message || "Tu contraseña fue restablecida exitosamente.",
         buttonText: "Ir al inicio",
         tone: "success",
       });
@@ -62,7 +51,7 @@ const ResetPasswordScreen = () => {
         title: "No se pudo restablecer",
         message:
           err.response?.data?.error ||
-          "Ocurrio un error al restablecer la contrasena.",
+          "Ocurrió un error al restablecer la contraseña.",
         buttonText: "Entendido",
         tone: "error",
       });
@@ -77,30 +66,40 @@ const ResetPasswordScreen = () => {
             <img src={logo} alt="Logo Institucional" className="login-logo" />
             <div className="login-institution">
               <strong>GIMNASIO LOS CERROS</strong>
-              <div className="login-tagline">Restablecer contrasena</div>
+              <div className="login-tagline">Restablecer contraseña</div>
             </div>
           </div>
 
           <div className="login-card">
-            <h1>Nueva contrasena</h1>
+            <h1>Nueva contraseña</h1>
             <form onSubmit={handleSubmit}>
+              <div className="login-password-field">
+                <input
+                  type="password"
+                  placeholder="Nueva contraseña"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordTouched(true);
+                  }}
+                  onBlur={() => setPasswordTouched(true)}
+                  required
+                />
+                {(passwordTouched || password) ? (
+                  <PasswordRequirements password={password} />
+                ) : null}
+              </div>
               <input
                 type="password"
-                placeholder="Nueva contrasena"
-                value={password}
-                minLength={8}
-                title={PASSWORD_MESSAGE}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <input
-                type="password"
-                placeholder="Confirmar contrasena"
+                placeholder="Confirmar contraseña"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 required
               />
-              <button type="submit">Guardar contrasena</button>
+              {confirm && password !== confirm ? (
+                <p className="login-inline-error">Las contraseñas no coinciden.</p>
+              ) : null}
+              <button type="submit">Guardar contraseña</button>
             </form>
             <div
               className="login-right"

@@ -1,7 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import { loginUser, loginWithGoogle } from "@/commons/Auth/services/auth.service";
+import {
+  getDashboardRoute,
+  loginUser,
+  loginWithGoogle,
+} from "@/commons/Auth/services/auth.service";
 import logo from "@/assets/logo.png";
 
 interface Props {
@@ -11,6 +16,7 @@ interface Props {
 }
 
 const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -27,10 +33,11 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
     try {
       setLoading(true);
       setErrorMessage("");
-      await loginUser(email, password);
+      const user = await loginUser(email, password);
       onAuthenticated();
       onClose();
-    } catch (error) {
+      navigate(user.must_change_password ? "/primer-acceso" : getDashboardRoute(user.role));
+    } catch {
       setErrorMessage("Credenciales incorrectas o error de conexion.");
     } finally {
       setLoading(false);
@@ -41,10 +48,11 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
     try {
       setLoading(true);
       setErrorMessage("");
-      await loginWithGoogle(credentialResponse.credential);
+      const user = await loginWithGoogle(credentialResponse.credential);
       onAuthenticated();
       onClose();
-    } catch (error) {
+      navigate(user.must_change_password ? "/primer-acceso" : getDashboardRoute(user.role));
+    } catch {
       setErrorMessage("Error al iniciar sesion con Google.");
     } finally {
       setLoading(false);

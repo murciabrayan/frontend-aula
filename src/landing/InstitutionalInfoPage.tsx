@@ -7,21 +7,21 @@ const fallbackDocuments = [
     id: 1,
     title: "Proyecto Educativo Institucional",
     description:
-      "Marco estrategico con lineamientos pedagogicos, horizonte institucional y metas formativas.",
+      "Marco estratégico con lineamientos pedagógicos, horizonte institucional y metas formativas.",
     file_url: "/documents/pei-resumen.txt",
   },
   {
     id: 2,
     title: "Manual de convivencia",
     description:
-      "Documento institucional con acuerdos, principios de comunidad y rutas de acompanamiento.",
+      "Documento institucional con acuerdos, principios de comunidad y rutas de acompañamiento.",
     file_url: "/documents/manual-convivencia.txt",
   },
 ];
 
 const values = [
-  "Excelencia academica con enfoque humano.",
-  "Innovacion metodologica y pensamiento critico.",
+  "Excelencia académica con enfoque humano.",
+  "Innovación metodológica y pensamiento crítico.",
   "Convivencia, respeto y liderazgo transformador.",
 ];
 
@@ -110,8 +110,8 @@ const InstitutionalInfoPage = () => {
           <span className="landing-section-tag">Nosotros</span>
           <h1>Una identidad institucional construida para inspirar excelencia</h1>
           <p>
-            Nuestro proyecto educativo integra rigor academico, acompanamiento humano
-            y una vision moderna de la formacion para responder a los desafios del mundo actual.
+            Nuestro proyecto educativo integra rigor académico, acompañamiento humano
+            y una visión moderna de la formación para responder a los desafíos del mundo actual.
           </p>
         </div>
       </section>
@@ -119,23 +119,23 @@ const InstitutionalInfoPage = () => {
       <section className="landing-info-panels">
         <article className="landing-info-panel">
           <div className="landing-info-panel__header">
-            <h2>Mision</h2>
+            <h2>Misión</h2>
           </div>
           <div className="landing-info-panel__body">
             <p>
-              Formar estudiantes integros, autonomos y comprometidos con la excelencia,
-              preparados para liderar con criterio etico, pensamiento analitico y sentido social.
+              Formar estudiantes íntegros, autónomos y comprometidos con la excelencia,
+              preparados para liderar con criterio ético, pensamiento analítico y sentido social.
             </p>
           </div>
         </article>
         <article className="landing-info-panel">
           <div className="landing-info-panel__header">
-            <h2>Vision</h2>
+            <h2>Visión</h2>
           </div>
           <div className="landing-info-panel__body">
             <p>
-              Consolidarnos como una institucion referente por la calidad de sus procesos,
-              el prestigio de su comunidad academica y la proyeccion de sus egresados.
+              Consolidarnos como una institución referente por la calidad de sus procesos,
+              el prestigio de su comunidad académica y la proyección de sus egresados.
             </p>
           </div>
         </article>
@@ -155,10 +155,10 @@ const InstitutionalInfoPage = () => {
 
       <section className="landing-document-section">
         <div className="landing-section-heading">
-          <span className="landing-section-tag landing-section-tag--light">Documentacion</span>
+          <span className="landing-section-tag landing-section-tag--light">Documentación</span>
           <h2>Documentos institucionales disponibles para consulta</h2>
           <p>
-            Facilita el acceso a la informacion clave de la institucion con descargas
+            Facilita el acceso a la información clave de la institución con descargas
             claras, visibles y alineadas con una experiencia institucional premium.
           </p>
         </div>

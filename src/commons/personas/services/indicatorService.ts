@@ -1,13 +1,6 @@
-import axios from "axios";
+import api from "@/api/axios";
 
-const API_BASE = "http://127.0.0.1:8000/api/report-cards";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("access_token");
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
+const API_BASE = "/api/report-cards";
 
 export interface Indicator {
   id: number;
@@ -23,58 +16,27 @@ export interface SubjectIndicatorAssignment {
   indicador_descripcion: string;
 }
 
-export const getIndicators = () => {
-  return axios.get<Indicator[]>(`${API_BASE}/indicators/`, {
-    headers: getAuthHeaders(),
-  });
-};
+export const getIndicators = () => api.get<Indicator[]>(`${API_BASE}/indicators/`);
 
-export const createIndicator = (data: { descripcion: string }) => {
-  return axios.post<Indicator>(`${API_BASE}/indicators/`, data, {
-    headers: getAuthHeaders(),
-  });
-};
+export const createIndicator = (data: { descripcion: string }) =>
+  api.post<Indicator>(`${API_BASE}/indicators/`, data);
 
-export const updateIndicator = (
-  indicatorId: number,
-  data: { descripcion: string }
-) => {
-  return axios.patch<Indicator>(`${API_BASE}/indicators/${indicatorId}/`, data, {
-    headers: getAuthHeaders(),
-  });
-};
+export const updateIndicator = (indicatorId: number, data: { descripcion: string }) =>
+  api.patch<Indicator>(`${API_BASE}/indicators/${indicatorId}/`, data);
 
-export const deleteIndicator = (indicatorId: number) => {
-  return axios.delete(`${API_BASE}/indicators/${indicatorId}/`, {
-    headers: getAuthHeaders(),
-  });
-};
+export const deleteIndicator = (indicatorId: number) =>
+  api.delete(`${API_BASE}/indicators/${indicatorId}/`);
 
-export const getAssignmentsByCourse = (courseId: number) => {
-  return axios.get<SubjectIndicatorAssignment[]>(
-    `${API_BASE}/indicator-assignments/?course=${courseId}`,
-    {
-      headers: getAuthHeaders(),
-    }
+export const getAssignmentsByCourse = (courseId: number) =>
+  api.get<SubjectIndicatorAssignment[]>(
+    `${API_BASE}/indicator-assignments/?course=${courseId}`
   );
-};
 
 export const createAssignment = (data: {
   materia: number;
   periodo: number;
   indicador: number;
-}) => {
-  return axios.post<SubjectIndicatorAssignment>(
-    `${API_BASE}/indicator-assignments/`,
-    data,
-    {
-      headers: getAuthHeaders(),
-    }
-  );
-};
+}) => api.post<SubjectIndicatorAssignment>(`${API_BASE}/indicator-assignments/`, data);
 
-export const deleteAssignment = (assignmentId: number) => {
-  return axios.delete(`${API_BASE}/indicator-assignments/${assignmentId}/`, {
-    headers: getAuthHeaders(),
-  });
-};
+export const deleteAssignment = (assignmentId: number) =>
+  api.delete(`${API_BASE}/indicator-assignments/${assignmentId}/`);

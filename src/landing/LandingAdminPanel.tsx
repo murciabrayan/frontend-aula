@@ -36,7 +36,7 @@ interface Props {
 
 const tabs: Array<{ id: LandingTab; label: string; icon: typeof Newspaper }> = [
   { id: "news", label: "Noticias", icon: Newspaper },
-  { id: "gallery", label: "Galeria", icon: Images },
+  { id: "gallery", label: "Galería", icon: Images },
   { id: "documents", label: "Documentos", icon: FileText },
   { id: "calendar", label: "Agenda", icon: CalendarDays },
 ];
@@ -160,7 +160,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   const handleDelete = async (type: LandingTab, id: number) => {
     const confirmed = await confirm({
       title: "Eliminar contenido",
-      message: "Esta accion eliminara el registro seleccionado de la landing.",
+      message: "Esta acción eliminará el registro seleccionado de la landing.",
       confirmText: "Eliminar",
       cancelText: "Cancelar",
       tone: "danger",
@@ -178,7 +178,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       showToast({
         type: "success",
         title: "Contenido eliminado",
-        message: "La landing se actualizo correctamente.",
+        message: "La landing se actualizó correctamente.",
       });
     } catch (error) {
       showToast({
@@ -232,9 +232,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
 
       setGalleryForm(emptyGalleryForm);
       await refreshLandingContent();
-      showToast({ type: "success", message: "Galeria actualizada correctamente." });
+      showToast({ type: "success", message: "Galería actualizada correctamente." });
     } catch (error) {
-      showToast({ type: "error", message: "No se pudo guardar el evento de galeria." });
+      showToast({ type: "error", message: "No se pudo guardar el evento de galería." });
     } finally {
       setSaving(false);
     }
@@ -257,7 +257,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
 
       setDocumentForm(emptyDocumentForm);
       await refreshLandingContent();
-      showToast({ type: "success", message: "Documentacion actualizada correctamente." });
+      showToast({ type: "success", message: "Documentación actualizada correctamente." });
     } catch (error) {
       showToast({ type: "error", message: "No se pudo guardar el documento." });
     } finally {
@@ -314,9 +314,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       <div className="landing-admin" onClick={(event) => event.stopPropagation()}>
         <div className="landing-admin__header">
           <div>
-            <span className="landing-section-tag landing-section-tag--light">Administracion</span>
+            <span className="landing-section-tag landing-section-tag--light">Administración</span>
             <h2>Editor de landing</h2>
-            <p>Gestiona el contenido dinamico visible en la pagina institucional.</p>
+            <p>Gestiona el contenido dinámico visible en la página institucional.</p>
           </div>
           <button
             type="button"
@@ -366,10 +366,10 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       </div>
                     )}
                   </div>
-                  <input value={newsForm.title} onChange={(e) => setNewsForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
+                  <input value={newsForm.title} onChange={(e) => setNewsForm((c) => ({ ...c, title: e.target.value }))} placeholder="Título" required />
                   <textarea value={newsForm.summary} onChange={(e) => setNewsForm((c) => ({ ...c, summary: e.target.value }))} placeholder="Resumen" rows={5} required />
                   <div className="landing-admin__form-meta">
-                    <span>Fecha de publicacion: {newsForm.published_at}</span>
+                    <span>Fecha de publicación: {newsForm.published_at}</span>
                   </div>
                   <label className="landing-admin__upload">
                     <Upload size={16} />
@@ -438,7 +438,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   <h4>{galleryForm.id ? "Editar evento visual" : "Nuevo evento visual"}</h4>
                   <div className="landing-admin__preview landing-admin__preview--image">
                     {galleryPreviewUrl ? (
-                      <img src={galleryPreviewUrl} alt="Vista previa de galeria" />
+                      <img src={galleryPreviewUrl} alt="Vista previa de galería" />
                     ) : (
                       <div className="landing-admin__preview-empty">
                         <Images size={18} />
@@ -446,15 +446,15 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       </div>
                     )}
                   </div>
-                  <input value={galleryForm.title} onChange={(e) => setGalleryForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
-                  <textarea value={galleryForm.detail} onChange={(e) => setGalleryForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Descripcion corta" rows={4} required />
+                  <input value={galleryForm.title} onChange={(e) => setGalleryForm((c) => ({ ...c, title: e.target.value }))} placeholder="Título" required />
+                  <textarea value={galleryForm.detail} onChange={(e) => setGalleryForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Descripción corta" rows={4} required />
                   <div className="landing-admin__form-meta">
                     <span>Fecha del evento: {galleryForm.event_date}</span>
                   </div>
                   <input type="date" value={galleryForm.event_date} onChange={(e) => setGalleryForm((c) => ({ ...c, event_date: e.target.value }))} />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
-                    <span>{galleryForm.image ? galleryForm.image.name : "Subir imagen de galeria"}</span>
+                    <span>{galleryForm.image ? galleryForm.image.name : "Subir imagen de galería"}</span>
                     <input type="file" accept="image/*" onChange={(e) => setGalleryForm((c) => ({ ...c, image: e.target.files?.[0] || null }))} />
                   </label>
                   <label className="landing-admin__checkbox">
@@ -533,8 +533,8 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       </div>
                     )}
                   </div>
-                  <input value={documentForm.title} onChange={(e) => setDocumentForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
-                  <textarea value={documentForm.description} onChange={(e) => setDocumentForm((c) => ({ ...c, description: e.target.value }))} placeholder="Descripcion" rows={4} required />
+                  <input value={documentForm.title} onChange={(e) => setDocumentForm((c) => ({ ...c, title: e.target.value }))} placeholder="Título" required />
+                  <textarea value={documentForm.description} onChange={(e) => setDocumentForm((c) => ({ ...c, description: e.target.value }))} placeholder="Descripción" rows={4} required />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
                     <span>{documentForm.file ? documentForm.file.name : "Subir documento institucional"}</span>
@@ -599,7 +599,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
               <div className="landing-admin__grid">
                 <form className="landing-admin__form" onSubmit={submitCalendar}>
                   <h4>{calendarForm.id ? "Editar fecha" : "Nueva fecha institucional"}</h4>
-                  <input value={calendarForm.title} onChange={(e) => setCalendarForm((c) => ({ ...c, title: e.target.value }))} placeholder="Titulo" required />
+                  <input value={calendarForm.title} onChange={(e) => setCalendarForm((c) => ({ ...c, title: e.target.value }))} placeholder="Título" required />
                   <textarea value={calendarForm.detail} onChange={(e) => setCalendarForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Detalle" rows={4} required />
                   <div className="landing-admin__form-meta">
                     <span>Fecha seleccionada: {calendarForm.event_date}</span>

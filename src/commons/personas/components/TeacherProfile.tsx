@@ -4,7 +4,7 @@ const TeacherProfile = () => {
   return (
     <ProfileModule
       roleTitle="Docente"
-      roleDescription="Actualiza tu informacion profesional y gestiona tu acceso desde un solo lugar."
+      roleDescription="Actualiza tu información profesional y gestiona tu acceso desde un solo lugar."
       sections={[
         {
           title: "Datos personales",
@@ -14,17 +14,17 @@ const TeacherProfile = () => {
             { name: "last_name", label: "Apellido" },
             {
               name: "email",
-              label: "Correo electronico",
+              label: "Correo electrónico",
               type: "email",
             },
           ],
         },
         {
           title: "Perfil profesional",
-          description: "Datos asociados a tu rol academico dentro de la institucion.",
+          description: "Datos asociados a tu rol académico dentro de la institución.",
           fields: [
             { name: "especialidad", label: "Especialidad" },
-            { name: "titulo", label: "Titulo academico" },
+            { name: "titulo", label: "Título académico" },
           ],
         },
       ]}

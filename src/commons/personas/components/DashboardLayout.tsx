@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { logoutUser } from "@/commons/Auth/services/auth.service";
+import logo from "@/assets/logo.png";
 import questionImage from "@/assets/pregunta.jpg";
 import "@/commons/personas/styles/dashboardLayout.css";
 
@@ -40,7 +41,7 @@ const DashboardLayout = ({
 
   const activeModuleLabel = useMemo(
     () => modules.find((module) => module.id === activeModule)?.label ?? "Inicio",
-    [activeModule, modules]
+    [activeModule, modules],
   );
 
   const handleLogout = () => {
@@ -97,7 +98,7 @@ const DashboardLayout = ({
             {!sidebarCollapsed && <h2>{roleLabel}</h2>}
           </div>
 
-          <nav className="dashboard-sidebar__nav" aria-label={`Navegacion ${roleLabel}`}>
+          <nav className="dashboard-sidebar__nav" aria-label={`Navegación ${roleLabel}`}>
             {modules.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -114,13 +115,21 @@ const DashboardLayout = ({
           </nav>
 
           <div className="dashboard-sidebar__footer">
+            <div className="dashboard-sidebar__brand">
+              <img
+                src={logo}
+                alt="Logo del colegio"
+                className="dashboard-sidebar__brand-logo"
+              />
+            </div>
+
             <button
               type="button"
               className="dashboard-sidebar__logout"
               onClick={handleLogout}
             >
               <LogOut className="dashboard-sidebar__icon" />
-              {!sidebarCollapsed && <span>Cerrar sesion</span>}
+              {!sidebarCollapsed && <span>Cerrar sesión</span>}
             </button>
           </div>
 
@@ -128,7 +137,7 @@ const DashboardLayout = ({
             type="button"
             className="dashboard-sidebar__toggle"
             onClick={() => setSidebarCollapsed((value) => !value)}
-            aria-label={sidebarCollapsed ? "Expandir menu" : "Colapsar menu"}
+            aria-label={sidebarCollapsed ? "Expandir menú" : "Colapsar menú"}
           >
             {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
@@ -152,15 +161,15 @@ const DashboardLayout = ({
         <div className="dashboard-inactivity-backdrop">
           <div className="dashboard-inactivity-modal">
             <div className="dashboard-inactivity-modal__media">
-              <img src={questionImage} alt="Sesion inactiva" />
+              <img src={questionImage} alt="Sesión inactiva" />
             </div>
 
             <div className="dashboard-inactivity-modal__content">
-              <span className="dashboard-inactivity-modal__badge">Sigues ahi?</span>
-              <h2>Tu sesion se quedo dormida</h2>
+              <span className="dashboard-inactivity-modal__badge">Sigues ahí?</span>
+              <h2>Tu sesión se quedó dormida</h2>
               <p>
-                Estuviste demasiado tiempo sin hacer alguna accion. Debes volver a
-                iniciar sesion para seguir dentro de la plataforma.
+                Estuviste demasiado tiempo sin hacer alguna acción. Debes volver a
+                iniciar sesión para seguir dentro de la plataforma.
               </p>
 
               <button

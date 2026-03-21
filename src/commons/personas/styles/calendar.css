@@ -19,6 +19,7 @@
   font-weight: 700;
   color: #111827; /* negro elegante */
   letter-spacing: 0.5px;
+  text-transform: capitalize;
 }
 
 /* ================= BOTONES ================= */
@@ -47,6 +48,11 @@
 /* ================= DÍAS ================= */
 
 .fc-col-header-cell {
+  background: #111827;
+}
+
+.fc .fc-col-header,
+.fc .fc-col-header-cell {
   background: #111827;
 }
 

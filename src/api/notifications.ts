@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_BASE = "http://127.0.0.1:8000/api";
+import api from "@/api/axios";
 
 export interface Notification {
   id: number;
@@ -10,34 +8,17 @@ export interface Notification {
   fecha_creacion: string;
 }
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("access_token");
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-};
-
 export const getNotifications = async (): Promise<Notification[]> => {
-  const response = await axios.get<Notification[]>(`${API_BASE}/mis-notificaciones/`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await api.get<Notification[]>("/api/mis-notificaciones/");
   return response.data;
 };
 
 export const markAsRead = async (id: number) => {
-  const response = await axios.patch(
-    `${API_BASE}/notificaciones/${id}/`,
-    { leida: true },
-    {
-      headers: getAuthHeaders(),
-    }
-  );
+  const response = await api.patch(`/api/notificaciones/${id}/`, { leida: true });
   return response.data;
 };
 
 export const deleteNotification = async (id: number) => {
-  const response = await axios.delete(`${API_BASE}/notificaciones/${id}/`, {
-    headers: getAuthHeaders(),
-  });
+  const response = await api.delete(`/api/notificaciones/${id}/`);
   return response.data;
 };

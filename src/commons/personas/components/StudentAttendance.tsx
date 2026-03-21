@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+﻿import React, { useEffect, useMemo, useState } from "react";
 import StyledSelect from "@/components/StyledSelect";
 import {
   getMyAttendanceRecords,
@@ -31,6 +31,7 @@ const StudentAttendance: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState("");
 
   useEffect(() => {
     loadAttendance();
@@ -55,9 +56,15 @@ const StudentAttendance: React.FC = () => {
   };
 
   const filteredRecords = useMemo(() => {
-    if (statusFilter === "ALL") return records;
-    return records.filter((record) => record.status === statusFilter);
-  }, [records, statusFilter]);
+    return records.filter((record) => {
+      const matchesStatus =
+        statusFilter === "ALL" ? true : record.status === statusFilter;
+
+      const matchesDate = dateFilter ? record.date === dateFilter : true;
+
+      return matchesStatus && matchesDate;
+    });
+  }, [records, statusFilter, dateFilter]);
 
   const summary = useMemo(() => {
     return records.reduce(
@@ -85,17 +92,28 @@ const StudentAttendance: React.FC = () => {
           </p>
         </div>
 
-        <div className="student-attendance-filter-card">
-          <label>Filtrar por estado</label>
-          <StyledSelect
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="ALL">Todos</option>
-            <option value="PRESENT">Presente</option>
-            <option value="ABSENT">Ausente</option>
-            <option value="LATE">Tarde</option>
-          </StyledSelect>
+        <div className="student-attendance-filter-group">
+          <div className="student-attendance-filter-card">
+            <label>Filtrar por estado</label>
+            <StyledSelect
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="ALL">Todos</option>
+              <option value="PRESENT">Presente</option>
+              <option value="ABSENT">Ausente</option>
+              <option value="LATE">Tarde</option>
+            </StyledSelect>
+          </div>
+
+          <div className="student-attendance-filter-card">
+            <label>Buscar por fecha</label>
+            <input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+            />
+          </div>
         </div>
       </section>
 
@@ -173,7 +191,7 @@ const StudentAttendance: React.FC = () => {
                     </td>
                     <td>{justificationLabel(record.justification_type)}</td>
                     <td className="student-attendance-observation-cell">
-                      {record.notes || "Sin observación"}
+                      {record.admin_notes || record.teacher_notes || record.notes || "Sin observación"}
                     </td>
                     <td>
                       {record.attachment_url ? (
@@ -203,3 +221,5 @@ const StudentAttendance: React.FC = () => {
 };
 
 export default StudentAttendance;
+
+

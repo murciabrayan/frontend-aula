@@ -171,7 +171,7 @@ export default function CourseList() {
                   {formData.id ? "Editar curso" : "Crear curso"}
                 </h3>
                 <p className="modal-subtitle">
-                  Configura rapidamente la informacion principal del curso.
+                  Configura rápidamente la información principal del curso.
                 </p>
               </div>
 

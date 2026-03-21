@@ -4,7 +4,7 @@ const StudentProfile = () => {
   return (
     <ProfileModule
       roleTitle="Estudiante"
-      roleDescription="Consulta y actualiza tus datos personales y la informacion de tu acudiente."
+      roleDescription="Consulta y actualiza tus datos personales y la información de tu acudiente."
       sections={[
         {
           title: "Datos personales",
@@ -14,7 +14,7 @@ const StudentProfile = () => {
             { name: "last_name", label: "Apellido" },
             {
               name: "email",
-              label: "Correo electronico",
+              label: "Correo electrónico",
               type: "email",
             },
             { name: "grado", label: "Grado" },

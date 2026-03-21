@@ -29,6 +29,10 @@ const ProtectedRoute: React.FC<Props> = ({ children, allowedRoles }) => {
     return <Navigate to="/plataforma" replace />;
   }
 
+  if (user.must_change_password) {
+    return <Navigate to="/primer-acceso" replace />;
+  }
+
   if (!allowedRoles.includes(user.role)) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 text-center">

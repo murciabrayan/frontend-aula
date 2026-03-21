@@ -4,7 +4,7 @@ const AdminProfile = () => {
   return (
     <ProfileModule
       roleTitle="Administrador"
-      roleDescription="Administra tu informacion principal y manten seguro el acceso al panel."
+      roleDescription="Administra tu información principal y mantén seguro el acceso al panel."
       sections={[
         {
           title: "Datos personales",
@@ -14,7 +14,7 @@ const AdminProfile = () => {
             { name: "last_name", label: "Apellido" },
             {
               name: "email",
-              label: "Correo electronico",
+              label: "Correo electrónico",
               type: "email",
             },
             { name: "cargo", label: "Cargo" },

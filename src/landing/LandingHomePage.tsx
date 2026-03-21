@@ -18,9 +18,9 @@ import { useLandingContent } from "./LandingContentContext";
 
 const heroSlides = [
   {
-    eyebrow: "Formacion integral",
+    eyebrow: "Formación integral",
     image: heroImageA,
-    title: "Impulsamos valores, excelencia y futuro academico.",
+    title: "Impulsamos valores, excelencia y futuro académico.",
     text: "Una experiencia escolar pensada para formar estudiantes con liderazgo, criterio humano y un profundo sentido de pertenencia.",
   },
   {
@@ -33,7 +33,7 @@ const heroSlides = [
     image: heroImageC,
     eyebrow: "Plataforma integral",
     title: "Un colegio conectado con su comunidad educativa.",
-    text: "Informacion institucional, gestion academica y comunicacion en una presencia digital ordenada, moderna y confiable.",
+    text: "Información institucional, gestión académica y comunicación en una presencia digital ordenada, moderna y confiable.",
   },
 ];
 
@@ -44,30 +44,30 @@ const fallbackNewsItems = [
     title: "Encuentro institucional sobre liderazgo, convivencia y proyecto de vida",
     published_at: "2026-03-17",
     summary:
-      "Una jornada para fortalecer habilidades de liderazgo estudiantil, sentido de comunidad y formacion en valores.",
+      "Una jornada para fortalecer habilidades de liderazgo estudiantil, sentido de comunidad y formación en valores.",
   },
   {
     id: 2,
     image_url: heroImageB,
-    title: "Inicio del nuevo periodo academico con experiencias de aula innovadoras",
+    title: "Inicio del nuevo período académico con experiencias de aula innovadoras",
     published_at: "2026-03-10",
     summary:
-      "El colegio inicia una nueva etapa con actividades integradas, laboratorios escolares y acompanamiento permanente.",
+      "El colegio inicia una nueva etapa con actividades integradas, laboratorios escolares y acompañamiento permanente.",
   },
   {
     id: 3,
     image_url: heroImageC,
-    title: "Salida pedagogica y cultural para fortalecer aprendizaje significativo",
+    title: "Salida pedagógica y cultural para fortalecer aprendizaje significativo",
     published_at: "2026-03-02",
     summary:
-      "Una experiencia que une observacion, trabajo colaborativo y vivencias reales alineadas con el proceso formativo.",
+      "Una experiencia que une observación, trabajo colaborativo y vivencias reales alineadas con el proceso formativo.",
   },
 ];
 
 const fallbackGalleryItems = [
-  { id: 1, image_url: heroImageA, title: "Ceremonia de graduacion", detail: "Logros, familia y proyeccion de futuro" },
-  { id: 2, image_url: heroImageB, title: "Laboratorios escolares", detail: "Aprendizaje practico y curiosidad cientifica" },
-  { id: 3, image_url: heroImageA, title: "Actos institucionales", detail: "Comunidad, identidad y participacion" },
+  { id: 1, image_url: heroImageA, title: "Ceremonia de graduación", detail: "Logros, familia y proyección de futuro" },
+  { id: 2, image_url: heroImageB, title: "Laboratorios escolares", detail: "Aprendizaje práctico y curiosidad científica" },
+  { id: 3, image_url: heroImageA, title: "Actos institucionales", detail: "Comunidad, identidad y participación" },
   { id: 4, image_url: heroImageB, title: "Vida estudiantil", detail: "Arte, deporte y crecimiento integral" },
   { id: 5, image_url: heroImageA, title: "Eventos culturales", detail: "Talento, valores y sentido de pertenencia" },
 ];
@@ -76,25 +76,25 @@ const fallbackCalendarEntries = [
   {
     id: 1,
     title: "Entrega de informes",
-    detail: "Espacio de dialogo entre familias, docentes y direccion de grupo.",
+    detail: "Espacio de diálogo entre familias, docentes y dirección de grupo.",
     event_date: "2026-04-04",
   },
   {
     id: 2,
-    title: "Reunion con familias",
-    detail: "Seguimiento formativo y acompanamiento institucional.",
+    title: "Reunión con familias",
+    detail: "Seguimiento formativo y acompañamiento institucional.",
     event_date: "2026-04-05",
   },
   {
     id: 3,
     title: "Semana cultural",
-    detail: "Jornadas artisticas, deportivas y de convivencia.",
+    detail: "Jornadas artísticas, deportivas y de convivencia.",
     event_date: "2026-04-18",
   },
   {
     id: 4,
     title: "Muestra de proyectos",
-    detail: "Exposicion de trabajos y experiencias de aula.",
+    detail: "Exposición de trabajos y experiencias de aula.",
     event_date: "2026-04-19",
   },
 ];
@@ -102,12 +102,12 @@ const fallbackCalendarEntries = [
 const featuredPrograms = [
   {
     icon: GraduationCap,
-    title: "Formacion academica solida",
-    text: "Procesos pedagogicos orientados al pensamiento critico, la lectura, la ciencia y el desarrollo integral.",
+    title: "Formación académica sólida",
+    text: "Procesos pedagógicos orientados al pensamiento crítico, la lectura, la ciencia y el desarrollo integral.",
   },
   {
     icon: Sparkles,
-    title: "Educacion en valores",
+    title: "Educación en valores",
     text: "Convivencia, respeto, responsabilidad y liderazgo como pilares de la vida escolar.",
   },
   {
@@ -123,7 +123,7 @@ const communityItems = [
   { title: "YouTube", subtitle: "Eventos, actos y comunidad escolar" },
 ];
 
-const weekDays = ["Lun", "Mar", "Mie", "Jue", "Vie", "Sab", "Dom"];
+const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 const formatDisplayDate = (dateValue: string) =>
   new Date(`${dateValue}T00:00:00`).toLocaleDateString("es-CO", {
@@ -277,7 +277,7 @@ const LandingHomePage = () => {
                 Conocer el colegio
               </a>
               <Link to="/institucional" className="landing-btn landing-btn--ghost">
-                Mas informacion
+                Más información
               </Link>
             </div>
 
@@ -288,7 +288,7 @@ const LandingHomePage = () => {
               </article>
               <article>
                 <strong></strong>
-                <span>Satisfaccion de estudiantes y familias</span>
+                <span>Satisfacción de estudiantes y familias</span>
               </article>
               <article>
                 <strong></strong>
@@ -341,7 +341,7 @@ const LandingHomePage = () => {
       <section id="noticias" className="landing-news-section">
         <div className="landing-section-heading landing-section-heading--center">
           <span className="landing-section-tag landing-section-tag--light">Actualidad institucional</span>
-          <h2>Ultimas Noticias</h2>
+          <h2>Últimas Noticias</h2>
           <p>
             Historias, actividades y anuncios que reflejan el dinamismo de nuestra
             comunidad educativa.
@@ -365,7 +365,7 @@ const LandingHomePage = () => {
                 <h3>{item.title}</h3>
                 <p>{item.summary}</p>
                 <a href="/#noticias" className="landing-inline-link">
-                  Leer mas <ArrowRight size={16} />
+                  Leer más <ArrowRight size={16} />
                 </a>
               </div>
             </article>
@@ -388,7 +388,7 @@ const LandingHomePage = () => {
           <div className="landing-news-modal" onClick={(event) => event.stopPropagation()}>
             <div className="landing-news-modal__header">
               <div>
-                <span className="landing-section-tag landing-section-tag--light">Historico</span>
+                <span className="landing-section-tag landing-section-tag--light">Histórico</span>
                 <h2>Todas las noticias</h2>
                 <p>Consulta el registro completo de publicaciones institucionales de la landing.</p>
               </div>
@@ -430,11 +430,11 @@ const LandingHomePage = () => {
 
       <section id="programas" className="landing-showcase">
         <div className="landing-section-heading">
-          <span className="landing-section-tag">Oferta academica</span>
+          <span className="landing-section-tag">Oferta académica</span>
           <h2>Una experiencia escolar orientada a la excelencia</h2>
           <p>
-            Ambientes de aprendizaje, acompanamiento docente y vida escolar pensados
-            para formar estudiantes integros, curiosos y comprometidos.
+            Ambientes de aprendizaje, acompañamiento docente y vida escolar pensados
+            para formar estudiantes íntegros, curiosos y comprometidos.
           </p>
         </div>
 
@@ -457,8 +457,8 @@ const LandingHomePage = () => {
 
       <section className="landing-gallery">
         <div className="landing-section-heading landing-section-heading--center landing-section-heading--dark">
-          <span className="landing-section-tag">Vida academica</span>
-          <h2>Galeria de Eventos</h2>
+          <span className="landing-section-tag">Vida académica</span>
+          <h2>Galería de Eventos</h2>
           <p>
             Un recorrido visual por actos, graduaciones, actividades escolares y momentos
             que fortalecen nuestra identidad institucional.
@@ -528,7 +528,7 @@ const LandingHomePage = () => {
         <div className="landing-admissions__panel">
           <div className="landing-section-heading">
             <span className="landing-section-tag landing-section-tag--light">Agenda escolar</span>
-            <h2>Calendario academico del colegio</h2>
+            <h2>Calendario académico del colegio</h2>
             <p>
               Una vista mensual que resume la vida institucional del periodo y se
               complementa con el detalle del calendario al lado.
@@ -589,7 +589,7 @@ const LandingHomePage = () => {
           <span className="landing-section-tag landing-section-tag--light">Comunidad digital</span>
           <h2>Conecta con nuestra comunidad</h2>
           <p>
-            Sigue conversaciones, eventos y contenidos que amplian la experiencia
+            Sigue conversaciones, eventos y contenidos que amplían la experiencia
             escolar dentro y fuera del aula.
           </p>
         </div>
