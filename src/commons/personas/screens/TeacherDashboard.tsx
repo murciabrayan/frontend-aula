@@ -15,7 +15,7 @@ import DashboardLayout, {
 const teacherModules: DashboardModuleItem[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "notas", label: "Notas", icon: Star },
-  { id: "tareas", label: "Gesti√≥n de tareas", icon: ClipboardList },
+  { id: "tareas", label: "GestiÛn de tareas", icon: ClipboardList },
   { id: "asistencia", label: "Asistencia", icon: ClipboardCheck },
   { id: "alertas", label: "Alertas", icon: TriangleAlert },
   { id: "perfil", label: "Perfil", icon: User },
@@ -46,8 +46,8 @@ const TeacherDashboard = () => {
                 <span className="dashboard-home__badge">Agenda docente</span>
                 <h2>Calendario docente</h2>
                 <p>
-                  Visualiza el calendario acad√©mico, registra eventos importantes y
-                  mantente al d√≠a con la din√°mica del grupo desde una portada m√°s clara.
+                  Visualiza el calendario acadÈmico, registra eventos importantes y
+                  mantente al dÌa con la din·mica del grupo desde una portada m·s clara.
                 </p>
               </div>
             </section>
@@ -55,10 +55,9 @@ const TeacherDashboard = () => {
             <section className="dashboard-home__calendar-shell">
               <div className="dashboard-home__section-head">
                 <div>
-                  <span>Calendario acad√©mico del docente</span>
-                  
+                  <span>Calendario acadÈmico del docente</span>
                 </div>
-                <p>Haz clic en el d√≠a que quieras para registrar un evento o una actividad del curso.</p>
+                <p>Haz clic en el dÌa que quieras para registrar un evento o una actividad del curso.</p>
               </div>
 
               <TeacherCalendar />
