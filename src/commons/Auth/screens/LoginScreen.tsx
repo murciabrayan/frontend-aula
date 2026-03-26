@@ -1,5 +1,6 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 import {
   getDashboardRoute,
   loginUser,
@@ -14,6 +15,7 @@ import sideImage from "@/assets/login-side.jpg";
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
@@ -31,7 +33,7 @@ const LoginScreen = () => {
       if (userData?.must_change_password) navigate("/primer-acceso");
       else if (role) navigate(getDashboardRoute(role));
       else setErrorMessage("Rol no autorizado");
-    } catch (error) {
+    } catch {
       setErrorMessage("Credenciales incorrectas o error de conexión");
     }
   };
@@ -45,7 +47,7 @@ const LoginScreen = () => {
       if (userData?.must_change_password) navigate("/primer-acceso");
       else if (role) navigate(getDashboardRoute(role));
       else setErrorMessage("Rol no autorizado");
-    } catch (error) {
+    } catch {
       setErrorMessage("Error al iniciar sesión con Google");
     }
   };
@@ -57,7 +59,7 @@ const LoginScreen = () => {
         className="login-home-link login-home-link--floating"
         onClick={() => navigate("/")}
       >
-        Ir a la pagina principal
+        Ir a la página principal
       </button>
 
       <div className="login-left">
@@ -73,7 +75,7 @@ const LoginScreen = () => {
           </div>
 
           <div className="login-card">
-            <h1>Iniciar Sesión</h1>
+            <h1>Iniciar sesión</h1>
 
             <form onSubmit={handleSubmit}>
               <input
@@ -84,13 +86,23 @@ const LoginScreen = () => {
                 required
               />
 
-              <input
-                type="password"
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="login-password-input">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Contraseña"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword((current) => !current)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
 
               <button
                 type="submit"
@@ -108,9 +120,7 @@ const LoginScreen = () => {
                 <div className="login-google-wrap">
                   <GoogleLogin
                     onSuccess={handleGoogleSuccess}
-                    onError={() =>
-                      setErrorMessage("Error al iniciar con Google")
-                    }
+                    onError={() => setErrorMessage("Error al iniciar con Google")}
                     theme="outline"
                     size="large"
                     text="continue_with"

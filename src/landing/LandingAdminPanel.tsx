@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
+import { IMAGE_ACCEPT, IMAGE_MAX_SIZE_MB, validateImageFile } from "@/utils/imageUpload";
 import {
   createLandingCalendarEntry,
   createLandingDocument,
@@ -156,6 +157,36 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   );
 
   if (!open) return null;
+
+  const handleNewsImageChange = (file: File | null) => {
+    if (!file) {
+      setNewsForm((current) => ({ ...current, image: null }));
+      return;
+    }
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      showToast({ type: "error", message: validationError });
+      return;
+    }
+
+    setNewsForm((current) => ({ ...current, image: file }));
+  };
+
+  const handleGalleryImageChange = (file: File | null) => {
+    if (!file) {
+      setGalleryForm((current) => ({ ...current, image: null }));
+      return;
+    }
+
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      showToast({ type: "error", message: validationError });
+      return;
+    }
+
+    setGalleryForm((current) => ({ ...current, image: file }));
+  };
 
   const handleDelete = async (type: LandingTab, id: number) => {
     const confirmed = await confirm({
@@ -373,8 +404,16 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   </div>
                   <label className="landing-admin__upload">
                     <Upload size={16} />
-                    <span>{newsForm.image ? newsForm.image.name : "Subir imagen de noticia"}</span>
-                    <input type="file" accept="image/*" onChange={(e) => setNewsForm((c) => ({ ...c, image: e.target.files?.[0] || null }))} />
+                    <span>
+                      {newsForm.image
+                        ? newsForm.image.name
+                        : `Subir imagen de noticia (JPG o PNG, max. ${IMAGE_MAX_SIZE_MB} MB)`}
+                    </span>
+                    <input
+                      type="file"
+                      accept={IMAGE_ACCEPT}
+                      onChange={(e) => handleNewsImageChange(e.target.files?.[0] || null)}
+                    />
                   </label>
                   <label className="landing-admin__checkbox">
                     <input type="checkbox" checked={newsForm.is_active} onChange={(e) => setNewsForm((c) => ({ ...c, is_active: e.target.checked }))} />
@@ -454,8 +493,8 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   <input type="date" value={galleryForm.event_date} onChange={(e) => setGalleryForm((c) => ({ ...c, event_date: e.target.value }))} />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
-                    <span>{galleryForm.image ? galleryForm.image.name : "Subir imagen de galería"}</span>
-                    <input type="file" accept="image/*" onChange={(e) => setGalleryForm((c) => ({ ...c, image: e.target.files?.[0] || null }))} />
+                    <span>{galleryForm.image ? galleryForm.image.name : `Subir imagen de galeria (JPG o PNG, max. ${IMAGE_MAX_SIZE_MB} MB)`}</span>
+                    <input type="file" accept={IMAGE_ACCEPT} onChange={(e) => handleGalleryImageChange(e.target.files?.[0] || null)} />
                   </label>
                   <label className="landing-admin__checkbox">
                     <input type="checkbox" checked={galleryForm.is_active} onChange={(e) => setGalleryForm((c) => ({ ...c, is_active: e.target.checked }))} />
@@ -537,8 +576,12 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                   <textarea value={documentForm.description} onChange={(e) => setDocumentForm((c) => ({ ...c, description: e.target.value }))} placeholder="Descripción" rows={4} required />
                   <label className="landing-admin__upload">
                     <Upload size={16} />
-                    <span>{documentForm.file ? documentForm.file.name : "Subir documento institucional"}</span>
-                    <input type="file" onChange={(e) => setDocumentForm((c) => ({ ...c, file: e.target.files?.[0] || null }))} />
+                    <span>{documentForm.file ? documentForm.file.name : "Subir documento institucional en PDF"}</span>
+                    <input
+                      type="file"
+                      accept="application/pdf,.pdf"
+                      onChange={(e) => setDocumentForm((c) => ({ ...c, file: e.target.files?.[0] || null }))}
+                    />
                   </label>
                   <label className="landing-admin__checkbox">
                     <input type="checkbox" checked={documentForm.is_active} onChange={(e) => setDocumentForm((c) => ({ ...c, is_active: e.target.checked }))} />

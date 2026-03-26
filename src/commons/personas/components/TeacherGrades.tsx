@@ -29,13 +29,13 @@ interface Course {
   id: number;
   name: string;
   students: number[];
+  student_details?: User[];
 }
 
 interface User {
   id: number;
   first_name: string;
   last_name: string;
-  role: string;
 }
 
 const TeacherGrades: React.FC = () => {
@@ -72,26 +72,22 @@ const TeacherGrades: React.FC = () => {
     try {
       setSelectedSubject(subject);
 
-      const [assignmentsRes, submissionsRes, courseRes, usersRes] = await Promise.all([
+      const [assignmentsRes, submissionsRes, courseRes] = await Promise.all([
         api.get(`/api/assignments/?subject=${subject.id}&periodo=${period}`),
         api.get("/api/submissions/"),
         api.get("/api/courses/teacher/course/"),
-        api.get("/api/users/"),
       ]);
 
       const subjectAssignments: Assignment[] = assignmentsRes.data || [];
       const allSubmissions: Submission[] = submissionsRes.data || [];
       const teacherCourse: Course = courseRes.data;
-      const allUsers: User[] = usersRes.data || [];
 
       const assignmentIds = subjectAssignments.map((assignment) => assignment.id);
       const filteredSubmissions = allSubmissions.filter((submission) =>
         assignmentIds.includes(submission.tarea),
       );
 
-      const courseStudents = allUsers.filter(
-        (user) => teacherCourse.students.includes(user.id) && user.role === "STUDENT",
-      );
+      const courseStudents = teacherCourse.student_details || [];
 
       setAssignments(subjectAssignments);
       setSubmissions(filteredSubmissions);

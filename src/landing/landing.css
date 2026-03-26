@@ -375,6 +375,35 @@ body {
   box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.14);
 }
 
+.landing-login__password-input {
+  position: relative;
+}
+
+.landing-login__password-input input {
+  padding-right: 48px;
+}
+
+.landing-login__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 248, 234, 0.78);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.landing-login__password-toggle:hover {
+  color: var(--landing-gold-soft);
+}
+
 .landing-login__submit {
   width: 100%;
   margin-top: 8px;

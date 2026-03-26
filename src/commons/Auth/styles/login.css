@@ -117,8 +117,10 @@
 
 .login-card input {
   width: 100%;
+  box-sizing: border-box;
   height: 40px;
   margin: 8px 0 12px;
+  padding: 0 12px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   outline: none;
@@ -135,6 +137,37 @@
 .login-password-field {
   display: grid;
   gap: 0;
+}
+
+.login-password-input {
+  position: relative;
+  width: 100%;
+}
+
+.login-password-input input {
+  margin-bottom: 12px;
+  padding-right: 46px;
+}
+
+.login-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(calc(-50% - 6px));
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+  color: #8b6b1d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.login-password-toggle:hover {
+  color: #6b4c1e;
 }
 
 .login-password-field .password-requirements {

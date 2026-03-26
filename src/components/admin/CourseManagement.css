@@ -303,6 +303,7 @@
 .course-management__inline-form input,
 .course-management__stack-form input,
 .course-management__stack-form select,
+.course-management__stack-form textarea,
 .course-management__inline-form textarea,
 .course-management__indicator-item textarea,
 .course-management__period-form select {
@@ -335,6 +336,7 @@
 }
 
 .course-management__inline-form textarea,
+.course-management__stack-form textarea,
 .course-management__indicator-item textarea {
   min-height: 92px;
   resize: vertical;
@@ -346,6 +348,7 @@
 .course-management__inline-form input:focus,
 .course-management__stack-form input:focus,
 .course-management__stack-form select:focus,
+.course-management__stack-form textarea:focus,
 .course-management__inline-form textarea:focus,
 .course-management__indicator-item textarea:focus,
 .course-management__period-form select:focus {

@@ -86,11 +86,23 @@
   color: #f7c08a;
 }
 
+.student-tasks__stat-trigger {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  display: block;
+}
+
 .student-tasks__section-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .student-tasks__section-head h3 {
@@ -102,6 +114,27 @@
 .student-tasks__section-head p {
   margin: 6px 0 0;
   color: #6b7280;
+}
+
+.student-tasks__search {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: min(320px, 100%);
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(201, 162, 39, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+  color: #6b7280;
+}
+
+.student-tasks__search input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #111827;
 }
 
 .student-tasks__areas {
@@ -336,6 +369,41 @@
 .student-task-modal__list {
   display: grid;
   gap: 14px;
+}
+
+.student-task-pending-list {
+  display: grid;
+  gap: 12px;
+}
+
+.student-task-pending-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(201, 162, 39, 0.15);
+}
+
+.student-task-pending-item span {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b6b1d;
+  font-weight: 800;
+}
+
+.student-task-pending-item strong {
+  color: #111827;
+}
+
+.student-task-pending-item small {
+  color: #64748b;
+  white-space: nowrap;
 }
 
 .student-task-item {
@@ -648,6 +716,10 @@
     grid-template-columns: 1fr;
   }
 
+  .student-tasks__search {
+    min-width: 100%;
+  }
+
   .modal-backdrop {
     padding: 14px;
   }
@@ -662,6 +734,11 @@
   .student-task-item__top {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .student-task-pending-item {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .toast-success {

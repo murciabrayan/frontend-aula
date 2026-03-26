@@ -18,7 +18,6 @@ interface UserFormState {
   first_name: string;
   last_name: string;
   role: "STUDENT" | "TEACHER";
-  grado: string;
   acudiente_nombre: string;
   acudiente_telefono: string;
   acudiente_email: string;
@@ -34,7 +33,6 @@ const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   first_name: "",
   last_name: "",
   role,
-  grado: "",
   acudiente_nombre: "",
   acudiente_telefono: "",
   acudiente_email: "",
@@ -54,7 +52,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         first_name: user.first_name || "",
         last_name: user.last_name || "",
         role,
-        grado: user.student_profile?.grado || "",
         acudiente_nombre: user.student_profile?.acudiente_nombre || "",
         acudiente_telefono: user.student_profile?.acudiente_telefono || "",
         acudiente_email: user.student_profile?.acudiente_email || "",
@@ -97,7 +94,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     }
 
     if (role === "STUDENT") {
-      basePayload.grado = formData.grado.trim();
       basePayload.acudiente_nombre = formData.acudiente_nombre.trim();
       basePayload.acudiente_telefono = formData.acudiente_telefono.trim();
       basePayload.acudiente_email = formData.acudiente_email.trim();
@@ -287,14 +283,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
           {role === "STUDENT" ? (
             <>
-              <input
-                type="text"
-                name="grado"
-                placeholder="Grado"
-                value={formData.grado}
-                onChange={handleChange}
-                className="input-field"
-              />
               <input
                 type="text"
                 name="acudiente_nombre"

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 import logo from "@/assets/logo.png";
 import sideImage from "@/assets/login-side.jpg";
@@ -18,6 +19,8 @@ const InitialPasswordSetupScreen = () => {
   const currentUser = getCurrentUser();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [saving, setSaving] = useState(false);
@@ -94,29 +97,49 @@ const InitialPasswordSetupScreen = () => {
 
             <form onSubmit={handleSubmit}>
               <div className="login-password-field">
-                <input
-                  type="password"
-                  placeholder="Nueva contraseña"
-                  value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                    setPasswordTouched(true);
-                  }}
-                  onBlur={() => setPasswordTouched(true)}
-                  required
-                />
+                <div className="login-password-input">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Nueva contraseña"
+                    value={password}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      setPasswordTouched(true);
+                    }}
+                    onBlur={() => setPasswordTouched(true)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="login-password-toggle"
+                    onClick={() => setShowPassword((current) => !current)}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 {(passwordTouched || password) ? (
                   <PasswordRequirements password={password} />
                 ) : null}
               </div>
 
-              <input
-                type="password"
-                placeholder="Confirmar contraseña"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
-                required
-              />
+              <div className="login-password-input">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirmar contraseña"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowConfirmPassword((current) => !current)}
+                  aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
 
               {confirmPassword && password !== confirmPassword ? (
                 <p className="login-inline-error">Las contraseñas no coinciden.</p>

@@ -16,7 +16,6 @@ interface EditableState {
   last_name: string;
   email: string;
   cedula: string;
-  grado: string;
   acudiente_nombre: string;
   acudiente_telefono: string;
   acudiente_email: string;
@@ -33,7 +32,6 @@ const buildStateFromUser = (user: User): EditableState => ({
   last_name: user.last_name || "",
   email: user.email || "",
   cedula: user.cedula || "",
-  grado: user.student_profile?.grado || "",
   acudiente_nombre: user.student_profile?.acudiente_nombre || "",
   acudiente_telefono: user.student_profile?.acudiente_telefono || "",
   acudiente_email: user.student_profile?.acudiente_email || "",
@@ -108,7 +106,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
 
   const roleSummary = useMemo(() => {
     if (user.role === "STUDENT") {
-      return user.student_profile?.grado || "Sin grado";
+      return user.course_names?.join(", ") || "Estudiante";
     }
     return user.teacher_profile?.especialidad || "Sin especialidad";
   }, [user]);
@@ -174,7 +172,6 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     };
 
     if (user.role === "STUDENT") {
-      payload.grado = formData.grado.trim();
       payload.acudiente_nombre = formData.acudiente_nombre.trim();
       payload.acudiente_telefono = formData.acudiente_telefono.trim();
       payload.acudiente_email = formData.acudiente_email.trim();
@@ -359,10 +356,6 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
 
               {user.role === "STUDENT" ? (
                 <>
-                  <label>
-                    <span>Grado</span>
-                    <input value={formData.grado} onChange={(e) => handleFieldChange("grado", e.target.value)} />
-                  </label>
                   <label>
                     <span>Nombre del acudiente</span>
                     <input value={formData.acudiente_nombre} onChange={(e) => handleFieldChange("acudiente_nombre", e.target.value)} />

@@ -96,6 +96,35 @@
   color: var(--teacher-muted);
 }
 
+.teacher-task-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.teacher-task-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: min(320px, 100%);
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(201, 162, 39, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--teacher-muted);
+}
+
+.teacher-task-search input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #111827;
+}
+
 .teacher-task-areas {
   display: grid;
   gap: 18px;
@@ -869,6 +898,10 @@
   .teacher-task-hero__stats,
   .teacher-task-subject-grid {
     grid-template-columns: 1fr;
+  }
+
+  .teacher-task-search {
+    min-width: 100%;
   }
 
   .teacher-task-modal-backdrop {

@@ -21,6 +21,7 @@ import {
   getSubjectsByCourse,
 } from "../../commons/personas/services/subjectService";
 import {
+  createIndicator,
   createAssignment,
   deleteAssignment,
   deleteIndicator,
@@ -120,6 +121,7 @@ const CourseManagement = ({
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
   const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+  const [isIndicatorModalOpen, setIsIndicatorModalOpen] = useState(false);
   const [isAssignIndicatorModalOpen, setIsAssignIndicatorModalOpen] =
     useState(false);
   const [isSubjectIndicatorsModalOpen, setIsSubjectIndicatorsModalOpen] =
@@ -128,6 +130,7 @@ const CourseManagement = ({
   const [assignmentPeriod, setAssignmentPeriod] = useState<1 | 2 | 3 | 4 | "">("");
   const [assignmentIndicatorId, setAssignmentIndicatorId] = useState<number | "">("");
   const [assignmentIndicatorSearch, setAssignmentIndicatorSearch] = useState("");
+  const [newIndicatorDescription, setNewIndicatorDescription] = useState("");
 
   const [indicatorBank, setIndicatorBank] = useState<Indicator[]>([]);
   const [indicatorAssignments, setIndicatorAssignments] = useState<
@@ -570,6 +573,46 @@ const CourseManagement = ({
     setIsAssignIndicatorModalOpen(false);
   };
 
+  const resetIndicatorDraft = () => {
+    setNewIndicatorDescription("");
+    setIsIndicatorModalOpen(false);
+  };
+
+  const addIndicator = async () => {
+    const descripcion = newIndicatorDescription.trim();
+    if (!descripcion) {
+      showToast({
+        type: "warning",
+        title: "Indicador",
+        message: "Escribe una descripcion para crear el indicador.",
+      });
+      return;
+    }
+
+    try {
+      const response = await createIndicator({ descripcion });
+      setIndicatorBank((current) =>
+        [...current, response.data].sort((a, b) => a.descripcion.localeCompare(b.descripcion))
+      );
+      showToast({
+        type: "success",
+        title: "Indicador creado",
+        message: "El indicador fue creado correctamente.",
+      });
+      resetIndicatorDraft();
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        title: "Indicador",
+        message:
+          error?.response?.data?.descripcion?.[0] ||
+          error?.response?.data?.detail ||
+          error?.response?.data?.non_field_errors?.[0] ||
+          "No se pudo crear el indicador.",
+      });
+    }
+  };
+
   const removeSubject = async (subjectId: number) => {
     const accepted = await confirm({
       title: "Eliminar materia",
@@ -897,12 +940,13 @@ const CourseManagement = ({
         void removeIndicatorFromBank(indicatorId)
       }
       indicatorAssignments={indicatorAssignments}
-      onOpenAssignIndicator={(subjectId, period) => {
+      onOpenAssignIndicator={(subjectId) => {
         setAssignmentSubjectId(subjectId);
-        setAssignmentPeriod(period);
+        setAssignmentPeriod("");
         setAssignmentIndicatorId("");
         setIsAssignIndicatorModalOpen(true);
       }}
+      onOpenCreateIndicator={() => setIsIndicatorModalOpen(true)}
     />
   );
   if (loading) {
@@ -1201,6 +1245,53 @@ const CourseManagement = ({
                   type="button"
                   className="course-management__secondary-btn"
                   onClick={resetSubjectDraft}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {!isCourseMode && isIndicatorModalOpen ? (
+        <div className="course-management__modal-backdrop">
+          <div className="course-management__modal">
+            <div className="course-management__modal-header">
+              <div>
+                <h3>Nuevo indicador</h3>
+                <p>Crea un indicador para dejarlo disponible en el banco del curso.</p>
+              </div>
+              <button
+                type="button"
+                className="course-management__modal-close"
+                onClick={resetIndicatorDraft}
+                aria-label="Cerrar modal"
+              >
+                x
+              </button>
+            </div>
+
+            <div className="course-management__stack-form">
+              <textarea
+                value={newIndicatorDescription}
+                onChange={(event) => setNewIndicatorDescription(event.target.value)}
+                placeholder="Descripcion del indicador"
+                rows={5}
+              />
+              <div className="course-management__form-actions">
+                <button
+                  type="button"
+                  className="course-management__primary-btn"
+                  onClick={() => void addIndicator()}
+                >
+                  <Plus size={15} />
+                  <span>Crear indicador</span>
+                </button>
+                <button
+                  type="button"
+                  className="course-management__secondary-btn"
+                  onClick={resetIndicatorDraft}
                 >
                   Cancelar
                 </button>

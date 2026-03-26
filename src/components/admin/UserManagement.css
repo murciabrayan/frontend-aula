@@ -140,6 +140,37 @@
   font-size: 0.95rem;
 }
 
+.user-search select {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.user-search--select {
+  min-width: min(260px, 100%);
+}
+
+.user-search--select .styled-select {
+  width: 100%;
+}
+
+.user-search--select .styled-select__trigger {
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.user-search--select .styled-select__value,
+.user-search--select .styled-select__icon {
+  color: var(--text);
+}
+
 .user-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -202,7 +233,7 @@
 
 .user-card__meta {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -229,6 +260,27 @@
   justify-content: space-between;
   border-color: rgba(202, 165, 64, 0.28);
   background: linear-gradient(135deg, rgba(202, 165, 64, 0.12), rgba(202, 165, 64, 0.05));
+}
+
+.user-card__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.user-card__delete {
+  justify-content: center;
+  min-width: 124px;
+  border-color: rgba(17, 24, 39, 0.18);
+  background: #111827;
+  color: #fff8ea;
+}
+
+.user-card__delete:hover {
+  background: #0b0f19;
+  border-color: rgba(201, 162, 39, 0.34);
+  color: #e7cb73;
 }
 
 .user-empty {

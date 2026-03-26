@@ -1,12 +1,8 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import {
-  getDashboardRoute,
-  loginUser,
-  loginWithGoogle,
-} from "@/commons/Auth/services/auth.service";
+import { loginUser, loginWithGoogle } from "@/commons/Auth/services/auth.service";
 import logo from "@/assets/logo.png";
 
 interface Props {
@@ -19,6 +15,7 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -36,9 +33,11 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
       const user = await loginUser(email, password);
       onAuthenticated();
       onClose();
-      navigate(user.must_change_password ? "/primer-acceso" : getDashboardRoute(user.role));
+      if (user.must_change_password) {
+        navigate("/primer-acceso");
+      }
     } catch {
-      setErrorMessage("Credenciales incorrectas o error de conexion.");
+      setErrorMessage("Credenciales incorrectas o error de conexión.");
     } finally {
       setLoading(false);
     }
@@ -51,9 +50,11 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
       const user = await loginWithGoogle(credentialResponse.credential);
       onAuthenticated();
       onClose();
-      navigate(user.must_change_password ? "/primer-acceso" : getDashboardRoute(user.role));
+      if (user.must_change_password) {
+        navigate("/primer-acceso");
+      }
     } catch {
-      setErrorMessage("Error al iniciar sesion con Google.");
+      setErrorMessage("Error al iniciar sesión con Google.");
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
           type="button"
           className="landing-login__close"
           onClick={onClose}
-          aria-label="Cerrar inicio de sesion"
+          aria-label="Cerrar inicio de sesión"
         >
           <X size={18} />
         </button>
@@ -74,7 +75,7 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
         <div className="landing-login__brand">
           <img src={logo} alt="Logo institucional" className="landing-login__logo" />
           <span className="landing-section-tag">Acceso institucional</span>
-          <h2>Inicia sesion</h2>
+          <h2>Inicia sesión</h2>
           <p>
             Usa las mismas credenciales de la plataforma institucional para continuar.
           </p>
@@ -93,14 +94,24 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
           </label>
 
           <label>
-            <span>Contrasena</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Ingresa tu contrasena"
-              required
-            />
+            <span>Contraseña</span>
+            <div className="landing-login__password-input">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Ingresa tu contraseña"
+                required
+              />
+              <button
+                type="button"
+                className="landing-login__password-toggle"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </label>
 
           <button
@@ -108,7 +119,7 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
             className="landing-btn landing-btn--primary landing-login__submit"
             disabled={!isFormValid || loading}
           >
-            {loading ? "Ingresando..." : "Iniciar sesion"}
+            {loading ? "Ingresando..." : "Iniciar sesión"}
           </button>
 
           <div className="landing-login__google">

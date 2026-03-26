@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Camera, Eye, LockKeyhole, Mail, PencilLine, Save, Shield, User, X } from "lucide-react";
+import { Camera, Eye, EyeOff, LockKeyhole, Mail, PencilLine, Save, Shield, User, X } from "lucide-react";
 import api from "@/api/axios";
 import PasswordRequirements from "@/components/PasswordRequirements";
 import { getCurrentUser, setCurrentUser } from "@/commons/Auth/services/auth.service";
+import { IMAGE_ACCEPT, IMAGE_MAX_SIZE_MB, validateImageFile } from "@/utils/imageUpload";
 import { isStrongPassword } from "@/utils/passwordValidation";
 import "./profile.css";
 
@@ -60,6 +61,10 @@ const ProfileModule = ({
     new_password: "",
   });
   const [passwordTouched, setPasswordTouched] = useState(false);
+  const [showPasswordData, setShowPasswordData] = useState({
+    old_password: false,
+    new_password: false,
+  });
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -205,12 +210,12 @@ const ProfileModule = ({
 
     try {
       const response = await api.post("/api/change-password/", passwordData);
-      setSuccess(response.data.message || "Contrasena actualizada correctamente.");
+      setSuccess(response.data.message || "Contrase\u00f1a actualizada correctamente.");
       setPasswordData({ old_password: "", new_password: "" });
       setPasswordTouched(false);
       setShowPasswordModal(false);
     } catch (err: any) {
-      setError(err.response?.data?.error || "No se pudo cambiar la contraseña.");
+      setError(err.response?.data?.error || "No se pudo cambiar la contrase\u00f1a.");
     }
   };
 
@@ -238,7 +243,7 @@ const ProfileModule = ({
             onClick={() => setShowPasswordModal(true)}
           >
             <LockKeyhole size={18} />
-            <span>Cambiar contraseña</span>
+            <span>{"Cambiar contrase\u00f1a"}</span>
           </button>
 
           {!editing ? (
@@ -266,7 +271,7 @@ const ProfileModule = ({
         <article className="profile-card profile-card--summary">
           <div className="profile-card__header">
             <h3>Resumen</h3>
-            <span>Vista general de tu informacion</span>
+            <span>{"Vista general de tu informaci\u00f3n"}</span>
           </div>
 
           <div className="profile-avatar-card">
@@ -294,11 +299,20 @@ const ProfileModule = ({
                   <span>{photoFile ? photoFile.name : "Subir foto"}</span>
                   <input
                     type="file"
-                    accept="image/*"
+                    accept={IMAGE_ACCEPT}
                     onChange={(event) => {
                       const file = event.target.files?.[0] || null;
+                      if (file) {
+                        const validationError = validateImageFile(file);
+                        if (validationError) {
+                          setError(validationError);
+                          event.target.value = "";
+                          return;
+                        }
+                      }
                       setPhotoFile(file);
                       setClearProfilePhoto(false);
+                      setError("");
                       setPhotoPreview(
                         file
                           ? URL.createObjectURL(file)
@@ -307,6 +321,9 @@ const ProfileModule = ({
                     }}
                   />
                 </label>
+                <span className="profile-avatar-card__hint">
+                  {"Solo JPG, JPEG o PNG. Tama\u00f1o m\u00e1ximo:"} {IMAGE_MAX_SIZE_MB} MB.
+                </span>
 
                 <button
                   type="button"
@@ -329,7 +346,7 @@ const ProfileModule = ({
               <div className="profile-avatar-picker">
                 <div className="profile-avatar-picker__header">
                   <strong>Elige un avatar</strong>
-                  <span>Se guardara como alternativa a la foto de perfil.</span>
+                  <span>{"Se guardar\u00e1 como alternativa a la foto de perfil."}</span>
                 </div>
 
                 <div className="profile-avatar-picker__grid">
@@ -377,7 +394,7 @@ const ProfileModule = ({
         <article className="profile-card profile-card--form">
           <div className="profile-card__header">
             <h3>Datos del perfil</h3>
-            <span>{editing ? "Edita y guarda los cambios" : "Consulta tu información actual"}</span>
+            <span>{editing ? "Edita y guarda los cambios" : "Consulta tu informaci\u00f3n actual"}</span>
           </div>
 
           <form className="profile-form" onSubmit={handleSaveProfile}>
@@ -432,7 +449,7 @@ const ProfileModule = ({
               ) : (
                 <div className="profile-form__hint">
                   <Eye size={16} />
-                  <span>Activa el modo edicion para actualizar tu perfil.</span>
+                  <span>{"Activa el modo edici\u00f3n para actualizar tu perfil."}</span>
                 </div>
               )}
             </div>
@@ -470,41 +487,79 @@ const ProfileModule = ({
                 <LockKeyhole size={18} />
               </div>
               <div>
-                <h3 id="password-modal-title">Cambiar contraseña</h3>
+                <h3 id="password-modal-title">{"Cambiar contrase\u00f1a"}</h3>
                 <p>Actualiza tu acceso de forma segura.</p>
               </div>
             </div>
 
             <form className="profile-modal__form" onSubmit={handlePasswordChange}>
               <label className="profile-form__field profile-form__field--wide">
-                <span>Contrasena actual</span>
-                <input
-                  type="password"
-                  value={passwordData.old_password}
-                  onChange={(event) =>
-                    setPasswordData((current) => ({
-                      ...current,
-                      old_password: event.target.value,
-                    }))
-                  }
-                  required
-                />
+                <span>{"Contrase\u00f1a actual"}</span>
+                <div className="profile-password-input">
+                  <input
+                    type={showPasswordData.old_password ? "text" : "password"}
+                    value={passwordData.old_password}
+                    onChange={(event) =>
+                      setPasswordData((current) => ({
+                        ...current,
+                        old_password: event.target.value,
+                      }))
+                    }
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="profile-password-toggle"
+                    onClick={() =>
+                      setShowPasswordData((current) => ({
+                        ...current,
+                        old_password: !current.old_password,
+                      }))
+                    }
+                    aria-label={
+                      showPasswordData.old_password
+                        ? "Ocultar contrase\u00f1a actual"
+                        : "Mostrar contrase\u00f1a actual"
+                    }
+                  >
+                    {showPasswordData.old_password ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </label>
 
               <label className="profile-form__field profile-form__field--wide">
-                <span>Nueva contraseña</span>
-                <input
-                  type="password"
-                  value={passwordData.new_password}
-                  onChange={(event) =>
-                    setPasswordData((current) => ({
-                      ...current,
-                      new_password: event.target.value,
-                    }))
-                  }
-                  onBlur={() => setPasswordTouched(true)}
-                  required
-                />
+                <span>{"Nueva contrase\u00f1a"}</span>
+                <div className="profile-password-input">
+                  <input
+                    type={showPasswordData.new_password ? "text" : "password"}
+                    value={passwordData.new_password}
+                    onChange={(event) =>
+                      setPasswordData((current) => ({
+                        ...current,
+                        new_password: event.target.value,
+                      }))
+                    }
+                    onBlur={() => setPasswordTouched(true)}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="profile-password-toggle"
+                    onClick={() =>
+                      setShowPasswordData((current) => ({
+                        ...current,
+                        new_password: !current.new_password,
+                      }))
+                    }
+                    aria-label={
+                      showPasswordData.new_password
+                        ? "Ocultar nueva contrase\u00f1a"
+                        : "Mostrar nueva contrase\u00f1a"
+                    }
+                  >
+                    {showPasswordData.new_password ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
                 {(passwordTouched || passwordData.new_password) ? (
                   <PasswordRequirements
                     password={passwordData.new_password}

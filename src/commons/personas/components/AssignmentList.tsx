@@ -6,11 +6,18 @@ import {
   Eye,
   Pencil,
   PlusCircle,
+  Search,
   Trash2,
 } from "lucide-react";
 import AssignmentForm from "./AssignmentForm";
 import SubmissionList from "./SubmissionList";
 import "./teacherAssignments.css";
+
+const normalizeText = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 
 interface Area {
   id: number;
@@ -49,6 +56,7 @@ const AssignmentDashboard: React.FC = () => {
   const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [subjectSearch, setSubjectSearch] = useState("");
 
   useEffect(() => {
     api
@@ -118,12 +126,25 @@ const AssignmentDashboard: React.FC = () => {
     () =>
       areas.map((area) => ({
         area,
-        subjects: subjects.filter((subject) => subject.area === area.id),
-      })),
-    [areas, subjects],
+        subjects: subjects.filter(
+          (subject) =>
+            subject.area === area.id &&
+            normalizeText(subject.nombre).includes(normalizeText(subjectSearch)),
+        ),
+      }))
+      .filter((group) => group.subjects.length > 0),
+    [areas, subjects, subjectSearch],
   );
 
-  const subjectsWithoutArea = useMemo(() => subjects.filter((subject) => !subject.area), [subjects]);
+  const subjectsWithoutArea = useMemo(
+    () =>
+      subjects.filter(
+        (subject) =>
+          !subject.area &&
+          normalizeText(subject.nombre).includes(normalizeText(subjectSearch)),
+      ),
+    [subjects, subjectSearch],
+  );
 
   const stats = useMemo(
     () => ({
@@ -165,8 +186,20 @@ const AssignmentDashboard: React.FC = () => {
       </div>
 
       <div className="teacher-task-section-head">
-        <h3>Materias del curso</h3>
-        <p>Abre una materia para crear actividades o revisar entregas ya registradas.</p>
+        <div>
+          <h3>Materias del curso</h3>
+          <p>Abre una materia para crear actividades o revisar entregas ya registradas.</p>
+        </div>
+
+        <label className="teacher-task-search">
+          <Search size={16} />
+          <input
+            type="text"
+            placeholder="Buscar materia"
+            value={subjectSearch}
+            onChange={(event) => setSubjectSearch(event.target.value)}
+          />
+        </label>
       </div>
 
       <div className="teacher-task-areas">

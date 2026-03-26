@@ -33,6 +33,7 @@ export interface User {
   avatar_url?: string | null;
   avatar_style?: string;
   avatar_seed?: string;
+  course_names?: string[];
   student_profile?: StudentProfile | null;
   teacher_profile?: TeacherProfile | null;
   documents?: UserDocument[];

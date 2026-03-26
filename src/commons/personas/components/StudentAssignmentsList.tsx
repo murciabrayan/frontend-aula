@@ -7,10 +7,17 @@ import {
   ClipboardCheck,
   Eye,
   FileText,
+  Search,
   Upload,
 } from "lucide-react";
 import UploadSubmissionForm from "./UploadSubmissionForm";
 import "./../styles/assignments.css";
+
+const normalizeText = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 
 interface Area {
   id: number;
@@ -30,6 +37,7 @@ interface Assignment {
   descripcion: string;
   fecha_entrega: string;
   archivo?: string;
+  materia?: number;
 }
 
 interface Submission {
@@ -64,6 +72,8 @@ const StudentAssignmentsList: React.FC = () => {
   const [showUpload, setShowUpload] = useState(false);
   const [showGrade, setShowGrade] = useState<Submission | null>(null);
   const [showDetails, setShowDetails] = useState<Assignment | null>(null);
+  const [showPendingModal, setShowPendingModal] = useState(false);
+  const [subjectSearch, setSubjectSearch] = useState("");
 
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
@@ -110,14 +120,35 @@ const StudentAssignmentsList: React.FC = () => {
     return areas
       .map((area) => ({
         area,
-        subjects: subjects.filter((s) => s.area === area.id),
+        subjects: subjects.filter(
+          (s) => s.area === area.id && normalizeText(s.nombre).includes(normalizeText(subjectSearch)),
+        ),
       }))
       .filter((item) => item.subjects.length > 0);
-  }, [areas, subjects]);
+  }, [areas, subjects, subjectSearch]);
 
   const subjectsWithoutArea = useMemo(
-    () => subjects.filter((s) => !s.area),
-    [subjects]
+    () =>
+      subjects.filter(
+        (s) => !s.area && normalizeText(s.nombre).includes(normalizeText(subjectSearch)),
+      ),
+    [subjects, subjectSearch]
+  );
+
+  const subjectMap = useMemo(
+    () => new Map(subjects.map((subject) => [subject.id, subject])),
+    [subjects],
+  );
+
+  const pendingAssignments = useMemo(
+    () =>
+      allAssignments
+        .filter((item) => !getSubmission(item.id))
+        .map((item) => ({
+          ...item,
+          subjectName: subjectMap.get(item.materia || 0)?.nombre || "Materia",
+        })),
+    [allAssignments, submissions, subjectMap],
   );
 
   const taskStats = useMemo(() => {
@@ -163,7 +194,13 @@ const StudentAssignmentsList: React.FC = () => {
           </article>
           <article className="student-tasks__stat-card warning">
             <span>Pendientes</span>
-            <strong>{taskStats.pending}</strong>
+            <button
+              type="button"
+              className="student-tasks__stat-trigger"
+              onClick={() => setShowPendingModal(true)}
+            >
+              <strong>{taskStats.pending}</strong>
+            </button>
           </article>
         </div>
       </div>
@@ -173,6 +210,15 @@ const StudentAssignmentsList: React.FC = () => {
           <h3>Mapa académico</h3>
           <p>Accede a cada materia desde su area y abre su panel de actividades.</p>
         </div>
+        <label className="student-tasks__search">
+          <Search size={16} />
+          <input
+            type="text"
+            placeholder="Buscar materia"
+            value={subjectSearch}
+            onChange={(event) => setSubjectSearch(event.target.value)}
+          />
+        </label>
       </div>
 
       <div className="student-tasks__areas">
@@ -244,6 +290,51 @@ const StudentAssignmentsList: React.FC = () => {
             <button className="btn-secondary" onClick={() => setShowToast(false)}>
               Cerrar
             </button>
+          </div>
+        </div>
+      )}
+
+      {showPendingModal && (
+        <div className="modal-backdrop" onClick={() => setShowPendingModal(false)}>
+          <div className="modal-premium" onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header-fixed">
+              <div className="student-task-modal__headline">
+                <span className="student-task-modal__eyebrow">Pendientes</span>
+                <h3>Tareas por entregar</h3>
+              </div>
+              <button
+                className="student-task-modal__close-btn"
+                onClick={() => setShowPendingModal(false)}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body student-task-modal__detail">
+              {pendingAssignments.length === 0 ? (
+                <div className="student-task-modal__empty">
+                  No tienes tareas pendientes en este momento.
+                </div>
+              ) : (
+                <div className="student-task-pending-list">
+                  {pendingAssignments.map((assignment) => (
+                    <article key={assignment.id} className="student-task-pending-item">
+                      <div>
+                        <span>{assignment.subjectName}</span>
+                        <strong>{assignment.titulo}</strong>
+                      </div>
+                      <small>{formatDate(assignment.fecha_entrega)}</small>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowPendingModal(false)}>
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

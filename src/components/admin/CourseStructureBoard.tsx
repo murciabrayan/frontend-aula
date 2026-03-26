@@ -45,6 +45,7 @@ interface CourseStructureBoardProps {
   onRemoveIndicatorFromBank: (indicatorId: number) => void;
   indicatorAssignments: SubjectIndicatorAssignment[];
   onOpenAssignIndicator: (subjectId: number, period: 1 | 2 | 3 | 4) => void;
+  onOpenCreateIndicator: () => void;
 }
 
 const CourseStructureBoard = ({
@@ -72,6 +73,7 @@ const CourseStructureBoard = ({
   onRemoveIndicatorFromBank,
   indicatorAssignments,
   onOpenAssignIndicator,
+  onOpenCreateIndicator,
 }: CourseStructureBoardProps) => {
   const [activeTab, setActiveTab] = useState<StructureTab>("areas");
   const [subjectSearch, setSubjectSearch] = useState("");
@@ -197,7 +199,7 @@ const CourseStructureBoard = ({
           <div className="course-management__team-modal-body">
             <div className="course-management__team-toolbar">
               <div className="course-management__section-copy">
-                <p className="course-management__flow-step">Catálogo académico</p>
+                <p className="course-management__flow-step">Catalogo academico</p>
                 <h4>Materias del curso</h4>
               </div>
               <button
@@ -209,8 +211,7 @@ const CourseStructureBoard = ({
                 <span>Crear materia</span>
               </button>
             </div>
-
-            <label className="course-management__search course-management__search--wide">
+<label className="course-management__search course-management__search--wide">
               <Search size={16} />
               <input
                 type="text"
@@ -296,17 +297,27 @@ const CourseStructureBoard = ({
                 <p className="course-management__flow-step">Evaluación</p>
                 <h4>Indicadores del curso</h4>
               </div>
-              <button
-                type="button"
-                className="course-management__primary-btn"
-                onClick={() =>
-                  onOpenAssignIndicator(selectedSubjectId ?? subjects[0]?.id ?? 0, 1)
-                }
-                disabled={subjects.length === 0}
-              >
-                <Plus size={14} />
-                <span>Asignar indicador</span>
-              </button>
+              <div className="course-management__team-actions course-management__team-actions--inline">
+                <button
+                  type="button"
+                  className="course-management__secondary-btn"
+                  onClick={onOpenCreateIndicator}
+                >
+                  <Plus size={14} />
+                  <span>Crear indicador</span>
+                </button>
+                <button
+                  type="button"
+                  className="course-management__primary-btn"
+                  onClick={() =>
+                    onOpenAssignIndicator(selectedSubjectId ?? subjects[0]?.id ?? 0, 1)
+                  }
+                  disabled={subjects.length === 0}
+                >
+                  <Plus size={14} />
+                  <span>Asignar indicador</span>
+                </button>
+              </div>
             </div>
 
             <div className="course-management__student-table-wrap course-management__student-table-wrap--modal course-management__student-table-wrap--indicators">
@@ -401,3 +412,7 @@ const CourseStructureBoard = ({
 };
 
 export default CourseStructureBoard;
+
+
+
+
