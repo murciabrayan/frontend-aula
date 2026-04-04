@@ -15,7 +15,7 @@ const REFRESH_TOKEN_KEY = "refresh_token";
 const AUTH_CHANGE_EVENT = "auth-change";
 
 const normalizeBaseUrl = (url: string) => url.replace(/\/+$/, "");
-const defaultBaseUrl = normalizeBaseUrl(API_BASE_URL || "http://127.0.0.1:8000");
+const defaultBaseUrl = normalizeBaseUrl(API_BASE_URL);
 
 let refreshPromise: Promise<string | null> | null = null;
 let refreshOrigin = "";
