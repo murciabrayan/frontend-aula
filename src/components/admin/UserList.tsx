@@ -32,10 +32,14 @@ const UserList = () => {
         localStorage.clear();
         window.location.href = "/";
       } else {
+        const backendMessage =
+          err.response?.data?.detail ||
+          err.response?.data?.message ||
+          "No se pudieron cargar los usuarios.";
         showToast({
           type: "error",
           title: "Usuarios",
-          message: "No se pudieron cargar los usuarios.",
+          message: backendMessage,
         });
       }
       return [];
