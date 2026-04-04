@@ -139,21 +139,32 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     const payload = buildPayload();
 
     try {
+      let response;
       if (user) {
-        await api.patch(`/api/users/${user.id}/`, payload);
+        response = await api.patch(`/api/users/${user.id}/`, payload);
       } else {
-        await api.post("/api/users/", payload);
+        response = await api.post("/api/users/", payload);
       }
 
       onSave();
       onClose();
-      showToast({
-        type: "success",
-        title: user ? "Usuario actualizado" : "Usuario creado",
-        message: user
-          ? "Los cambios del usuario se guardaron correctamente."
-          : "El usuario se creo y la contrasena temporal fue enviada al correo.",
-      });
+      const warningMessage = response?.data?.warning;
+      showToast(
+        warningMessage
+          ? {
+              type: "warning",
+              title: user ? "Usuario actualizado" : "Usuario creado con advertencia",
+              message: warningMessage,
+              duration: 5200,
+            }
+          : {
+              type: "success",
+              title: user ? "Usuario actualizado" : "Usuario creado",
+              message: user
+                ? "Los cambios del usuario se guardaron correctamente."
+                : "El usuario se creo y la contrasena temporal fue enviada al correo.",
+            }
+      );
     } catch (error: any) {
       const backendErrors = error?.response?.data;
 
