@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { useFeedback } from "@/context/FeedbackContext";
+import { API_BASE_URL } from "@/config/api";
 import sideImage from "@/assets/login-side.jpg";
 import logo from "@/assets/logo.png";
 import "@/commons/Auth/styles/login.css";
 
-const API_URL = "http://127.0.0.1:8000/api/password-reset/";
+const API_URL = `${API_BASE_URL}/api/password-reset/`;
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState("");

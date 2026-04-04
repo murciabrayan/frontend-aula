@@ -1,9 +1,10 @@
 import axios from "axios";
 
 import api from "@/api/axios";
+import { API_BASE_URL } from "@/config/api";
 
 const publicLandingApi = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: API_BASE_URL,
 });
 
 export interface LandingNewsItem {

@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 import axios from "axios";
 import PasswordRequirements from "@/components/PasswordRequirements";
 import { useFeedback } from "@/context/FeedbackContext";
+import { API_BASE_URL } from "@/config/api";
 import "@/commons/Auth/styles/login.css";
 import sideImage from "@/assets/login-side.jpg";
 import logo from "@/assets/logo.png";
@@ -39,7 +40,7 @@ const ResetPasswordScreen = () => {
 
     try {
       const res = await axios.post(
-        `http://127.0.0.1:8000/api/password-reset/${uid}/${token}/`,
+        `${API_BASE_URL}/api/password-reset/${uid}/${token}/`,
         { password },
       );
       await showNotice({
