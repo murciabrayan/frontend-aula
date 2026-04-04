@@ -149,13 +149,16 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       onSave();
       onClose();
       const warningMessage = response?.data?.warning;
+      const warningDetail = response?.data?.warning_detail;
       showToast(
         warningMessage
           ? {
               type: "warning",
               title: user ? "Usuario actualizado" : "Usuario creado con advertencia",
-              message: warningMessage,
-              duration: 5200,
+              message: warningDetail
+                ? `${warningMessage} Detalle: ${warningDetail}`
+                : warningMessage,
+              duration: 7000,
             }
           : {
               type: "success",
