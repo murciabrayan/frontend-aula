@@ -18,28 +18,31 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [tipo, setTipo] = useState<"EVENT" | "EXAM" | "ACTIVITY">("EVENT");
-  const [course, setCourse] = useState<TeacherCourse | null>(null);
+  const [courses, setCourses] = useState<TeacherCourse[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | "">("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
-    const loadCourse = async () => {
+    const loadCourses = async () => {
       try {
-        const res = await api.get("/api/courses/teacher/course/");
-        setCourse(res.data);
+        const res = await api.get("/api/courses/");
+        const availableCourses = res.data || [];
+        setCourses(availableCourses);
+        setSelectedCourseId(availableCourses[0]?.id || "");
       } catch (err) {
-        console.error("Error cargando curso del docente", err);
-        setError("No se pudo cargar tu curso asignado.");
+        console.error("Error cargando cursos del docente", err);
+        setError("No se pudieron cargar tus cursos disponibles.");
       }
     };
 
-    loadCourse();
+    loadCourses();
   }, []);
 
   const saveEvent = async () => {
-    if (!course?.id) {
-      setError("No se encontró un curso asignado para crear el evento.");
+    if (!selectedCourseId) {
+      setError("Debes seleccionar un curso para crear el evento.");
       return;
     }
 
@@ -63,7 +66,7 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
           fecha_inicio,
           fecha_fin,
           tipo,
-          curso: course.id,
+          curso: selectedCourseId,
           materia: null,
         },
       );
@@ -93,7 +96,8 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
     }
   };
 
-  const courseName = course?.name || course?.nombre || "Tu curso";
+  const selectedCourse = courses.find((course) => course.id === selectedCourseId) || null;
+  const courseName = selectedCourse?.name || selectedCourse?.nombre || "Selecciona un curso";
   const tipoLabel =
     tipo === "EVENT" ? "Evento" : tipo === "EXAM" ? "Evaluación" : "Actividad";
 
@@ -145,6 +149,25 @@ const TeacherEventModal: React.FC<Props> = ({ date, onClose, onSaved }) => {
                   onChange={(event) => setTitulo(event.target.value)}
                   placeholder="Ej: Día del niño, Examen, Actividad..."
                 />
+              </div>
+
+              <div className="form-group">
+                <label>Curso</label>
+                <StyledSelect
+                  value={selectedCourseId}
+                  onChange={(event) =>
+                    setSelectedCourseId(
+                      event.target.value ? Number(event.target.value) : ""
+                    )
+                  }
+                >
+                  <option value="">Selecciona un curso</option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.name || course.nombre}
+                    </option>
+                  ))}
+                </StyledSelect>
               </div>
 
               <div className="form-group">

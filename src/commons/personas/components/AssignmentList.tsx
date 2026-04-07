@@ -28,6 +28,8 @@ interface Subject {
   id: number;
   nombre: string;
   area?: number | null;
+  curso?: number;
+  course_name?: string;
 }
 
 interface Assignment {
@@ -36,15 +38,10 @@ interface Assignment {
   descripcion: string;
   fecha_entrega: string;
   periodo: number;
-}
-
-interface Course {
-  id: number;
-  name: string;
+  requires_submission?: boolean;
 }
 
 const AssignmentDashboard: React.FC = () => {
-  const [course, setCourse] = useState<Course | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [activeSubject, setActiveSubject] = useState<Subject | null>(null);
@@ -60,12 +57,6 @@ const AssignmentDashboard: React.FC = () => {
 
   useEffect(() => {
     api
-      .get("/api/courses/teacher/course/")
-      .then((res) => setCourse(res.data));
-  }, []);
-
-  useEffect(() => {
-    api
       .get("/api/subjects/")
       .then((res) => setSubjects(res.data));
   }, []);
@@ -78,7 +69,7 @@ const AssignmentDashboard: React.FC = () => {
 
   const loadAssignments = (subjectId: number) => {
     api
-      .get(`/api/assignments/?subject=${subjectId}`)
+      .get(`/api/assignments/?subject=${subjectId}&requires_submission=true`)
       .then((res) =>
         setAssignments(
           res.data.map((assignment: any) => ({
@@ -150,9 +141,9 @@ const AssignmentDashboard: React.FC = () => {
     () => ({
       areas: areas.length,
       subjects: subjects.length,
-      currentCourse: course?.name || "Curso activo",
+      currentCourse: new Set(subjects.map((subject) => subject.course_name).filter(Boolean)).size,
     }),
-    [areas.length, subjects.length, course?.name],
+    [areas.length, subjects],
   );
 
   const periodoLabel = (periodo: number) => `Periodo ${periodo}`;
@@ -162,16 +153,16 @@ const AssignmentDashboard: React.FC = () => {
       <div className="teacher-task-hero">
         <div className="teacher-task-hero__copy">
           <span className="teacher-task-hero__badge">Gestión de tareas</span>
-          <h1>{course?.name || "Curso activo"}</h1>
+          <h1>Materias asignadas</h1>
           <p>
-            Organiza las materias del curso, crea nuevas actividades y revisa entregas
+            Organiza las materias que dictas, crea nuevas actividades y revisa entregas
             con una vista mucho mas clara para calificar.
           </p>
         </div>
 
         <div className="teacher-task-hero__stats">
           <article className="teacher-task-hero__stat">
-            <span>Curso</span>
+            <span>Cursos</span>
             <strong>{stats.currentCourse}</strong>
           </article>
           <article className="teacher-task-hero__stat">
@@ -226,7 +217,7 @@ const AssignmentDashboard: React.FC = () => {
                     </div>
                     <div className="teacher-task-subject-card__copy">
                       <strong>{subject.nombre}</strong>
-                      <span>Abrir espacio de trabajo</span>
+                      <span>{subject.course_name || "Abrir espacio de trabajo"}</span>
                     </div>
                     <ChevronRight size={18} />
                   </button>
@@ -256,7 +247,7 @@ const AssignmentDashboard: React.FC = () => {
                   </div>
                   <div className="teacher-task-subject-card__copy">
                     <strong>{subject.nombre}</strong>
-                    <span>Abrir espacio de trabajo</span>
+                    <span>{subject.course_name || "Abrir espacio de trabajo"}</span>
                   </div>
                   <ChevronRight size={18} />
                 </button>

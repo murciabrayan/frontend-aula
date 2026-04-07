@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import {
-  getDashboardRoute,
+  getNextAuthRoute,
   loginUser,
   loginWithGoogle,
 } from "@/commons/Auth/services/auth.service";
@@ -28,11 +28,7 @@ const LoginScreen = () => {
 
     try {
       const userData = await loginUser(email, password);
-      const role = userData?.role;
-
-      if (userData?.must_change_password) navigate("/primer-acceso");
-      else if (role) navigate(getDashboardRoute(role));
-      else setErrorMessage("Rol no autorizado");
+      navigate(getNextAuthRoute(userData));
     } catch {
       setErrorMessage("Credenciales incorrectas o error de conexión");
     }
@@ -42,11 +38,7 @@ const LoginScreen = () => {
     try {
       const googleToken = credentialResponse.credential;
       const userData = await loginWithGoogle(googleToken);
-      const role = userData?.role;
-
-      if (userData?.must_change_password) navigate("/primer-acceso");
-      else if (role) navigate(getDashboardRoute(role));
-      else setErrorMessage("Rol no autorizado");
+      navigate(getNextAuthRoute(userData));
     } catch {
       setErrorMessage("Error al iniciar sesión con Google");
     }

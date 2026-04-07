@@ -3,6 +3,7 @@ import LoginScreen from "@/commons/Auth/screens/LoginScreen";
 import ForgotPasswordScreen from "@/commons/Auth/screens/ForgotPasswordScreen";
 import InitialPasswordSetupScreen from "@/commons/Auth/screens/InitialPasswordSetupScreen";
 import ResetPasswordScreen from "@/commons/Auth/screens/ResetPasswordScreen";
+import DataPolicyConsentScreen from "@/commons/Auth/screens/DataPolicyConsentScreen";
 import AdminDashboard from "@/commons/personas/screens/AdminDashboard";
 import TeacherDashboard from "@/commons/personas/screens/TeacherDashboard";
 import StudentDashboard from "@/commons/personas/screens/StudentDashboard";
@@ -25,6 +26,7 @@ const App = () => {
 
         <Route path="/plataforma" element={<LoginScreen />} />
         <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+        <Route path="/tratamiento-datos" element={<DataPolicyConsentScreen />} />
         <Route path="/primer-acceso" element={<InitialPasswordSetupScreen />} />
         <Route path="/reset-password/:uid/:token" element={<ResetPasswordScreen />} />
 

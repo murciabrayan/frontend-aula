@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useState } from "react";
-import { ClipboardCheck, ClipboardList, Home, Star, TriangleAlert, User } from "lucide-react";
+import { ClipboardCheck, ClipboardList, Home, ScrollText, Star, TriangleAlert, User } from "lucide-react";
 
 import NotificationBell from "../components/NotificationBell";
 import StudentAcademicAlerts from "@/commons/personas/components/StudentAcademicAlerts";
@@ -8,6 +8,7 @@ import StudentAttendance from "@/commons/personas/components/StudentAttendance";
 import StudentCalendar from "@/commons/personas/components/StudentCalendar";
 import StudentGrades from "@/commons/personas/components/StudentGrades";
 import StudentProfile from "../components/StudentProfile";
+import StudentPermissionLetters from "../components/StudentPermissionLetters";
 import DashboardLayout, {
   type DashboardModuleItem,
 } from "../components/DashboardLayout";
@@ -17,6 +18,7 @@ const studentModules: DashboardModuleItem[] = [
   { id: "tareas", label: "Tareas", icon: ClipboardList },
   { id: "calificaciones", label: "Calificaciones", icon: Star },
   { id: "asistencia", label: "Asistencia", icon: ClipboardCheck },
+  { id: "permisos", label: "Permisos", icon: ScrollText },
   { id: "alertas", label: "Alertas", icon: TriangleAlert },
   { id: "perfil", label: "Perfil", icon: User },
 ];
@@ -75,6 +77,7 @@ const StudentDashboard: React.FC = () => {
         {activeModule === "tareas" && <StudentAssignmentsList />}
         {activeModule === "calificaciones" && <StudentGrades />}
         {activeModule === "asistencia" && <StudentAttendance />}
+        {activeModule === "permisos" && <StudentPermissionLetters />}
         {activeModule === "alertas" && <StudentAcademicAlerts />}
         {activeModule === "perfil" && <StudentProfile />}
       </div>

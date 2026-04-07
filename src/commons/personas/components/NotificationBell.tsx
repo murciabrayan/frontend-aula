@@ -25,6 +25,15 @@ const getTargetModule = (notification: Notification): string | null => {
   const mensaje = normalizeText(notification.mensaje);
 
   if (
+    titulo.includes("permiso") ||
+    titulo.includes("autorizacion") ||
+    mensaje.includes("permiso") ||
+    mensaje.includes("autorizacion")
+  ) {
+    return "permisos";
+  }
+
+  if (
     titulo.includes("alerta") ||
     titulo.includes("seguimiento") ||
     titulo.includes("bajo rendimiento") ||

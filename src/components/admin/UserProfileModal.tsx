@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import api from "@/api/axios";
 import { Download, Eye, FileText, Save, Upload, UserRound, X } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
+import { exportUserProfileToPdf } from "@/utils/userPdf";
 import type { User, UserDocument } from "../../types/User";
 import "./UserManagement.css";
 
@@ -16,12 +17,17 @@ interface EditableState {
   last_name: string;
   email: string;
   cedula: string;
+  direccion: string;
+  rh: string;
   acudiente_nombre: string;
+  acudiente_cedula: string;
   acudiente_telefono: string;
   acudiente_email: string;
   especialidad: string;
   titulo: string;
 }
+
+const RH_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const onlyNumbers = (value: string) => value.replace(/\D/g, "");
 const isPdfFile = (file: File) =>
@@ -32,7 +38,10 @@ const buildStateFromUser = (user: User): EditableState => ({
   last_name: user.last_name || "",
   email: user.email || "",
   cedula: user.cedula || "",
+  direccion: user.direccion || "",
+  rh: user.rh || "",
   acudiente_nombre: user.student_profile?.acudiente_nombre || "",
+  acudiente_cedula: user.student_profile?.acudiente_cedula || "",
   acudiente_telefono: user.student_profile?.acudiente_telefono || "",
   acudiente_email: user.student_profile?.acudiente_email || "",
   especialidad: user.teacher_profile?.especialidad || "",
@@ -115,6 +124,8 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     const normalizedValue =
       name === "cedula"
         ? onlyNumbers(value)
+        : name === "acudiente_cedula"
+          ? onlyNumbers(value)
         : name === "acudiente_telefono"
           ? onlyNumbers(value).slice(0, 10)
           : value;
@@ -150,6 +161,24 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
       return;
     }
 
+    if (!formData.direccion.trim()) {
+      showToast({
+        type: "warning",
+        title: "Direccion",
+        message: "La direccion es obligatoria.",
+      });
+      return;
+    }
+
+    if (!formData.rh) {
+      showToast({
+        type: "warning",
+        title: "RH",
+        message: "Selecciona el RH del usuario.",
+      });
+      return;
+    }
+
     if (
       user.role === "STUDENT" &&
       formData.acudiente_telefono &&
@@ -168,11 +197,14 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
       last_name: formData.last_name.trim(),
       email: formData.email.trim(),
       cedula: formData.cedula.trim(),
+      direccion: formData.direccion.trim(),
+      rh: formData.rh,
       role: user.role,
     };
 
     if (user.role === "STUDENT") {
       payload.acudiente_nombre = formData.acudiente_nombre.trim();
+      payload.acudiente_cedula = formData.acudiente_cedula.trim();
       payload.acudiente_telefono = formData.acudiente_telefono.trim();
       payload.acudiente_email = formData.acudiente_email.trim();
     }
@@ -299,6 +331,27 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     }
   };
 
+  const handleExportProfile = async () => {
+    try {
+      await exportUserProfileToPdf({
+        ...user,
+        documents,
+      });
+      showToast({
+        type: "success",
+        title: "PDF generado",
+        message: "Se descargó la ficha del perfil seleccionado.",
+      });
+    } catch (error) {
+      console.error("No se pudo exportar el perfil:", error);
+      showToast({
+        type: "error",
+        title: "Exportar perfil",
+        message: "No se pudo generar el PDF de este perfil.",
+      });
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="user-profile-modal" onClick={(event) => event.stopPropagation()}>
@@ -353,12 +406,36 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                   onInput={(e) => e.currentTarget.setCustomValidity("")}
                 />
               </label>
+              <label>
+                <span>Direccion</span>
+                <input value={formData.direccion} onChange={(e) => handleFieldChange("direccion", e.target.value)} />
+              </label>
+              <label>
+                <span>RH</span>
+                <select value={formData.rh} onChange={(e) => handleFieldChange("rh", e.target.value)}>
+                  <option value="">Selecciona el RH</option>
+                  {RH_OPTIONS.map((rh) => (
+                    <option key={rh} value={rh}>
+                      {rh}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
               {user.role === "STUDENT" ? (
                 <>
                   <label>
                     <span>Nombre del acudiente</span>
                     <input value={formData.acudiente_nombre} onChange={(e) => handleFieldChange("acudiente_nombre", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Cedula del acudiente</span>
+                    <input
+                      value={formData.acudiente_cedula}
+                      onChange={(e) => handleFieldChange("acudiente_cedula", e.target.value)}
+                      inputMode="numeric"
+                      maxLength={20}
+                    />
                   </label>
                   <label>
                     <span>Telefono del acudiente</span>
@@ -399,6 +476,10 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
             </div>
 
             <div className="user-profile-panel__footer">
+              <button type="button" className="btn" onClick={() => void handleExportProfile()}>
+                <Download size={16} />
+                <span>Descargar ficha</span>
+              </button>
               <button type="submit" className="btn btn-primary" disabled={saving}>
                 <Save size={16} />
                 <span>{saving ? "Guardando..." : "Guardar cambios"}</span>

@@ -249,7 +249,7 @@ const AdminReportCards: React.FC = () => {
                 <span className="report-card__eyebrow">Curso</span>
                 <h3>{course.nombre}</h3>
                 <p>
-                  <strong>Docente:</strong> {course.docente}
+                  <strong>Director:</strong> {course.docente}
                 </p>
                 <span>{course.total_estudiantes} estudiante(s)</span>
               </article>
@@ -272,7 +272,7 @@ const AdminReportCards: React.FC = () => {
 
             <div className="report-hero__stats">
               <div className="report-hero__stat">
-                <span>Docente</span>
+                <span>Director</span>
                 <strong>{selectedCourse.docente}</strong>
               </div>
               <div className="report-hero__stat">
@@ -418,7 +418,7 @@ const AdminReportCards: React.FC = () => {
             </div>
             <div className="summary-item">
               <span>Director de curso</span>
-              <strong>{report.curso.director_curso || "Sin docente asignado"}</strong>
+              <strong>{report.curso.director_curso || "Sin director asignado"}</strong>
             </div>
             <div className="summary-item">
               <span>Rector</span>

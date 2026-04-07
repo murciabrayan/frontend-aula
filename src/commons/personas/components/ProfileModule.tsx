@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { Camera, Eye, EyeOff, LockKeyhole, Mail, PencilLine, Save, Shield, User, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Camera, Download, Eye, EyeOff, FileText, LockKeyhole, Mail, PenLine, PencilLine, Save, Shield, Upload, User, X } from "lucide-react";
 import api from "@/api/axios";
 import PasswordRequirements from "@/components/PasswordRequirements";
 import { getCurrentUser, setCurrentUser } from "@/commons/Auth/services/auth.service";
 import { IMAGE_ACCEPT, IMAGE_MAX_SIZE_MB, validateImageFile } from "@/utils/imageUpload";
 import { isStrongPassword } from "@/utils/passwordValidation";
+import type { UserDocument } from "@/types/User";
 import "./profile.css";
 
 type FieldType = "text" | "email";
@@ -28,7 +29,7 @@ interface ProfileModuleProps {
   sections: ProfileSection[];
 }
 
-type ProfileData = Record<string, string>;
+type ProfileData = Record<string, any>;
 
 const AVATAR_STYLES = [
   { value: "adventurer-neutral", label: "Clasico" },
@@ -45,6 +46,10 @@ const baseSummary = [
   { key: "last_name", label: "Apellido", icon: User },
   { key: "email", label: "Correo", icon: Mail },
 ];
+const DATA_POLICY_CATEGORY = "Tratamiento de datos personales";
+const SIGNATURE_CANVAS_WIDTH = 680;
+const SIGNATURE_CANVAS_HEIGHT = 220;
+type SignatureMode = "draw" | "upload";
 
 const ProfileModule = ({
   roleTitle,
@@ -72,6 +77,21 @@ const ProfileModule = ({
   const [avatarStyle, setAvatarStyle] = useState("adventurer-neutral");
   const [avatarSeed, setAvatarSeed] = useState("");
   const [clearProfilePhoto, setClearProfilePhoto] = useState(false);
+  const [showSignatureModal, setShowSignatureModal] = useState(false);
+  const [signatureMode, setSignatureMode] = useState<SignatureMode>("draw");
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
+  const [hasDrawnSignature, setHasDrawnSignature] = useState(false);
+  const [signatureSubmitting, setSignatureSubmitting] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const drawingRef = useRef(false);
+  const currentUser = getCurrentUser();
+  const canEditProfile = currentUser?.role === "ADMIN";
+  const profileDocuments = Array.isArray(profile?.documents)
+    ? (profile.documents as UserDocument[])
+    : [];
+  const dataPolicyDocument = profileDocuments.find(
+    (document) => document.category === DATA_POLICY_CATEGORY
+  );
 
   const allFields = useMemo(
     () => sections.flatMap((section) => section.fields),
@@ -112,8 +132,124 @@ const ProfileModule = ({
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    if (!showSignatureModal) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, SIGNATURE_CANVAS_WIDTH, SIGNATURE_CANVAS_HEIGHT);
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.lineWidth = 2.2;
+    context.strokeStyle = "#111111";
+  }, [showSignatureModal]);
+
   const handleFieldChange = (name: string, value: string) => {
     setDraft((current) => ({ ...(current ?? {}), [name]: value }));
+  };
+
+  const refreshProfile = async () => {
+    const response = await api.get("/api/profile/");
+    setProfile(response.data);
+    setDraft(response.data);
+    setAvatarStyle(response.data.avatar_style || "adventurer-neutral");
+    setAvatarSeed(response.data.avatar_seed || "");
+    setPhotoPreview(response.data.avatar_url || response.data.photo_url || "");
+
+    const sessionUser = getCurrentUser();
+    if (sessionUser) {
+      setCurrentUser({
+        ...sessionUser,
+        first_name: response.data.first_name,
+        last_name: response.data.last_name,
+        email: response.data.email,
+        role: response.data.role,
+        photo_url: response.data.photo_url || null,
+        avatar_url: response.data.avatar_url || response.data.photo_url || null,
+        avatar_style: response.data.avatar_style,
+        avatar_seed: response.data.avatar_seed,
+        has_accepted_data_policy: response.data.has_accepted_data_policy,
+        data_policy_accepted_at: response.data.data_policy_accepted_at,
+        has_saved_signature: response.data.has_saved_signature,
+      });
+    }
+  };
+
+  const closeSignatureModal = () => {
+    setShowSignatureModal(false);
+    setSignatureMode("draw");
+    setSignatureFile(null);
+    setHasDrawnSignature(false);
+  };
+
+  const getCanvasCoordinates = (event: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) / rect.width) * SIGNATURE_CANVAS_WIDTH,
+      y: ((event.clientY - rect.top) / rect.height) * SIGNATURE_CANVAS_HEIGHT,
+    };
+  };
+
+  const startDrawing = (event: React.PointerEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
+
+    const { x, y } = getCanvasCoordinates(event);
+    drawingRef.current = true;
+    context.beginPath();
+    context.moveTo(x, y);
+  };
+
+  const drawSignature = (event: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!drawingRef.current) return;
+
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
+
+    const { x, y } = getCanvasCoordinates(event);
+    context.lineTo(x, y);
+    context.stroke();
+    setHasDrawnSignature(true);
+  };
+
+  const stopDrawing = () => {
+    drawingRef.current = false;
+  };
+
+  const clearSignatureCanvas = () => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
+
+    context.clearRect(0, 0, SIGNATURE_CANVAS_WIDTH, SIGNATURE_CANVAS_HEIGHT);
+    context.fillStyle = "#ffffff";
+    context.fillRect(0, 0, SIGNATURE_CANVAS_WIDTH, SIGNATURE_CANVAS_HEIGHT);
+    setHasDrawnSignature(false);
+    setError("");
+  };
+
+  const getSignatureFileFromCanvas = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas || !hasDrawnSignature) return null;
+
+    return new Promise<File | null>((resolve) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          resolve(null);
+          return;
+        }
+        resolve(new File([blob], "firma-actualizada-tratamiento-datos.png", { type: "image/png" }));
+      }, "image/png");
+    });
   };
 
   const avatarSeedBase = useMemo(() => {
@@ -156,30 +292,10 @@ const ProfileModule = ({
       }
 
       await api.put("/api/profile/", payload);
-      const refreshedProfile = await api.get("/api/profile/");
-      setProfile(refreshedProfile.data);
-      setDraft(refreshedProfile.data);
+      await refreshProfile();
       setEditing(false);
       setPhotoFile(null);
       setClearProfilePhoto(false);
-      setAvatarStyle(refreshedProfile.data.avatar_style || "adventurer-neutral");
-      setAvatarSeed(refreshedProfile.data.avatar_seed || "");
-      setPhotoPreview(refreshedProfile.data.avatar_url || refreshedProfile.data.photo_url || "");
-
-      const currentUser = getCurrentUser();
-      if (currentUser) {
-        setCurrentUser({
-          ...currentUser,
-          first_name: refreshedProfile.data.first_name,
-          last_name: refreshedProfile.data.last_name,
-          email: refreshedProfile.data.email,
-          role: refreshedProfile.data.role,
-          photo_url: refreshedProfile.data.photo_url || null,
-          avatar_url: refreshedProfile.data.avatar_url || refreshedProfile.data.photo_url || null,
-          avatar_style: refreshedProfile.data.avatar_style,
-          avatar_seed: refreshedProfile.data.avatar_seed,
-        });
-      }
 
       setSuccess("Perfil actualizado correctamente.");
     } catch (err: any) {
@@ -219,6 +335,40 @@ const ProfileModule = ({
     }
   };
 
+  const handleUpdateSignature = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+
+    let fileToSend = signatureFile;
+    if (signatureMode === "draw") {
+      fileToSend = await getSignatureFileFromCanvas();
+    }
+
+    if (!fileToSend) {
+      setError(
+        signatureMode === "draw"
+          ? "Debes dibujar la nueva firma antes de guardar."
+          : "Debes subir una imagen con la nueva firma."
+      );
+      return;
+    }
+
+    try {
+      setSignatureSubmitting(true);
+      const payload = new FormData();
+      payload.append("signature_file", fileToSend);
+      await api.post("/api/data-policy/update-signature/", payload);
+      await refreshProfile();
+      closeSignatureModal();
+      setSuccess("La firma del documento legal fue actualizada correctamente.");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "No se pudo actualizar la firma del documento legal.");
+    } finally {
+      setSignatureSubmitting(false);
+    }
+  };
+
   if (loading) {
     return <div className="profile-state">Cargando perfil...</div>;
   }
@@ -246,7 +396,25 @@ const ProfileModule = ({
             <span>{"Cambiar contrase\u00f1a"}</span>
           </button>
 
-          {!editing ? (
+          {profile?.has_accepted_data_policy ? (
+            <button
+              type="button"
+              className="profile-btn profile-btn--ghost"
+              onClick={() => {
+                setError("");
+                setSuccess("");
+                setSignatureMode("draw");
+                setSignatureFile(null);
+                setHasDrawnSignature(false);
+                setShowSignatureModal(true);
+              }}
+            >
+              <PenLine size={18} />
+              <span>Cambiar firma</span>
+            </button>
+          ) : null}
+
+          {!editing && canEditProfile ? (
             <button
               type="button"
               className="profile-btn profile-btn--primary"
@@ -292,7 +460,7 @@ const ProfileModule = ({
               </span>
             </div>
 
-            {editing ? (
+            {editing && canEditProfile ? (
               <div className="profile-avatar-card__controls">
                 <label className="profile-avatar-card__upload">
                   <Camera size={16} />
@@ -342,7 +510,7 @@ const ProfileModule = ({
               </div>
             ) : null}
 
-            {editing ? (
+            {editing && canEditProfile ? (
               <div className="profile-avatar-picker">
                 <div className="profile-avatar-picker__header">
                   <strong>Elige un avatar</strong>
@@ -421,7 +589,7 @@ const ProfileModule = ({
                         onChange={(event) =>
                           handleFieldChange(field.name, event.target.value)
                         }
-                        disabled={!editing}
+                        disabled={!editing || !canEditProfile}
                       />
                     </label>
                   ))}
@@ -430,7 +598,7 @@ const ProfileModule = ({
             ))}
 
             <div className="profile-form__footer">
-              {editing ? (
+              {editing && canEditProfile ? (
                 <>
                   <button type="submit" className="profile-btn profile-btn--primary">
                     <Save size={18} />
@@ -446,14 +614,57 @@ const ProfileModule = ({
                     <span>Cancelar</span>
                   </button>
                 </>
-              ) : (
+              ) : canEditProfile ? (
                 <div className="profile-form__hint">
                   <Eye size={16} />
                   <span>{"Activa el modo edici\u00f3n para actualizar tu perfil."}</span>
                 </div>
-              )}
+              ) : null}
             </div>
           </form>
+        </article>
+
+        <article className="profile-card profile-card--documents">
+          <div className="profile-card__header">
+            <h3>Documentos del perfil</h3>
+            <span>Consulta los soportes asociados a tu cuenta, incluida la autorizacion legal.</span>
+          </div>
+
+          <div className="profile-documents">
+            {profileDocuments.length ? (
+              profileDocuments.map((document) => (
+                <div key={document.id || document.title} className="profile-document-item">
+                  <div className="profile-document-item__meta">
+                    <div className="profile-document-item__icon">
+                      <FileText size={18} />
+                    </div>
+                    <div>
+                      <strong>{document.title}</strong>
+                      <span>{document.category || "Documento institucional"}</span>
+                    </div>
+                  </div>
+
+                  <div className="profile-document-item__actions">
+                    {document.file_url ? (
+                      <a
+                        href={document.file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="profile-document-item__action"
+                      >
+                        <Download size={16} />
+                        <span>Abrir</span>
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="profile-documents__empty">
+                Aun no hay documentos asociados a este perfil.
+              </div>
+            )}
+          </div>
         </article>
       </div>
 
@@ -581,6 +792,135 @@ const ProfileModule = ({
                     setShowPasswordModal(false);
                     setPasswordTouched(false);
                   }}
+                >
+                  <X size={18} />
+                  <span>Cancelar</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
+      {showSignatureModal && dataPolicyDocument ? (
+        <div
+          className="profile-modal__overlay"
+          role="presentation"
+          onClick={closeSignatureModal}
+        >
+          <div
+            className="profile-modal profile-modal--signature"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="signature-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="profile-modal__close"
+              onClick={closeSignatureModal}
+              aria-label="Cerrar modal"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="profile-modal__header">
+              <div className="profile-modal__icon">
+                <PenLine size={18} />
+              </div>
+              <div>
+                <h3 id="signature-modal-title">Cambiar firma</h3>
+                <p>Actualiza la firma asociada al documento de tratamiento de datos.</p>
+              </div>
+            </div>
+
+            <form className="profile-modal__form" onSubmit={handleUpdateSignature}>
+              <div className="profile-signature-switch">
+                <button
+                  type="button"
+                  className={`profile-signature-switch__option ${signatureMode === "draw" ? "is-active" : ""}`}
+                  onClick={() => {
+                    setSignatureMode("draw");
+                    setSignatureFile(null);
+                    setError("");
+                  }}
+                >
+                  <PenLine size={16} />
+                  <span>Firmar aqui</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`profile-signature-switch__option ${signatureMode === "upload" ? "is-active" : ""}`}
+                  onClick={() => {
+                    setSignatureMode("upload");
+                    setError("");
+                  }}
+                >
+                  <Upload size={16} />
+                  <span>Subir firma</span>
+                </button>
+              </div>
+
+              {signatureMode === "draw" ? (
+                <div className="profile-signature-pad">
+                  <canvas
+                    ref={canvasRef}
+                    width={SIGNATURE_CANVAS_WIDTH}
+                    height={SIGNATURE_CANVAS_HEIGHT}
+                    onPointerDown={startDrawing}
+                    onPointerMove={drawSignature}
+                    onPointerUp={stopDrawing}
+                    onPointerLeave={stopDrawing}
+                  />
+                  <div className="profile-signature-pad__actions">
+                    <span>Dibuja la nueva firma con mouse o pantalla tactil.</span>
+                    <button type="button" className="profile-signature-link" onClick={clearSignatureCanvas}>
+                      Limpiar firma
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="profile-signature-upload">
+                  <input
+                    type="file"
+                    accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] || null;
+                      if (file) {
+                        const validationError = validateImageFile(file);
+                        if (validationError) {
+                          setError(validationError);
+                          event.target.value = "";
+                          return;
+                        }
+                      }
+                      setSignatureFile(file);
+                      setError("");
+                    }}
+                  />
+                  <span>
+                    {signatureFile
+                      ? signatureFile.name
+                      : "Sube una imagen PNG o JPG con la nueva firma del firmante autorizado."}
+                  </span>
+                </div>
+              )}
+
+              <div className="profile-modal__actions">
+                <button
+                  type="submit"
+                  className="profile-btn profile-btn--primary"
+                  disabled={signatureSubmitting}
+                >
+                  <Save size={18} />
+                  <span>{signatureSubmitting ? "Guardando..." : "Guardar firma"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="profile-btn profile-btn--secondary"
+                  onClick={closeSignatureModal}
                 >
                   <X size={18} />
                   <span>Cancelar</span>

@@ -6,6 +6,7 @@ import { getTeachers, getStudents } from "../../services/userService";
 import {
   getSubjectsByCourse,
   createSubject,
+  updateSubject,
   deleteSubject,
 } from "../../commons/personas/services/subjectService";
 import {
@@ -33,6 +34,8 @@ interface Course {
   id: number;
   name: string;
   teacher: number | null;
+  teacher_name?: string;
+  director_teacher?: number | null;
   students: number[];
 }
 
@@ -54,6 +57,8 @@ interface Subject {
   curso?: number;
   area?: number | null;
   area_nombre?: string;
+  teacher?: number | null;
+  teacher_name?: string;
 }
 
 type Tab = "teacher" | "students" | "subjects";
@@ -101,6 +106,7 @@ export default function CourseAssign() {
 
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
+  const [newSubjectTeacher, setNewSubjectTeacher] = useState<number | "">("");
 
   const [newAreaName, setNewAreaName] = useState("");
 
@@ -168,6 +174,7 @@ export default function CourseAssign() {
     setTab("teacher");
     setNewSubjectName("");
     setNewSubjectArea("");
+    setNewSubjectTeacher("");
     setNewAreaName("");
     setStudentFilter("");
     setNewIndicatorDescription("");
@@ -200,6 +207,7 @@ export default function CourseAssign() {
     setSelectedIndicators({});
     setNewSubjectName("");
     setNewSubjectArea("");
+    setNewSubjectTeacher("");
     setNewAreaName("");
     setStudentFilter("");
     setSavingSubjectId(null);
@@ -278,6 +286,7 @@ export default function CourseAssign() {
         nombre,
         curso: activeCourse.id,
         area: newSubjectArea === "" ? null : newSubjectArea,
+        teacher: newSubjectTeacher === "" ? null : newSubjectTeacher,
       });
 
       const createdSubject = res.data;
@@ -290,6 +299,7 @@ export default function CourseAssign() {
 
       setNewSubjectName("");
       setNewSubjectArea("");
+      setNewSubjectTeacher("");
     } catch (error: any) {
       notifyError(
         error?.response?.data?.non_field_errors?.[0] ||
@@ -339,6 +349,31 @@ export default function CourseAssign() {
       notifyError(
         error?.response?.data?.detail ||
           "No se pudo actualizar el área de la materia"
+      );
+    } finally {
+      setSavingSubjectId(null);
+    }
+  };
+
+  const handleAssignTeacherToSubject = async (
+    subjectId: number,
+    teacherId: number | ""
+  ) => {
+    try {
+      setSavingSubjectId(subjectId);
+
+      const payloadTeacher = teacherId === "" ? null : teacherId;
+      const res = await updateSubject(subjectId, { teacher: payloadTeacher });
+
+      setSubjects((prev) =>
+        prev.map((subject) =>
+          subject.id === subjectId ? { ...subject, ...res.data } : subject
+        )
+      );
+    } catch (error: any) {
+      notifyError(
+        error?.response?.data?.detail ||
+          "No se pudo actualizar el docente de la materia"
       );
     } finally {
       setSavingSubjectId(null);
@@ -537,11 +572,32 @@ export default function CourseAssign() {
   const renderSubjectCard = (subject: Subject) => (
     <div key={subject.id} className="indicator-subject-card">
       <div className="subject-item subject-item-extended">
-        <span>{subject.nombre}</span>
+        <span>
+          {subject.nombre}
+          {subject.teacher_name ? ` • ${subject.teacher_name}` : " • Sin docente"}
+        </span>
 
         <div className="subject-actions-inline">
-            <StyledSelect
-              value={subject.area ?? ""}
+          <StyledSelect
+            value={subject.teacher ?? ""}
+            disabled={savingSubjectId === subject.id}
+            onChange={(e) =>
+              handleAssignTeacherToSubject(
+                subject.id,
+                e.target.value ? Number(e.target.value) : ""
+              )
+            }
+          >
+            <option value="">Sin docente</option>
+            {teachers.map((teacher) => (
+              <option key={teacher.id} value={teacher.id}>
+                {teacher.first_name} {teacher.last_name}
+              </option>
+            ))}
+          </StyledSelect>
+
+          <StyledSelect
+            value={subject.area ?? ""}
             disabled={savingSubjectId === subject.id}
             onChange={(e) =>
               handleAssignAreaToSubject(
@@ -647,9 +703,10 @@ export default function CourseAssign() {
             <tr key={c.id}>
               <td>{c.name}</td>
               <td>
-                {c.teacher
-                  ? teachers.find((t) => t.id === c.teacher)?.first_name
-                  : "Sin docente"}
+                {c.teacher_name ||
+                  (c.teacher
+                    ? teachers.find((t) => t.id === c.teacher)?.first_name
+                    : "Sin director")}
               </td>
               <td>{c.students.length}</td>
               <td>
@@ -682,7 +739,7 @@ export default function CourseAssign() {
                 className={`tab ${tab === "teacher" ? "active" : ""}`}
                 onClick={() => setTab("teacher")}
               >
-                Docente
+                Director de curso
               </div>
               <div
                 className={`tab ${tab === "students" ? "active" : ""}`}
@@ -701,7 +758,7 @@ export default function CourseAssign() {
             <div className="section">
               {tab === "teacher" && (
                 <>
-                  <label>Docente asignado</label>
+                  <label>Director de curso</label>
                   <StyledSelect
                     value={selectedTeacher}
                     onChange={(e) =>
@@ -921,6 +978,21 @@ export default function CourseAssign() {
                         {areas.map((a) => (
                           <option key={a.id} value={a.id}>
                             {a.nombre}
+                          </option>
+                        ))}
+                      </StyledSelect>
+                      <StyledSelect
+                        value={newSubjectTeacher}
+                        onChange={(e) =>
+                          setNewSubjectTeacher(
+                            e.target.value ? Number(e.target.value) : ""
+                          )
+                        }
+                      >
+                        <option value="">Sin docente</option>
+                        {teachers.map((teacher) => (
+                          <option key={teacher.id} value={teacher.id}>
+                            {teacher.first_name} {teacher.last_name}
                           </option>
                         ))}
                       </StyledSelect>

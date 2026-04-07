@@ -8,7 +8,7 @@ import PasswordRequirements from "@/components/PasswordRequirements";
 import {
   completeInitialPassword,
   getCurrentUser,
-  getDashboardRoute,
+  getNextAuthRoute,
   logoutUser,
 } from "@/commons/Auth/services/auth.service";
 import { isStrongPassword } from "@/utils/passwordValidation";
@@ -31,8 +31,13 @@ const InitialPasswordSetupScreen = () => {
       return;
     }
 
+    if (!currentUser.has_accepted_data_policy) {
+      navigate("/tratamiento-datos", { replace: true });
+      return;
+    }
+
     if (!currentUser.must_change_password) {
-      navigate(getDashboardRoute(currentUser.role), { replace: true });
+      navigate(getNextAuthRoute(currentUser), { replace: true });
     }
   }, [currentUser, navigate]);
 
@@ -54,7 +59,7 @@ const InitialPasswordSetupScreen = () => {
       setErrorMessage("");
       await completeInitialPassword(password);
       const refreshedUser = getCurrentUser();
-      navigate(getDashboardRoute(refreshedUser?.role), { replace: true });
+      navigate(getNextAuthRoute(refreshedUser), { replace: true });
     } catch (error: any) {
       setErrorMessage(
         error?.response?.data?.error ||

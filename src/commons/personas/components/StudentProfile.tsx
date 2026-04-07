@@ -25,6 +25,7 @@ const StudentProfile = () => {
           description: "Informacion de contacto del responsable del estudiante.",
           fields: [
             { name: "acudiente_nombre", label: "Nombre del acudiente" },
+            { name: "acudiente_cedula", label: "Cedula del acudiente" },
             { name: "acudiente_telefono", label: "Telefono del acudiente" },
             {
               name: "acudiente_email",

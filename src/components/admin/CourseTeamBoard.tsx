@@ -62,7 +62,7 @@ const CourseTeamBoard = ({
         <div className="course-management__modal-header">
           <div>
             <h3>{courseName}</h3>
-            <p>Administra el docente y los estudiantes del curso desde este modal.</p>
+            <p>Administra el director de curso y los estudiantes desde este modal.</p>
           </div>
           <button
             type="button"
@@ -80,7 +80,7 @@ const CourseTeamBoard = ({
             className={activeTab === "teacher" ? "is-active" : ""}
             onClick={() => setActiveTab("teacher")}
           >
-            Docente
+            Director de curso
           </button>
           <button
             type="button"
@@ -103,18 +103,18 @@ const CourseTeamBoard = ({
               <div className="course-management__teacher-focus-copy">
                 <p className="course-management__flow-step">Responsable actual</p>
                 <h4>{teacherName}</h4>
-                <span>Selecciona el docente principal que quedara asignado al curso.</span>
+                <span>Selecciona el docente que actuará como director de curso.</span>
               </div>
 
               <label className="course-management__teacher-field">
-                <span>Asignar docente</span>
+                <span>Asignar director</span>
                 <StyledSelect
                   value={selectedTeacher}
                   onChange={(event) =>
                     onTeacherChange(event.target.value ? Number(event.target.value) : "")
                   }
                 >
-                  <option value="">Sin asignar</option>
+                  <option value="">Sin director</option>
                   {teachers.map((teacher) => (
                     <option key={teacher.id} value={teacher.id}>
                       {teacher.first_name} {teacher.last_name}
@@ -130,7 +130,7 @@ const CourseTeamBoard = ({
                 onClick={onSave}
                 disabled={saving}
               >
-                {saving ? "Guardando..." : "Guardar docente"}
+                {saving ? "Guardando..." : "Guardar director"}
               </button>
             </div>
           </article>

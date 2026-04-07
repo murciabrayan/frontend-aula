@@ -7,6 +7,7 @@ export const createSubject = (data: {
   nombre: string;
   curso: number;
   area?: number | null;
+  teacher?: number | null;
 }) =>
   api.post("/api/subjects/", data);
 
@@ -15,6 +16,7 @@ export const updateSubject = (
   data: {
     nombre?: string;
     area?: number | null;
+    teacher?: number | null;
   }
 ) =>
   api.patch(`/api/subjects/${id}/`, data);

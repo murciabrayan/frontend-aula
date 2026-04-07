@@ -1,18 +1,26 @@
 import React from "react";
+import { ArrowUpRight, LayoutTemplate } from "lucide-react";
 import AdminAttendance from "../../../components/admin/AdminAttendance";
 import CourseRosterManagement from "../../../components/admin/CourseRosterManagement";
 import CourseStructureManagement from "../../../components/admin/CourseStructureManagement";
 import UserList from "../../../components/admin/UserList";
 import sideImage from "@/assets/1.jpg";
 import AdminAcademicAlerts from "../components/AdminAcademicAlerts";
+import AdminPermissionLetters from "../components/AdminPermissionLetters";
 import AdminProfile from "../components/AdminProfile";
 import AdminReportCards from "../components/AdminReportCards";
+import { enableLandingAdminAccess } from "@/commons/Auth/services/auth.service";
 
 interface AdminContentProps {
   activeModule: string;
 }
 
 const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
+  const handleOpenLandingEditor = () => {
+    enableLandingAdminAccess();
+    window.open("/", "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div className="admin-content">
       {activeModule === "inicio" && (
@@ -34,6 +42,18 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
                     <span>Cursos</span>
                     <span>Boletines</span>
                     <span>Alertas</span>
+                  </div>
+
+                  <div className="dashboard-home__admin-actions">
+                    <button
+                      type="button"
+                      className="dashboard-home__admin-link"
+                      onClick={handleOpenLandingEditor}
+                    >
+                      <LayoutTemplate size={18} />
+                      <span>Abrir landing institucional</span>
+                      <ArrowUpRight size={16} />
+                    </button>
                   </div>
                 </div>
               </section>
@@ -67,6 +87,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
       {activeModule === "cursos" && <CourseRosterManagement />}
       {activeModule === "estructuraCursos" && <CourseStructureManagement />}
       {activeModule === "boletines" && <AdminReportCards />}
+      {activeModule === "permisos" && <AdminPermissionLetters />}
       {activeModule === "asistencia" && <AdminAttendance />}
       {activeModule === "alertasAcademicas" && <AdminAcademicAlerts />}
       {activeModule === "perfil" && <AdminProfile />}

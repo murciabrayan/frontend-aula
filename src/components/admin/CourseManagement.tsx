@@ -19,6 +19,7 @@ import {
   createSubject,
   deleteSubject,
   getSubjectsByCourse,
+  updateSubject,
 } from "../../commons/personas/services/subjectService";
 import {
   createIndicator,
@@ -39,6 +40,7 @@ interface Course {
   id?: number;
   name: string;
   teacher: number | null;
+  teacher_name?: string;
   students: number[];
 }
 
@@ -61,6 +63,8 @@ interface Subject {
   curso?: number;
   area?: number | null;
   area_nombre?: string;
+  teacher?: number | null;
+  teacher_name?: string;
 }
 
 type CourseManagementMode = "course" | "structure";
@@ -119,6 +123,7 @@ const CourseManagement = ({
   const [newAreaName, setNewAreaName] = useState("");
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
+  const [newSubjectTeacher, setNewSubjectTeacher] = useState<number | "">("");
   const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
   const [isIndicatorModalOpen, setIsIndicatorModalOpen] = useState(false);
@@ -215,9 +220,9 @@ const CourseManagement = ({
   }, [studentFilter, students]);
 
   const getTeacherName = (teacherId: number | null) => {
-    if (!teacherId) return "Sin docente";
+    if (!teacherId) return "Sin director";
     const teacher = teachers.find((item) => item.id === teacherId);
-    return teacher ? `${teacher.first_name} ${teacher.last_name}` : "Sin docente";
+    return teacher ? `${teacher.first_name} ${teacher.last_name}` : "Sin director";
   };
 
   const getStudentCourseName = (studentId: number) => {
@@ -294,6 +299,7 @@ const CourseManagement = ({
     setNewAreaName("");
     setNewSubjectName("");
     setNewSubjectArea("");
+    setNewSubjectTeacher("");
     setIsAreaModalOpen(false);
     setIsSubjectModalOpen(false);
     setIsAssignIndicatorModalOpen(false);
@@ -439,10 +445,10 @@ const CourseManagement = ({
       showToast({
         type: "success",
         title: "Curso actualizado",
-        message: "Docente y estudiantes guardados correctamente.",
+        message: "Director y estudiantes guardados correctamente.",
       });
     } catch (error) {
-      console.error("Error guardando docentes y estudiantes", error);
+      console.error("Error guardando director y estudiantes", error);
       showToast({
         type: "error",
         title: "Curso",
@@ -524,6 +530,7 @@ const CourseManagement = ({
         nombre,
         curso: selectedCourse.id,
         area: newSubjectArea === "" ? null : newSubjectArea,
+        teacher: newSubjectTeacher === "" ? null : newSubjectTeacher,
       });
 
       const createdSubject = response.data;
@@ -535,6 +542,7 @@ const CourseManagement = ({
       setSelectedSubjectId(createdSubject.id);
       setNewSubjectName("");
       setNewSubjectArea("");
+      setNewSubjectTeacher("");
       setIsSubjectModalOpen(false);
 
       showToast({
@@ -557,6 +565,7 @@ const CourseManagement = ({
   const resetSubjectDraft = () => {
     setNewSubjectName("");
     setNewSubjectArea("");
+    setNewSubjectTeacher("");
     setIsSubjectModalOpen(false);
   };
 
@@ -670,6 +679,40 @@ const CourseManagement = ({
         message:
           error?.response?.data?.detail ||
           "No se pudo actualizar el area de la materia.",
+      });
+    } finally {
+      setSavingSubjectId(null);
+    }
+  };
+
+  const handleAssignTeacherToSubject = async (
+    subjectId: number,
+    teacherId: number | ""
+  ) => {
+    try {
+      setSavingSubjectId(subjectId);
+      const response = await updateSubject(subjectId, {
+        teacher: teacherId === "" ? null : teacherId,
+      });
+
+      setSubjects((current) =>
+        current.map((subject) =>
+          subject.id === subjectId ? { ...subject, ...response.data } : subject
+        )
+      );
+
+      showToast({
+        type: "success",
+        title: "Materia actualizada",
+        message: "El docente de la materia fue actualizado.",
+      });
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        title: "Materia",
+        message:
+          error?.response?.data?.detail ||
+          "No se pudo actualizar el docente de la materia.",
       });
     } finally {
       setSavingSubjectId(null);
@@ -909,6 +952,7 @@ const CourseManagement = ({
       loading={loadingWorkspace}
       areas={areas}
       subjects={subjects}
+      teachers={teachers}
       selectedSubjectId={selectedSubjectId}
       onSelectSubject={setSelectedSubjectId}
       onOpenAreaModal={() => setIsAreaModalOpen(true)}
@@ -917,6 +961,9 @@ const CourseManagement = ({
       savingSubjectId={savingSubjectId}
       onAssignAreaToSubject={(subjectId, areaId) =>
         void handleAssignAreaToSubject(subjectId, areaId)
+      }
+      onAssignTeacherToSubject={(subjectId, teacherId) =>
+        void handleAssignTeacherToSubject(subjectId, teacherId)
       }
       onRemoveSubject={(subjectId) => void removeSubject(subjectId)}
       onOpenSubjectIndicators={(subjectId) => {
@@ -965,7 +1012,7 @@ const CourseManagement = ({
           </h2>
           <p>
             {isCourseMode
-              ? "Crea cursos, asigna docentes y organiza estudiantes en un flujo mas claro y comodo."
+              ? "Crea cursos, asigna directores y organiza estudiantes en un flujo mas claro y comodo."
               : "Selecciona un curso y configura sus areas, materias e indicadores sin mezclarlo con la gestion del equipo."}
           </p>
         </div>
@@ -984,7 +1031,7 @@ const CourseManagement = ({
             </h3>
             <p>
               {isCourseMode
-                ? "Primero eliges el curso y luego trabajas con bandejas separadas de docente, disponibles y equipo final."
+                ? "Primero eliges el curso y luego trabajas con bandejas separadas de director, disponibles y equipo final."
                 : "Primero eliges el curso y luego construyes areas, materias e indicadores en un workspace nuevo."}
             </p>
           </div>
@@ -1076,6 +1123,25 @@ const CourseManagement = ({
             ))
           )}
         </div>
+
+        {selectedCourse ? (
+          <div className="course-management__summary-banner">
+            <div className="course-management__summary-card">
+              <span>Curso activo</span>
+              <strong>{selectedCourse.name}</strong>
+            </div>
+            <div className="course-management__summary-card">
+              <span>Director de curso</span>
+              <strong>{getTeacherName(selectedCourse.teacher)}</strong>
+            </div>
+            <div className="course-management__summary-card">
+              <span>Materias con docente</span>
+              <strong>
+                {subjects.filter((subject) => subject.teacher).length} / {subjects.length}
+              </strong>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {isCourseMode && isTeamModalOpen ? renderCourseWorkspace() : null}
@@ -1229,6 +1295,21 @@ const CourseManagement = ({
                 {areas.map((area) => (
                   <option key={area.id} value={area.id}>
                     {area.nombre}
+                  </option>
+                  ))}
+              </StyledSelect>
+              <StyledSelect
+                value={newSubjectTeacher}
+                onChange={(event) =>
+                  setNewSubjectTeacher(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Sin docente de materia</option>
+                {teachers.map((teacher) => (
+                  <option key={teacher.id} value={teacher.id}>
+                    {teacher.first_name} {teacher.last_name}
                   </option>
                 ))}
               </StyledSelect>

@@ -17,11 +17,11 @@ import {
   AUTH_CHANGE_EVENT,
   getCurrentUser,
   getDashboardRoute,
+  hasLandingAdminAccess,
   logoutUser,
 } from "@/commons/Auth/services/auth.service";
 import { LandingContentProvider } from "./LandingContentContext";
 import LandingAdminPanel from "./LandingAdminPanel";
-import LandingLoginModal from "./LandingLoginModal";
 import "./landing.css";
 
 const navItems = [
@@ -48,7 +48,6 @@ const InstitutionalLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const profileRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
@@ -93,6 +92,8 @@ const InstitutionalLayout = () => {
     () => getDashboardRoute(currentUser?.role || null),
     [currentUser],
   );
+  const showLandingAdminTools =
+    currentUser?.role === "ADMIN" && hasLandingAdminAccess();
 
   const isRouteActive = (href: string) => location.pathname === href;
 
@@ -111,11 +112,7 @@ const InstitutionalLayout = () => {
     setProfileOpen((current) => !current);
   };
 
-  const profileLabel = !currentUser
-    ? "Iniciar sesión"
-    : currentUser.role === "ADMIN"
-      ? "Mi cuenta"
-      : "Cerrar sesión";
+  const profileLabel = "Mi cuenta";
 
   return (
     <LandingContentProvider>
@@ -180,74 +177,59 @@ const InstitutionalLayout = () => {
                   Plataforma institucional
                 </button>
 
-                <div className="landing-profile" ref={profileRef}>
-                  <button
-                    type="button"
-                    className="landing-profile__trigger"
-                    onClick={handleProfileAction}
-                    aria-label={profileLabel}
-                  >
-                    {currentUser?.avatar_url ? (
-                      <img
-                        src={currentUser.avatar_url}
-                        alt="Perfil"
-                        className="landing-profile__avatar"
-                      />
-                    ) : (
-                      <UserRound size={28} strokeWidth={2.5} />
-                    )}
-                  </button>
-
-                  {profileOpen ? (
-                    <div className="landing-profile__menu">
-                      {currentUser ? (
-                        <>
-                          <div className="landing-profile__summary">
-                            <UserCircle2 size={22} />
-                            <div>
-                              <strong>{currentUser.email}</strong>
-                              <span>{currentUser.role}</span>
-                            </div>
-                          </div>
-
-                          <button type="button" onClick={handlePlatformAccess}>
-                            <UserCircle2 size={16} />
-                            <span>Ir a mi panel</span>
-                          </button>
-
-                          {currentUser.role === "ADMIN" ? (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setProfileOpen(false);
-                                setEditorOpen(true);
-                              }}
-                            >
-                              <PencilLine size={16} />
-                              <span>Editar landing</span>
-                            </button>
-                          ) : null}
-
-                          <button type="button" onClick={handleLogout}>
-                            <LogOut size={16} />
-                            <span>Cerrar sesión</span>
-                          </button>
-                        </>
+                {showLandingAdminTools ? (
+                  <div className="landing-profile" ref={profileRef}>
+                    <button
+                      type="button"
+                      className="landing-profile__trigger"
+                      onClick={handleProfileAction}
+                      aria-label={profileLabel}
+                    >
+                      {currentUser?.avatar_url ? (
+                        <img
+                          src={currentUser.avatar_url}
+                          alt="Perfil"
+                          className="landing-profile__avatar"
+                        />
                       ) : (
+                        <UserRound size={28} strokeWidth={2.5} />
+                      )}
+                    </button>
+
+                    {profileOpen ? (
+                      <div className="landing-profile__menu">
+                        <div className="landing-profile__summary">
+                          <UserCircle2 size={22} />
+                          <div>
+                            <strong>{currentUser.email}</strong>
+                            <span>{currentUser.role}</span>
+                          </div>
+                        </div>
+
+                        <button type="button" onClick={handlePlatformAccess}>
+                          <UserCircle2 size={16} />
+                          <span>Ir a mi panel</span>
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => {
                             setProfileOpen(false);
-                            setLoginOpen(true);
+                            setEditorOpen(true);
                           }}
                         >
-                          <UserCircle2 size={16} />
-                          <span>Iniciar sesión</span>
+                          <PencilLine size={16} />
+                          <span>Editar landing</span>
                         </button>
-                      )}
-                    </div>
-                  ) : null}
-                </div>
+
+                        <button type="button" onClick={handleLogout}>
+                          <LogOut size={16} />
+                          <span>Cerrar sesión</span>
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -314,12 +296,6 @@ const InstitutionalLayout = () => {
             <span>&copy; 2026 Institución Educativa. Todos los derechos reservados.</span>
           </div>
         </footer>
-
-        <LandingLoginModal
-          open={loginOpen}
-          onClose={() => setLoginOpen(false)}
-          onAuthenticated={() => setCurrentUser(getCurrentUser())}
-        />
         <LandingAdminPanel open={editorOpen} onClose={() => setEditorOpen(false)} />
       </div>
     </LandingContentProvider>

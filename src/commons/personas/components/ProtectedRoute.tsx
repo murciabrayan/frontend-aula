@@ -29,6 +29,10 @@ const ProtectedRoute: React.FC<Props> = ({ children, allowedRoles }) => {
     return <Navigate to="/plataforma" replace />;
   }
 
+  if (!user.has_accepted_data_policy) {
+    return <Navigate to="/tratamiento-datos" replace />;
+  }
+
   if (user.must_change_password) {
     return <Navigate to="/primer-acceso" replace />;
   }

@@ -2,7 +2,11 @@
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, X } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import { loginUser, loginWithGoogle } from "@/commons/Auth/services/auth.service";
+import {
+  getNextAuthRoute,
+  loginUser,
+  loginWithGoogle,
+} from "@/commons/Auth/services/auth.service";
 import logo from "@/assets/logo.png";
 
 interface Props {
@@ -33,9 +37,7 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
       const user = await loginUser(email, password);
       onAuthenticated();
       onClose();
-      if (user.must_change_password) {
-        navigate("/primer-acceso");
-      }
+      navigate(getNextAuthRoute(user));
     } catch {
       setErrorMessage("Credenciales incorrectas o error de conexión.");
     } finally {
@@ -50,9 +52,7 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
       const user = await loginWithGoogle(credentialResponse.credential);
       onAuthenticated();
       onClose();
-      if (user.must_change_password) {
-        navigate("/primer-acceso");
-      }
+      navigate(getNextAuthRoute(user));
     } catch {
       setErrorMessage("Error al iniciar sesión con Google.");
     } finally {

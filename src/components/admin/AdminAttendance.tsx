@@ -594,7 +594,7 @@ const AdminAttendance: React.FC = () => {
           </div>
           {!isAllCoursesSelected && (
             <div>
-              Docente: <strong>{selectedCourse.docente}</strong>
+              Director: <strong>{selectedCourse.docente}</strong>
             </div>
           )}
           <div>

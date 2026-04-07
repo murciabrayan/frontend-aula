@@ -16,6 +16,14 @@ type Subject = {
   nombre: string;
   area?: number | null;
   area_nombre?: string;
+  teacher?: number | null;
+  teacher_name?: string;
+};
+
+type User = {
+  id: number;
+  first_name: string;
+  last_name: string;
 };
 
 type StructureTab = "areas" | "subjects" | "indicators";
@@ -26,6 +34,7 @@ interface CourseStructureBoardProps {
   loading: boolean;
   areas: Area[];
   subjects: Subject[];
+  teachers: User[];
   selectedSubjectId: number | null;
   onSelectSubject: (subjectId: number) => void;
   onOpenAreaModal: () => void;
@@ -33,6 +42,7 @@ interface CourseStructureBoardProps {
   onOpenSubjectModal: () => void;
   savingSubjectId: number | null;
   onAssignAreaToSubject: (subjectId: number, areaId: number | "") => void;
+  onAssignTeacherToSubject: (subjectId: number, teacherId: number | "") => void;
   onRemoveSubject: (subjectId: number) => void;
   onOpenSubjectIndicators: (subjectId: number) => void;
   indicatorBank: Indicator[];
@@ -54,6 +64,7 @@ const CourseStructureBoard = ({
   loading,
   areas,
   subjects,
+  teachers,
   selectedSubjectId,
   onSelectSubject,
   onOpenAreaModal,
@@ -61,6 +72,7 @@ const CourseStructureBoard = ({
   onOpenSubjectModal,
   savingSubjectId,
   onAssignAreaToSubject,
+  onAssignTeacherToSubject,
   onRemoveSubject,
   onOpenSubjectIndicators,
   indicatorBank,
@@ -244,11 +256,31 @@ const CourseStructureBoard = ({
                           onClick={() => onSelectSubject(subject.id)}
                         >
                           <strong>{subject.nombre}</strong>
-                          <span>{assignmentCount} indicadores asignados</span>
+                          <span>
+                            {subject.teacher_name || "Sin docente de materia"} • {assignmentCount} indicadores asignados
+                          </span>
                         </button>
                       </div>
 
                       <div className="course-management__structure-subject-actions">
+                        <StyledSelect
+                          value={subject.teacher ?? ""}
+                          disabled={savingSubjectId === subject.id}
+                          onChange={(event) =>
+                            onAssignTeacherToSubject(
+                              subject.id,
+                              event.target.value ? Number(event.target.value) : ""
+                            )
+                          }
+                        >
+                          <option value="">Sin docente de materia</option>
+                          {teachers.map((teacher) => (
+                            <option key={teacher.id} value={teacher.id}>
+                              {teacher.first_name} {teacher.last_name}
+                            </option>
+                          ))}
+                        </StyledSelect>
+
                         <StyledSelect
                           value={subject.area ?? ""}
                           disabled={savingSubjectId === subject.id}

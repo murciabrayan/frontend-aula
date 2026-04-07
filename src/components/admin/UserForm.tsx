@@ -17,13 +17,18 @@ interface UserFormState {
   cedula: string;
   first_name: string;
   last_name: string;
+  direccion: string;
+  rh: string;
   role: "STUDENT" | "TEACHER";
   acudiente_nombre: string;
+  acudiente_cedula: string;
   acudiente_telefono: string;
   acudiente_email: string;
   especialidad: string;
   titulo: string;
 }
+
+const RH_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const onlyNumbers = (value: string) => value.replace(/\D/g, "");
 
@@ -32,8 +37,11 @@ const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   cedula: "",
   first_name: "",
   last_name: "",
+  direccion: "",
+  rh: "",
   role,
   acudiente_nombre: "",
+  acudiente_cedula: "",
   acudiente_telefono: "",
   acudiente_email: "",
   especialidad: "",
@@ -51,8 +59,11 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         cedula: user.cedula || "",
         first_name: user.first_name || "",
         last_name: user.last_name || "",
+        direccion: user.direccion || "",
+        rh: user.rh || "",
         role,
         acudiente_nombre: user.student_profile?.acudiente_nombre || "",
+        acudiente_cedula: user.student_profile?.acudiente_cedula || "",
         acudiente_telefono: user.student_profile?.acudiente_telefono || "",
         acudiente_email: user.student_profile?.acudiente_email || "",
         especialidad: user.teacher_profile?.especialidad || "",
@@ -64,11 +75,15 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     setFormData(emptyForm(role));
   }, [user, role]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = event.target;
     const normalizedValue =
       name === "cedula"
         ? onlyNumbers(value)
+        : name === "acudiente_cedula"
+          ? onlyNumbers(value)
         : name === "acudiente_telefono"
           ? onlyNumbers(value).slice(0, 10)
           : value;
@@ -85,6 +100,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       cedula: formData.cedula.trim(),
       first_name: formData.first_name.trim(),
       last_name: formData.last_name.trim(),
+      direccion: formData.direccion.trim(),
+      rh: formData.rh,
       role: formData.role,
     };
 
@@ -95,6 +112,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
     if (role === "STUDENT") {
       basePayload.acudiente_nombre = formData.acudiente_nombre.trim();
+      basePayload.acudiente_cedula = formData.acudiente_cedula.trim();
       basePayload.acudiente_telefono = formData.acudiente_telefono.trim();
       basePayload.acudiente_email = formData.acudiente_email.trim();
     }
@@ -119,6 +137,24 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         type: "warning",
         title: "Cedula",
         message: "La cedula es obligatoria y solo puede contener numeros.",
+      });
+      return;
+    }
+
+    if (!formData.direccion.trim()) {
+      showToast({
+        type: "warning",
+        title: "Direccion",
+        message: "La direccion es obligatoria.",
+      });
+      return;
+    }
+
+    if (!formData.rh) {
+      showToast({
+        type: "warning",
+        title: "RH",
+        message: "Selecciona el RH del usuario.",
       });
       return;
     }
@@ -268,6 +304,31 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
             className="input-field"
           />
 
+          <input
+            type="text"
+            name="direccion"
+            placeholder="Direccion"
+            value={formData.direccion}
+            onChange={handleChange}
+            required
+            className="input-field"
+          />
+
+          <select
+            name="rh"
+            value={formData.rh}
+            onChange={handleChange}
+            required
+            className="input-field"
+          >
+            <option value="">Selecciona el RH</option>
+            {RH_OPTIONS.map((rh) => (
+              <option key={rh} value={rh}>
+                {rh}
+              </option>
+            ))}
+          </select>
+
           {!user ? (
             <div className="user-form__generated-password">
               La contrasena temporal se asignara automaticamente y se enviara al correo ingresado.
@@ -303,6 +364,16 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 placeholder="Nombre del acudiente"
                 value={formData.acudiente_nombre}
                 onChange={handleChange}
+                className="input-field"
+              />
+              <input
+                type="text"
+                name="acudiente_cedula"
+                placeholder="Cedula del acudiente"
+                value={formData.acudiente_cedula}
+                onChange={handleChange}
+                inputMode="numeric"
+                maxLength={20}
                 className="input-field"
               />
               <input

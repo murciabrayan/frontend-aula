@@ -38,6 +38,7 @@ interface Assignment {
   fecha_entrega: string;
   archivo?: string;
   materia?: number;
+  requires_submission?: boolean;
 }
 
 interface Submission {
@@ -88,7 +89,7 @@ const StudentAssignmentsList: React.FC = () => {
       .then((res) => setAreas(res.data));
 
     api
-      .get("/api/assignments/")
+      .get("/api/assignments/?requires_submission=true")
       .then((res) => setAllAssignments(res.data));
 
     reloadSubmissions();
@@ -103,7 +104,7 @@ const StudentAssignmentsList: React.FC = () => {
   const loadAssignments = (subject: Subject) => {
     setActiveSubject(subject);
     api
-      .get(`/api/assignments/?subject=${subject.id}`)
+      .get(`/api/assignments/?subject=${subject.id}&requires_submission=true`)
       .then((res) => setAssignments(res.data));
   };
 

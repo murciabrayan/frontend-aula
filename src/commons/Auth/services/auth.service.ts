@@ -18,6 +18,9 @@ export interface StoredUser {
   last_name?: string;
   role: "ADMIN" | "TEACHER" | "STUDENT";
   must_change_password?: boolean;
+  has_accepted_data_policy?: boolean;
+  data_policy_accepted_at?: string | null;
+  has_saved_signature?: boolean;
   photo_url?: string | null;
   avatar_url?: string | null;
   avatar_style?: string;
@@ -31,6 +34,7 @@ export interface LoginResponse {
 }
 
 export const AUTH_CHANGE_EVENT = "auth-change";
+const LANDING_ADMIN_ACCESS_KEY = "landing_admin_access";
 
 const notifyAuthChange = () => {
   window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
@@ -41,6 +45,13 @@ export const getDashboardRoute = (role?: DecodedToken["role"] | null) => {
   if (role === "TEACHER") return "/teacher";
   if (role === "STUDENT") return "/student";
   return "/plataforma";
+};
+
+export const getNextAuthRoute = (user?: StoredUser | null) => {
+  if (!user) return "/plataforma";
+  if (!user.has_accepted_data_policy) return "/tratamiento-datos";
+  if (user.must_change_password) return "/primer-acceso";
+  return getDashboardRoute(user.role);
 };
 
 export const loginUser = async (email: string, password: string) => {
@@ -62,6 +73,9 @@ export const loginUser = async (email: string, password: string) => {
       cedula: user?.cedula || decoded.cedula,
       role: user?.role || decoded.role,
       must_change_password: user?.must_change_password || false,
+      has_accepted_data_policy: user?.has_accepted_data_policy || false,
+      data_policy_accepted_at: user?.data_policy_accepted_at || null,
+      has_saved_signature: user?.has_saved_signature || false,
       photo_url: user?.photo_url || null,
       avatar_url: user?.avatar_url || user?.photo_url || null,
       avatar_style: user?.avatar_style,
@@ -110,6 +124,7 @@ export const logoutUser = () => {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("user");
+  localStorage.removeItem(LANDING_ADMIN_ACCESS_KEY);
   notifyAuthChange();
 };
 
@@ -123,6 +138,13 @@ export const setCurrentUser = (user: StoredUser) => {
   notifyAuthChange();
 };
 
+export const enableLandingAdminAccess = () => {
+  localStorage.setItem(LANDING_ADMIN_ACCESS_KEY, "true");
+};
+
+export const hasLandingAdminAccess = () =>
+  localStorage.getItem(LANDING_ADMIN_ACCESS_KEY) === "true";
+
 export const completeInitialPassword = async (newPassword: string) => {
   const response = await api.post<{ message: string; user: StoredUser }>(
     "/api/complete-initial-password/",
@@ -134,6 +156,45 @@ export const completeInitialPassword = async (newPassword: string) => {
     ...(currentUser || {}),
     ...response.data.user,
     must_change_password: false,
+  };
+
+  setCurrentUser(updatedUser);
+  return response.data;
+};
+
+export interface DataPolicyStatusResponse {
+  version: string;
+  title: string;
+  institution_name: string;
+  paragraphs: string[];
+  signer_name: string;
+  signer_document: string;
+  signer_role: string;
+  accepted: boolean;
+  accepted_at: string | null;
+}
+
+export const getDataPolicyStatus = async () => {
+  const response = await api.get<DataPolicyStatusResponse>("/api/data-policy/");
+  return response.data;
+};
+
+export const acceptDataPolicy = async (signatureFile: File) => {
+  const payload = new FormData();
+  payload.append("accept", "true");
+  payload.append("signature_file", signatureFile);
+
+  const response = await api.post<{ message: string; user: StoredUser }>(
+    "/api/data-policy/accept/",
+    payload,
+  );
+
+  const currentUser = getCurrentUser();
+  const updatedUser: StoredUser = {
+    ...(currentUser || {}),
+    ...response.data.user,
+    has_accepted_data_policy: true,
+    has_saved_signature: response.data.user?.has_saved_signature ?? currentUser?.has_saved_signature ?? false,
   };
 
   setCurrentUser(updatedUser);

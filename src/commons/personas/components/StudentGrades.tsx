@@ -17,6 +17,7 @@ interface Assignment {
   periodo: number;
   materia_nombre?: string;
   curso_nombre?: string;
+  requires_submission?: boolean;
 }
 
 interface Submission {
@@ -33,6 +34,7 @@ type Row = {
   periodo: number;
   titulo: string;
   fechaEntrega: string;
+  requiresSubmission: boolean;
   nota?: number; // undefined si no está calificada
   retro?: string | null;
 };
@@ -130,6 +132,7 @@ const StudentGrades: React.FC = () => {
         periodo: a.periodo ?? 1,
         titulo: a.titulo,
         fechaEntrega: a.fecha_entrega,
+        requiresSubmission: a.requires_submission !== false,
         nota,
         retro: sub?.retroalimentacion ?? null,
       });
@@ -308,6 +311,9 @@ const StudentGrades: React.FC = () => {
                             <tr key={r.assignmentId}>
                               <td className="tarea-cell">
                                 <div className="tarea-title">{r.titulo}</div>
+                                {!r.requiresSubmission && (
+                                  <div className="tarea-retro">Actividad realizada en clase</div>
+                                )}
                                 <div className={`tarea-retro ${r.retro ? "" : "muted"}`}>
                                   {r.retro ? r.retro : "Sin retroalimentación"}
                                 </div>

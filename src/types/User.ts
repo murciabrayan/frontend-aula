@@ -2,6 +2,7 @@ export interface StudentProfile {
   id?: number;
   grado?: string;
   acudiente_nombre?: string;
+  acudiente_cedula?: string;
   acudiente_telefono?: string;
   acudiente_email?: string;
 }
@@ -26,6 +27,8 @@ export interface User {
   cedula: string;
   first_name: string;
   last_name: string;
+  direccion?: string;
+  rh?: string;
   password?: string;
   role: "ADMIN" | "STUDENT" | "TEACHER";
   is_active?: boolean;
