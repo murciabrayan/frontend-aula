@@ -18,7 +18,7 @@ interface AdminContentProps {
 const AdminContent: React.FC<AdminContentProps> = ({ activeModule }) => {
   const handleOpenLandingEditor = () => {
     enableLandingAdminAccess();
-    window.open("/", "_blank", "noopener,noreferrer");
+    window.location.assign("/");
   };
 
   return (

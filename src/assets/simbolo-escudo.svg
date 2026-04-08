@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Placeholder Escudo Gimnasio Los Cerros</title>
+  <desc id="desc">Reemplaza este archivo por la imagen final del escudo institucional.</desc>
+  <rect width="1200" height="900" rx="56" fill="#f4ead1"/>
+  <path d="M600 140c182 0 286 41 286 41v241c0 182-130 305-286 360-156-55-286-178-286-360V181s104-41 286-41Z" fill="#5a4122"/>
+  <path d="M600 188c143 0 226 29 226 29v200c0 138-96 236-226 287-130-51-226-149-226-287V217s83-29 226-29Z" fill="#f5efe2"/>
+  <path d="M600 188v516" stroke="#5a4122" stroke-width="18"/>
+  <path d="M374 446h452" stroke="#5a4122" stroke-width="18"/>
+  <text x="600" y="422" text-anchor="middle" font-family="Georgia, serif" font-size="64" fill="#5a4122">Escudo</text>
+  <text x="600" y="492" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#6c5a41">Reemplaza este SVG por tu imagen final</text>
+</svg>

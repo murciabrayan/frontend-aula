@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import {
   BookOpen,
   Compass,
@@ -20,6 +21,11 @@ import himnoGimnasioAudio from "@/assets/himno-gimnasio.mp3";
 import logoGimnasio from "@/assets/logogim.png";
 import { useLandingContent } from "./LandingContentContext";
 
+GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url,
+).toString();
+
 type SectionKey = "identity" | "symbols" | "documents";
 
 type InstitutionalInfoPageProps = {
@@ -33,6 +39,7 @@ const fallbackDocuments = [
     description:
       "Marco estratégico con lineamientos pedagógicos, horizonte institucional y metas formativas.",
     file_url: "/documents/pei-resumen.txt",
+    preview_url: null,
   },
   {
     id: 2,
@@ -40,6 +47,7 @@ const fallbackDocuments = [
     description:
       "Documento institucional con acuerdos, principios de comunidad y rutas de acompañamiento.",
     file_url: "/documents/manual-convivencia.txt",
+    preview_url: null,
   },
 ];
 
@@ -237,22 +245,23 @@ const anthemEmbedUrl = "https://www.youtube.com/embed/5esbclQLsrM?rel=0";
 const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
   const { content } = useLandingContent();
   const documents = content.documents.length ? content.documents : fallbackDocuments;
-  const [documentPreviewUrls, setDocumentPreviewUrls] = useState<Record<number, string>>({});
+  const [documentPreviewImages, setDocumentPreviewImages] = useState<Record<number, string>>({});
   const [activeIdentityCard, setActiveIdentityCard] = useState<(typeof identityHighlights)[number] | null>(null);
 
   const currentPage = useMemo(() => pageMeta[section], [section]);
 
   useEffect(() => {
     let isMounted = true;
-    const objectUrls: string[] = [];
+    let cancelled = false;
 
     const loadPreviews = async () => {
       const entries = await Promise.all(
-        documents.map(async (document) => {
-          if (!document.file_url) return null;
+        documents.map(async (docItem) => {
+          const previewSource = docItem.preview_url || docItem.file_url;
+          if (!previewSource) return null;
 
           try {
-            const response = await fetch(document.file_url, {
+            const response = await fetch(previewSource, {
               method: "GET",
               credentials: "omit",
             });
@@ -261,16 +270,37 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
               return null;
             }
 
-            const blob = await response.blob();
+            const fileBytes = await response.arrayBuffer();
+            const contentType = response.headers.get("content-type")?.toLowerCase() || "";
             const isPdf =
-              blob.type.includes("pdf") ||
-              document.file_url.toLowerCase().includes(".pdf");
+              contentType.includes("application/pdf") ||
+              previewSource.toLowerCase().includes(".pdf");
 
             if (!isPdf) return null;
 
-            const objectUrl = window.URL.createObjectURL(blob);
-            objectUrls.push(objectUrl);
-            return [document.id, `${objectUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`] as const;
+            const pdf = await getDocument({ data: fileBytes }).promise;
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 1.6 });
+            const canvas = window.document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            if (!context) {
+              return null;
+            }
+
+            canvas.width = Math.ceil(viewport.width);
+            canvas.height = Math.ceil(viewport.height);
+
+            context.fillStyle = "#ffffff";
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            await page.render({
+              canvas,
+              canvasContext: context,
+              viewport,
+            }).promise;
+
+            return [docItem.id, canvas.toDataURL("image/png")] as const;
           } catch (error) {
             console.error("No se pudo generar la vista previa del documento institucional:", error);
             return null;
@@ -278,9 +308,9 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
         }),
       );
 
-      if (!isMounted) return;
+      if (!isMounted || cancelled) return;
 
-      setDocumentPreviewUrls(
+      setDocumentPreviewImages(
         entries.reduce<Record<number, string>>((accumulator, entry) => {
           if (entry) accumulator[entry[0]] = entry[1];
           return accumulator;
@@ -292,35 +322,12 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
 
     return () => {
       isMounted = false;
-      objectUrls.forEach((objectUrl) => window.URL.revokeObjectURL(objectUrl));
+      cancelled = true;
     };
   }, [documents]);
 
-  const handleDownload = async (fileUrl: string | null, title: string) => {
-    if (!fileUrl) return;
-
-    try {
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
-      const objectUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const extension =
-        blob.type === "application/pdf"
-          ? ".pdf"
-          : fileUrl.split(".").pop()
-            ? `.${fileUrl.split(".").pop()}`
-            : "";
-
-      link.href = objectUrl;
-      link.download = `${title}${extension}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(objectUrl);
-    } catch (error) {
-      console.error("No se pudo descargar el documento:", error);
-      window.open(fileUrl, "_blank", "noopener,noreferrer");
-    }
+  const buildDownloadUrl = (fileUrl: string | null) => {
+    return fileUrl || "#";
   };
 
   return (
@@ -563,10 +570,11 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
             {documents.map((document) => (
               <article key={document.id} className="landing-document-card">
                 <div className="landing-document-card__preview">
-                  {documentPreviewUrls[document.id] ? (
-                    <iframe
-                      src={documentPreviewUrls[document.id]}
-                      title={`Vista previa de ${document.title}`}
+                  {documentPreviewImages[document.id] ? (
+                    <img
+                      src={documentPreviewImages[document.id]}
+                      alt={`Vista previa de ${document.title}`}
+                      className="landing-document-card__preview-image"
                     />
                   ) : (
                     <div className="landing-document-card__preview-fallback">
@@ -599,11 +607,7 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
                     Visualizar en vivo
                   </a>
                   <a
-                    href={document.file_url || "#"}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      void handleDownload(document.file_url, document.title);
-                    }}
+                    href={buildDownloadUrl(document.file_url)}
                     className="landing-btn landing-btn--primary"
                   >
                     Descargar

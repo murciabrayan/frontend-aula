@@ -32,6 +32,7 @@ export interface LandingDocumentItem {
   title: string;
   description: string;
   file_url: string | null;
+  preview_url: string | null;
   display_order: number;
   is_active: boolean;
 }

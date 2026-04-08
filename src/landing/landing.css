@@ -2302,6 +2302,10 @@ body {
   position: relative;
   overflow: hidden;
   min-height: 180px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 18px;
   border: 1px solid rgba(201, 162, 39, 0.2);
   background:
@@ -2309,11 +2313,25 @@ body {
     linear-gradient(180deg, #fffdf7 0%, #f8f2e4 100%);
 }
 
-.landing-document-card__preview iframe {
+.landing-document-card__preview iframe,
+.landing-document-card__preview object {
   width: 100%;
   height: 180px;
   border: 0;
+  display: block;
   background: #fff;
+}
+
+.landing-document-card__preview-image {
+  width: 100%;
+  height: 180px;
+  display: block;
+  object-fit: contain;
+  object-position: center top;
+  padding: 4px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(36, 28, 9, 0.08);
 }
 
 .landing-document-card__preview-fallback {
