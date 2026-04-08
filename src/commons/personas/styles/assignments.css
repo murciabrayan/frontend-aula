@@ -2,6 +2,8 @@
   display: grid;
   gap: 22px;
   padding: 28px;
+  width: 100%;
+  box-sizing: border-box;
   background:
     radial-gradient(circle at top right, rgba(201, 162, 39, 0.08), transparent 24%),
     linear-gradient(180deg, #fffdf8 0%, #f5efe1 100%);
@@ -245,6 +247,7 @@
 
 .modal-premium {
   width: min(620px, 100%);
+  max-height: min(88vh, 920px);
   background: #ffffff;
   border-radius: 24px;
   border: 1px solid rgba(201, 162, 39, 0.2);
@@ -320,6 +323,8 @@
   padding: 22px 24px;
   display: grid;
   gap: 18px;
+  overflow: auto;
+  min-height: 0;
 }
 
 .student-task-modal__body,
@@ -625,6 +630,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+  flex-wrap: wrap;
   padding: 18px 24px 22px;
   background: #ffffff;
   border-top: 1px solid #f2f4f7;
@@ -722,6 +728,14 @@
 
   .modal-backdrop {
     padding: 14px;
+    align-items: flex-start;
+  }
+
+  .modal-premium,
+  .modal-premium--wide {
+    width: 100%;
+    max-height: calc(100vh - 28px);
+    border-radius: 20px;
   }
 
   .modal-body,
@@ -729,6 +743,22 @@
   .modal-header-fixed {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .modal-header-fixed {
+    align-items: flex-start;
+  }
+
+  .modal-footer,
+  .student-task-item__actions {
+    justify-content: stretch;
+  }
+
+  .modal-footer .btn-primary,
+  .modal-footer .btn-secondary,
+  .student-task-item__actions .btn-primary,
+  .student-task-item__actions .btn-secondary {
+    width: 100%;
   }
 
   .student-task-item__top {

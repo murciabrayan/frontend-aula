@@ -1,6 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Pencil, Plus, Save, Search, Trash2 } from "lucide-react";
 import StyledSelect from "@/components/StyledSelect";
+import api from "@/api/axios";
 import { useFeedback } from "@/context/FeedbackContext";
 import {
   createCourse,
@@ -13,13 +14,12 @@ import {
   createArea,
   deleteArea,
   getAreasByCourse,
-  updateSubjectArea,
 } from "../../commons/personas/services/areaservice";
 import {
-  createSubject,
   deleteSubject,
+  bulkAssignSubjectToCourses,
   getSubjectsByCourse,
-  updateSubject,
+  syncSubjectCourses,
 } from "../../commons/personas/services/subjectService";
 import {
   createIndicator,
@@ -124,8 +124,15 @@ const CourseManagement = ({
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
   const [newSubjectTeacher, setNewSubjectTeacher] = useState<number | "">("");
+  const [newSubjectCourses, setNewSubjectCourses] = useState<number[]>([]);
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [editingSubjectName, setEditingSubjectName] = useState("");
+  const [editingSubjectArea, setEditingSubjectArea] = useState<number | "">("");
+  const [editingSubjectTeacher, setEditingSubjectTeacher] = useState<number | "">("");
+  const [editingSubjectCourses, setEditingSubjectCourses] = useState<number[]>([]);
   const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
   const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+  const [isEditSubjectModalOpen, setIsEditSubjectModalOpen] = useState(false);
   const [isIndicatorModalOpen, setIsIndicatorModalOpen] = useState(false);
   const [isAssignIndicatorModalOpen, setIsAssignIndicatorModalOpen] =
     useState(false);
@@ -300,8 +307,10 @@ const CourseManagement = ({
     setNewSubjectName("");
     setNewSubjectArea("");
     setNewSubjectTeacher("");
+    setNewSubjectCourses([]);
     setIsAreaModalOpen(false);
     setIsSubjectModalOpen(false);
+    setIsEditSubjectModalOpen(false);
     setIsAssignIndicatorModalOpen(false);
     setIsSubjectIndicatorsModalOpen(false);
   };
@@ -521,44 +530,140 @@ const CourseManagement = ({
   };
 
   const addSubject = async () => {
-    if (!selectedCourse?.id) return;
     const nombre = newSubjectName.trim();
-    if (!nombre) return;
+
+    if (!nombre) {
+      showToast({
+        type: "warning",
+        title: "Materia",
+        message: "Escribe el nombre de la materia que vas a asignar.",
+      });
+      return;
+    }
+
+    if (newSubjectCourses.length === 0) {
+      showToast({
+        type: "warning",
+        title: "Materia",
+        message: "Selecciona al menos un curso para hacer la asignación.",
+      });
+      return;
+    }
 
     try {
-      const response = await createSubject({
+      await bulkAssignSubjectToCourses({
         nombre,
-        curso: selectedCourse.id,
-        area: newSubjectArea === "" ? null : newSubjectArea,
+        area: newSubjectArea === "" ? null : Number(newSubjectArea),
         teacher: newSubjectTeacher === "" ? null : newSubjectTeacher,
+        courses: newSubjectCourses,
       });
 
-      const createdSubject = response.data;
-      setSubjects((current) => [...current, createdSubject]);
-      setSelectedIndicators((current) => ({
-        ...current,
-        [createdSubject.id]: emptyPeriodState(),
-      }));
-      setSelectedSubjectId(createdSubject.id);
-      setNewSubjectName("");
-      setNewSubjectArea("");
-      setNewSubjectTeacher("");
-      setIsSubjectModalOpen(false);
+      if (selectedCourse?.id && newSubjectCourses.includes(selectedCourse.id)) {
+        await openCourseWorkspace(selectedCourse);
+      }
 
       showToast({
         type: "success",
-        title: "Materia creada",
-        message: "La materia se creo correctamente.",
+        title: "Materia asignada",
+        message: "La materia fue vinculada al docente y a los cursos seleccionados.",
       });
+      resetSubjectDraft();
     } catch (error: any) {
       showToast({
         type: "error",
         title: "Materia",
         message:
-          error?.response?.data?.non_field_errors?.[0] ||
           error?.response?.data?.detail ||
-          "No se pudo crear la materia.",
+          error?.response?.data?.non_field_errors?.[0] ||
+          "No se pudo completar la asignación múltiple.",
       });
+    }
+  };
+
+  const openEditSubjectModal = async (subject: Subject) => {
+    setEditingSubject(subject);
+    setEditingSubjectName(subject.nombre);
+    setEditingSubjectArea(subject.area ?? "");
+    setEditingSubjectTeacher(subject.teacher ?? "");
+    setEditingSubjectCourses(subject.curso ? [subject.curso] : []);
+    setIsEditSubjectModalOpen(true);
+
+    try {
+      const response = await api.get("/api/subjects/");
+      const allSubjects: Subject[] = response.data || [];
+      const linkedCourses = allSubjects
+        .filter(
+          (item) =>
+            item.nombre.trim().toLowerCase() === subject.nombre.trim().toLowerCase() &&
+            (item.teacher ?? null) === (subject.teacher ?? null) &&
+            item.curso
+        )
+        .map((item) => item.curso as number);
+
+      if (linkedCourses.length > 0) {
+        setEditingSubjectCourses(Array.from(new Set(linkedCourses)));
+      }
+    } catch (error) {
+      console.error("No se pudieron cargar los cursos vinculados a la materia", error);
+    }
+  };
+
+  const saveEditedSubject = async () => {
+    if (!editingSubject) return;
+
+    const nombre = editingSubjectName.trim();
+    if (!nombre) {
+      showToast({
+        type: "warning",
+        title: "Materia",
+        message: "El nombre de la materia no puede quedar vacio.",
+      });
+      return;
+    }
+
+    try {
+      setSavingSubjectId(editingSubject.id);
+
+      const syncResponse = await syncSubjectCourses({
+        subject_id: editingSubject.id,
+        nombre,
+        area: editingSubjectArea === "" ? null : Number(editingSubjectArea),
+        teacher: editingSubjectTeacher === "" ? null : editingSubjectTeacher,
+        courses: editingSubjectCourses,
+      });
+
+      if (selectedCourse) {
+        await openCourseWorkspace(selectedCourse);
+      }
+
+      showToast({
+        type: "success",
+        title: "Materia actualizada",
+        message: "Los cambios de la materia se guardaron correctamente.",
+      });
+
+      const blockedRemovals = syncResponse.data?.blocked_removals || [];
+      if (blockedRemovals.length > 0) {
+        showToast({
+          type: "warning",
+          title: "Cursos conservados",
+          message:
+            "No se quitaron algunos cursos porque esa materia ya tiene tareas o indicadores en: " +
+            blockedRemovals.map((item: { course_name: string }) => item.course_name).join(", "),
+        });
+      }
+      resetEditSubjectDraft();
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        title: "Materia",
+        message:
+          error?.response?.data?.detail ||
+          error?.response?.data?.non_field_errors?.[0] ||
+          "No se pudo actualizar la materia.",
+      });
+    } finally {
+      setSavingSubjectId(null);
     }
   };
 
@@ -566,7 +671,17 @@ const CourseManagement = ({
     setNewSubjectName("");
     setNewSubjectArea("");
     setNewSubjectTeacher("");
+    setNewSubjectCourses([]);
     setIsSubjectModalOpen(false);
+  };
+
+  const resetEditSubjectDraft = () => {
+    setEditingSubject(null);
+    setEditingSubjectName("");
+    setEditingSubjectArea("");
+    setEditingSubjectTeacher("");
+    setEditingSubjectCourses([]);
+    setIsEditSubjectModalOpen(false);
   };
 
   const resetAreaDraft = () => {
@@ -654,69 +769,6 @@ const CourseManagement = ({
       title: "Materia eliminada",
       message: "La materia se elimino correctamente.",
     });
-  };
-
-  const handleAssignAreaToSubject = async (
-    subjectId: number,
-    areaId: number | ""
-  ) => {
-    try {
-      setSavingSubjectId(subjectId);
-      const response = await updateSubjectArea(
-        subjectId,
-        areaId === "" ? null : areaId
-      );
-
-      setSubjects((current) =>
-        current.map((subject) =>
-          subject.id === subjectId ? { ...subject, ...response.data } : subject
-        )
-      );
-    } catch (error: any) {
-      showToast({
-        type: "error",
-        title: "Materia",
-        message:
-          error?.response?.data?.detail ||
-          "No se pudo actualizar el area de la materia.",
-      });
-    } finally {
-      setSavingSubjectId(null);
-    }
-  };
-
-  const handleAssignTeacherToSubject = async (
-    subjectId: number,
-    teacherId: number | ""
-  ) => {
-    try {
-      setSavingSubjectId(subjectId);
-      const response = await updateSubject(subjectId, {
-        teacher: teacherId === "" ? null : teacherId,
-      });
-
-      setSubjects((current) =>
-        current.map((subject) =>
-          subject.id === subjectId ? { ...subject, ...response.data } : subject
-        )
-      );
-
-      showToast({
-        type: "success",
-        title: "Materia actualizada",
-        message: "El docente de la materia fue actualizado.",
-      });
-    } catch (error: any) {
-      showToast({
-        type: "error",
-        title: "Materia",
-        message:
-          error?.response?.data?.detail ||
-          "No se pudo actualizar el docente de la materia.",
-      });
-    } finally {
-      setSavingSubjectId(null);
-    }
   };
 
   const saveEditedIndicator = async () => {
@@ -957,14 +1009,12 @@ const CourseManagement = ({
       onSelectSubject={setSelectedSubjectId}
       onOpenAreaModal={() => setIsAreaModalOpen(true)}
       onRemoveArea={(areaId) => void removeArea(areaId)}
-      onOpenSubjectModal={() => setIsSubjectModalOpen(true)}
+      onOpenSubjectModal={() => {
+        setNewSubjectCourses(selectedCourse?.id ? [selectedCourse.id] : []);
+        setIsSubjectModalOpen(true);
+      }}
+      onOpenEditSubjectModal={openEditSubjectModal}
       savingSubjectId={savingSubjectId}
-      onAssignAreaToSubject={(subjectId, areaId) =>
-        void handleAssignAreaToSubject(subjectId, areaId)
-      }
-      onAssignTeacherToSubject={(subjectId, teacherId) =>
-        void handleAssignTeacherToSubject(subjectId, teacherId)
-      }
       onRemoveSubject={(subjectId) => void removeSubject(subjectId)}
       onOpenSubjectIndicators={(subjectId) => {
         setSelectedSubjectId(subjectId);
@@ -1260,11 +1310,11 @@ const CourseManagement = ({
 
       {!isCourseMode && isSubjectModalOpen ? (
         <div className="course-management__modal-backdrop">
-          <div className="course-management__modal">
+          <div className="course-management__modal course-management__modal--subject-builder">
             <div className="course-management__modal-header">
               <div>
                 <h3>Nueva materia</h3>
-                <p>Crea una materia y, si quieres, asignala de una vez a un area.</p>
+                <p>Crea la materia y asignala de una vez al docente y a los cursos donde se va a dictar.</p>
               </div>
               <button
                 type="button"
@@ -1276,43 +1326,81 @@ const CourseManagement = ({
               </button>
             </div>
 
-            <div className="course-management__stack-form">
-              <input
-                type="text"
-                value={newSubjectName}
-                onChange={(event) => setNewSubjectName(event.target.value)}
-                placeholder="Nombre de la materia"
-              />
-              <StyledSelect
-                value={newSubjectArea}
-                onChange={(event) =>
-                  setNewSubjectArea(
-                    event.target.value ? Number(event.target.value) : ""
-                  )
-                }
-              >
-                <option value="">Sin area</option>
-                {areas.map((area) => (
-                  <option key={area.id} value={area.id}>
-                    {area.nombre}
-                  </option>
+            <div className="course-management__stack-form course-management__stack-form--subject-builder">
+              <div className="course-management__subject-builder-grid">
+                <input
+                  type="text"
+                  value={newSubjectName}
+                  onChange={(event) => setNewSubjectName(event.target.value)}
+                  placeholder="Nombre de la materia"
+                />
+                <StyledSelect
+                  value={newSubjectArea}
+                  onChange={(event) =>
+                    setNewSubjectArea(
+                      event.target.value ? Number(event.target.value) : ""
+                    )
+                  }
+                >
+                  <option value="">Sin area inicial</option>
+                  {areas.map((area) => (
+                    <option key={area.id} value={area.id}>
+                      {area.nombre}
+                    </option>
                   ))}
-              </StyledSelect>
-              <StyledSelect
-                value={newSubjectTeacher}
-                onChange={(event) =>
-                  setNewSubjectTeacher(
-                    event.target.value ? Number(event.target.value) : ""
-                  )
-                }
-              >
-                <option value="">Sin docente de materia</option>
-                {teachers.map((teacher) => (
-                  <option key={teacher.id} value={teacher.id}>
-                    {teacher.first_name} {teacher.last_name}
-                  </option>
-                ))}
-              </StyledSelect>
+                </StyledSelect>
+                <StyledSelect
+                  value={newSubjectTeacher}
+                  onChange={(event) =>
+                    setNewSubjectTeacher(
+                      event.target.value ? Number(event.target.value) : ""
+                    )
+                  }
+                >
+                  <option value="">Sin docente de materia</option>
+                  {teachers.map((teacher) => (
+                    <option key={teacher.id} value={teacher.id}>
+                      {teacher.first_name} {teacher.last_name}
+                    </option>
+                  ))}
+                </StyledSelect>
+              </div>
+
+                <div className="course-management__subject-builder-panel">
+                  <div className="course-management__subject-builder-copy">
+                    <strong>Cursos donde se dictara</strong>
+                    <span>Selecciona uno o varios cursos. El area la puedes ajustar despues desde el boton de editar.</span>
+                  </div>
+
+                <div className="course-management__course-picker">
+                  {courses.map((course) => {
+                    const checked = newSubjectCourses.includes(course.id!);
+
+                    return (
+                      <label
+                        key={course.id}
+                        className={`course-management__course-picker-item ${
+                          checked ? "is-selected" : ""
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() =>
+                            setNewSubjectCourses((current) =>
+                              checked
+                                ? current.filter((courseId) => courseId !== course.id)
+                                : [...current, course.id!]
+                            )
+                          }
+                        />
+                        <span>{course.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="course-management__form-actions">
                 <button
                   type="button"
@@ -1326,6 +1414,120 @@ const CourseManagement = ({
                   type="button"
                   className="course-management__secondary-btn"
                   onClick={resetSubjectDraft}
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {!isCourseMode && isEditSubjectModalOpen && editingSubject ? (
+        <div className="course-management__modal-backdrop">
+          <div className="course-management__modal">
+            <div className="course-management__modal-header">
+              <div>
+                <h3>Editar materia</h3>
+                <p>Ajusta nombre, area y docente de la materia seleccionada.</p>
+              </div>
+              <button
+                type="button"
+                className="course-management__modal-close"
+                onClick={resetEditSubjectDraft}
+                aria-label="Cerrar modal"
+              >
+                x
+              </button>
+            </div>
+
+            <div className="course-management__stack-form">
+              <input
+                type="text"
+                value={editingSubjectName}
+                onChange={(event) => setEditingSubjectName(event.target.value)}
+                placeholder="Nombre de la materia"
+              />
+              <StyledSelect
+                value={editingSubjectArea}
+                onChange={(event) =>
+                  setEditingSubjectArea(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Sin area</option>
+                {areas.map((area) => (
+                  <option key={area.id} value={area.id}>
+                    {area.nombre}
+                  </option>
+                ))}
+              </StyledSelect>
+              <StyledSelect
+                value={editingSubjectTeacher}
+                onChange={(event) =>
+                  setEditingSubjectTeacher(
+                    event.target.value ? Number(event.target.value) : ""
+                  )
+                }
+              >
+                <option value="">Sin docente de materia</option>
+                {teachers.map((teacher) => (
+                  <option key={teacher.id} value={teacher.id}>
+                    {teacher.first_name} {teacher.last_name}
+                  </option>
+                ))}
+              </StyledSelect>
+
+              <div className="course-management__subject-builder-panel">
+                <div className="course-management__subject-builder-copy">
+                  <strong>Cursos donde se dicta</strong>
+                  <span>
+                    Puedes agregar nuevos cursos o quitar cursos sin uso. Si ya tienen tareas o indicadores, el sistema los conserva.
+                  </span>
+                </div>
+
+                <div className="course-management__course-picker">
+                  {courses.map((course) => {
+                    const checked = editingSubjectCourses.includes(course.id!);
+                    return (
+                      <label
+                        key={course.id}
+                        className={`course-management__course-picker-item ${
+                          checked ? "is-selected" : ""
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() =>
+                            setEditingSubjectCourses((current) =>
+                              checked
+                                ? current.filter((courseId) => courseId !== course.id)
+                                : [...current, course.id!]
+                            )
+                          }
+                        />
+                        <span>{course.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="course-management__form-actions">
+                <button
+                  type="button"
+                  className="course-management__primary-btn"
+                  onClick={() => void saveEditedSubject()}
+                >
+                  <Save size={15} />
+                  <span>Guardar cambios</span>
+                </button>
+                <button
+                  type="button"
+                  className="course-management__secondary-btn"
+                  onClick={resetEditSubjectDraft}
                 >
                   Cancelar
                 </button>

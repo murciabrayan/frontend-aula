@@ -5,12 +5,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 47000;
+  padding: 16px;
 }
 
 .modal-card {
   background: linear-gradient(180deg, #ffffff 0%, #f7f2e7 100%);
-  width: 420px;
+  width: min(420px, 100%);
   border-radius: 18px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
   overflow: hidden;
@@ -105,4 +106,32 @@
   padding: 8px 16px;
   border-radius: 10px;
   cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .modal-backdrop {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .modal-card {
+    width: 100%;
+    border-radius: 16px;
+  }
+
+  .task-modal__header,
+  .modal-info,
+  .modal-actions {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary {
+    width: 100%;
+  }
 }

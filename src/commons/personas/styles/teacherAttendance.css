@@ -415,7 +415,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 4000;
+  z-index: 47000;
   padding: 18px;
 }
 
@@ -629,6 +629,20 @@
 
   .attendance-modal {
     width: 100%;
+    max-height: calc(100vh - 24px);
+    border-radius: 20px;
+  }
+
+  .attendance-modal-backdrop {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .attendance-modal-header,
+  .attendance-modal-body,
+  .attendance-modal-footer {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 }
 .attendance-admin-trace-cell {

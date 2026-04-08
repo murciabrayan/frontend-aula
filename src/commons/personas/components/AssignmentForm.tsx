@@ -68,6 +68,7 @@ const AssignmentForm: React.FC<Props> = ({
     data.append("descripcion", description);
     data.append("fecha_entrega", dueDate);
     data.append("periodo", periodo);
+    data.append("requires_submission", "true");
 
     if (file) {
       data.append("archivo", file);

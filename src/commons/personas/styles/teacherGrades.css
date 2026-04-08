@@ -154,6 +154,10 @@
   flex-wrap: wrap;
 }
 
+.teacher-grades-toolbar > * {
+  min-width: 0;
+}
+
 .teacher-grades-back-btn {
   min-height: 44px;
   padding: 0 16px;
@@ -455,7 +459,7 @@
 .teacher-grades-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  z-index: 45000;
   background: rgba(12, 12, 15, 0.48);
   backdrop-filter: blur(8px);
   display: grid;
@@ -465,7 +469,7 @@
 
 .teacher-grades-modal {
   width: min(100%, 980px);
-  max-height: 90vh;
+  max-height: min(88vh, 920px);
   display: grid;
   grid-template-rows: auto 1fr auto;
   border-radius: 26px;
@@ -588,6 +592,7 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  flex-wrap: wrap;
   padding: 18px 26px 24px;
   background: #fffdf8;
 }
@@ -653,5 +658,37 @@
 
   .teacher-grades-table-shell {
     padding: 16px;
+  }
+
+  .teacher-grades-modal-backdrop {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .teacher-grades-modal {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+    border-radius: 20px;
+  }
+
+  .teacher-grades-modal__header,
+  .teacher-grades-modal__body,
+  .teacher-grades-modal__footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .teacher-grades-modal__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .teacher-grades-modal__footer {
+    justify-content: stretch;
+  }
+
+  .teacher-grades-modal__secondary,
+  .teacher-grades-modal__primary {
+    width: 100%;
   }
 }

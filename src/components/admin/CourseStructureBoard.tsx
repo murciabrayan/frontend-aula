@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { Layers3, Plus, Search, X } from "lucide-react";
-import StyledSelect from "@/components/StyledSelect";
+import { Layers3, Pencil, Plus, Search, X } from "lucide-react";
 import type {
   Indicator,
   SubjectIndicatorAssignment,
@@ -40,9 +39,8 @@ interface CourseStructureBoardProps {
   onOpenAreaModal: () => void;
   onRemoveArea: (areaId: number) => void;
   onOpenSubjectModal: () => void;
+  onOpenEditSubjectModal: (subject: Subject) => void;
   savingSubjectId: number | null;
-  onAssignAreaToSubject: (subjectId: number, areaId: number | "") => void;
-  onAssignTeacherToSubject: (subjectId: number, teacherId: number | "") => void;
   onRemoveSubject: (subjectId: number) => void;
   onOpenSubjectIndicators: (subjectId: number) => void;
   indicatorBank: Indicator[];
@@ -64,15 +62,13 @@ const CourseStructureBoard = ({
   loading,
   areas,
   subjects,
-  teachers,
   selectedSubjectId,
   onSelectSubject,
   onOpenAreaModal,
   onRemoveArea,
   onOpenSubjectModal,
+  onOpenEditSubjectModal,
   savingSubjectId,
-  onAssignAreaToSubject,
-  onAssignTeacherToSubject,
   onRemoveSubject,
   onOpenSubjectIndicators,
   indicatorBank,
@@ -94,13 +90,15 @@ const CourseStructureBoard = ({
     const query = subjectSearch.trim().toLowerCase();
     if (!query) return subjects;
     return subjects.filter((subject) =>
-      `${subject.nombre} ${subject.area_nombre || ""}`.toLowerCase().includes(query)
+      `${subject.nombre} ${subject.area_nombre || ""} ${subject.teacher_name || ""}`
+        .toLowerCase()
+        .includes(query),
     );
   }, [subjectSearch, subjects]);
 
   const sortedIndicators = useMemo(
     () => [...indicatorBank].sort((a, b) => a.descripcion.localeCompare(b.descripcion)),
-    [indicatorBank]
+    [indicatorBank],
   );
 
   return (
@@ -121,7 +119,7 @@ const CourseStructureBoard = ({
           </button>
         </div>
 
-        <div className="course-management__team-tabs" role="tablist" aria-label="Estructura académica">
+        <div className="course-management__team-tabs" role="tablist" aria-label="Estructura academica">
           <button
             type="button"
             className={activeTab === "areas" ? "is-active" : ""}
@@ -170,13 +168,13 @@ const CourseStructureBoard = ({
                   <tr>
                     <th>Area</th>
                     <th>Materias relacionadas</th>
-                    <th>Acción</th>
+                    <th>Accion</th>
                   </tr>
                 </thead>
                 <tbody>
                   {areas.length === 0 ? (
                     <tr>
-                      <td colSpan={3}>Aún no hay áreas creadas para este curso.</td>
+                      <td colSpan={3}>Aun no hay areas creadas para este curso.</td>
                     </tr>
                   ) : (
                     areas.map((area) => (
@@ -187,9 +185,7 @@ const CourseStructureBoard = ({
                             <strong>{area.nombre}</strong>
                           </div>
                         </td>
-                        <td>
-                          {subjects.filter((subject) => subject.area === area.id).length} materias
-                        </td>
+                        <td>{subjects.filter((subject) => subject.area === area.id).length} materias</td>
                         <td>
                           <button
                             type="button"
@@ -211,7 +207,7 @@ const CourseStructureBoard = ({
           <div className="course-management__team-modal-body">
             <div className="course-management__team-toolbar">
               <div className="course-management__section-copy">
-                <p className="course-management__flow-step">Catálogo académico</p>
+                <p className="course-management__flow-step">Catalogo academico</p>
                 <h4>Materias del curso</h4>
               </div>
               <button
@@ -223,7 +219,8 @@ const CourseStructureBoard = ({
                 <span>Crear materia</span>
               </button>
             </div>
-<label className="course-management__search course-management__search--wide">
+
+            <label className="course-management__search course-management__search--wide">
               <Search size={16} />
               <input
                 type="text"
@@ -235,11 +232,11 @@ const CourseStructureBoard = ({
 
             <div className="course-management__structure-subject-list">
               {filteredSubjects.length === 0 ? (
-                <div className="course-management__empty">Aún no hay materias creadas.</div>
+                <div className="course-management__empty">Aun no hay materias creadas.</div>
               ) : (
                 filteredSubjects.map((subject) => {
                   const assignmentCount = indicatorAssignments.filter(
-                    (assignment) => assignment.materia === subject.id
+                    (assignment) => assignment.materia === subject.id,
                   ).length;
 
                   return (
@@ -263,43 +260,16 @@ const CourseStructureBoard = ({
                       </div>
 
                       <div className="course-management__structure-subject-actions">
-                        <StyledSelect
-                          value={subject.teacher ?? ""}
-                          disabled={savingSubjectId === subject.id}
-                          onChange={(event) =>
-                            onAssignTeacherToSubject(
-                              subject.id,
-                              event.target.value ? Number(event.target.value) : ""
-                            )
-                          }
-                        >
-                          <option value="">Sin docente de materia</option>
-                          {teachers.map((teacher) => (
-                            <option key={teacher.id} value={teacher.id}>
-                              {teacher.first_name} {teacher.last_name}
-                            </option>
-                          ))}
-                        </StyledSelect>
-
-                        <StyledSelect
-                          value={subject.area ?? ""}
-                          disabled={savingSubjectId === subject.id}
-                          onChange={(event) =>
-                            onAssignAreaToSubject(
-                              subject.id,
-                              event.target.value ? Number(event.target.value) : ""
-                            )
-                          }
-                        >
-                          <option value="">Sin area</option>
-                          {areas.map((area) => (
-                            <option key={area.id} value={area.id}>
-                              {area.nombre}
-                            </option>
-                          ))}
-                        </StyledSelect>
-
                         <div className="course-management__team-actions course-management__team-actions--inline">
+                          <button
+                            type="button"
+                            className="course-management__secondary-btn"
+                            onClick={() => onOpenEditSubjectModal(subject)}
+                            disabled={savingSubjectId === subject.id}
+                          >
+                            <Pencil size={14} />
+                            Editar
+                          </button>
                           <button
                             type="button"
                             className="course-management__secondary-btn"
@@ -326,7 +296,7 @@ const CourseStructureBoard = ({
           <div className="course-management__team-modal-body">
             <div className="course-management__team-toolbar">
               <div className="course-management__section-copy">
-                <p className="course-management__flow-step">Evaluación</p>
+                <p className="course-management__flow-step">Evaluacion</p>
                 <h4>Indicadores del curso</h4>
               </div>
               <div className="course-management__team-actions course-management__team-actions--inline">
@@ -341,9 +311,7 @@ const CourseStructureBoard = ({
                 <button
                   type="button"
                   className="course-management__primary-btn"
-                  onClick={() =>
-                    onOpenAssignIndicator(selectedSubjectId ?? subjects[0]?.id ?? 0, 1)
-                  }
+                  onClick={() => onOpenAssignIndicator(selectedSubjectId ?? subjects[0]?.id ?? 0, 1)}
                   disabled={subjects.length === 0}
                 >
                   <Plus size={14} />
@@ -364,12 +332,12 @@ const CourseStructureBoard = ({
                 <tbody>
                   {sortedIndicators.length === 0 ? (
                     <tr>
-                      <td colSpan={3}>Aún no hay indicadores creados.</td>
+                      <td colSpan={3}>Aun no hay indicadores creados.</td>
                     </tr>
                   ) : (
                     sortedIndicators.map((indicator) => {
                       const totalAssignments = indicatorAssignments.filter(
-                        (assignment) => assignment.indicador === indicator.id
+                        (assignment) => assignment.indicador === indicator.id,
                       ).length;
 
                       return (
@@ -444,7 +412,3 @@ const CourseStructureBoard = ({
 };
 
 export default CourseStructureBoard;
-
-
-
-

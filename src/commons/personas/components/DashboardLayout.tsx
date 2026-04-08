@@ -137,9 +137,9 @@ const DashboardLayout = ({
             type="button"
             className="dashboard-sidebar__toggle"
             onClick={() => setSidebarCollapsed((value) => !value)}
-            aria-label={sidebarCollapsed ? "Expandir menú" : "Colapsar menú"}
+            aria-label={sidebarCollapsed ? "Cerrar menú" : "Abrir menú"}
           >
-            {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            {sidebarCollapsed ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
           </button>
         </aside>
 

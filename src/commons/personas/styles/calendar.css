@@ -6,12 +6,16 @@
   border-radius: 18px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
   border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* ================= HEADER ================= */
 
 .fc-toolbar {
   margin-bottom: 20px;
+  gap: 12px;
 }
 
 .fc-toolbar-title {
@@ -116,6 +120,10 @@
 
 .fc-daygrid-day-frame {
   padding: 4px;
+}
+
+.fc {
+  max-width: 100%;
 }
 /* ================= CLICK EN DÍAS ================= */
 
@@ -323,8 +331,51 @@
 
 /* responsive */
 @media (max-width: 720px) {
+  .calendar-wrapper {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .fc .fc-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fc .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .teacher-calendar-modal-backdrop {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .modal-modern {
+    max-width: 100%;
+    border-radius: 18px;
+  }
+
+  .modal-header-modern,
+  .modal-body-modern,
+  .modal-footer-modern {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .modal-footer-modern {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer-modern .btn-primary,
+  .modal-footer-modern .btn-secondary {
+    width: 100%;
   }
 }
 

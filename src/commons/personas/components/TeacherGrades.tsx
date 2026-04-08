@@ -47,10 +47,17 @@ interface DirectGradeEntry {
   feedback: string;
 }
 
+interface CourseGroup {
+  id: number;
+  name: string;
+  subjects: Subject[];
+}
+
 const today = () => new Date().toISOString().slice(0, 10);
 
 const TeacherGrades: React.FC = () => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<number | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -80,8 +87,8 @@ const TeacherGrades: React.FC = () => {
 
   const loadSubjects = async () => {
     try {
-      const res = await api.get("/api/subjects/");
-      setSubjects(res.data);
+      const res = await api.get("/api/subjects/?teaching_only=true");
+      setSubjects(res.data || []);
     } catch (error) {
       console.error("Error cargando materias", error);
     } finally {
@@ -117,6 +124,7 @@ const TeacherGrades: React.FC = () => {
       setSubmissions(filteredSubmissions);
       setStudents(teacherCourse.student_details || []);
       setSelectedCourseName(teacherCourse.name || subject.course_name || "");
+      setSelectedCourseId(subject.curso);
       setErrorMessage("");
     } catch (error) {
       console.error("Error cargando notas", error);
@@ -155,6 +163,31 @@ const TeacherGrades: React.FC = () => {
       assignments: assignments.length,
     }),
     [subjects, students.length, assignments.length],
+  );
+
+  const groupedCourses = useMemo(() => {
+    const map = new Map<number, CourseGroup>();
+
+    subjects.forEach((subject) => {
+      if (!subject.curso) return;
+
+      if (!map.has(subject.curso)) {
+        map.set(subject.curso, {
+          id: subject.curso,
+          name: subject.course_name || `Curso ${subject.curso}`,
+          subjects: [],
+        });
+      }
+
+      map.get(subject.curso)!.subjects.push(subject);
+    });
+
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "es"));
+  }, [subjects]);
+
+  const selectedCourse = useMemo(
+    () => groupedCourses.find((course) => course.id === selectedCourseId) ?? null,
+    [groupedCourses, selectedCourseId],
   );
 
   const resetActivityModal = () => {
@@ -226,12 +259,12 @@ const TeacherGrades: React.FC = () => {
       .filter((entry) => entry.calificacion !== "");
 
     if (!activityTitle.trim()) {
-      setErrorMessage("Debes escribir un título para la actividad.");
+      setErrorMessage("Debes escribir un titulo para la actividad.");
       return;
     }
 
     if (grades.length === 0) {
-      setErrorMessage("Registra al menos una calificación para guardar la actividad.");
+      setErrorMessage("Registra al menos una calificacion para guardar la actividad.");
       return;
     }
 
@@ -276,21 +309,36 @@ const TeacherGrades: React.FC = () => {
     }
   };
 
+  const handleBackToSubjects = () => {
+    setSelectedSubject(null);
+    setAssignments([]);
+    setSubmissions([]);
+    setStudents([]);
+    setErrorMessage("");
+    setFeedbackMessage("");
+  };
+
+  const handleBackToCourses = () => {
+    handleBackToSubjects();
+    setSelectedCourseId(null);
+    setSelectedCourseName("");
+  };
+
   if (loading) {
     return <div className="teacher-grades-empty">Cargando materias...</div>;
   }
 
   return (
     <section className="teacher-grades-page">
-      {!selectedSubject ? (
+      {!selectedCourse && !selectedSubject ? (
         <>
           <div className="teacher-grades-hero">
             <div className="teacher-grades-hero__copy">
               <span className="teacher-grades-hero__badge">Notas</span>
-              <h1>Vista académica por materia</h1>
+              <h1>Vista academica por curso</h1>
               <p>
-                Selecciona una materia para revisar la matriz de calificaciones por
-                estudiante y periodo en una vista más limpia.
+                Entra primero al curso y luego a la materia para revisar la matriz
+                de calificaciones con mejor contexto.
               </p>
             </div>
 
@@ -300,14 +348,69 @@ const TeacherGrades: React.FC = () => {
                 <strong>{subjectStats.subjects}</strong>
               </article>
               <article className="teacher-grades-hero__stat">
-                <span>Curso</span>
+                <span>Cursos</span>
                 <strong>{subjectStats.courses}</strong>
               </article>
             </div>
           </div>
 
           <div className="teacher-grades-grid">
-            {subjects.map((subject) => (
+            {groupedCourses.map((course) => (
+              <button
+                key={course.id}
+                type="button"
+                className="teacher-grades-subject-card"
+                onClick={() => setSelectedCourseId(course.id)}
+              >
+                <div className="teacher-grades-subject-card__icon">
+                  <BookOpen size={22} />
+                </div>
+                <div className="teacher-grades-subject-card__copy">
+                  <strong>{course.name}</strong>
+                  <span>{course.subjects.length} materias asignadas</span>
+                </div>
+                <ChevronRight size={18} />
+              </button>
+            ))}
+          </div>
+        </>
+      ) : !selectedSubject && selectedCourse ? (
+        <>
+          <div className="teacher-grades-hero">
+            <div className="teacher-grades-hero__copy">
+              <span className="teacher-grades-hero__badge">Curso activo</span>
+              <h1>{selectedCourse.name}</h1>
+              <p>
+                Selecciona la materia del curso para continuar con la matriz de notas
+                y el registro de actividades evaluables.
+              </p>
+            </div>
+
+            <div className="teacher-grades-hero__stats">
+              <article className="teacher-grades-hero__stat">
+                <span>Materias</span>
+                <strong>{selectedCourse.subjects.length}</strong>
+              </article>
+              <article className="teacher-grades-hero__stat">
+                <span>Cursos</span>
+                <strong>{subjectStats.courses}</strong>
+              </article>
+            </div>
+          </div>
+
+          <div className="teacher-grades-toolbar">
+            <button
+              type="button"
+              className="teacher-grades-back-btn"
+              onClick={handleBackToCourses}
+            >
+              <LayoutGrid size={16} />
+              Volver a cursos
+            </button>
+          </div>
+
+          <div className="teacher-grades-grid">
+            {selectedCourse.subjects.map((subject) => (
               <button
                 key={subject.id}
                 type="button"
@@ -334,7 +437,7 @@ const TeacherGrades: React.FC = () => {
           <div className="teacher-grades-hero compact">
             <div className="teacher-grades-hero__copy">
               <span className="teacher-grades-hero__badge">Materia activa</span>
-              <h1>{selectedSubject.nombre}</h1>
+              <h1>{selectedSubject?.nombre}</h1>
               <p>
                 Consulta las notas registradas para el periodo y el avance del curso
                 por actividad.
@@ -358,7 +461,7 @@ const TeacherGrades: React.FC = () => {
             <button
               type="button"
               className="teacher-grades-back-btn"
-              onClick={() => setSelectedSubject(null)}
+              onClick={handleBackToSubjects}
             >
               <LayoutGrid size={16} />
               Volver a materias
@@ -510,14 +613,14 @@ const TeacherGrades: React.FC = () => {
                 className="teacher-grades-modal__close"
                 onClick={resetActivityModal}
               >
-                ×
+                x
               </button>
             </div>
 
             <div className="teacher-grades-modal__body">
               <div className="teacher-grades-modal__grid">
                 <label>
-                  <span>Título</span>
+                  <span>Titulo</span>
                   <input
                     type="text"
                     value={activityTitle}
@@ -536,7 +639,7 @@ const TeacherGrades: React.FC = () => {
               </div>
 
               <label className="teacher-grades-modal__full">
-                <span>Descripción</span>
+                <span>Descripcion</span>
                 <textarea
                   value={activityDescription}
                   onChange={(event) => setActivityDescription(event.target.value)}
@@ -550,7 +653,7 @@ const TeacherGrades: React.FC = () => {
                     <tr>
                       <th>Estudiante</th>
                       <th>Nota</th>
-                      <th>Observación</th>
+                      <th>Observacion</th>
                     </tr>
                   </thead>
                   <tbody>

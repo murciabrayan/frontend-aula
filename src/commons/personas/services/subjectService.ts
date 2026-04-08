@@ -23,3 +23,18 @@ export const updateSubject = (
 
 export const deleteSubject = (id: number) =>
   api.delete(`/api/subjects/${id}/`);
+
+export const bulkAssignSubjectToCourses = (data: {
+  nombre: string;
+  area?: number | null;
+  teacher?: number | null;
+  courses: number[];
+}) => api.post("/api/subjects/bulk-assign/", data);
+
+export const syncSubjectCourses = (data: {
+  subject_id: number;
+  nombre: string;
+  area?: number | null;
+  teacher?: number | null;
+  courses: number[];
+}) => api.post("/api/subjects/sync-courses/", data);

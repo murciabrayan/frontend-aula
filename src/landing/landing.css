@@ -495,7 +495,20 @@ body {
 .landing-login__google {
   display: flex;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
   margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(229, 201, 107, 0.12);
+  overflow: hidden;
+}
+
+.landing-login__google > div,
+.landing-login__google iframe {
+  max-width: 100% !important;
 }
 
 .landing-login__error {
@@ -3870,4 +3883,149 @@ body {
     padding: 14px;
   }
 
+}
+
+.landing-main > *,
+.landing-page > *,
+.landing-header__inner > *,
+.landing-hero__content > *,
+.landing-section-heading > *,
+.landing-symbols-panel__content > *,
+.landing-contact-workspace > *,
+.landing-document-card__content > * {
+  min-width: 0;
+}
+
+.landing-login__overlay,
+.landing-news-modal__overlay,
+.landing-admin__overlay {
+  z-index: 47000;
+}
+
+.landing-login,
+.landing-news-modal,
+.landing-admin__panel,
+.landing-calendar-modal,
+.landing-identity-modal,
+.landing-anthem-modal {
+  max-width: min(100%, 100%);
+  max-height: calc(100vh - 48px);
+}
+
+@media (max-width: 960px) {
+  .landing-header__inner,
+  .landing-main,
+  .landing-footer {
+    width: min(100%, calc(100% - 28px));
+  }
+
+  .landing-page {
+    gap: 28px;
+    padding-bottom: 40px;
+  }
+
+  .landing-hero,
+  .landing-news-section,
+  .landing-showcase,
+  .landing-gallery,
+  .landing-admissions__panel,
+  .landing-calendar-card,
+  .landing-community,
+  .landing-inner-hero,
+  .landing-document-section,
+  .landing-contact-banner,
+  .landing-contact-form-card,
+  .landing-map-card,
+  .landing-identity-showcase,
+  .landing-identity-panel,
+  .landing-symbols-stage,
+  .landing-documents-intro {
+    padding: 24px 20px;
+    border-radius: 26px;
+  }
+
+  .landing-btn,
+  .landing-header__cta {
+    min-height: 46px;
+    padding-inline: 18px;
+  }
+
+  .landing-news-modal__body,
+  .landing-admin__panel-body {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 720px) {
+  .landing-header__inner,
+  .landing-main,
+  .landing-footer {
+    width: min(100%, calc(100% - 20px));
+  }
+
+  .landing-hero h1,
+  .landing-section-heading h1,
+  .landing-section-heading h2 {
+    line-height: 1.04;
+  }
+
+  .landing-hero__actions,
+  .landing-document-card__actions,
+  .landing-contact-form__footer,
+  .landing-news-modal__footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .landing-hero__actions > *,
+  .landing-document-card__actions > *,
+  .landing-contact-form__footer > *,
+  .landing-news-modal__footer > * {
+    width: 100%;
+  }
+
+  .landing-header__tools,
+  .landing-footer__bottom,
+  .landing-contact-banner,
+  .landing-anthem-lyrics__header,
+  .landing-symbols-panel__title,
+  .landing-news-modal__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .landing-login__overlay,
+  .landing-news-modal__overlay,
+  .landing-admin__overlay {
+    padding: 10px;
+    align-items: flex-start;
+  }
+
+  .landing-login,
+  .landing-news-modal,
+  .landing-admin__panel,
+  .landing-calendar-modal,
+  .landing-identity-modal,
+  .landing-anthem-modal {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+    border-radius: 20px;
+  }
+
+  .landing-news-modal__header,
+  .landing-news-modal__body,
+  .landing-admin__panel-header,
+  .landing-admin__panel-body,
+  .landing-login__brand,
+  .landing-login__form {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .landing-anthem-lyrics,
+  .landing-anthem-lyrics.landing-anthem-lyrics--symbols {
+    padding: 18px;
+    border-radius: 22px;
+  }
 }
