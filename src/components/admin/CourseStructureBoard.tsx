@@ -170,13 +170,13 @@ const CourseStructureBoard = ({
                   <tr>
                     <th>Area</th>
                     <th>Materias relacionadas</th>
-                    <th>Accion</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
                   {areas.length === 0 ? (
                     <tr>
-                      <td colSpan={3}>Aun no hay areas creadas para este curso.</td>
+                      <td colSpan={3}>Aún no hay áreas creadas para este curso.</td>
                     </tr>
                   ) : (
                     areas.map((area) => (
@@ -211,7 +211,7 @@ const CourseStructureBoard = ({
           <div className="course-management__team-modal-body">
             <div className="course-management__team-toolbar">
               <div className="course-management__section-copy">
-                <p className="course-management__flow-step">Catalogo academico</p>
+                <p className="course-management__flow-step">Catálogo académico</p>
                 <h4>Materias del curso</h4>
               </div>
               <button
@@ -235,7 +235,7 @@ const CourseStructureBoard = ({
 
             <div className="course-management__structure-subject-list">
               {filteredSubjects.length === 0 ? (
-                <div className="course-management__empty">Aun no hay materias creadas.</div>
+                <div className="course-management__empty">Aún no hay materias creadas.</div>
               ) : (
                 filteredSubjects.map((subject) => {
                   const assignmentCount = indicatorAssignments.filter(
@@ -364,7 +364,7 @@ const CourseStructureBoard = ({
                 <tbody>
                   {sortedIndicators.length === 0 ? (
                     <tr>
-                      <td colSpan={3}>Aun no hay indicadores creados.</td>
+                      <td colSpan={3}>Aún no hay indicadores creados.</td>
                     </tr>
                   ) : (
                     sortedIndicators.map((indicator) => {

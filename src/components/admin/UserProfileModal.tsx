@@ -585,7 +585,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                   </article>
                 ))
               ) : (
-                <div className="user-documents-empty">Aun no hay documentos cargados para este perfil.</div>
+                <div className="user-documents-empty">Aún no hay documentos cargados para este perfil.</div>
               )}
             </div>
           </section>

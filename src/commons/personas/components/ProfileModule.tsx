@@ -627,7 +627,7 @@ const ProfileModule = ({
         <article className="profile-card profile-card--documents">
           <div className="profile-card__header">
             <h3>Documentos del perfil</h3>
-            <span>Consulta los soportes asociados a tu cuenta, incluida la autorizacion legal.</span>
+            <span>Consulta los soportes asociados a tu cuenta, incluida la autorización legal.</span>
           </div>
 
           <div className="profile-documents">
@@ -661,7 +661,7 @@ const ProfileModule = ({
               ))
             ) : (
               <div className="profile-documents__empty">
-                Aun no hay documentos asociados a este perfil.
+                Aún no hay documentos asociados a este perfil.
               </div>
             )}
           </div>

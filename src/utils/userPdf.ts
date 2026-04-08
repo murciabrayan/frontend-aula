@@ -200,7 +200,7 @@ const getListingFields = (user: User): PdfField[] => {
   if (user.role === "TEACHER") {
     fields.push(
       { label: "Especialidad", value: normalizeText(user.teacher_profile?.especialidad) },
-      { label: "Titulo academico", value: normalizeText(user.teacher_profile?.titulo) },
+      { label: "Título académico", value: normalizeText(user.teacher_profile?.titulo) },
     );
   }
 
@@ -370,10 +370,10 @@ export const exportUserProfileToPdf = async (user: User) => {
   if (user.role === "TEACHER") {
     cursorY = drawProfileSection(
       doc,
-      "Informacion academica",
+      "Información académica",
       [
         { label: "Especialidad", value: normalizeText(user.teacher_profile?.especialidad) },
-        { label: "Titulo academico", value: normalizeText(user.teacher_profile?.titulo) },
+        { label: "Título académico", value: normalizeText(user.teacher_profile?.titulo) },
       ],
       cursorY,
     );

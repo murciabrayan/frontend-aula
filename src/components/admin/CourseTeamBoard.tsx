@@ -92,7 +92,7 @@ const CourseTeamBoard = ({
         </div>
 
         {loading ? (
-          <div className="course-management__state">Cargando informacion del curso...</div>
+          <div className="course-management__state">Cargando información del curso...</div>
         ) : activeTab === "teacher" ? (
           <div className="course-management__team-modal-body course-management__team-modal-body--teacher">
             <article className="course-management__teacher-focus-card">
@@ -161,7 +161,7 @@ const CourseTeamBoard = ({
                     <th>Estudiante</th>
                     <th>Curso actual</th>
                     <th>Estado</th>
-                    <th>Accion</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>

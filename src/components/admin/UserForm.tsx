@@ -201,7 +201,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               title: user ? "Usuario actualizado" : "Usuario creado",
               message: user
                 ? "Los cambios del usuario se guardaron correctamente."
-                : "El usuario se creo y la contrasena temporal fue enviada al correo.",
+                : "El usuario se cre? y la contraseña temporal fue enviada al correo.",
             }
       );
     } catch (error: any) {
@@ -210,8 +210,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       if (error.response?.status === 401) {
         showToast({
           type: "warning",
-          title: "Sesion expirada",
-          message: "Tu sesion ha expirado o el token es invalido. Inicia sesion nuevamente.",
+          title: "Sesión expirada",
+          message: "Tu sesión ha expirado o el token es inválido. Inicia sesión nuevamente.",
         });
         return;
       }
@@ -248,7 +248,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               {user ? "Editar usuario" : "Agregar nuevo usuario"}
             </h2>
             <p className="modal-shell__subtitle">
-              Completa la informacion principal. La contrasena inicial se generara automaticamente y se enviara al correo del usuario.
+              Completa la información principal. La contraseña inicial se generará automáticamente y se enviará al correo del usuario.
             </p>
           </div>
 
@@ -281,7 +281,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
           <input
             type="email"
             name="email"
-            placeholder="Correo electronico"
+            placeholder="Correo electrónico"
             value={formData.email}
             onChange={handleChange}
             onInvalid={(e) =>
@@ -331,7 +331,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
           {!user ? (
             <div className="user-form__generated-password">
-              La contrasena temporal se asignara automaticamente y se enviara al correo ingresado.
+              La contraseña temporal se asignará automáticamente y se enviará al correo ingresado.
             </div>
           ) : null}
 
@@ -348,7 +348,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               <input
                 type="text"
                 name="titulo"
-                placeholder="Titulo academico"
+                placeholder="Título académico"
                 value={formData.titulo}
                 onChange={handleChange}
                 className="input-field"

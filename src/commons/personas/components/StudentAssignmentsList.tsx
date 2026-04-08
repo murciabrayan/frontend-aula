@@ -625,8 +625,8 @@ const StudentAssignmentsList: React.FC = () => {
                   {showGrade.calificacion !== undefined ? showGrade.calificacion : "--"}
                 </div>
                 <div className="student-task-modal__feedback">
-                  <strong>Retroalimentacion</strong>
-                  <p>{showGrade.retroalimentacion || "Aun no hay observaciones registradas."}</p>
+                  <strong>Retroalimentación</strong>
+                  <p>{showGrade.retroalimentacion || "Aún no hay observaciones registradas."}</p>
                 </div>
               </div>
             </div>

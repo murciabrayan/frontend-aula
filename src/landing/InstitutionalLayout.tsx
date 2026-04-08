@@ -26,7 +26,15 @@ import "./landing.css";
 
 const navItems = [
   { label: "Inicio", href: "/" },
-  { label: "Nosotros", href: "/institucional" },
+  {
+    label: "Nosotros",
+    href: "/institucional/identidad",
+    children: [
+      { label: "Identidad", href: "/institucional/identidad" },
+      { label: "Símbolos institucionales", href: "/institucional/simbolos" },
+      { label: "Documentos institucionales", href: "/institucional/documentos" },
+    ],
+  },
   { label: "Contacto", href: "/contacto" },
 ];
 
@@ -46,10 +54,12 @@ const quickLinks = [
 
 const InstitutionalLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [aboutMenuOpen, setAboutMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
   const profileRef = useRef<HTMLDivElement | null>(null);
+  const aboutMenuRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -67,8 +77,27 @@ const InstitutionalLayout = () => {
 
   useEffect(() => {
     setMenuOpen(false);
+    setAboutMenuOpen(false);
     setProfileOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!aboutMenuOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!aboutMenuRef.current?.contains(event.target as Node)) {
+        setAboutMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+    };
+  }, [aboutMenuOpen]);
 
   useEffect(() => {
     if (!profileOpen) {
@@ -96,6 +125,7 @@ const InstitutionalLayout = () => {
     currentUser?.role === "ADMIN" && hasLandingAdminAccess();
 
   const isRouteActive = (href: string) => location.pathname === href;
+  const isAboutSectionActive = location.pathname.startsWith("/institucional");
 
   const handlePlatformAccess = () => {
     setProfileOpen(false);
@@ -138,16 +168,55 @@ const InstitutionalLayout = () => {
 
             <div className={`landing-header__menu ${menuOpen ? "is-open" : ""}`}>
               <nav className="landing-header__nav">
-                {navItems.map((item) => (
-                  <NavLink
-                    key={item.label}
-                    to={item.href}
-                    className={isRouteActive(item.href) ? "active" : ""}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {item.label}
-                  </NavLink>
-                ))}
+                {navItems.map((item) => {
+                  if (!item.children) {
+                    return (
+                      <NavLink
+                        key={item.label}
+                        to={item.href}
+                        className={isRouteActive(item.href) ? "active" : ""}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {item.label}
+                      </NavLink>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={item.label}
+                      className={`landing-header__dropdown ${isAboutSectionActive ? "is-active" : ""} ${aboutMenuOpen ? "is-open" : ""}`}
+                      ref={aboutMenuRef}
+                      onMouseEnter={() => setAboutMenuOpen(true)}
+                      onMouseLeave={() => setAboutMenuOpen(false)}
+                    >
+                      <button
+                        type="button"
+                        className={`landing-header__dropdown-trigger ${isAboutSectionActive ? "active" : ""}`}
+                        onClick={() => setAboutMenuOpen((current) => !current)}
+                        aria-expanded={aboutMenuOpen}
+                      >
+                        <span>{item.label}</span>
+                      </button>
+
+                      <div className="landing-header__dropdown-menu">
+                        {item.children.map((child) => (
+                          <NavLink
+                            key={child.href}
+                            to={child.href}
+                            className={isRouteActive(child.href) ? "active" : ""}
+                            onClick={() => {
+                              setMenuOpen(false);
+                              setAboutMenuOpen(false);
+                            }}
+                          >
+                            {child.label}
+                          </NavLink>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </nav>
 
               <div className="landing-header__tools">

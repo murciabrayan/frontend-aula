@@ -997,7 +997,7 @@ const CourseManagement = ({
     />
   );
   if (loading) {
-    return <div className="course-management__state">Cargando gestion de cursos...</div>;
+    return <div className="course-management__state">Cargando gestión de cursos...</div>;
   }
 
   return (
@@ -1012,8 +1012,8 @@ const CourseManagement = ({
           </h2>
           <p>
             {isCourseMode
-              ? "Crea cursos, asigna directores y organiza estudiantes en un flujo mas claro y comodo."
-              : "Selecciona un curso y configura sus areas, materias e indicadores sin mezclarlo con la gestion del equipo."}
+              ? "Crea cursos, asigna directores y organiza estudiantes en un flujo más claro y cómodo."
+              : "Selecciona un curso y configura sus áreas, materias e indicadores sin mezclarlo con la gestión del equipo."}
           </p>
         </div>
       </div>
@@ -1357,7 +1357,7 @@ const CourseManagement = ({
               <textarea
                 value={newIndicatorDescription}
                 onChange={(event) => setNewIndicatorDescription(event.target.value)}
-                placeholder="Descripcion del indicador"
+                placeholder="Descripción del indicador"
                 rows={5}
               />
               <div className="course-management__form-actions">
@@ -1518,7 +1518,7 @@ const CourseManagement = ({
                     <tr>
                       <th>Periodo</th>
                       <th>Indicador</th>
-                      <th>Accion</th>
+                      <th>Acción</th>
                     </tr>
                   </thead>
                   <tbody>

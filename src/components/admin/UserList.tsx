@@ -54,7 +54,7 @@ const UserList = () => {
       if (err.response?.status === 401) {
         showToast({
           type: "warning",
-          title: "Sesion expirada",
+          title: "Sesión expirada",
           message: "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
         });
         localStorage.clear();
@@ -333,7 +333,7 @@ const UserList = () => {
       acudiente_telefono: "Telefono del acudiente",
       acudiente_email: "Correo del acudiente",
       especialidad: "Especialidad",
-      titulo: "Titulo",
+      titulo: "Título",
     };
 
     return labels[field] || field;
@@ -353,7 +353,7 @@ const UserList = () => {
           <p className="user-workspace__eyebrow">Gestión de usuarios</p>
           <h2>{filterRole === "STUDENT" ? "Estudiantes" : "Docentes"}</h2>
           <p>
-            Consulta el listado, abre cada perfil para actualizar informacion y administra
+            Consulta el listado, abre cada perfil para actualizar información y administra
             documentos sin mezclarlo todo en la misma tabla.
           </p>
         </div>

@@ -55,7 +55,7 @@ const AdminPermissionLetters = () => {
       showToast({
         type: "error",
         title: "Permisos",
-        message: error.response?.data?.error || "No se pudo cargar el modulo de permisos.",
+        message: error.response?.data?.error || "No se pudo cargar el módulo de permisos.",
       });
     } finally {
       setLoading(false);
@@ -116,10 +116,10 @@ const AdminPermissionLetters = () => {
       <div className="permission-letters__hero">
         <div>
           <p className="permission-letters__eyebrow">Permisos institucionales</p>
-          <h2>Envio y seguimiento de cartas</h2>
+          <h2>Envío y seguimiento de cartas</h2>
           <p>
-            Carga permisos en PDF por curso, notifica a los estudiantes y revisa
-            quienes aceptaron, rechazaron o siguen pendientes.
+            Carga permisos en PDF por curso, notifica a los estudiantes y revisa quiénes aceptaron,
+            rechazaron o siguen pendientes.
           </p>
         </div>
       </div>
@@ -128,17 +128,17 @@ const AdminPermissionLetters = () => {
         <article className="permission-card permission-card--form">
           <div className="permission-card__header">
             <h3>Nuevo permiso</h3>
-            <span>Se enviara automaticamente a todos los estudiantes del curso seleccionado.</span>
+            <span>Se enviará automáticamente a todos los estudiantes del curso seleccionado.</span>
           </div>
 
           <form className="permission-form" onSubmit={handleCreate}>
             <label className="permission-form__field">
-              <span>Titulo del permiso</span>
+              <span>Título del permiso</span>
               <input
                 type="text"
                 value={form.title}
                 onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                placeholder="Ej. Salida pedagogica, autorizacion de evento"
+                placeholder="Ej. Salida pedagógica, autorización de evento"
                 required
               />
             </label>
@@ -151,15 +151,15 @@ const AdminPermissionLetters = () => {
               >
                 <option value="">Selecciona un curso</option>
                 {courses.map((course) => (
-                <option key={course.id} value={course.id}>
-                  {getCourseLabel(course)}
-                </option>
-              ))}
-            </StyledSelect>
+                  <option key={course.id} value={course.id}>
+                    {getCourseLabel(course)}
+                  </option>
+                ))}
+              </StyledSelect>
             </label>
 
             <label className="permission-form__field permission-form__field--wide">
-              <span>Descripcion breve</span>
+              <span>Descripción breve</span>
               <textarea
                 value={form.description}
                 onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
@@ -184,8 +184,8 @@ const AdminPermissionLetters = () => {
             <div className="permission-form__footer">
               <div className="permission-form__hint">
                 {selectedCourse
-                  ? `Se enviara a todos los estudiantes de ${getCourseLabel(selectedCourse)}.`
-                  : "Selecciona un curso para habilitar el envio."}
+                  ? `Se enviará a todos los estudiantes de ${getCourseLabel(selectedCourse)}.`
+                  : "Selecciona un curso para habilitar el envío."}
               </div>
 
               <button
@@ -244,7 +244,7 @@ const AdminPermissionLetters = () => {
                     {expanded ? (
                       <div className="permission-letter-item__detail">
                         <div className="permission-letter-item__meta">
-                          <p>{letter.description || "Sin descripcion adicional."}</p>
+                          <p>{letter.description || "Sin descripción adicional."}</p>
                           {letter.document_url ? (
                             <a href={letter.document_url} target="_blank" rel="noreferrer" className="permission-link">
                               <FileText size={16} />
@@ -299,9 +299,7 @@ const AdminPermissionLetters = () => {
               })}
             </div>
           ) : (
-            <div className="permission-empty">
-              Aun no has enviado permisos desde este modulo.
-            </div>
+            <div className="permission-empty">Aún no has enviado permisos desde este módulo.</div>
           )}
         </article>
       </div>

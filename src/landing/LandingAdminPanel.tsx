@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
+  Clock3,
   Eye,
   FileText,
   Images,
@@ -21,6 +22,8 @@ import {
   deleteLandingDocument,
   deleteLandingGalleryItem,
   deleteLandingNews,
+  fetchAdminLandingContent,
+  type LandingContentPayload,
   updateLandingCalendarEntry,
   updateLandingDocument,
   updateLandingGalleryItem,
@@ -35,6 +38,9 @@ interface Props {
   onClose: () => void;
 }
 
+const LANDING_NEWS_TITLE_MAX = 72;
+const LANDING_NEWS_SUMMARY_MAX = 150;
+
 const tabs: Array<{ id: LandingTab; label: string; icon: typeof Newspaper }> = [
   { id: "news", label: "Noticias", icon: Newspaper },
   { id: "gallery", label: "Galería", icon: Images },
@@ -43,6 +49,7 @@ const tabs: Array<{ id: LandingTab; label: string; icon: typeof Newspaper }> = [
 ];
 
 const getTodayDateValue = () => new Date().toISOString().slice(0, 10);
+const formatTimeValue = (value: string) => (value ? value.slice(0, 5) : "Selecciona una hora");
 
 const weekDayLabels = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
 
@@ -105,15 +112,25 @@ const emptyCalendarForm = {
   title: "",
   detail: "",
   event_date: getTodayDateValue(),
+  event_time: "",
+  location: "",
   display_order: 0,
   is_active: true,
 };
 
+const emptyLandingContent: LandingContentPayload = {
+  news: [],
+  gallery: [],
+  documents: [],
+  calendar_entries: [],
+};
+
 const LandingAdminPanel = ({ open, onClose }: Props) => {
-  const { content, refreshLandingContent } = useLandingContent();
+  const { refreshLandingContent } = useLandingContent();
   const { showToast, confirm } = useFeedback();
   const [activeTab, setActiveTab] = useState<LandingTab>("news");
   const [saving, setSaving] = useState(false);
+  const [adminContent, setAdminContent] = useState<LandingContentPayload>(emptyLandingContent);
 
   const [newsForm, setNewsForm] = useState(emptyNewsForm);
   const [galleryForm, setGalleryForm] = useState(emptyGalleryForm);
@@ -121,6 +138,11 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   const [calendarForm, setCalendarForm] = useState(emptyCalendarForm);
   const [calendarPickerOpen, setCalendarPickerOpen] = useState(false);
   const [calendarPickerValue, setCalendarPickerValue] = useState(getTodayDateValue());
+
+  const refreshAdminContent = async () => {
+    const data = await fetchAdminLandingContent();
+    setAdminContent(data);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -132,6 +154,12 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       setCalendarPickerOpen(false);
       setCalendarPickerValue(getTodayDateValue());
     }
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    void refreshAdminContent();
   }, [open]);
 
   const activeTitle = useMemo(
@@ -205,13 +233,13 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       if (type === "documents") await deleteLandingDocument(id);
       if (type === "calendar") await deleteLandingCalendarEntry(id);
 
-      await refreshLandingContent();
+      await Promise.all([refreshLandingContent(), refreshAdminContent()]);
       showToast({
         type: "success",
         title: "Contenido eliminado",
         message: "La landing se actualizó correctamente.",
       });
-    } catch (error) {
+    } catch {
       showToast({
         type: "error",
         message: "No fue posible eliminar este contenido.",
@@ -224,8 +252,8 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
     setSaving(true);
     try {
       const payload = {
-        title: newsForm.title,
-        summary: newsForm.summary,
+        title: newsForm.title.trim().slice(0, LANDING_NEWS_TITLE_MAX),
+        summary: newsForm.summary.trim().slice(0, LANDING_NEWS_SUMMARY_MAX),
         published_at: newsForm.published_at || getTodayDateValue(),
         display_order: String(newsForm.display_order),
         is_active: String(newsForm.is_active),
@@ -236,9 +264,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       else await createLandingNews(payload);
 
       setNewsForm(emptyNewsForm);
-      await refreshLandingContent();
+      await Promise.all([refreshLandingContent(), refreshAdminContent()]);
       showToast({ type: "success", message: "Noticias actualizadas correctamente." });
-    } catch (error) {
+    } catch {
       showToast({ type: "error", message: "No se pudo guardar la noticia." });
     } finally {
       setSaving(false);
@@ -262,9 +290,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       else await createLandingGalleryItem(payload);
 
       setGalleryForm(emptyGalleryForm);
-      await refreshLandingContent();
+      await Promise.all([refreshLandingContent(), refreshAdminContent()]);
       showToast({ type: "success", message: "Galería actualizada correctamente." });
-    } catch (error) {
+    } catch {
       showToast({ type: "error", message: "No se pudo guardar el evento de galería." });
     } finally {
       setSaving(false);
@@ -287,9 +315,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       else await createLandingDocument(payload);
 
       setDocumentForm(emptyDocumentForm);
-      await refreshLandingContent();
+      await Promise.all([refreshLandingContent(), refreshAdminContent()]);
       showToast({ type: "success", message: "Documentación actualizada correctamente." });
-    } catch (error) {
+    } catch {
       showToast({ type: "error", message: "No se pudo guardar el documento." });
     } finally {
       setSaving(false);
@@ -304,6 +332,8 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
         title: calendarForm.title,
         detail: calendarForm.detail,
         event_date: calendarForm.event_date,
+        event_time: calendarForm.event_time,
+        location: calendarForm.location,
         display_order: calendarForm.display_order,
         is_active: calendarForm.is_active,
       };
@@ -312,9 +342,9 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
       else await createLandingCalendarEntry(payload);
 
       setCalendarForm(emptyCalendarForm);
-      await refreshLandingContent();
+      await Promise.all([refreshLandingContent(), refreshAdminContent()]);
       showToast({ type: "success", message: "Agenda institucional actualizada correctamente." });
-    } catch (error) {
+    } catch {
       showToast({ type: "error", message: "No se pudo guardar el evento del calendario." });
     } finally {
       setSaving(false);
@@ -324,6 +354,16 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
   const openCalendarPicker = () => {
     setCalendarPickerValue(calendarForm.event_date || getTodayDateValue());
     setCalendarPickerOpen(true);
+  };
+
+  const openTimePicker = () => {
+    const input = document.getElementById("landing-calendar-time") as HTMLInputElement | null;
+    if (!input) return;
+
+    input.focus();
+    if ("showPicker" in input) {
+      input.showPicker();
+    }
   };
 
   const moveCalendarMonth = (direction: -1 | 1) => {
@@ -397,8 +437,37 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       </div>
                     )}
                   </div>
-                  <input value={newsForm.title} onChange={(e) => setNewsForm((c) => ({ ...c, title: e.target.value }))} placeholder="Título" required />
-                  <textarea value={newsForm.summary} onChange={(e) => setNewsForm((c) => ({ ...c, summary: e.target.value }))} placeholder="Resumen" rows={5} required />
+                  <input
+                    value={newsForm.title}
+                    onChange={(e) =>
+                      setNewsForm((c) => ({
+                        ...c,
+                        title: e.target.value.slice(0, LANDING_NEWS_TITLE_MAX),
+                      }))
+                    }
+                    placeholder="Título"
+                    maxLength={LANDING_NEWS_TITLE_MAX}
+                    required
+                  />
+                  <div className="landing-admin__counter">
+                    {newsForm.title.length}/{LANDING_NEWS_TITLE_MAX} caracteres
+                  </div>
+                  <textarea
+                    value={newsForm.summary}
+                    onChange={(e) =>
+                      setNewsForm((c) => ({
+                        ...c,
+                        summary: e.target.value.slice(0, LANDING_NEWS_SUMMARY_MAX),
+                      }))
+                    }
+                    placeholder="Resumen"
+                    rows={5}
+                    maxLength={LANDING_NEWS_SUMMARY_MAX}
+                    required
+                  />
+                  <div className="landing-admin__counter">
+                    {newsForm.summary.length}/{LANDING_NEWS_SUMMARY_MAX} caracteres
+                  </div>
                   <div className="landing-admin__form-meta">
                     <span>Fecha de publicación: {newsForm.published_at}</span>
                   </div>
@@ -437,7 +506,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                 </form>
 
                 <div className="landing-admin__list landing-admin__list--cards">
-                  {content.news.map((item) => (
+                  {adminContent.news.map((item) => (
                     <article key={item.id} className="landing-admin__card">
                       <div className="landing-admin__card-media">
                         {item.image_url ? <img src={item.image_url} alt={item.title} /> : null}
@@ -518,7 +587,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                 </form>
 
                 <div className="landing-admin__list landing-admin__list--cards">
-                  {content.gallery.map((item) => (
+                  {adminContent.gallery.map((item) => (
                     <article key={item.id} className="landing-admin__card">
                       <div className="landing-admin__card-media">
                         {item.image_url ? <img src={item.image_url} alt={item.title} /> : null}
@@ -605,7 +674,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                 </form>
 
                 <div className="landing-admin__list landing-admin__list--cards">
-                  {content.documents.map((item) => (
+                  {adminContent.documents.map((item) => (
                     <article key={item.id} className="landing-admin__card landing-admin__card--document">
                       <div className="landing-admin__card-file"><FileText size={24} /></div>
                       <div className="landing-admin__card-body">
@@ -643,7 +712,39 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                 <form className="landing-admin__form" onSubmit={submitCalendar}>
                   <h4>{calendarForm.id ? "Editar fecha" : "Nueva fecha institucional"}</h4>
                   <input value={calendarForm.title} onChange={(e) => setCalendarForm((c) => ({ ...c, title: e.target.value }))} placeholder="Título" required />
-                  <textarea value={calendarForm.detail} onChange={(e) => setCalendarForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Detalle" rows={4} required />
+                  <textarea value={calendarForm.detail} onChange={(e) => setCalendarForm((c) => ({ ...c, detail: e.target.value }))} placeholder="Descripción del evento (opcional)" rows={4} />
+                  <div className="landing-admin__form-row">
+                    <label className="landing-admin__field">
+                      <span>Hora</span>
+                      <div className="landing-admin__time-picker">
+                        <input
+                          id="landing-calendar-time"
+                          type="time"
+                          className="landing-admin__time-input"
+                          value={calendarForm.event_time}
+                          onChange={(e) => setCalendarForm((c) => ({ ...c, event_time: e.target.value }))}
+                          required
+                        />
+                        <button
+                          type="button"
+                          className="landing-admin__time-trigger"
+                          onClick={openTimePicker}
+                        >
+                          <Clock3 size={18} />
+                          <span>{formatTimeValue(calendarForm.event_time)}</span>
+                        </button>
+                      </div>
+                    </label>
+                    <label className="landing-admin__field">
+                      <span>Lugar</span>
+                      <input
+                        value={calendarForm.location}
+                        onChange={(e) => setCalendarForm((c) => ({ ...c, location: e.target.value }))}
+                        placeholder="Lugar del evento"
+                        required
+                      />
+                    </label>
+                  </div>
                   <div className="landing-admin__form-meta">
                     <span>Fecha seleccionada: {calendarForm.event_date}</span>
                   </div>
@@ -719,7 +820,7 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                 </form>
 
                 <div className="landing-admin__list landing-admin__list--cards">
-                  {content.calendar_entries.map((item) => (
+                  {adminContent.calendar_entries.map((item) => (
                     <article key={item.id} className="landing-admin__card landing-admin__card--calendar">
                       <div className="landing-admin__calendar-pill">
                         <strong>{new Date(`${item.event_date}T00:00:00`).getDate()}</strong>
@@ -728,13 +829,14 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
                       <div className="landing-admin__card-body">
                         <strong>{item.title}</strong>
                         <span>{item.event_date}</span>
-                        <p>{item.detail}</p>
+                        <p>{item.location}{item.event_time ? ` - ${item.event_time.slice(0, 5)}` : ""}</p>
+                        {item.detail ? <p>{item.detail}</p> : null}
                       </div>
                       <div className="landing-admin__item-actions">
                         <button
                           type="button"
                           className="landing-admin__action-button landing-admin__action-button--edit"
-                          onClick={() => setCalendarForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date, display_order: item.display_order, is_active: item.is_active })}
+                          onClick={() => setCalendarForm({ id: item.id, title: item.title, detail: item.detail, event_date: item.event_date, event_time: item.event_time || "", location: item.location || "", display_order: item.display_order, is_active: item.is_active })}
                         >
                           <PencilLine size={16} />
                           <span>Editar</span>

@@ -92,16 +92,16 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
 
       showToast({
         type: "success",
-        title: "Calificacion guardada",
-        message: "La calificacion se guardo correctamente.",
+        title: "Calificación guardada",
+        message: "La calificación se guardó correctamente.",
       });
       setSelectedSubmission(null);
     } catch (error) {
-      console.error("Error guardando calificacion", error);
+      console.error("Error guardando calificación", error);
       showToast({
         type: "error",
-        title: "Calificacion",
-        message: "No se pudo guardar la calificacion.",
+        title: "Calificación",
+        message: "No se pudo guardar la calificación.",
       });
     } finally {
       setSaving(false);
@@ -112,13 +112,13 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
     <div className="teacher-submission-panel">
       <div className="teacher-submission-panel__head">
         <h3>Entregas de estudiantes</h3>
-        <p>Consulta archivos, fechas y registra calificaciones con un flujo mas claro.</p>
+        <p>Consulta archivos, fechas y registra calificaciones con un flujo más claro.</p>
       </div>
 
       {loading ? (
         <div className="teacher-task-empty">Cargando entregas...</div>
       ) : orderedSubmissions.length === 0 ? (
-        <div className="teacher-task-empty">Aun no hay entregas para esta tarea.</div>
+        <div className="teacher-task-empty">Aún no hay entregas para esta tarea.</div>
       ) : (
         <div className="teacher-submission-table-wrap">
           <table className="teacher-submission-table">
@@ -128,8 +128,8 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
                 <th>Archivo</th>
                 <th>Fecha de entrega</th>
                 <th>Nota</th>
-                <th>Retroalimentacion</th>
-                <th>Accion</th>
+                <th>Retroalimentación</th>
+                <th>Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -202,7 +202,7 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
                 type="button"
                 className="teacher-task-close-btn"
                 onClick={() => setSelectedSubmission(null)}
-                aria-label="Cerrar calificacion"
+                aria-label="Cerrar calificación"
               >
                 ×
               </button>
@@ -227,7 +227,7 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
               )}
 
               <div className="teacher-grade-form">
-                <label>Calificacion</label>
+                <label>Calificación</label>
                 <input
                   type="number"
                   min="0"
@@ -238,7 +238,7 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
                   placeholder="Ej: 4.5"
                 />
 
-                <label>Retroalimentacion</label>
+                <label>Retroalimentación</label>
                 <textarea
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
@@ -261,7 +261,7 @@ const SubmissionList: React.FC<Props> = ({ assignmentId }) => {
                 onClick={saveGrade}
                 disabled={saving}
               >
-                {saving ? "Guardando..." : "Guardar calificacion"}
+                {saving ? "Guardando..." : "Guardar calificación"}
               </button>
             </div>
           </div>

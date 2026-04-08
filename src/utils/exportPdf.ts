@@ -202,7 +202,7 @@ const addChartSection = (doc: jsPDF, summary: AttendancePdfSummaryItem[]) => {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(107, 114, 128);
-  doc.text("El detalle completo aparece en la tabla de las paginas siguientes.", 20, 167);
+  doc.text("El detalle completo aparece en la tabla de las páginas siguientes.", 20, 167);
 };
 
 const addTablePages = (doc: jsPDF, options: AttendancePdfOptions) => {

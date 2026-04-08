@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  ArrowRight,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -14,6 +13,7 @@ import {
 import heroImageA from "@/assets/carrusel.jpg";
 import heroImageB from "@/assets/carrusel2.jpg";
 import heroImageC from "@/assets/carrusel3.jpg";
+import type { LandingCalendarEntry } from "./landing.api";
 import { useLandingContent } from "./LandingContentContext";
 
 const heroSlides = [
@@ -78,24 +78,40 @@ const fallbackCalendarEntries = [
     title: "Entrega de informes",
     detail: "Espacio de diálogo entre familias, docentes y dirección de grupo.",
     event_date: "2026-04-04",
+    event_time: "07:00:00",
+    location: "Sede principal",
+    display_order: 1,
+    is_active: true,
   },
   {
     id: 2,
     title: "Reunión con familias",
     detail: "Seguimiento formativo y acompañamiento institucional.",
     event_date: "2026-04-05",
+    event_time: "08:00:00",
+    location: "Sala múltiple",
+    display_order: 2,
+    is_active: true,
   },
   {
     id: 3,
     title: "Semana cultural",
     detail: "Jornadas artísticas, deportivas y de convivencia.",
     event_date: "2026-04-18",
+    event_time: "09:30:00",
+    location: "Patio central",
+    display_order: 3,
+    is_active: true,
   },
   {
     id: 4,
     title: "Muestra de proyectos",
     detail: "Exposición de trabajos y experiencias de aula.",
     event_date: "2026-04-19",
+    event_time: "10:00:00",
+    location: "Aulas y biblioteca",
+    display_order: 4,
+    is_active: true,
   },
 ];
 
@@ -117,6 +133,49 @@ const featuredPrograms = [
   },
 ];
 
+heroSlides.splice(
+  0,
+  heroSlides.length,
+  {
+    eyebrow: "Un camino feliz",
+    image: heroImageA,
+    title: "Formamos estudiantes integrales, activos y felices en su proceso de aprender.",
+    text: "El Gimnasio Los Cerros orienta su labor a la construcción de valores y conocimiento, fortaleciendo personalidad, creatividad, autonomía e investigación.",
+  },
+  {
+    eyebrow: "Horizonte institucional",
+    image: heroImageB,
+    title: "La lectura, la exploración y el pensamiento crítico hacen parte del camino escolar.",
+    text: "Biblioteca, ludoteca, escritura, análisis y acompañamiento humano se integran para que cada niño descubra su voz y construya sentido frente al conocimiento.",
+  },
+  {
+    eyebrow: "Identidad institucional",
+    image: heroImageC,
+    title: "Naturaleza, comunidad y excelencia académica en un mismo proyecto educativo.",
+    text: "Nuestra propuesta resalta el respeto, la responsabilidad, la rectitud y el cuidado del medio ambiente como parte esencial de la formación integral.",
+  },
+);
+
+featuredPrograms.splice(
+  0,
+  featuredPrograms.length,
+  {
+    icon: GraduationCap,
+    title: "Formación integral",
+    text: "El estudiante es acompañado para crecer en autonomía, creatividad, responsabilidad y construcción de conocimiento.",
+  },
+  {
+    icon: Sparkles,
+    title: "Investigación y lectura",
+    text: "La institución fortalece biblioteca, ludoteca, escritura y pensamiento crítico como bases del aprendizaje significativo.",
+  },
+  {
+    icon: Users,
+    title: "Familia y comunidad",
+    text: "El acompañamiento a padres y la participación activa de la comunidad educativa hacen parte del proyecto institucional.",
+  },
+);
+
 const communityItems = [
   { title: "Instagram", subtitle: "@colegio.simijaca" },
   { title: "Facebook", subtitle: "Colegio Institucional Simijaca" },
@@ -132,9 +191,14 @@ const formatDisplayDate = (dateValue: string) =>
     year: "numeric",
   });
 
+const formatEventTime = (timeValue?: string | null) => {
+  if (!timeValue) return "Hora por confirmar";
+  return timeValue.slice(0, 5);
+};
+
 const buildMonthlyCalendar = (
   monthDate: Date,
-  entries: Array<{ event_date: string; title: string }>,
+  entries: LandingCalendarEntry[],
 ) => {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
@@ -143,11 +207,11 @@ const buildMonthlyCalendar = (
   const previousMonthDays = new Date(year, month, 0).getDate();
   const offset = (firstDay.getDay() + 6) % 7;
 
-  const entryMap = new Map<number, string>();
+  const entryMap = new Map<number, LandingCalendarEntry>();
   entries.forEach((entry) => {
     const date = new Date(`${entry.event_date}T00:00:00`);
     if (date.getFullYear() === year && date.getMonth() === month) {
-      entryMap.set(date.getDate(), entry.title);
+      entryMap.set(date.getDate(), entry);
     }
   });
 
@@ -156,6 +220,7 @@ const buildMonthlyCalendar = (
     muted?: boolean;
     highlighted?: boolean;
     label?: string;
+    entry?: LandingCalendarEntry;
   }> = [];
 
   for (let index = offset; index > 0; index -= 1) {
@@ -166,11 +231,12 @@ const buildMonthlyCalendar = (
   }
 
   for (let day = 1; day <= daysInMonth; day += 1) {
-    const label = entryMap.get(day);
+    const entry = entryMap.get(day);
     cells.push({
       day: String(day),
-      highlighted: Boolean(label),
-      label: label || undefined,
+      highlighted: Boolean(entry),
+      label: entry?.title || undefined,
+      entry,
     });
   }
 
@@ -188,6 +254,7 @@ const LandingHomePage = () => {
   const [activeHero, setActiveHero] = useState(0);
   const [activeGallery, setActiveGallery] = useState(0);
   const [allNewsOpen, setAllNewsOpen] = useState(false);
+  const [selectedCalendarEvent, setSelectedCalendarEvent] = useState<LandingCalendarEntry | null>(null);
   const lockedScrollY = useRef(0);
   const { content } = useLandingContent();
 
@@ -276,7 +343,7 @@ const LandingHomePage = () => {
               <a href="/#programas" className="landing-btn landing-btn--primary">
                 Conocer el colegio
               </a>
-              <Link to="/institucional" className="landing-btn landing-btn--ghost">
+              <Link to="/institucional/identidad" className="landing-btn landing-btn--ghost">
                 Más información
               </Link>
             </div>
@@ -364,9 +431,6 @@ const LandingHomePage = () => {
               <div className="landing-news-card__body">
                 <h3>{item.title}</h3>
                 <p>{item.summary}</p>
-                <a href="/#noticias" className="landing-inline-link">
-                  Leer más <ArrowRight size={16} />
-                </a>
               </div>
             </article>
           ))}
@@ -428,6 +492,57 @@ const LandingHomePage = () => {
         </div>
       ) : null}
 
+      {selectedCalendarEvent ? (
+        <div
+          className="landing-news-modal__overlay"
+          onClick={() => setSelectedCalendarEvent(null)}
+        >
+          <div
+            className="landing-news-modal landing-calendar-modal"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="landing-news-modal__header">
+              <div>
+                <span className="landing-section-tag landing-section-tag--light">Evento</span>
+                <h2>{selectedCalendarEvent.title}</h2>
+                <p>Consulta la información principal del evento institucional.</p>
+              </div>
+              <button
+                type="button"
+                className="landing-news-modal__close"
+                onClick={() => setSelectedCalendarEvent(null)}
+                aria-label="Cerrar detalle del evento"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="landing-news-modal__body">
+              <div className="landing-calendar-modal__content">
+                <article className="landing-calendar-modal__meta">
+                  <strong>Fecha</strong>
+                  <span>{formatDisplayDate(selectedCalendarEvent.event_date)}</span>
+                </article>
+                <article className="landing-calendar-modal__meta">
+                  <strong>Hora</strong>
+                  <span>{formatEventTime(selectedCalendarEvent.event_time)}</span>
+                </article>
+                <article className="landing-calendar-modal__meta">
+                  <strong>Lugar</strong>
+                  <span>{selectedCalendarEvent.location || "Lugar por confirmar"}</span>
+                </article>
+              </div>
+              {selectedCalendarEvent.detail ? (
+                <div className="landing-calendar-modal__detail">
+                  <strong>Descripción</strong>
+                  <p>{selectedCalendarEvent.detail}</p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <section id="programas" className="landing-showcase">
         <div className="landing-section-heading">
           <span className="landing-section-tag">Oferta académica</span>
@@ -478,27 +593,18 @@ const LandingHomePage = () => {
           </button>
 
           <div className="landing-gallery__track">
-            {galleryItems.map((item, index) => {
-              const isVisible =
-                index === activeGallery ||
-                index === (activeGallery + 1) % galleryItems.length ||
-                index === (activeGallery + 2) % galleryItems.length;
-
-              return (
-                <article
-                  key={`${item.id}-${index}`}
-                  className={`landing-gallery__card ${
-                    index === activeGallery ? "is-active" : ""
-                  } ${isVisible ? "is-visible" : ""}`}
-                >
-                  <img src={item.image_url || heroImageA} alt={item.title} />
-                  <div className="landing-gallery__overlay">
-                    <strong>{item.title}</strong>
-                    <span>{item.detail}</span>
-                  </div>
-                </article>
-              );
-            })}
+            {galleryItems.map((item, index) => (
+              <article
+                key={`${item.id}-${index}`}
+                className={`landing-gallery__card ${index === activeGallery ? "is-active" : ""}`}
+              >
+                <img src={item.image_url || heroImageA} alt={item.title} />
+                <div className="landing-gallery__overlay">
+                  <strong>{item.title}</strong>
+                  <span>{item.detail}</span>
+                </div>
+              </article>
+            ))}
           </div>
 
           <button
@@ -552,6 +658,9 @@ const LandingHomePage = () => {
                   className={`landing-school-calendar__cell ${item.muted ? "is-muted" : ""} ${
                     item.highlighted ? "is-highlighted" : ""
                   }`}
+                  onClick={() => {
+                    if (item.entry) setSelectedCalendarEvent(item.entry);
+                  }}
                 >
                   <strong>{item.day}</strong>
                   {item.label ? <span>{item.label}</span> : null}
@@ -576,7 +685,16 @@ const LandingHomePage = () => {
                       month: "short",
                     })}
                   </strong>
-                  <span>{item.title}</span>
+                  <button
+                    type="button"
+                    className="landing-calendar-card__event"
+                    onClick={() => setSelectedCalendarEvent(item)}
+                  >
+                    <span>{item.title}</span>
+                    <small>
+                      {formatEventTime(item.event_time)}{item.location ? ` · ${item.location}` : ""}
+                    </small>
+                  </button>
                 </li>
               ))}
             </ul>

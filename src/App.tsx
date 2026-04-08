@@ -12,15 +12,20 @@ import InstitutionalLayout from "@/landing/InstitutionalLayout";
 import LandingHomePage from "@/landing/LandingHomePage";
 import InstitutionalInfoPage from "@/landing/InstitutionalInfoPage";
 import ContactPage from "@/landing/ContactPage";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const App = () => {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Rutas públicas */}
         <Route element={<InstitutionalLayout />}>
           <Route path="/" element={<LandingHomePage />} />
-          <Route path="/institucional" element={<InstitutionalInfoPage />} />
+          <Route path="/institucional" element={<Navigate to="/institucional/identidad" replace />} />
+          <Route path="/institucional/identidad" element={<InstitutionalInfoPage section="identity" />} />
+          <Route path="/institucional/simbolos" element={<InstitutionalInfoPage section="symbols" />} />
+          <Route path="/institucional/documentos" element={<InstitutionalInfoPage section="documents" />} />
           <Route path="/contacto" element={<ContactPage />} />
         </Route>
 

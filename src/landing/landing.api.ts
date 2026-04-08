@@ -41,6 +41,8 @@ export interface LandingCalendarEntry {
   title: string;
   detail: string;
   event_date: string;
+  event_time: string | null;
+  location: string;
   display_order: number;
   is_active: boolean;
 }
@@ -63,6 +65,22 @@ export interface LandingContactPayload {
 export const fetchLandingContent = async () => {
   const response = await publicLandingApi.get<LandingContentPayload>("/api/landing/content/");
   return response.data;
+};
+
+export const fetchAdminLandingContent = async (): Promise<LandingContentPayload> => {
+  const [news, gallery, documents, calendarEntries] = await Promise.all([
+    api.get<LandingNewsItem[]>("/api/landing/news/"),
+    api.get<LandingGalleryItem[]>("/api/landing/gallery/"),
+    api.get<LandingDocumentItem[]>("/api/landing/documents/"),
+    api.get<LandingCalendarEntry[]>("/api/landing/calendar/"),
+  ]);
+
+  return {
+    news: news.data,
+    gallery: gallery.data,
+    documents: documents.data,
+    calendar_entries: calendarEntries.data,
+  };
 };
 
 export const sendLandingContactMessage = async (payload: LandingContactPayload) => {

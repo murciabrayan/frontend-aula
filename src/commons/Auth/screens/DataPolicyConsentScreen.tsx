@@ -52,7 +52,7 @@ const DataPolicyConsentScreen = () => {
       } catch (error: any) {
         setErrorMessage(
           error?.response?.data?.error ||
-            "No fue posible cargar la autorizacion de tratamiento de datos.",
+            "No fue posible cargar la autorización de tratamiento de datos.",
         );
       } finally {
         setLoading(false);
@@ -151,7 +151,7 @@ const DataPolicyConsentScreen = () => {
     setErrorMessage("");
 
     if (!accepted) {
-      setErrorMessage("Debes aceptar la autorizacion para continuar.");
+      setErrorMessage("Debes aceptar la autorización para continuar.");
       return;
     }
 
@@ -176,7 +176,7 @@ const DataPolicyConsentScreen = () => {
     } catch (error: any) {
       setErrorMessage(
         error?.response?.data?.error ||
-          "No fue posible registrar la aceptacion de tratamiento de datos.",
+          "No fue posible registrar la aceptación de tratamiento de datos.",
       );
     } finally {
       setSubmitting(false);
@@ -184,7 +184,7 @@ const DataPolicyConsentScreen = () => {
   };
 
   if (loading) {
-    return <div className="data-policy-loading">Cargando autorizacion...</div>;
+    return <div className="data-policy-loading">Cargando autorización...</div>;
   }
 
   return (
@@ -207,7 +207,7 @@ const DataPolicyConsentScreen = () => {
             <div className="data-policy-header__eyebrow">Proceso obligatorio de ingreso</div>
             <div className="data-policy-header__institution">
               <strong>GIMNASIO LOS CERROS</strong>
-              <div>Autorizacion de tratamiento de datos</div>
+              <div>Autorización de tratamiento de datos</div>
             </div>
           </div>
         </header>
@@ -216,8 +216,8 @@ const DataPolicyConsentScreen = () => {
           <div className="data-policy-card__intro">
             <h1>{statusData?.title || "Tratamiento de datos personales"}</h1>
             <p className="data-policy-intro">
-              Antes de ingresar a la plataforma debes leer y aceptar la politica de tratamiento
-              de datos personales. El documento firmado quedara guardado automaticamente en el
+              Antes de ingresar a la plataforma debes leer y aceptar la política de tratamiento
+              de datos personales. El documento firmado quedará guardado automáticamente en el
               perfil del usuario.
             </p>
           </div>
@@ -225,7 +225,7 @@ const DataPolicyConsentScreen = () => {
           <div className="data-policy-letter">
             <div className="data-policy-letter__meta">
               <strong>{statusData?.institution_name}</strong>
-              <span>Version {statusData?.version}</span>
+              <span>Versión {statusData?.version}</span>
             </div>
 
             {statusData?.paragraphs.map((paragraph, index) => (
@@ -249,7 +249,7 @@ const DataPolicyConsentScreen = () => {
                 }}
               >
                 <PenLine size={16} />
-                <span>Firmar aqui</span>
+                <span>Firmar aquí</span>
               </button>
               <button
                 type="button"
@@ -276,7 +276,7 @@ const DataPolicyConsentScreen = () => {
                   onPointerLeave={stopDrawing}
                 />
                 <div className="data-policy-signature-pad__actions">
-                  <span>Dibuja la firma del firmante autorizado con mouse o pantalla tactil.</span>
+                  <span>Dibuja la firma del firmante autorizado con mouse o pantalla táctil.</span>
                   <button type="button" className="data-policy-link" onClick={clearCanvas}>
                     Limpiar firma
                   </button>
@@ -311,7 +311,7 @@ const DataPolicyConsentScreen = () => {
                 onChange={(event) => setAccepted(event.target.checked)}
               />
               <span>
-                Confirmo que he leido, comprendido y acepto la autorizacion de tratamiento
+                Confirmo que he leído, comprendido y acepto la autorización de tratamiento
                 de datos personales.
               </span>
             </label>

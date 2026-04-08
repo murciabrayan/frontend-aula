@@ -48,8 +48,8 @@ const StudentPermissionLetters = () => {
       title: action === "ACCEPT" ? "Aceptar permiso como acudiente" : "Rechazar permiso como acudiente",
       message:
         action === "ACCEPT"
-          ? "Al aceptar se registrara la firma guardada del acudiente y se archivara la respuesta en el perfil del estudiante."
-          : "Se registrara el rechazo del acudiente y quedara constancia en el perfil del estudiante.",
+          ? "Al aceptar se registrará la firma guardada del acudiente y se archivará la respuesta en el perfil del estudiante."
+          : "Se registrará el rechazo del acudiente y quedará constancia en el perfil del estudiante.",
       confirmText: action === "ACCEPT" ? "Aceptar como acudiente" : "Rechazar como acudiente",
       cancelText: "Cancelar",
     });
@@ -120,7 +120,7 @@ const StudentPermissionLetters = () => {
                   </span>
                 </div>
 
-                <p>{item.description || "Sin descripcion adicional."}</p>
+                <p>{item.description || "Sin descripción adicional."}</p>
 
                 <div className="student-permission-card__meta">
                   <span>Respuesta: {formatDate(item.responded_at)}</span>
@@ -169,7 +169,7 @@ const StudentPermissionLetters = () => {
             ))}
           </div>
         ) : (
-          <div className="permission-empty">Aun no tienes permisos enviados.</div>
+          <div className="permission-empty">Aún no tienes permisos enviados.</div>
         )}
       </article>
     </section>
