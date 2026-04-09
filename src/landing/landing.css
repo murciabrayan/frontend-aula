@@ -510,22 +510,53 @@ body {
 }
 
 .landing-login__google {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
   width: 100%;
   min-width: 0;
   margin-top: 8px;
-  padding: 10px 12px;
+  min-height: 52px;
+}
+
+.landing-login__google-visual {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 18px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(229, 201, 107, 0.12);
-  overflow: hidden;
+  border: 1px solid rgba(229, 201, 107, 0.18);
+  background: #ffffff;
+  color: #24324a;
+  box-sizing: border-box;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.landing-login__google-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+.landing-login__google > div {
+  width: 100%;
 }
 
 .landing-login__google > div,
 .landing-login__google iframe {
+  width: 100% !important;
   max-width: 100% !important;
+}
+
+.landing-login__google > div:last-child {
+  position: absolute;
+  inset: 0;
+  opacity: 0.01;
+  border-radius: 18px;
+  overflow: hidden;
 }
 
 .landing-login__error {
@@ -3636,6 +3667,10 @@ body {
   margin-top: 12px;
 }
 
+.landing-value-band .landing-bullet-list {
+  padding-left: 72px;
+}
+
 .landing-value-band {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
@@ -3730,6 +3765,10 @@ body {
   .landing-community__card,
   .landing-principle-card {
     grid-template-columns: 52px minmax(0, 1fr);
+  }
+
+  .landing-value-band .landing-bullet-list {
+    padding-left: 0;
   }
 }
 

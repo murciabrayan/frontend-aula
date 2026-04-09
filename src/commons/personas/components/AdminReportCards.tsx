@@ -58,6 +58,7 @@ interface StudentReportResponse {
     director_curso: string;
   };
   rector_nombre: string;
+  periodo_seleccionado?: number | null;
   boletin: ReportRow[];
   boletin_agrupado: ReportAreaGroup[];
   promedio_general: number | null;
@@ -124,7 +125,7 @@ const AdminReportCards: React.FC = () => {
       setSelectedStudent(student);
 
       const res = await api.get<StudentReportResponse>(
-        `/api/report-cards/students/${student.id}/report-card/`,
+        `/api/report-cards/students/${student.id}/report-card/?periodo=${encodeURIComponent(selectedPeriod)}`,
       );
 
       setReport(res.data);
@@ -137,6 +138,11 @@ const AdminReportCards: React.FC = () => {
       });
     }
   };
+
+  useEffect(() => {
+    if (!selectedStudent) return;
+    void loadStudentReport(selectedStudent);
+  }, [selectedPeriod]);
 
   const buildPeriodSlug = (period: string) =>
     period

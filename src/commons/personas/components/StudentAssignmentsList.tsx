@@ -49,6 +49,9 @@ interface Submission {
   retroalimentacion?: string;
 }
 
+const hasSubmissionGrade = (submission?: Submission | null) =>
+  submission?.calificacion !== null && submission?.calificacion !== undefined;
+
 const formatDate = (value: string) => {
   try {
     return new Date(value).toLocaleDateString("es-CO", {
@@ -165,7 +168,7 @@ const StudentAssignmentsList: React.FC = () => {
     const delivered = assignments.filter((item) => getSubmission(item.id)).length;
     const graded = assignments.filter((item) => {
       const submission = getSubmission(item.id);
-      return submission?.calificacion !== undefined;
+      return hasSubmissionGrade(submission);
     }).length;
 
     return {
@@ -384,38 +387,36 @@ const StudentAssignmentsList: React.FC = () => {
                 <div className="student-task-modal__list">
                   {assignments.map((assignment) => {
                     const submission = getSubmission(assignment.id);
+                    const isGraded = hasSubmissionGrade(submission);
 
                     return (
                       <article key={assignment.id} className="student-task-item">
-                        <div className="student-task-item__content">
-                          <div className="student-task-item__top">
-                            <h4>{assignment.titulo}</h4>
-                            <span className="student-task-item__date">
-                              <CalendarDays size={14} />
-                              {formatDate(assignment.fecha_entrega)}
+                        <h4 className="student-task-item__title">{assignment.titulo}</h4>
+
+                        <div className="student-task-item__state-row">
+                          {!submission && (
+                            <span className="student-task-item__status pending">
+                              Pendiente por entregar
                             </span>
-                          </div>
+                          )}
 
-                          <div className="student-task-item__state-row">
-                            {!submission && (
-                              <span className="student-task-item__status pending">
-                                Pendiente por entregar
-                              </span>
-                            )}
+                          {submission && !isGraded && (
+                            <span className="student-task-item__status delivered">
+                              Entregada, sin calificar
+                            </span>
+                          )}
 
-                            {submission && submission.calificacion === undefined && (
-                              <span className="student-task-item__status delivered">
-                                Entregada, pendiente de revision
-                              </span>
-                            )}
-
-                            {submission?.calificacion !== undefined && (
+                          {submission && isGraded && (
                               <span className="student-task-item__status graded">
                                 Calificada: {submission.calificacion}
                               </span>
                             )}
-                          </div>
                         </div>
+
+                        <span className="student-task-item__date">
+                          <CalendarDays size={14} />
+                          {formatDate(assignment.fecha_entrega)}
+                        </span>
 
                         <div className="student-task-item__actions">
                           <button
@@ -439,7 +440,7 @@ const StudentAssignmentsList: React.FC = () => {
                             </button>
                           )}
 
-                          {submission?.calificacion !== undefined && (
+                          {submission && isGraded && (
                             <button
                               className="btn-primary btn-primary--dark"
                               onClick={() => setShowGrade(submission)}
@@ -462,6 +463,7 @@ const StudentAssignmentsList: React.FC = () => {
       {showDetails &&
         (() => {
           const submission = getSubmission(showDetails.id);
+          const isGraded = hasSubmissionGrade(submission);
 
           return (
             <div className="modal-backdrop">
@@ -490,9 +492,9 @@ const StudentAssignmentsList: React.FC = () => {
                       <strong>
                         {!submission
                           ? "Pendiente"
-                          : submission.calificacion !== undefined
+                          : isGraded
                             ? "Calificada"
-                            : "Entregada"}
+                            : "Sin calificar"}
                       </strong>
                     </div>
                   </div>
@@ -536,7 +538,7 @@ const StudentAssignmentsList: React.FC = () => {
                       <Upload size={16} />
                       Subir entrega
                     </button>
-                  ) : submission.calificacion !== undefined ? (
+                  ) : isGraded ? (
                     <button
                       className="btn-primary btn-primary--dark"
                       onClick={() => {

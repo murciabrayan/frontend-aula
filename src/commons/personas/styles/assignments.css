@@ -413,7 +413,8 @@
 
 .student-task-item {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(180px, 1fr) auto auto auto;
+  align-items: center;
   gap: 18px;
   padding: 18px;
   border-radius: 20px;
@@ -422,22 +423,17 @@
   box-shadow: 0 14px 24px rgba(24, 33, 47, 0.05);
 }
 
-.student-task-item__top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.student-task-item__top h4 {
+.student-task-item__title {
   margin: 0;
   font-size: 1.05rem;
   color: #111827;
+  min-width: 0;
 }
 
 .student-task-item__date {
   display: inline-flex;
   align-items: center;
+  align-self: center;
   gap: 6px;
   min-height: 32px;
   padding: 0 12px;
@@ -450,7 +446,9 @@
 }
 
 .student-task-item__state-row {
-  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .student-task-item__status {
@@ -482,7 +480,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
 }
 
@@ -711,6 +709,7 @@
 
   .student-task-item__actions {
     justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
 
@@ -761,9 +760,10 @@
     width: 100%;
   }
 
-  .student-task-item__top {
-    flex-direction: column;
-    align-items: flex-start;
+  .student-task-item__state-row,
+  .student-task-item__date,
+  .student-task-item__actions {
+    justify-content: flex-start;
   }
 
   .student-task-pending-item {

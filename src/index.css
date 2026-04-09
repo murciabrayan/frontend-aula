@@ -168,7 +168,7 @@ select option:focus {
 
 .styled-select__menu {
   position: fixed;
-  z-index: 3000;
+  z-index: 110000;
   padding: 8px;
   border-radius: 16px;
   border: 1px solid rgba(201, 162, 39, 0.22);

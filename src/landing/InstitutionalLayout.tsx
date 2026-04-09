@@ -3,11 +3,10 @@
   Instagram,
   LogOut,
   Menu,
+  Music2,
   PencilLine,
-  Twitter,
   UserRound,
   UserCircle2,
-  Youtube,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -39,10 +38,21 @@ const navItems = [
 ];
 
 const socialLinks = [
-  { label: "Facebook", href: "https://facebook.com", icon: Facebook },
-  { label: "Instagram", href: "https://instagram.com", icon: Instagram },
-  { label: "Twitter", href: "https://x.com", icon: Twitter },
-  { label: "YouTube", href: "https://youtube.com", icon: Youtube },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/gimnasio.los.cerros.2025",
+    icon: Facebook,
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/gimnasio_los_cerros/",
+    icon: Instagram,
+  },
+  {
+    label: "TikTok",
+    href: "https://www.tiktok.com/@gimnasio.los.cerr",
+    icon: Music2,
+  },
 ];
 
 const quickLinks = [
