@@ -65,6 +65,23 @@ body {
   min-width: 0;
   color: inherit;
   text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.landing-header__brand:hover,
+.landing-header__brand:focus-visible,
+.landing-header__brand:visited {
+  color: var(--landing-white);
+}
+
+.landing-header__brand:hover strong,
+.landing-header__brand:focus-visible strong {
+  color: var(--landing-gold-soft);
+}
+
+.landing-header__brand:hover span,
+.landing-header__brand:focus-visible span {
+  color: rgba(255, 248, 234, 0.84);
 }
 
 .landing-header__logo,
@@ -530,14 +547,22 @@ body {
   color: var(--landing-gold-soft);
   border: 1px solid rgba(229, 201, 107, 0.2);
   background: rgba(255, 255, 255, 0.03);
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.landing-header__social a:visited,
+.landing-footer__social a:visited {
+  color: var(--landing-gold-soft);
 }
 
 .landing-header__social a:hover,
-.landing-footer__social a:hover {
+.landing-header__social a:focus-visible,
+.landing-footer__social a:hover,
+.landing-footer__social a:focus-visible {
   transform: translateY(-2px);
   background: rgba(201, 162, 39, 0.14);
   border-color: rgba(229, 201, 107, 0.44);
+  color: #fff8ea;
 }
 
 .landing-header__cta,
@@ -2612,7 +2637,12 @@ body {
   transition: color 180ms ease;
 }
 
-.landing-footer__links a:hover {
+.landing-footer__links a:visited {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.landing-footer__links a:hover,
+.landing-footer__links a:focus-visible {
   color: var(--landing-gold-soft);
 }
 
