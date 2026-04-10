@@ -60,8 +60,10 @@ const LoginScreen = () => {
       const googleToken = credentialResponse.credential;
       const userData = await loginWithGoogle(googleToken);
       navigate(getNextAuthRoute(userData));
-    } catch {
-      setErrorMessage("Error al iniciar sesión con Google");
+    } catch (error: any) {
+      setErrorMessage(
+        error?.response?.data?.error || "Error al iniciar sesión con Google"
+      );
     }
   };
 

@@ -74,8 +74,10 @@ const LandingLoginModal = ({ open, onClose, onAuthenticated }: Props) => {
       onAuthenticated();
       onClose();
       navigate(getNextAuthRoute(user));
-    } catch {
-      setErrorMessage("Error al iniciar sesión con Google.");
+    } catch (error: any) {
+      setErrorMessage(
+        error?.response?.data?.error || "Error al iniciar sesión con Google."
+      );
     } finally {
       setLoading(false);
     }
