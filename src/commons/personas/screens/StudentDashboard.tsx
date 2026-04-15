@@ -13,6 +13,7 @@ import DashboardLayout, {
   type DashboardModuleItem,
 } from "../components/DashboardLayout";
 
+// MANPROG_CAPTURA_FRONT_STUDENT_DASHBOARD_INICIO: módulos del estudiante y pantalla de inicio con calendario.
 const studentModules: DashboardModuleItem[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "tareas", label: "Tareas", icon: ClipboardList },
@@ -86,3 +87,4 @@ const StudentDashboard: React.FC = () => {
 };
 
 export default StudentDashboard;
+// MANPROG_CAPTURA_FRONT_STUDENT_DASHBOARD_FIN

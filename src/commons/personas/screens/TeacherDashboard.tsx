@@ -12,6 +12,7 @@ import DashboardLayout, {
   type DashboardModuleItem,
 } from "../components/DashboardLayout";
 
+// MANPROG_CAPTURA_FRONT_TEACHER_DASHBOARD_INICIO: módulos principales del docente y calendario inicial.
 const teacherModules: DashboardModuleItem[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "notas", label: "Notas", icon: Star },
@@ -76,3 +77,4 @@ const TeacherDashboard = () => {
 };
 
 export default TeacherDashboard;
+// MANPROG_CAPTURA_FRONT_TEACHER_DASHBOARD_FIN

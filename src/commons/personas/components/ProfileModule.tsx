@@ -51,6 +51,7 @@ const SIGNATURE_CANVAS_WIDTH = 680;
 const SIGNATURE_CANVAS_HEIGHT = 220;
 type SignatureMode = "draw" | "upload";
 
+// MANPROG_CAPTURA_FRONT_PROFILE_MODULE_INICIO: perfil unificado con foto/avatar, firma legal, contraseña y datos por rol.
 const ProfileModule = ({
   roleTitle,
   roleDescription,
@@ -77,6 +78,7 @@ const ProfileModule = ({
   const [avatarStyle, setAvatarStyle] = useState("adventurer-neutral");
   const [avatarSeed, setAvatarSeed] = useState("");
   const [clearProfilePhoto, setClearProfilePhoto] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [signatureMode, setSignatureMode] = useState<SignatureMode>("draw");
   const [signatureFile, setSignatureFile] = useState<File | null>(null);
@@ -86,6 +88,7 @@ const ProfileModule = ({
   const drawingRef = useRef(false);
   const currentUser = getCurrentUser();
   const canEditProfile = currentUser?.role === "ADMIN";
+  const isReadOnlyView = !canEditProfile;
   const profileDocuments = Array.isArray(profile?.documents)
     ? (profile.documents as UserDocument[])
     : [];
@@ -153,6 +156,14 @@ const ProfileModule = ({
     setDraft((current) => ({ ...(current ?? {}), [name]: value }));
   };
 
+  const resetAvatarDraft = () => {
+    setPhotoFile(null);
+    setClearProfilePhoto(false);
+    setAvatarStyle(profile?.avatar_style || "adventurer-neutral");
+    setAvatarSeed(profile?.avatar_seed || "");
+    setPhotoPreview(profile?.avatar_url || profile?.photo_url || "");
+  };
+
   const refreshProfile = async () => {
     const response = await api.get("/api/profile/");
     setProfile(response.data);
@@ -185,6 +196,13 @@ const ProfileModule = ({
     setSignatureMode("draw");
     setSignatureFile(null);
     setHasDrawnSignature(false);
+  };
+
+  const openAvatarModal = () => {
+    resetAvatarDraft();
+    setError("");
+    setSuccess("");
+    setShowAvatarModal(true);
   };
 
   const getCanvasCoordinates = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -303,6 +321,32 @@ const ProfileModule = ({
     }
   };
 
+  const handleSaveAvatar = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    setSuccess("");
+
+    try {
+      const payload = new FormData();
+      payload.append("avatar_style", avatarStyle);
+      payload.append("avatar_seed", avatarSeed || avatarSeedBase);
+      payload.append("clear_profile_photo", clearProfilePhoto ? "true" : "false");
+
+      if (photoFile) {
+        payload.append("profile_photo", photoFile);
+      }
+
+      await api.put("/api/profile/", payload);
+      await refreshProfile();
+      setShowAvatarModal(false);
+      setPhotoFile(null);
+      setClearProfilePhoto(false);
+      setSuccess("Foto o avatar actualizados correctamente.");
+    } catch (err: any) {
+      setError(err.response?.data?.error || "No se pudo actualizar la foto o el avatar.");
+    }
+  };
+
   const handleCancelEdit = () => {
     setDraft(profile);
     setEditing(false);
@@ -377,6 +421,14 @@ const ProfileModule = ({
     return <div className="profile-state profile-state--error">No se pudo cargar el perfil.</div>;
   }
 
+  const getFieldValue = (name: string) => {
+    const value = profile[name];
+    if (value === undefined || value === null || value === "") {
+      return "No registrado";
+    }
+    return String(value);
+  };
+
   return (
     <section className="profile-module">
       <div className="profile-module__hero">
@@ -387,6 +439,15 @@ const ProfileModule = ({
         </div>
 
         <div className="profile-module__actions">
+          <button
+            type="button"
+            className="profile-btn profile-btn--ghost"
+            onClick={openAvatarModal}
+          >
+            <Camera size={18} />
+            <span>Cambiar avatar o foto</span>
+          </button>
+
           <button
             type="button"
             className="profile-btn profile-btn--ghost"
@@ -454,174 +515,124 @@ const ProfileModule = ({
             <div className="profile-avatar-card__copy">
               <strong>Foto de perfil</strong>
               <span>
-                {editing
-                  ? "Sube una foto o elige un avatar DiceBear para personalizar tu cuenta."
-                  : "Visible en tu perfil, la landing y los accesos institucionales."}
+                Visible en tu perfil, la landing y los accesos institucionales.
               </span>
             </div>
-
-            {editing && canEditProfile ? (
-              <div className="profile-avatar-card__controls">
-                <label className="profile-avatar-card__upload">
-                  <Camera size={16} />
-                  <span>{photoFile ? photoFile.name : "Subir foto"}</span>
-                  <input
-                    type="file"
-                    accept={IMAGE_ACCEPT}
-                    onChange={(event) => {
-                      const file = event.target.files?.[0] || null;
-                      if (file) {
-                        const validationError = validateImageFile(file);
-                        if (validationError) {
-                          setError(validationError);
-                          event.target.value = "";
-                          return;
-                        }
-                      }
-                      setPhotoFile(file);
-                      setClearProfilePhoto(false);
-                      setError("");
-                      setPhotoPreview(
-                        file
-                          ? URL.createObjectURL(file)
-                          : profile?.avatar_url || profile?.photo_url || "",
-                      );
-                    }}
-                  />
-                </label>
-                <span className="profile-avatar-card__hint">
-                  {"Solo JPG, JPEG o PNG. Tama\u00f1o m\u00e1ximo:"} {IMAGE_MAX_SIZE_MB} MB.
-                </span>
-
-                <button
-                  type="button"
-                  className="profile-avatar-card__upload profile-avatar-card__upload--ghost"
-                  onClick={() => {
-                    const option = avatarOptions[0];
-                    setPhotoFile(null);
-                    setClearProfilePhoto(true);
-                    setAvatarStyle(option.value);
-                    setAvatarSeed(option.seed);
-                    setPhotoPreview(option.url);
-                  }}
-                >
-                  Usar avatar
-                </button>
-              </div>
-            ) : null}
-
-            {editing && canEditProfile ? (
-              <div className="profile-avatar-picker">
-                <div className="profile-avatar-picker__header">
-                  <strong>Elige un avatar</strong>
-                  <span>{"Se guardar\u00e1 como alternativa a la foto de perfil."}</span>
-                </div>
-
-                <div className="profile-avatar-picker__grid">
-                  {avatarOptions.map((option) => (
-                    <button
-                      key={`${option.value}-${option.seed}`}
-                      type="button"
-                      className={`profile-avatar-option ${
-                        avatarStyle === option.value && (avatarSeed || avatarSeedBase) === option.seed
-                          ? "is-active"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        setPhotoFile(null);
-                        setClearProfilePhoto(true);
-                        setAvatarStyle(option.value);
-                        setAvatarSeed(option.seed);
-                        setPhotoPreview(option.url);
-                      }}
-                    >
-                      <img src={option.url} alt={option.label} />
-                      <span>{option.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
           </div>
 
-          <div className="profile-summary">
-            {summaryItems.map(({ key, label, icon: Icon }) => (
-              <div key={key} className="profile-summary__item">
-                <div className="profile-summary__icon">
-                  <Icon size={18} />
+          {canEditProfile ? (
+            <div className="profile-summary">
+              {summaryItems.map(({ key, label, icon: Icon }) => (
+                <div key={key} className="profile-summary__item">
+                  <div className="profile-summary__icon">
+                    <Icon size={18} />
+                  </div>
+                  <div>
+                    <p>{label}</p>
+                    <strong>{profile[key] || "No registrado"}</strong>
+                  </div>
                 </div>
-                <div>
-                  <p>{label}</p>
-                  <strong>{profile[key] || "No registrado"}</strong>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : null}
         </article>
 
         <article className="profile-card profile-card--form">
           <div className="profile-card__header">
             <h3>Datos del perfil</h3>
-            <span>{editing ? "Edita y guarda los cambios" : "Consulta tu informaci\u00f3n actual"}</span>
+            <span>
+              {canEditProfile
+                ? editing
+                  ? "Edita y guarda los cambios"
+                  : "Consulta tu informaci\u00f3n actual"
+                : "Consulta tu informaci\u00f3n personal registrada en la plataforma"}
+            </span>
           </div>
 
-          <form className="profile-form" onSubmit={handleSaveProfile}>
-            {sections.map((section) => (
-              <div key={section.title} className="profile-form__section">
-                <div className="profile-form__section-header">
-                  <h4>{section.title}</h4>
-                  {section.description ? <p>{section.description}</p> : null}
-                </div>
+          {isReadOnlyView ? (
+            <div className="profile-readonly">
+              {sections.map((section) => (
+                <div key={section.title} className="profile-readonly__section">
+                  <div className="profile-form__section-header">
+                    <h4>{section.title}</h4>
+                    {section.description ? <p>{section.description}</p> : null}
+                  </div>
 
-                <div className="profile-form__grid">
-                  {section.fields.map((field) => (
-                    <label
-                      key={field.name}
-                      className={`profile-form__field ${
-                        field.name.includes("acudiente_") ? "profile-form__field--wide" : ""
-                      }`}
-                    >
-                      <span>{field.label}</span>
-                      <input
-                        type={field.type ?? "text"}
-                        value={draft[field.name] || ""}
-                        placeholder={field.placeholder || field.label}
-                        onChange={(event) =>
-                          handleFieldChange(field.name, event.target.value)
-                        }
-                        disabled={!editing || !canEditProfile}
-                      />
-                    </label>
-                  ))}
+                  <div className="profile-readonly__grid">
+                    {section.fields.map((field) => (
+                      <div
+                        key={field.name}
+                        className={`profile-readonly__item ${
+                          field.name.includes("acudiente_") ? "profile-readonly__item--wide" : ""
+                        }`}
+                      >
+                        <span>{field.label}</span>
+                        <strong>{getFieldValue(field.name)}</strong>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-
-            <div className="profile-form__footer">
-              {editing && canEditProfile ? (
-                <>
-                  <button type="submit" className="profile-btn profile-btn--primary">
-                    <Save size={18} />
-                    <span>Guardar cambios</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="profile-btn profile-btn--secondary"
-                    onClick={handleCancelEdit}
-                  >
-                    <X size={18} />
-                    <span>Cancelar</span>
-                  </button>
-                </>
-              ) : canEditProfile ? (
-                <div className="profile-form__hint">
-                  <Eye size={16} />
-                  <span>{"Activa el modo edici\u00f3n para actualizar tu perfil."}</span>
-                </div>
-              ) : null}
+              ))}
             </div>
-          </form>
+          ) : (
+            <form className="profile-form" onSubmit={handleSaveProfile}>
+              {sections.map((section) => (
+                <div key={section.title} className="profile-form__section">
+                  <div className="profile-form__section-header">
+                    <h4>{section.title}</h4>
+                    {section.description ? <p>{section.description}</p> : null}
+                  </div>
+
+                  <div className="profile-form__grid">
+                    {section.fields.map((field) => (
+                      <label
+                        key={field.name}
+                        className={`profile-form__field ${
+                          field.name.includes("acudiente_") ? "profile-form__field--wide" : ""
+                        }`}
+                      >
+                        <span>{field.label}</span>
+                        <input
+                          type={field.type ?? "text"}
+                          value={draft[field.name] || ""}
+                          placeholder={field.placeholder || field.label}
+                          onChange={(event) =>
+                            handleFieldChange(field.name, event.target.value)
+                          }
+                          disabled={!editing || !canEditProfile}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <div className="profile-form__footer">
+                {editing && canEditProfile ? (
+                  <>
+                    <button type="submit" className="profile-btn profile-btn--primary">
+                      <Save size={18} />
+                      <span>Guardar cambios</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="profile-btn profile-btn--secondary"
+                      onClick={handleCancelEdit}
+                    >
+                      <X size={18} />
+                      <span>Cancelar</span>
+                    </button>
+                  </>
+                ) : canEditProfile ? (
+                  <div className="profile-form__hint">
+                    <Eye size={16} />
+                    <span>{"Activa el modo edici\u00f3n para actualizar tu perfil."}</span>
+                  </div>
+                ) : null}
+              </div>
+            </form>
+          )}
         </article>
 
         <article className="profile-card profile-card--documents">
@@ -802,6 +813,162 @@ const ProfileModule = ({
         </div>
       ) : null}
 
+      {showAvatarModal ? (
+        <div
+          className="profile-modal__overlay"
+          role="presentation"
+          onClick={() => {
+            setShowAvatarModal(false);
+            resetAvatarDraft();
+          }}
+        >
+          <div
+            className="profile-modal profile-modal--signature"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="avatar-modal-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="profile-modal__close"
+              onClick={() => {
+                setShowAvatarModal(false);
+                resetAvatarDraft();
+              }}
+              aria-label="Cerrar modal"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="profile-modal__header">
+              <div className="profile-modal__icon">
+                <Camera size={18} />
+              </div>
+              <div>
+                <h3 id="avatar-modal-title">Cambiar avatar o foto</h3>
+                <p>Actualiza la imagen visible de tu cuenta.</p>
+              </div>
+            </div>
+
+            <form className="profile-modal__form" onSubmit={handleSaveAvatar}>
+              {error ? <div className="profile-alert profile-alert--error">{error}</div> : null}
+              {success ? <div className="profile-alert profile-alert--success">{success}</div> : null}
+
+              <div className="profile-avatar-card">
+                <div className="profile-avatar-card__image">
+                  {photoPreview ? <img src={photoPreview} alt="Vista previa de perfil" /> : <User size={42} />}
+                </div>
+
+                <div className="profile-avatar-card__copy">
+                  <strong>Imagen actual</strong>
+                  <span>Sube una foto o elige uno de los avatares disponibles.</span>
+                </div>
+
+                <div className="profile-avatar-card__controls">
+                  <label className="profile-avatar-card__upload">
+                    <Camera size={16} />
+                    <span>{photoFile ? photoFile.name : "Subir foto"}</span>
+                    <input
+                      type="file"
+                      accept={IMAGE_ACCEPT}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0] || null;
+                        if (file) {
+                          const validationError = validateImageFile(file);
+                          if (validationError) {
+                            setError(validationError);
+                            event.target.value = "";
+                            return;
+                          }
+                        }
+                        setPhotoFile(file);
+                        setClearProfilePhoto(false);
+                        setError("");
+                        setPhotoPreview(
+                          file
+                            ? URL.createObjectURL(file)
+                            : profile?.avatar_url || profile?.photo_url || "",
+                        );
+                      }}
+                    />
+                  </label>
+
+                  <span className="profile-avatar-card__hint">
+                    {"Solo JPG, JPEG o PNG. Tama\u00f1o m\u00e1ximo:"} {IMAGE_MAX_SIZE_MB} MB.
+                  </span>
+
+                  <button
+                    type="button"
+                    className="profile-avatar-card__upload profile-avatar-card__upload--ghost"
+                    onClick={() => {
+                      const option = avatarOptions[0];
+                      setPhotoFile(null);
+                      setClearProfilePhoto(true);
+                      setAvatarStyle(option.value);
+                      setAvatarSeed(option.seed);
+                      setPhotoPreview(option.url);
+                    }}
+                  >
+                    Usar avatar
+                  </button>
+                </div>
+              </div>
+
+              <div className="profile-avatar-picker">
+                <div className="profile-avatar-picker__header">
+                  <strong>Elige un avatar</strong>
+                  <span>{"Se guardar\u00e1 como alternativa a la foto de perfil."}</span>
+                </div>
+
+                <div className="profile-avatar-picker__grid">
+                  {avatarOptions.map((option) => (
+                    <button
+                      key={`${option.value}-${option.seed}`}
+                      type="button"
+                      className={`profile-avatar-option ${
+                        avatarStyle === option.value && (avatarSeed || avatarSeedBase) === option.seed
+                          ? "is-active"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        setPhotoFile(null);
+                        setClearProfilePhoto(true);
+                        setAvatarStyle(option.value);
+                        setAvatarSeed(option.seed);
+                        setPhotoPreview(option.url);
+                      }}
+                    >
+                      <img src={option.url} alt={option.label} />
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="profile-modal__actions">
+                <button type="submit" className="profile-btn profile-btn--primary">
+                  <Save size={18} />
+                  <span>Guardar imagen</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="profile-btn profile-btn--secondary"
+                  onClick={() => {
+                    setShowAvatarModal(false);
+                    resetAvatarDraft();
+                  }}
+                >
+                  <X size={18} />
+                  <span>Cancelar</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
       {showSignatureModal && dataPolicyDocument ? (
         <div
           className="profile-modal__overlay"
@@ -935,3 +1102,4 @@ const ProfileModule = ({
 };
 
 export default ProfileModule;
+// MANPROG_CAPTURA_FRONT_PROFILE_MODULE_FIN

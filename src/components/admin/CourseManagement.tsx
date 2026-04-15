@@ -14,6 +14,7 @@ import {
   createArea,
   deleteArea,
   getAreasByCourse,
+  updateArea,
 } from "../../commons/personas/services/areaservice";
 import {
   deleteSubject,
@@ -93,6 +94,7 @@ interface CourseManagementProps {
   mode?: CourseManagementMode;
 }
 
+// MANPROG_CAPTURA_FRONT_COURSE_MANAGEMENT_INICIO: administración de cursos, equipos, áreas, materias e indicadores.
 const CourseManagement = ({
   mode = "course",
 }: CourseManagementProps) => {
@@ -121,6 +123,7 @@ const CourseManagement = ({
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
 
   const [newAreaName, setNewAreaName] = useState("");
+  const [editingArea, setEditingArea] = useState<Area | null>(null);
   const [newSubjectName, setNewSubjectName] = useState("");
   const [newSubjectArea, setNewSubjectArea] = useState<number | "">("");
   const [newSubjectTeacher, setNewSubjectTeacher] = useState<number | "">("");
@@ -308,6 +311,7 @@ const CourseManagement = ({
     setNewSubjectArea("");
     setNewSubjectTeacher("");
     setNewSubjectCourses([]);
+    setEditingArea(null);
     setIsAreaModalOpen(false);
     setIsSubjectModalOpen(false);
     setIsEditSubjectModalOpen(false);
@@ -474,18 +478,32 @@ const CourseManagement = ({
     if (!nombre) return;
 
     try {
-      const response = await createArea({
-        nombre,
-        curso: selectedCourse.id,
-      });
+      if (editingArea) {
+        const response = await updateArea(editingArea.id, { nombre });
+        setAreas((current) =>
+          current.map((area) => (area.id === editingArea.id ? response.data : area))
+        );
+        showToast({
+          type: "success",
+          title: "Area actualizada",
+          message: "El nombre del area se actualizo correctamente.",
+        });
+      } else {
+        const response = await createArea({
+          nombre,
+          curso: selectedCourse.id,
+        });
 
-      setAreas((current) => [...current, response.data]);
+        setAreas((current) => [...current, response.data]);
+        showToast({
+          type: "success",
+          title: "Area creada",
+          message: "El area se creo correctamente.",
+        });
+      }
+
       setNewAreaName("");
-      showToast({
-        type: "success",
-        title: "Area creada",
-        message: "El area se creo correctamente.",
-      });
+      setEditingArea(null);
     } catch (error: any) {
       showToast({
         type: "error",
@@ -686,6 +704,7 @@ const CourseManagement = ({
 
   const resetAreaDraft = () => {
     setNewAreaName("");
+    setEditingArea(null);
     setIsAreaModalOpen(false);
   };
 
@@ -1007,7 +1026,11 @@ const CourseManagement = ({
       teachers={teachers}
       selectedSubjectId={selectedSubjectId}
       onSelectSubject={setSelectedSubjectId}
-      onOpenAreaModal={() => setIsAreaModalOpen(true)}
+      onOpenAreaModal={(area) => {
+        setEditingArea(area ?? null);
+        setNewAreaName(area?.nombre || "");
+        setIsAreaModalOpen(true);
+      }}
       onRemoveArea={(areaId) => void removeArea(areaId)}
       onOpenSubjectModal={() => {
         setNewSubjectCourses(selectedCourse?.id ? [selectedCourse.id] : []);
@@ -1263,8 +1286,12 @@ const CourseManagement = ({
           <div className="course-management__modal">
             <div className="course-management__modal-header">
               <div>
-                <h3>Nueva area</h3>
-                <p>Crea un area base para organizar las materias del curso.</p>
+                <h3>{editingArea ? "Editar area" : "Nueva area"}</h3>
+                <p>
+                  {editingArea
+                    ? "Actualiza el nombre del area sin salir de la estructura del curso."
+                    : "Crea un area base para organizar las materias del curso."}
+                </p>
               </div>
               <button
                 type="button"
@@ -1289,11 +1316,11 @@ const CourseManagement = ({
                   className="course-management__primary-btn"
                   onClick={async () => {
                     await addArea();
-                    setIsAreaModalOpen(false);
+                    resetAreaDraft();
                   }}
                 >
-                  <Plus size={15} />
-                  <span>Crear area</span>
+                  {editingArea ? <Save size={15} /> : <Plus size={15} />}
+                  <span>{editingArea ? "Guardar area" : "Crear area"}</span>
                 </button>
                 <button
                   type="button"
@@ -1768,6 +1795,7 @@ const CourseManagement = ({
 };
 
 export default CourseManagement;
+// MANPROG_CAPTURA_FRONT_COURSE_MANAGEMENT_FIN
 
 
 

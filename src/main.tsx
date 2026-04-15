@@ -8,6 +8,7 @@ import { GOOGLE_CLIENT_ID } from "@/config/api";
 import { LoadingProvider } from "@/context/LoadingContext";
 import { FeedbackProvider } from "@/context/FeedbackContext";
 
+// MANPROG_CAPTURA_FRONT_MAIN_INICIO: punto de entrada del frontend con proveedores globales y arranque de React.
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
@@ -19,3 +20,4 @@ createRoot(document.getElementById("root")!).render(
     </GoogleOAuthProvider>
   </StrictMode>
 );
+// MANPROG_CAPTURA_FRONT_MAIN_FIN

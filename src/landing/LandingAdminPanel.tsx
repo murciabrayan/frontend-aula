@@ -125,6 +125,7 @@ const emptyLandingContent: LandingContentPayload = {
   calendar_entries: [],
 };
 
+// MANPROG_CAPTURA_FRONT_LANDING_ADMIN_INICIO: panel administrativo para editar noticias, galería, documentos y agenda de la landing.
 const LandingAdminPanel = ({ open, onClose }: Props) => {
   const { refreshLandingContent } = useLandingContent();
   const { showToast, confirm } = useFeedback();
@@ -863,3 +864,4 @@ const LandingAdminPanel = ({ open, onClose }: Props) => {
 };
 
 export default LandingAdminPanel;
+// MANPROG_CAPTURA_FRONT_LANDING_ADMIN_FIN

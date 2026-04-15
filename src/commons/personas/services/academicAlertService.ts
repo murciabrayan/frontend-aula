@@ -92,6 +92,7 @@ export interface StudentAcademicSummaryResponse {
   };
 }
 
+// MANPROG_CAPTURA_FRONT_ALERTS_SERVICE_INICIO: contrato TypeScript y consumo del módulo de alertas académicas.
 export const generateAcademicAlerts = (course: number, period: number) =>
   api.post<GenerateAlertsResponse>(`${API_BASE}/generate/`, { course, period });
 
@@ -121,3 +122,4 @@ export const getStudentAcademicSummary = (period: number) =>
   api.get<StudentAcademicSummaryResponse>(`${API_BASE}/student-summary/`, {
     params: { period },
   });
+// MANPROG_CAPTURA_FRONT_ALERTS_SERVICE_FIN

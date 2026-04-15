@@ -8,6 +8,7 @@ import type {
 type Area = {
   id: number;
   nombre: string;
+  curso: number;
 };
 
 type Subject = {
@@ -36,7 +37,7 @@ interface CourseStructureBoardProps {
   teachers: User[];
   selectedSubjectId: number | null;
   onSelectSubject: (subjectId: number) => void;
-  onOpenAreaModal: () => void;
+  onOpenAreaModal: (area?: Area) => void;
   onRemoveArea: (areaId: number) => void;
   onOpenSubjectModal: () => void;
   onOpenEditSubjectModal: (subject: Subject) => void;
@@ -155,7 +156,7 @@ const CourseStructureBoard = ({
               <button
                 type="button"
                 className="course-management__primary-btn"
-                onClick={onOpenAreaModal}
+                onClick={() => onOpenAreaModal()}
               >
                 <Plus size={14} />
                 <span>Crear area</span>
@@ -168,7 +169,7 @@ const CourseStructureBoard = ({
                   <tr>
                     <th>Area</th>
                     <th>Materias relacionadas</th>
-                    <th>Accion</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -187,14 +188,24 @@ const CourseStructureBoard = ({
                         </td>
                         <td>{subjects.filter((subject) => subject.area === area.id).length} materias</td>
                         <td>
-                          <button
-                            type="button"
-                            className="course-management__action-pill"
-                            onClick={() => onRemoveArea(area.id)}
-                          >
-                            <X size={14} />
-                            <span>Eliminar</span>
-                          </button>
+                          <div className="course-management__team-actions course-management__team-actions--inline">
+                            <button
+                              type="button"
+                              className="course-management__secondary-btn"
+                              onClick={() => onOpenAreaModal(area)}
+                            >
+                              <Pencil size={14} />
+                              Editar
+                            </button>
+                            <button
+                              type="button"
+                              className="course-management__danger-btn"
+                              onClick={() => onRemoveArea(area.id)}
+                            >
+                              <X size={14} />
+                              Eliminar
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

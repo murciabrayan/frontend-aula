@@ -16,6 +16,7 @@ import DashboardLayout, {
 import NotificationBell from "../components/NotificationBell";
 import "@/commons/personas/styles/adminDashboard.css";
 
+// MANPROG_CAPTURA_FRONT_ADMIN_DASHBOARD_INICIO: navegación principal del rol administrador.
 const adminModules: DashboardModuleItem[] = [
   { id: "inicio", label: "Inicio", icon: Home },
   { id: "usuarios", label: "Gestionar usuarios", icon: Users },
@@ -51,3 +52,4 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
+// MANPROG_CAPTURA_FRONT_ADMIN_DASHBOARD_FIN

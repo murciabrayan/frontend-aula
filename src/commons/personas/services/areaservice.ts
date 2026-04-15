@@ -8,6 +8,9 @@ export const getAreasByCourse = (courseId: number) =>
 export const createArea = (data: { nombre: string; curso: number }) =>
   api.post(`${API_BASE}/areas/`, data);
 
+export const updateArea = (areaId: number, data: { nombre: string }) =>
+  api.patch(`${API_BASE}/areas/${areaId}/`, data);
+
 export const deleteArea = (areaId: number) =>
   api.delete(`${API_BASE}/areas/${areaId}/`);
 
