@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import api from "@/api/axios";
 import StyledSelect from "@/components/StyledSelect";
 import {
@@ -23,7 +23,6 @@ interface CourseItem {
   total_estudiantes: number;
 }
 
-// MANPROG_CAPTURA_FRONT_ADMIN_ALERTS_INICIO: tablero administrativo para generar, revisar y cerrar alertas académicas.
 const alertTypeLabel = (type: AlertType) => {
   if (type === "LOW_GRADE") return "Bajo rendimiento";
   if (type === "ABSENCE_RISK") return "Inasistencia";
@@ -595,4 +594,3 @@ const AdminAcademicAlerts: React.FC = () => {
 };
 
 export default AdminAcademicAlerts;
-// MANPROG_CAPTURA_FRONT_ADMIN_ALERTS_FIN

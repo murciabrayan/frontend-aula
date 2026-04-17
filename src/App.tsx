@@ -14,7 +14,6 @@ import InstitutionalInfoPage from "@/landing/InstitutionalInfoPage";
 import ContactPage from "@/landing/ContactPage";
 import ScrollToTop from "@/components/ScrollToTop";
 
-// MANPROG_CAPTURA_FRONT_APP_ROUTES_INICIO: rutas públicas, pantallas de autenticación y dashboards protegidos por rol.
 const App = () => {
   return (
     <Router>
@@ -72,4 +71,3 @@ const App = () => {
 };
 
 export default App;
-// MANPROG_CAPTURA_FRONT_APP_ROUTES_FIN

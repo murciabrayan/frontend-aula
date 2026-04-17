@@ -1,6 +1,4 @@
 ﻿import {
-  Facebook,
-  Instagram,
   LogOut,
   Menu,
   Music2,
@@ -9,6 +7,7 @@
   UserCircle2,
   X,
 } from "lucide-react";
+import { FaFacebookF, FaInstagram } from "react-icons/fa";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.png";
@@ -41,12 +40,12 @@ const socialLinks = [
   {
     label: "Facebook",
     href: "https://www.facebook.com/gimnasio.los.cerros.2025",
-    icon: Facebook,
+    icon: FaFacebookF,
   },
   {
     label: "Instagram",
     href: "https://www.instagram.com/gimnasio_los_cerros/",
-    icon: Instagram,
+    icon: FaInstagram,
   },
   {
     label: "TikTok",

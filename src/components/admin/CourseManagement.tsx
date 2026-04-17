@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Pencil, Plus, Save, Search, Trash2 } from "lucide-react";
 import StyledSelect from "@/components/StyledSelect";
 import api from "@/api/axios";
@@ -94,7 +94,6 @@ interface CourseManagementProps {
   mode?: CourseManagementMode;
 }
 
-// MANPROG_CAPTURA_FRONT_COURSE_MANAGEMENT_INICIO: administración de cursos, equipos, áreas, materias e indicadores.
 const CourseManagement = ({
   mode = "course",
 }: CourseManagementProps) => {
@@ -1795,7 +1794,6 @@ const CourseManagement = ({
 };
 
 export default CourseManagement;
-// MANPROG_CAPTURA_FRONT_COURSE_MANAGEMENT_FIN
 
 
 

@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -12,7 +12,6 @@ import "@/commons/Auth/styles/login.css";
 import logo from "@/assets/logo.png";
 import sideImage from "@/assets/login-side.jpg";
 
-// MANPROG_CAPTURA_FRONT_LOGIN_INICIO: interfaz de acceso con credenciales y autenticación por Google.
 const GoogleMark = () => (
   <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
     <path
@@ -180,4 +179,3 @@ const LoginScreen = () => {
 };
 
 export default LoginScreen;
-// MANPROG_CAPTURA_FRONT_LOGIN_FIN

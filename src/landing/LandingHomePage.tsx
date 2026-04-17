@@ -184,7 +184,6 @@ const communityItems = [
 
 const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
-// MANPROG_CAPTURA_FRONT_LANDING_HOME_INICIO: landing pública con hero, noticias, galería, calendario y comunidad.
 const formatDisplayDate = (dateValue: string) =>
   new Date(`${dateValue}T00:00:00`).toLocaleDateString("es-CO", {
     day: "numeric",
@@ -728,4 +727,3 @@ const LandingHomePage = () => {
 };
 
 export default LandingHomePage;
-// MANPROG_CAPTURA_FRONT_LANDING_HOME_FIN

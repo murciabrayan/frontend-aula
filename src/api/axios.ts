@@ -14,7 +14,6 @@ const ACCESS_TOKEN_KEY = "access_token";
 const REFRESH_TOKEN_KEY = "refresh_token";
 const AUTH_CHANGE_EVENT = "auth-change";
 
-// MANPROG_CAPTURA_FRONT_AXIOS_INICIO: cliente HTTP central con JWT, refresh automático y soporte FormData.
 const normalizeBaseUrl = (url: string) => url.replace(/\/+$/, "");
 const defaultBaseUrl = normalizeBaseUrl(API_BASE_URL);
 
@@ -201,4 +200,3 @@ attachResponseInterceptor(api);
 attachResponseInterceptor(axios);
 
 export default api;
-// MANPROG_CAPTURA_FRONT_AXIOS_FIN

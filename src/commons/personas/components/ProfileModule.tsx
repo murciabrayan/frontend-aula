@@ -51,7 +51,6 @@ const SIGNATURE_CANVAS_WIDTH = 680;
 const SIGNATURE_CANVAS_HEIGHT = 220;
 type SignatureMode = "draw" | "upload";
 
-// MANPROG_CAPTURA_FRONT_PROFILE_MODULE_INICIO: perfil unificado con foto/avatar, firma legal, contraseña y datos por rol.
 const ProfileModule = ({
   roleTitle,
   roleDescription,
@@ -1102,4 +1101,3 @@ const ProfileModule = ({
 };
 
 export default ProfileModule;
-// MANPROG_CAPTURA_FRONT_PROFILE_MODULE_FIN

@@ -63,7 +63,6 @@ export interface LandingContactPayload {
   message: string;
 }
 
-// MANPROG_CAPTURA_FRONT_LANDING_API_INICIO: servicios frontend para consumir contenido público y administración de la landing.
 export const fetchLandingContent = async () => {
   const response = await publicLandingApi.get<LandingContentPayload>("/api/landing/content/");
   return response.data;
@@ -173,4 +172,3 @@ export const updateLandingCalendarEntry = async (
 export const deleteLandingCalendarEntry = async (id: number) => {
   await api.delete(`/api/landing/calendar/${id}/`);
 };
-// MANPROG_CAPTURA_FRONT_LANDING_API_FIN

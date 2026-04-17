@@ -33,7 +33,6 @@ export interface LoginResponse {
   user?: StoredUser;
 }
 
-// MANPROG_CAPTURA_FRONT_AUTH_SERVICE_INICIO: flujo de login, persistencia de sesión y redirección por rol.
 export const AUTH_CHANGE_EVENT = "auth-change";
 const LANDING_ADMIN_ACCESS_KEY = "landing_admin_access";
 
@@ -203,4 +202,3 @@ export const acceptDataPolicy = async (signatureFile: File) => {
 };
 
 export const isAuthenticated = () => Boolean(localStorage.getItem("access_token"));
-// MANPROG_CAPTURA_FRONT_AUTH_SERVICE_FIN
