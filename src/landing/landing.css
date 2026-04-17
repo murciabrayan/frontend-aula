@@ -312,7 +312,8 @@ body {
   position: absolute;
   top: calc(100% + 12px);
   right: 0;
-  min-width: 240px;
+  width: min(280px, calc(100vw - 24px));
+  min-width: 0;
   padding: 14px;
   border-radius: 22px;
   background: rgba(14, 14, 18, 0.98);
@@ -327,15 +328,24 @@ body {
   grid-template-columns: 24px minmax(0, 1fr);
   gap: 12px;
   align-items: center;
+  min-width: 0;
   padding: 8px 6px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--landing-gold-soft);
 }
 
+.landing-profile__summary > div {
+  min-width: 0;
+}
+
 .landing-profile__summary strong {
   display: block;
+  max-width: 100%;
   color: var(--landing-white);
   font-size: 0.92rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .landing-profile__summary span {
@@ -2825,6 +2835,7 @@ body {
 
 .landing-admin__form input,
 .landing-admin__form textarea {
+  min-width: 0;
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
@@ -2847,6 +2858,9 @@ body {
 }
 
 .landing-admin__preview {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   border-radius: 22px;
   border: 1px dashed rgba(201, 162, 39, 0.22);
@@ -2854,12 +2868,15 @@ body {
 }
 
 .landing-admin__preview--image {
-  min-height: 190px;
+  aspect-ratio: 16 / 7;
+  min-height: 170px;
+  max-height: 220px;
 }
 
 .landing-admin__preview--image img {
   width: 100%;
-  height: 190px;
+  height: 100%;
+  max-width: 100%;
   object-fit: cover;
   display: block;
 }
@@ -2890,6 +2907,9 @@ body {
 .landing-admin__file-preview span {
   color: #726a5b;
   font-size: 0.9rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .landing-admin__form-row {

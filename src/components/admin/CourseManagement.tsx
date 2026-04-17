@@ -374,13 +374,12 @@ const CourseManagement = ({
         const createdCourse = response.data;
 
         setCourses((current) => [...current, createdCourse]);
+        setSelectedCourseId(null);
         showToast({
           type: "success",
           title: "Curso creado",
           message: "El curso se creo correctamente.",
         });
-
-        await openCourseWorkspace(createdCourse);
       }
 
       resetCourseForm();
@@ -459,6 +458,7 @@ const CourseManagement = ({
         title: "Curso actualizado",
         message: "Director y estudiantes guardados correctamente.",
       });
+      closeTeamModal();
     } catch (error) {
       console.error("Error guardando director y estudiantes", error);
       showToast({

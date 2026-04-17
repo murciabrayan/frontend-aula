@@ -363,8 +363,8 @@ const InstitutionalLayout = () => {
             <div>
               <h3>Contacto</h3>
               <div className="landing-footer__contact">
-                <span>Tel: +57 601 555 1010</span>
-                <span>Email: admisiones@institucion.edu.co</span>
+                <span>Tel: 3213982405 - 3112756838</span>
+                <span>Email: ieloscerros@gmail.com</span>
                 <span>Dirección: Cl. 8 # 6-87, Simijaca, Cundinamarca</span>
               </div>
             </div>

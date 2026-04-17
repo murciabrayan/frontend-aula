@@ -11,11 +11,11 @@ const contactCards = [
   },
   {
     title: "Línea de atención",
-    text: "+57 601 555 1010. Equipo disponible para orientar procesos institucionales, matrículas y vida escolar.",
+    text: "3213982405 - 3112756838. Equipo disponible para orientar procesos institucionales, matrículas y vida escolar.",
   },
   {
     title: "Correo institucional",
-    text: "branfer60@gmail.com. Respuesta prioritaria para aspirantes, familias y comunidad académica.",
+    text: "ieloscerros@gmail.com. Respuesta prioritaria para aspirantes, familias y comunidad académica.",
   },
 ];
 

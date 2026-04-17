@@ -63,7 +63,9 @@ const ForgotPasswordScreen = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              <button type="submit">Enviar enlace</button>
+              <button type="submit" className="login-btn active">
+                Enviar enlace
+              </button>
 
               <a className="forgot" onClick={() => navigate("/plataforma")}>
                 Volver al inicio de sesión
