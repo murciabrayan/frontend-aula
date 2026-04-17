@@ -196,6 +196,8 @@ const CourseTeamBoard = ({
                                   <CheckCircle2 size={14} />
                                   <span>Asignado</span>
                                 </>
+                              ) : isInAnotherCourse ? (
+                                <span>{currentCourse}</span>
                               ) : (
                                 <span>Disponible</span>
                               )}
