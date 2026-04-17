@@ -197,7 +197,7 @@ const CourseTeamBoard = ({
                                   <span>Asignado</span>
                                 </>
                               ) : isInAnotherCourse ? (
-                                <span>{currentCourse}</span>
+                                <span>No disponible</span>
                               ) : (
                                 <span>Disponible</span>
                               )}

@@ -70,20 +70,6 @@ interface Subject {
 
 type CourseManagementMode = "course" | "structure";
 
-type PeriodSelectorState = {
-  1: number | "";
-  2: number | "";
-  3: number | "";
-  4: number | "";
-};
-
-const emptyPeriodState = (): PeriodSelectorState => ({
-  1: "",
-  2: "",
-  3: "",
-  4: "",
-});
-
 const emptyCourseForm = (): Course => ({
   name: "",
   teacher: null,
@@ -150,9 +136,6 @@ const CourseManagement = ({
   const [indicatorAssignments, setIndicatorAssignments] = useState<
     SubjectIndicatorAssignment[]
   >([]);
-  const [selectedIndicators, setSelectedIndicators] = useState<
-    Record<number, PeriodSelectorState>
-  >({});
   const [editingIndicatorId, setEditingIndicatorId] = useState<number | null>(
     null
   );
@@ -239,14 +222,6 @@ const CourseManagement = ({
     return assignedCourse?.name || "Sin curso";
   };
 
-  const initializeSelectedIndicators = (subjectList: Subject[]) => {
-    const nextState: Record<number, PeriodSelectorState> = {};
-    subjectList.forEach((subject) => {
-      nextState[subject.id] = emptyPeriodState();
-    });
-    setSelectedIndicators(nextState);
-  };
-
   const openCourseWorkspace = async (course: Course) => {
     if (!course.id) return;
 
@@ -270,7 +245,6 @@ const CourseManagement = ({
       setAreas(areasRes.data || []);
       setIndicatorBank(indicatorsRes.data || []);
       setIndicatorAssignments(assignmentsRes.data || []);
-      initializeSelectedIndicators(loadedSubjects);
       setSelectedSubjectId(loadedSubjects[0]?.id ?? null);
       setAssignmentSubjectId(loadedSubjects[0]?.id ?? "");
     } catch (error) {
@@ -417,7 +391,6 @@ const CourseManagement = ({
         setAreas([]);
         setIndicatorBank([]);
         setIndicatorAssignments([]);
-        setSelectedIndicators({});
         setSelectedSubjectId(null);
       }
 
@@ -773,11 +746,6 @@ const CourseManagement = ({
     setIndicatorAssignments((current) =>
       current.filter((assignment) => assignment.materia !== subjectId)
     );
-    setSelectedIndicators((current) => {
-      const next = { ...current };
-      delete next[subjectId];
-      return next;
-    });
     setSelectedSubjectId(
       selectedSubjectId === subjectId ? remainingSubjects[0]?.id ?? null : selectedSubjectId
     );
@@ -885,36 +853,24 @@ const CourseManagement = ({
       return;
     }
 
-    handleSelectedIndicatorChange(
+    const saved = await assignIndicatorToSubject(
       assignmentSubjectId,
       assignmentPeriod,
       assignmentIndicatorId
     );
-    await assignIndicatorToSubject(assignmentSubjectId, assignmentPeriod);
-    setSelectedSubjectId(assignmentSubjectId);
-    resetIndicatorAssignmentDraft();
-  };
 
-  const handleSelectedIndicatorChange = (
-    subjectId: number,
-    period: 1 | 2 | 3 | 4,
-    indicatorId: number | ""
-  ) => {
-    setSelectedIndicators((current) => ({
-      ...current,
-      [subjectId]: {
-        ...(current[subjectId] || emptyPeriodState()),
-        [period]: indicatorId,
-      },
-    }));
+    if (saved) {
+      setSelectedSubjectId(assignmentSubjectId);
+      resetIndicatorAssignmentDraft();
+    }
   };
 
   const assignIndicatorToSubject = async (
     subjectId: number,
-    period: 1 | 2 | 3 | 4
+    period: 1 | 2 | 3 | 4,
+    indicatorId: number | ""
   ) => {
-    const indicatorId = selectedIndicators[subjectId]?.[period];
-    if (!indicatorId) return;
+    if (!indicatorId) return false;
 
     try {
       const response = await createAssignment({
@@ -924,18 +880,12 @@ const CourseManagement = ({
       });
 
       setIndicatorAssignments((current) => [...current, response.data]);
-      setSelectedIndicators((current) => ({
-        ...current,
-        [subjectId]: {
-          ...(current[subjectId] || emptyPeriodState()),
-          [period]: "",
-        },
-      }));
       showToast({
         type: "success",
         title: "Indicador asignado",
         message: `Se asigno correctamente al periodo ${period}.`,
       });
+      return true;
     } catch (error: any) {
       showToast({
         type: "error",
@@ -945,6 +895,7 @@ const CourseManagement = ({
           error?.response?.data?.detail ||
           "No se pudo asignar el indicador.",
       });
+      return false;
     }
   };
 
