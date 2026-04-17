@@ -999,11 +999,13 @@ const CourseManagement = ({
       selectedStudentIds={selectedStudents}
       studentFilter={studentFilter}
       onStudentFilterChange={setStudentFilter}
-      onAddStudent={(studentId) =>
+      onAddStudent={(studentId) => {
+        const currentCourse = getStudentCourseName(studentId);
+        if (currentCourse !== "Sin curso") return;
         setSelectedStudents((current) =>
           current.includes(studentId) ? current : [...current, studentId]
-        )
-      }
+        );
+      }}
       onRemoveStudent={(studentId) =>
         setSelectedStudents((current) => current.filter((id) => id !== studentId))
       }

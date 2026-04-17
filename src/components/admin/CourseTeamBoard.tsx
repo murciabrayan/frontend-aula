@@ -173,6 +173,7 @@ const CourseTeamBoard = ({
                     allStudents.map((student) => {
                       const isAssigned = selectedStudentIds.includes(student.id);
                       const currentCourse = getStudentCourseName(student.id);
+                      const isInAnotherCourse = !isAssigned && currentCourse !== "Sin curso";
 
                       return (
                         <tr key={student.id}>
@@ -206,8 +207,16 @@ const CourseTeamBoard = ({
                               className={`course-management__action-pill ${
                                 isAssigned ? "is-active" : ""
                               }`}
+                              disabled={isInAnotherCourse}
+                              title={
+                                isInAnotherCourse
+                                  ? `Ya pertenece al curso ${currentCourse}`
+                                  : undefined
+                              }
                               onClick={() =>
-                                isAssigned
+                                isInAnotherCourse
+                                  ? undefined
+                                  : isAssigned
                                   ? onRemoveStudent(student.id)
                                   : onAddStudent(student.id)
                               }
@@ -217,6 +226,8 @@ const CourseTeamBoard = ({
                                   <X size={14} />
                                   <span>Quitar</span>
                                 </>
+                              ) : isInAnotherCourse ? (
+                                <span>Ya asignado</span>
                               ) : (
                                 <>
                                   <CheckCircle2 size={14} />

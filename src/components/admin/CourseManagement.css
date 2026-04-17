@@ -537,6 +537,14 @@
   border-color: #111827;
 }
 
+.course-management__action-pill:disabled {
+  background: #e5e7eb;
+  color: #64748b;
+  border-color: #d1d5db;
+  cursor: not-allowed;
+  opacity: 0.78;
+}
+
 .course-management__placeholder,
 .course-management__state {
   min-height: 280px;
