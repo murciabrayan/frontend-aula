@@ -20,7 +20,7 @@ const TaskModal: React.FC<Props> = ({ event, onClose, onGoToTask }) => {
           </div>
 
           <button type="button" className="task-modal__close" onClick={onClose} aria-label="Cerrar modal">
-            x
+            ×
           </button>
         </div>
 

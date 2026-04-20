@@ -46,7 +46,6 @@ const baseSummary = [
   { key: "last_name", label: "Apellido", icon: User },
   { key: "email", label: "Correo", icon: Mail },
 ];
-const DATA_POLICY_CATEGORY = "Tratamiento de datos personales";
 const SIGNATURE_CANVAS_WIDTH = 680;
 const SIGNATURE_CANVAS_HEIGHT = 220;
 type SignatureMode = "draw" | "upload";
@@ -91,9 +90,6 @@ const ProfileModule = ({
   const profileDocuments = Array.isArray(profile?.documents)
     ? (profile.documents as UserDocument[])
     : [];
-  const dataPolicyDocument = profileDocuments.find(
-    (document) => document.category === DATA_POLICY_CATEGORY
-  );
 
   const allFields = useMemo(
     () => sections.flatMap((section) => section.fields),
@@ -968,7 +964,7 @@ const ProfileModule = ({
         </div>
       ) : null}
 
-      {showSignatureModal && dataPolicyDocument ? (
+      {showSignatureModal ? (
         <div
           className="profile-modal__overlay"
           role="presentation"

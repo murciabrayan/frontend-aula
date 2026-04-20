@@ -239,6 +239,17 @@
   background: #111827;
   color: #fff8ea;
   border: 1px solid #111827;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.course-management__danger-btn svg {
+  display: block;
+  flex: 0 0 auto;
 }
 
 .course-management__icon-btn {
@@ -520,9 +531,17 @@
   color: #0f172a;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
   font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.course-management__action-pill svg {
+  display: block;
+  flex: 0 0 auto;
 }
 
 .course-management__action-pill.is-active {

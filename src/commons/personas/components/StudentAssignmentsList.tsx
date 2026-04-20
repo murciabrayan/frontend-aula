@@ -11,6 +11,7 @@ import {
   Upload,
 } from "lucide-react";
 import UploadSubmissionForm from "./UploadSubmissionForm";
+import { useFeedback } from "@/context/FeedbackContext";
 import "./../styles/assignments.css";
 
 const normalizeText = (value: string) =>
@@ -65,6 +66,7 @@ const formatDate = (value: string) => {
 };
 
 const StudentAssignmentsList: React.FC = () => {
+  const { showToast } = useFeedback();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [allAssignments, setAllAssignments] = useState<Assignment[]>([]);
@@ -78,9 +80,6 @@ const StudentAssignmentsList: React.FC = () => {
   const [showDetails, setShowDetails] = useState<Assignment | null>(null);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [subjectSearch, setSubjectSearch] = useState("");
-
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState("");
 
   useEffect(() => {
     api
@@ -113,12 +112,6 @@ const StudentAssignmentsList: React.FC = () => {
 
   const getSubmission = (assignmentId: number) =>
     submissions.find((s) => s.tarea === assignmentId);
-
-  const showSuccessToast = (msg: string) => {
-    setToastMsg(msg);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 1600);
-  };
 
   const groupedSubjects = useMemo(() => {
     return areas
@@ -284,19 +277,6 @@ const StudentAssignmentsList: React.FC = () => {
           </article>
         )}
       </div>
-
-      {showToast && (
-        <div className="toast-backdrop" onClick={() => setShowToast(false)}>
-          <div className="toast-success" onClick={(e) => e.stopPropagation()}>
-            <div>
-              <strong>Listo</strong> - {toastMsg}
-            </div>
-            <button className="btn-secondary" onClick={() => setShowToast(false)}>
-              Cerrar
-            </button>
-          </div>
-        </div>
-      )}
 
       {showPendingModal && (
         <div className="modal-backdrop" onClick={() => setShowPendingModal(false)}>
@@ -591,7 +571,11 @@ const StudentAssignmentsList: React.FC = () => {
                 onSuccess={() => {
                   setShowUpload(false);
                   reloadSubmissions();
-                  showSuccessToast("Tarea entregada correctamente.");
+                  showToast({
+                    type: "success",
+                    title: "Tarea entregada",
+                    message: "La tarea fue entregada correctamente.",
+                  });
                 }}
               />
             </div>

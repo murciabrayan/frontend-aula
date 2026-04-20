@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import AssignmentForm from "./AssignmentForm";
 import SubmissionList from "./SubmissionList";
+import { useFeedback } from "@/context/FeedbackContext";
 import "./teacherAssignments.css";
 
 const normalizeText = (value: string) =>
@@ -48,6 +49,7 @@ interface CourseGroup {
 }
 
 const AssignmentDashboard: React.FC = () => {
+  const { showToast } = useFeedback();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [activeCourseId, setActiveCourseId] = useState<number | null>(null);
@@ -58,8 +60,6 @@ const AssignmentDashboard: React.FC = () => {
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
   const [subjectSearch, setSubjectSearch] = useState("");
 
   useEffect(() => {
@@ -122,9 +122,11 @@ const AssignmentDashboard: React.FC = () => {
     setShowConfirm(false);
     setAssignmentToDelete(null);
     setSelectedAssignment(null);
-    setSuccessMessage("Tarea eliminada exitosamente");
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 1400);
+    showToast({
+      type: "success",
+      title: "Tarea eliminada",
+      message: "La tarea fue eliminada exitosamente.",
+    });
   };
 
   const groupedCourses = useMemo(() => {
@@ -385,12 +387,12 @@ const AssignmentDashboard: React.FC = () => {
                     onClose={closeSubjectModal}
                     onSuccess={() => {
                       loadAssignments(activeSubject.id);
-                      setSuccessMessage("Tarea creada exitosamente");
-                      setShowSuccess(true);
-                      setTimeout(() => {
-                        setShowSuccess(false);
-                        setMode("grade");
-                      }, 1400);
+                      setMode("grade");
+                      showToast({
+                        type: "success",
+                        title: "Tarea creada",
+                        message: "La tarea fue creada exitosamente.",
+                      });
                     }}
                   />
                 </div>
@@ -535,9 +537,11 @@ const AssignmentDashboard: React.FC = () => {
                   onSuccess={() => {
                     loadAssignments(activeSubject.id);
                     setEditingAssignment(null);
-                    setSuccessMessage("Tarea actualizada exitosamente");
-                    setShowSuccess(true);
-                    setTimeout(() => setShowSuccess(false), 1400);
+                    showToast({
+                      type: "success",
+                      title: "Tarea actualizada",
+                      message: "La tarea fue actualizada exitosamente.",
+                    });
                   }}
                 />
               </div>
@@ -574,14 +578,6 @@ const AssignmentDashboard: React.FC = () => {
         </div>
       )}
 
-      {showSuccess && (
-        <div className="teacher-success-backdrop">
-          <div className="teacher-success-modal">
-            <div className="teacher-success-icon">✓</div>
-            <h3>{successMessage}</h3>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

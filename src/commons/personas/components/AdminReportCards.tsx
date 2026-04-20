@@ -76,7 +76,7 @@ const AdminReportCards: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [downloadingZip, setDownloadingZip] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState("Tercer periodo");
+  const [selectedPeriod, setSelectedPeriod] = useState("");
 
   useEffect(() => {
     loadCourses();
@@ -121,6 +121,15 @@ const AdminReportCards: React.FC = () => {
   };
 
   const loadStudentReport = async (student: StudentItem) => {
+    if (!selectedPeriod) {
+      showToast({
+        type: "warning",
+        title: "Periodo requerido",
+        message: "Selecciona un periodo academico antes de consultar el boletin.",
+      });
+      return;
+    }
+
     try {
       setSelectedStudent(student);
 
@@ -140,7 +149,7 @@ const AdminReportCards: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!selectedStudent) return;
+    if (!selectedStudent || !selectedPeriod) return;
     void loadStudentReport(selectedStudent);
   }, [selectedPeriod]);
 
@@ -153,6 +162,14 @@ const AdminReportCards: React.FC = () => {
 
   const handleGeneratePdf = async () => {
     if (!report) return;
+    if (!selectedPeriod) {
+      showToast({
+        type: "warning",
+        title: "Periodo requerido",
+        message: "Selecciona un periodo academico antes de generar el PDF.",
+      });
+      return;
+    }
 
     try {
       setDownloadingPdf(true);
@@ -191,6 +208,14 @@ const AdminReportCards: React.FC = () => {
 
   const handleGenerateCourseZip = async () => {
     if (!selectedCourse) return;
+    if (!selectedPeriod) {
+      showToast({
+        type: "warning",
+        title: "Periodo requerido",
+        message: "Selecciona un periodo academico antes de generar los boletines.",
+      });
+      return;
+    }
 
     try {
       setDownloadingZip(true);
@@ -309,6 +334,7 @@ const AdminReportCards: React.FC = () => {
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                 >
+                  <option value="">Selecciona un periodo</option>
                   <option value="Primer periodo">Primer periodo</option>
                   <option value="Segundo periodo">Segundo periodo</option>
                   <option value="Tercer periodo">Tercer periodo</option>
@@ -320,7 +346,7 @@ const AdminReportCards: React.FC = () => {
             <button
               className="report-pdf-btn"
               onClick={handleGenerateCourseZip}
-              disabled={downloadingZip}
+              disabled={downloadingZip || !selectedPeriod}
             >
               {downloadingZip ? "Generando ZIP..." : "Generar boletines del curso"}
             </button>
@@ -392,6 +418,7 @@ const AdminReportCards: React.FC = () => {
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                 >
+                  <option value="">Selecciona un periodo</option>
                   <option value="Primer periodo">Primer periodo</option>
                   <option value="Segundo periodo">Segundo periodo</option>
                   <option value="Tercer periodo">Tercer periodo</option>
@@ -403,7 +430,7 @@ const AdminReportCards: React.FC = () => {
             <button
               className="report-pdf-btn"
               onClick={handleGeneratePdf}
-              disabled={downloadingPdf}
+              disabled={downloadingPdf || !selectedPeriod}
             >
               {downloadingPdf ? "Generando..." : "Generar PDF"}
             </button>

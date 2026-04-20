@@ -830,49 +830,6 @@
   margin-top: 18px;
 }
 
-.teacher-success-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(4, 5, 10, 0.36);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 24px;
-  z-index: 23000;
-}
-
-.teacher-success-modal {
-  width: min(440px, 92vw);
-  padding: 16px 18px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #0f0f0f, #161821);
-  border: 1px solid rgba(201, 162, 39, 0.34);
-  color: #fff8ea;
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.teacher-success-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #d4af37, #be9720);
-  color: #111827;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: 900;
-  flex-shrink: 0;
-}
-
-.teacher-success-modal h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
 @keyframes teacherModalFade {
   from {
     opacity: 0;
