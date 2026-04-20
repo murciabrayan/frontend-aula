@@ -163,17 +163,45 @@
   background: linear-gradient(180deg, #fffefb 0%, #f8f5ed 100%);
 }
 
+.permission-letter-item__summary-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
 .permission-letter-item__summary {
-  width: 100%;
+  flex: 1;
   border: 0;
   background: transparent;
-  padding: 18px;
+  padding: 8px;
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  align-items: flex-start;
+  align-items: center;
   cursor: pointer;
   text-align: left;
+}
+
+.permission-delete-btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 0 12px;
+  min-height: 42px;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #111827;
+  color: #fff8ea;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.permission-delete-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.68;
 }
 
 .permission-letter-item__summary strong,
@@ -196,6 +224,7 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
+  min-height: 42px;
 }
 
 .permission-stat,
@@ -243,15 +272,25 @@
 .permission-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   min-height: 42px;
   padding: 0 14px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: #fff;
   color: #0f172a;
   text-decoration: none;
   font-weight: 700;
   border: 1px solid rgba(202, 165, 64, 0.24);
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.permission-link:hover,
+.permission-link:focus-visible {
+  background: #fff7dd;
+  border-color: rgba(202, 165, 64, 0.55);
+  color: #4a3410;
+  outline: none;
 }
 
 .permission-link--dark {
@@ -262,8 +301,18 @@
 
 .permission-link--compact {
   min-height: 34px;
-  padding: 0 12px;
+  padding: 0 14px;
   font-size: 0.86rem;
+  background: #fff7dd;
+  border-color: rgba(202, 165, 64, 0.46);
+  color: #4a3410;
+}
+
+.permission-link--compact:hover,
+.permission-link--compact:focus-visible {
+  background: linear-gradient(135deg, #d8b75a 0%, #b98b1f 100%);
+  border-color: #b98b1f;
+  color: #18120a;
 }
 
 .permission-recipient-table {
@@ -376,8 +425,13 @@
   .permission-link,
   .permission-action-btn,
   .permission-primary-btn,
-  .permission-letter-item__summary {
+  .permission-letter-item__summary,
+  .permission-delete-btn {
     width: 100%;
+  }
+
+  .permission-letter-item__summary-wrap {
+    flex-direction: column;
   }
 
   .permission-letter-item__summary {

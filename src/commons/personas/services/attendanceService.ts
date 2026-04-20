@@ -6,7 +6,7 @@ export interface TeacherAttendanceStudent {
   id: number;
   student_name: string;
   attendance_id: number | null;
-  status: "PRESENT" | "ABSENT" | "LATE";
+  status: "PRESENT" | "ABSENT" | "LATE" | "UNREGISTERED";
   is_justified: boolean;
   justification_type: string;
   notes: string;

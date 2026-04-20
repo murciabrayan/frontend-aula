@@ -15,6 +15,7 @@ import "../../commons/personas/styles/adminAttendance.css";
 const API_COURSES = "/api/report-cards/courses/";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
+type AttendanceDisplayStatus = AttendanceStatus | "UNREGISTERED";
 type JustificationType = "NONE" | "MEDICAL" | "PERMISSION" | "CALAMITY" | "OTHER";
 type PeriodType = 1 | 2 | 3 | 4;
 
@@ -68,7 +69,7 @@ interface EditableAttendanceRecord {
   events?: AttendanceHistoryEvent[];
 }
 
-type StatusFilter = "ALL" | AttendanceStatus;
+type StatusFilter = "ALL" | AttendanceDisplayStatus;
 
 const ALL_COURSES_OPTION: CourseItem = {
   id: 0,
@@ -102,9 +103,10 @@ const formatDateTime = (value?: string | null) => {
   }).format(date);
 };
 
-const statusLabel = (status: AttendanceStatus) => {
+const statusLabel = (status: AttendanceDisplayStatus) => {
   if (status === "PRESENT") return "Presente";
   if (status === "ABSENT") return "Ausente";
+  if (status === "UNREGISTERED") return "Sin registrar";
   return "Tarde";
 };
 
@@ -284,7 +286,7 @@ const AdminAttendance: React.FC = () => {
     return baseRows.filter(({ record }) =>
       statusFilter === "ALL"
         ? true
-        : (record?.status || "PRESENT") === statusFilter,
+        : (record?.status || "UNREGISTERED") === statusFilter,
     );
   }, [students, records, recordsMap, selectedCourse, statusFilter, isAllCoursesSelected]);
 
@@ -297,7 +299,7 @@ const AdminAttendance: React.FC = () => {
       curso: record?.course_name || selectedCourse?.nombre || "Curso",
       estudiante: student.nombre,
       periodo: record?.periodo || selectedPeriod,
-      estado: statusLabel((record?.status || "PRESENT") as AttendanceStatus),
+      estado: statusLabel((record?.status || "UNREGISTERED") as AttendanceDisplayStatus),
       justificada: record?.is_justified ? "Sí" : "No",
       motivo: justificationLabel(record?.justification_type || "NONE"),
       observacion_docente: record?.teacher_notes || record?.notes || "Sin observación",
@@ -562,6 +564,7 @@ const AdminAttendance: React.FC = () => {
               <option value="PRESENT">Presentes</option>
               <option value="ABSENT">Ausentes</option>
               <option value="LATE">Tarde</option>
+              <option value="UNREGISTERED">Sin registrar</option>
             </StyledSelect>
           </div>
 
@@ -691,9 +694,9 @@ const AdminAttendance: React.FC = () => {
                       <td>{record?.periodo || selectedPeriod}</td>
                       <td>
                         <span
-                          className={`admin-attendance-status-pill ${(record?.status || "PRESENT").toLowerCase()}`}
+                          className={`admin-attendance-status-pill ${(record?.status || "UNREGISTERED").toLowerCase()}`}
                         >
-                          {statusLabel((record?.status || "PRESENT") as AttendanceStatus)}
+                          {statusLabel((record?.status || "UNREGISTERED") as AttendanceDisplayStatus)}
                         </span>
                       </td>
                       <td>

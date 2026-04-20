@@ -338,6 +338,12 @@
   border-color: rgba(201, 162, 39, 0.18);
 }
 
+.admin-attendance-status-pill.unregistered {
+  background: #eef2f7;
+  color: #64748b;
+  border-color: #cbd5e1;
+}
+
 .admin-attendance-justified {
   display: inline-flex;
   align-items: center;

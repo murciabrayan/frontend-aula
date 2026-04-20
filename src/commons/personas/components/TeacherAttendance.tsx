@@ -9,10 +9,11 @@ import {
 import "../styles/teacherAttendance.css";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE";
+type AttendanceDisplayStatus = AttendanceStatus | "UNREGISTERED";
 type PeriodType = 1 | 2 | 3 | 4;
 
 interface EditableAttendanceStudent extends TeacherAttendanceStudent {
-  local_status: AttendanceStatus;
+  local_status: AttendanceDisplayStatus;
   local_teacher_notes: string;
 }
 
@@ -41,9 +42,10 @@ const formatDateTime = (value?: string | null) => {
   }).format(date);
 };
 
-const statusLabel = (status: AttendanceStatus) => {
+const statusLabel = (status: AttendanceDisplayStatus) => {
   if (status === "PRESENT") return "Presente";
   if (status === "ABSENT") return "Ausente";
+  if (status === "UNREGISTERED") return "Sin registrar";
   return "Tarde";
 };
 
@@ -165,6 +167,11 @@ const TeacherAttendance: React.FC = () => {
 
   const handleSaveSelectedStudent = async () => {
     if (!selectedStudent) return;
+
+    if (selectedStudent.local_status === "UNREGISTERED") {
+      setErrorMessage("Selecciona Presente, Ausente o Tarde antes de guardar la asistencia.");
+      return;
+    }
 
     try {
       setSaving(true);
@@ -360,6 +367,10 @@ const TeacherAttendance: React.FC = () => {
         <div className="attendance-summary-card">
           <span>Total estudiantes</span>
           <strong>{summary.total}</strong>
+        </div>
+        <div className="attendance-summary-card unregistered">
+          <span>Sin registrar</span>
+          <strong>{students.filter((student) => student.local_status === "UNREGISTERED").length}</strong>
         </div>
         <div className="attendance-summary-card present">
           <span>Presentes</span>

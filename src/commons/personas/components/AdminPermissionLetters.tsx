@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Clock3, FileText, Send, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, FileText, Send, Trash2, XCircle } from "lucide-react";
 
 import StyledSelect from "@/components/StyledSelect";
 import { useFeedback } from "@/context/FeedbackContext";
 import api from "@/api/axios";
 import {
   createPermissionLetter,
+  deletePermissionLetter,
   getPermissionLetters,
   type PermissionLetter,
 } from "@/api/permissionLetters";
@@ -29,11 +30,12 @@ const formatDate = (value: string | null | undefined) => {
 };
 
 const AdminPermissionLetters = () => {
-  const { showToast } = useFeedback();
+  const { confirm, showToast } = useFeedback();
   const [letters, setLetters] = useState<PermissionLetter[]>([]);
   const [courses, setCourses] = useState<CourseOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [deletingLetterId, setDeletingLetterId] = useState<number | null>(null);
   const [expandedLetterId, setExpandedLetterId] = useState<number | null>(null);
   const [form, setForm] = useState({
     title: "",
@@ -108,6 +110,38 @@ const AdminPermissionLetters = () => {
       });
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (letter: PermissionLetter) => {
+    const accepted = await confirm({
+      title: "Eliminar permiso",
+      message: `Se eliminará el permiso "${letter.title}" y sus respuestas asociadas. Esta acción no se puede deshacer.`,
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      tone: "danger",
+    });
+
+    if (!accepted) return;
+
+    try {
+      setDeletingLetterId(letter.id);
+      await deletePermissionLetter(letter.id);
+      setLetters((current) => current.filter((item) => item.id !== letter.id));
+      setExpandedLetterId((current) => (current === letter.id ? null : current));
+      showToast({
+        type: "success",
+        title: "Permisos",
+        message: "El permiso fue eliminado correctamente.",
+      });
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        title: "Permisos",
+        message: error.response?.data?.error || "No se pudo eliminar el permiso.",
+      });
+    } finally {
+      setDeletingLetterId(null);
     }
   };
 
@@ -215,6 +249,7 @@ const AdminPermissionLetters = () => {
 
                 return (
                   <article key={letter.id} className={`permission-letter-item ${expanded ? "is-expanded" : ""}`}>
+                    <div className="permission-letter-item__summary-wrap">
                     <button
                       type="button"
                       className="permission-letter-item__summary"
@@ -240,6 +275,18 @@ const AdminPermissionLetters = () => {
                         </span>
                       </div>
                     </button>
+
+                    <button
+                      type="button"
+                      className="permission-delete-btn"
+                      onClick={() => void handleDelete(letter)}
+                      disabled={deletingLetterId === letter.id}
+                      title="Eliminar permiso"
+                    >
+                      <Trash2 size={15} />
+                      <span>{deletingLetterId === letter.id ? "Eliminando..." : "Eliminar"}</span>
+                    </button>
+                    </div>
 
                     {expanded ? (
                       <div className="permission-letter-item__detail">

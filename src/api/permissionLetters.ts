@@ -55,6 +55,10 @@ export const createPermissionLetter = async (payload: FormData) => {
   return response.data;
 };
 
+export const deletePermissionLetter = async (letterId: number) => {
+  await api.delete(`/api/permission-letters/${letterId}/`);
+};
+
 export const getStudentPermissionLetters = async () => {
   const response = await api.get<StudentPermissionLetter[]>("/api/student/permission-letters/");
   return response.data;

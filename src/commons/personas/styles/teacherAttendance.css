@@ -190,7 +190,7 @@
 
 .attendance-summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
   margin-bottom: 18px;
 }
@@ -218,6 +218,10 @@
 
 .attendance-summary-card.present strong {
   color: #8b6b1d;
+}
+
+.attendance-summary-card.unregistered strong {
+  color: #64748b;
 }
 
 .attendance-summary-card.absent strong {
@@ -367,6 +371,12 @@
   background: rgba(243, 235, 219, 0.96);
   color: #4b5563;
   border-color: rgba(201, 162, 39, 0.18);
+}
+
+.attendance-status-pill.unregistered {
+  background: #eef2f7;
+  color: #64748b;
+  border-color: #cbd5e1;
 }
 
 .attendance-justified {
