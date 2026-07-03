@@ -27,6 +27,8 @@ interface DashboardLayoutProps {
 }
 
 const INACTIVITY_LIMIT_MS = 5 * 60 * 1000;
+const INACTIVITY_LAST_ACTIVITY_KEY = "dashboard_last_activity_at";
+const INACTIVITY_LOCK_KEY = "dashboard_inactivity_locked";
 
 const DashboardLayout = ({
   roleLabel,
@@ -37,7 +39,23 @@ const DashboardLayout = ({
   children,
 }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [showInactivityModal, setShowInactivityModal] = useState(false);
+  const [showInactivityModal, setShowInactivityModal] = useState(() => {
+    if (typeof window === "undefined") return false;
+
+    const isLocked = localStorage.getItem(INACTIVITY_LOCK_KEY) === "true";
+    const lastActivityAt = Number(localStorage.getItem(INACTIVITY_LAST_ACTIVITY_KEY) || "0");
+
+    if (isLocked) return true;
+    if (!lastActivityAt) return false;
+
+    const exceededLimit = Date.now() - lastActivityAt >= INACTIVITY_LIMIT_MS;
+    if (exceededLimit) {
+      localStorage.setItem(INACTIVITY_LOCK_KEY, "true");
+      return true;
+    }
+
+    return false;
+  });
 
   const activeModuleLabel = useMemo(
     () => modules.find((module) => module.id === activeModule)?.label ?? "Inicio",
@@ -45,6 +63,8 @@ const DashboardLayout = ({
   );
 
   const handleLogout = () => {
+    localStorage.removeItem(INACTIVITY_LAST_ACTIVITY_KEY);
+    localStorage.removeItem(INACTIVITY_LOCK_KEY);
     logoutUser();
     localStorage.removeItem("role");
     window.location.href = "/plataforma";
@@ -55,10 +75,20 @@ const DashboardLayout = ({
 
     let timeoutId: number | undefined;
 
+    const markActivity = () => {
+      localStorage.setItem(INACTIVITY_LAST_ACTIVITY_KEY, Date.now().toString());
+    };
+
+    const lockSessionByInactivity = () => {
+      localStorage.setItem(INACTIVITY_LOCK_KEY, "true");
+      setShowInactivityModal(true);
+    };
+
     const resetTimer = () => {
       window.clearTimeout(timeoutId);
+      markActivity();
       timeoutId = window.setTimeout(() => {
-        setShowInactivityModal(true);
+        lockSessionByInactivity();
       }, INACTIVITY_LIMIT_MS);
     };
 

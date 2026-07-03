@@ -34,13 +34,13 @@ const GoogleMark = () => (
 );
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  const isFormValid = email.trim() !== "" && password.trim() !== "";
+  const isFormValid = identifier.trim() !== "" && password.trim() !== "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ const LoginScreen = () => {
     if (!isFormValid) return;
 
     try {
-      const userData = await loginUser(email, password);
+      const userData = await loginUser(identifier, password);
       navigate(getNextAuthRoute(userData));
     } catch {
       setErrorMessage("Credenciales incorrectas o error de conexión");
@@ -95,9 +95,9 @@ const LoginScreen = () => {
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
-                placeholder="Correo"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Correo institucional o cédula"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
               />
 
@@ -158,6 +158,11 @@ const LoginScreen = () => {
               >
                 ¿Olvidó su contraseña?
               </a>
+
+              <div className="login-tagline" style={{ marginTop: "12px" }}>
+                Los estudiantes pueden ingresar con su cédula. Si no tienen correo registrado,
+                la recuperación debe solicitarse al colegio.
+              </div>
 
               {errorMessage && (
                 <div className="error-message">{errorMessage}</div>

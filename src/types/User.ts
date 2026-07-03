@@ -25,6 +25,7 @@ export interface User {
   id?: number;
   email: string;
   cedula: string;
+  login_identifier?: string;
   first_name: string;
   last_name: string;
   direccion?: string;
@@ -40,4 +41,12 @@ export interface User {
   student_profile?: StudentProfile | null;
   teacher_profile?: TeacherProfile | null;
   documents?: UserDocument[];
+}
+
+export interface GeneratedCredentials {
+  full_name: string;
+  role: "ADMIN" | "STUDENT" | "TEACHER";
+  login_identifier: string;
+  temporary_password: string;
+  delivery_channel?: "manual" | "email";
 }

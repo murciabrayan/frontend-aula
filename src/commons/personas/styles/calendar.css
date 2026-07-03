@@ -283,6 +283,26 @@
   resize: vertical;
 }
 
+.teacher-calendar-detail-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.teacher-calendar-detail-box {
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  color: #111827;
+  line-height: 1.55;
+  min-height: 52px;
+  white-space: pre-wrap;
+}
+
+.teacher-calendar-detail-box--large {
+  min-height: 140px;
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {

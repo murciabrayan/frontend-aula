@@ -366,6 +366,26 @@
   opacity: 0.94;
 }
 
+.admin-alerts-action-stack {
+  display: grid;
+  gap: 8px;
+  min-width: 170px;
+}
+
+.admin-alerts-detail-btn {
+  min-height: 38px;
+  border-radius: 12px;
+  border: 1px solid rgba(201, 162, 39, 0.26);
+  background: rgba(255, 251, 239, 0.96);
+  color: #8b6b1d;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin-alerts-detail-btn:hover {
+  background: #fff8ea;
+}
+
 .admin-alerts-resolved-box {
   display: grid;
   gap: 4px;
@@ -413,6 +433,10 @@
   border-radius: 24px;
   border: 1px solid rgba(201, 162, 39, 0.18);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.26);
+}
+
+.admin-alerts-modal--detail {
+  width: min(920px, 96vw);
 }
 
 .admin-alerts-modal-header {
@@ -509,6 +533,76 @@
   margin: 10px 0 0;
   color: #334155;
   line-height: 1.55;
+}
+
+.admin-alerts-history-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-alerts-history-box label {
+  font-weight: 800;
+  color: #334155;
+}
+
+.admin-alerts-history-empty {
+  border: 1px dashed #d9c78d;
+  border-radius: 16px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #64748b;
+}
+
+.admin-alerts-timeline {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-alerts-timeline-item {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.admin-alerts-timeline-dot {
+  width: 12px;
+  height: 12px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e7cb73 0%, #c9a227 100%);
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.14);
+}
+
+.admin-alerts-timeline-content {
+  border: 1px solid #ede2c3;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 16px;
+}
+
+.admin-alerts-timeline-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-alerts-timeline-meta strong {
+  color: #111827;
+}
+
+.admin-alerts-timeline-meta span {
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.admin-alerts-timeline-subtitle {
+  margin: 6px 0 0;
+  color: #8b6b1d;
+  font-size: 0.92rem;
+  font-weight: 700;
 }
 
 .admin-alerts-notes-block textarea {

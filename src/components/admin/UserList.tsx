@@ -8,8 +8,8 @@ import {
   ChevronUp,
   Download,
   GraduationCap,
-  Sheet,
   Search,
+  Sheet,
   Trash2,
   Upload,
   UserPlus2,
@@ -22,7 +22,7 @@ import { exportUserListingToPdf } from "@/utils/userPdf";
 import UserForm from "./UserForm";
 import UserProfileModal from "./UserProfileModal";
 import "./UserManagement.css";
-import type { User } from "../../types/User";
+import type { GeneratedCredentials, User } from "../../types/User";
 
 const UserList = () => {
   const { showToast, confirm } = useFeedback();
@@ -43,7 +43,64 @@ const UserList = () => {
     error_count: 0,
   });
   const [bulkImportResult, setBulkImportResult] = useState<any | null>(null);
+  const [createdCredentials, setCreatedCredentials] = useState<GeneratedCredentials | null>(null);
   const bulkInputRef = useRef<HTMLInputElement | null>(null);
+
+  const downloadTextFile = (filename: string, content: string, type = "text/plain;charset=utf-8") => {
+    const blob = new Blob([content], { type });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadSingleCredentials = (credentials: GeneratedCredentials) => {
+    const roleLabel = credentials.role === "STUDENT" ? "Estudiante" : "Docente";
+    const content = [
+      "Gimnasio Los Cerros",
+      "Credenciales de acceso",
+      "",
+      `Nombre: ${credentials.full_name}`,
+      `Rol: ${roleLabel}`,
+      `Usuario de acceso: ${credentials.login_identifier}`,
+      `Contrasena temporal: ${credentials.temporary_password}`,
+      "",
+      "Al ingresar por primera vez, la plataforma solicitara cambiar la contrasena.",
+    ].join("\r\n");
+
+    downloadTextFile(`credenciales-${credentials.login_identifier}.txt`, content);
+  };
+
+  const downloadBulkCredentials = (credentialsList: GeneratedCredentials[]) => {
+    if (!credentialsList.length) {
+      showToast({
+        type: "warning",
+        title: "Credenciales",
+        message: "No hay credenciales disponibles para descargar.",
+      });
+      return;
+    }
+
+    const content = [
+      "Gimnasio Los Cerros",
+      "Credenciales generadas en carga masiva",
+      "",
+      ...credentialsList.flatMap((item, index) => [
+        `${index + 1}. ${item.full_name}`,
+        `Rol: ${item.role === "STUDENT" ? "Estudiante" : "Docente"}`,
+        `Usuario de acceso: ${item.login_identifier}`,
+        `Contrasena temporal: ${item.temporary_password}`,
+        "",
+      ]),
+      "Al ingresar por primera vez, cada usuario debera cambiar su contrasena.",
+    ].join("\r\n");
+
+    downloadTextFile("credenciales-usuarios.txt", content);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -54,8 +111,8 @@ const UserList = () => {
       if (err.response?.status === 401) {
         showToast({
           type: "warning",
-          title: "Sesión expirada",
-          message: "Tu sesión ha expirado. Por favor inicia sesión nuevamente.",
+          title: "Sesion expirada",
+          message: "Tu sesion ha expirado. Por favor inicia sesion nuevamente.",
         });
         localStorage.clear();
         window.location.href = "/";
@@ -75,19 +132,15 @@ const UserList = () => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    void fetchUsers();
   }, []);
 
   const filteredUsers = useMemo(() => {
     return users
       .filter((user) => user.role === filterRole)
+      .filter((user) => (courseFilter === "TODOS" ? true : (user.course_names || []).includes(courseFilter)))
       .filter((user) =>
-        courseFilter === "TODOS"
-          ? true
-          : (user.course_names || []).includes(courseFilter),
-      )
-      .filter((user) =>
-        `${user.first_name} ${user.last_name} ${user.email} ${user.cedula} ${(user.course_names || []).join(" ")}`
+        `${user.first_name} ${user.last_name} ${user.email} ${user.cedula} ${user.login_identifier || ""} ${(user.course_names || []).join(" ")}`
           .toLowerCase()
           .includes(searchTerm.toLowerCase()),
       );
@@ -109,7 +162,7 @@ const UserList = () => {
   const handleDeleteUser = async (user: User) => {
     const confirmed = await confirm({
       title: "Eliminar usuario",
-      message: `Se eliminará a ${user.first_name} ${user.last_name}. Esta acción no se puede deshacer.`,
+      message: `Se eliminara a ${user.first_name} ${user.last_name}. Esta accion no se puede deshacer.`,
       confirmText: "Eliminar",
       cancelText: "Cancelar",
     });
@@ -149,9 +202,7 @@ const UserList = () => {
     try {
       const roleLabel = filterRole === "STUDENT" ? "estudiantes" : "docentes";
       const scopeLabel =
-        courseFilter === "TODOS"
-          ? `todos-los-cursos-${roleLabel}`
-          : `${courseFilter}-${roleLabel}`;
+        courseFilter === "TODOS" ? `todos-los-cursos-${roleLabel}` : `${courseFilter}-${roleLabel}`;
 
       await exportUserListingToPdf({
         users: filteredUsers,
@@ -165,8 +216,8 @@ const UserList = () => {
         title: "PDF generado",
         message:
           courseFilter === "TODOS"
-            ? "Se descargó el listado agrupado por cursos."
-            : "Se descargó el listado del curso seleccionado.",
+            ? "Se descargo el listado agrupado por cursos."
+            : "Se descargo el listado del curso seleccionado.",
       });
     } catch (error) {
       console.error("Error exportando listado de usuarios", error);
@@ -196,7 +247,7 @@ const UserList = () => {
       showToast({
         type: "success",
         title: "Plantilla descargada",
-        message: "Se descargó el formato Excel para estudiantes y docentes.",
+        message: "Se descargo el formato Excel para estudiantes y docentes.",
       });
     } catch (error: any) {
       showToast({
@@ -260,8 +311,8 @@ const UserList = () => {
       title: "Confirmar carga masiva",
       message:
         bulkPreviewSummary.error_count > 0
-          ? `Se crearán ${bulkPreviewSummary.valid_count} usuarios válidos y se omitirán ${bulkPreviewSummary.error_count} filas con errores.`
-          : `Se crearán ${bulkPreviewSummary.valid_count} usuarios desde el archivo seleccionado.`,
+          ? `Se crearan ${bulkPreviewSummary.valid_count} usuarios validos y se omitiran ${bulkPreviewSummary.error_count} filas con errores.`
+          : `Se crearan ${bulkPreviewSummary.valid_count} usuarios desde el archivo seleccionado.`,
       confirmText: "Crear usuarios",
       cancelText: "Cancelar",
     });
@@ -291,7 +342,7 @@ const UserList = () => {
       });
 
       if (!errorCount) {
-        closeBulkPreview();
+        setBulkPreviewRows([]);
       }
     } catch (error: any) {
       showToast({
@@ -331,12 +382,19 @@ const UserList = () => {
       acudiente_nombre: "Acudiente",
       acudiente_cedula: "Cedula del acudiente",
       acudiente_telefono: "Telefono del acudiente",
-      acudiente_email: "Correo del acudiente",
       especialidad: "Especialidad",
-      titulo: "Título",
+      titulo: "Titulo",
     };
 
     return labels[field] || field;
+  };
+
+  const shouldDisplayBulkField = (field: string, role: "STUDENT" | "TEACHER") => {
+    if (role === "STUDENT" && (field === "email" || field === "acudiente_email")) {
+      return false;
+    }
+
+    return true;
   };
 
   const previewRowsBySheet = useMemo(() => {
@@ -350,28 +408,21 @@ const UserList = () => {
     <section className="user-workspace">
       <div className="user-workspace__hero">
         <div>
-          <p className="user-workspace__eyebrow">Gestión de usuarios</p>
+          <p className="user-workspace__eyebrow">Gestion de usuarios</p>
           <h2>{filterRole === "STUDENT" ? "Estudiantes" : "Docentes"}</h2>
           <p>
-            Consulta el listado, abre cada perfil para actualizar información y administra
+            Consulta el listado, abre cada perfil para actualizar informacion y administra
             documentos sin mezclarlo todo en la misma tabla.
           </p>
         </div>
 
         <div className="user-workspace__hero-actions">
-          <button
-            className="btn"
-            onClick={() => void handleDownloadTemplate()}
-          >
+          <button className="btn" onClick={() => void handleDownloadTemplate()}>
             <Sheet size={16} />
             <span>Descargar plantilla Excel</span>
           </button>
 
-          <button
-            className="btn"
-            onClick={() => bulkInputRef.current?.click()}
-            disabled={bulkImporting}
-          >
+          <button className="btn" onClick={() => bulkInputRef.current?.click()} disabled={bulkImporting}>
             <Upload size={16} />
             <span>{bulkImporting ? "Procesando..." : "Cargar usuarios por Excel"}</span>
           </button>
@@ -386,15 +437,10 @@ const UserList = () => {
             }}
           />
 
-          <button
-            className="btn"
-            onClick={() => void handleExportUsers()}
-          >
+          <button className="btn" onClick={() => void handleExportUsers()}>
             <Download size={16} />
             <span>
-              {courseFilter === "TODOS"
-                ? "Descargar listado general"
-                : "Descargar listado del curso"}
+              {courseFilter === "TODOS" ? "Descargar listado general" : "Descargar listado del curso"}
             </span>
           </button>
 
@@ -439,7 +485,7 @@ const UserList = () => {
           <Search size={16} />
           <input
             type="text"
-            placeholder="Buscar por nombre, correo o documento"
+            placeholder="Buscar por nombre, documento o correo"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
@@ -467,13 +513,15 @@ const UserList = () => {
                   {user.avatar_url ? <img src={user.avatar_url} alt={user.first_name} /> : <Users size={24} />}
                 </div>
                 <div>
-                  <span className="user-card__role">
-                    {user.role === "STUDENT" ? "Estudiante" : "Docente"}
-                  </span>
+                  <span className="user-card__role">{user.role === "STUDENT" ? "Estudiante" : "Docente"}</span>
                   <h3>
                     {user.first_name} {user.last_name}
                   </h3>
-                  <p>{user.email}</p>
+                  <p>
+                    {user.role === "STUDENT"
+                      ? `Acceso por cedula: ${user.login_identifier || user.cedula}`
+                      : user.email}
+                  </p>
                 </div>
               </div>
 
@@ -489,20 +537,12 @@ const UserList = () => {
               </div>
 
               <div className="user-card__actions">
-                <button
-                  type="button"
-                  className="btn user-card__action"
-                  onClick={() => setSelectedUser(user)}
-                >
+                <button type="button" className="btn user-card__action" onClick={() => setSelectedUser(user)}>
                   <span>Abrir perfil</span>
                   <ArrowRight size={16} />
                 </button>
 
-                <button
-                  type="button"
-                  className="btn user-card__delete"
-                  onClick={() => void handleDeleteUser(user)}
-                >
+                <button type="button" className="btn user-card__delete" onClick={() => void handleDeleteUser(user)}>
                   <Trash2 size={16} />
                   <span>Eliminar</span>
                 </button>
@@ -510,9 +550,7 @@ const UserList = () => {
             </article>
           ))
         ) : (
-          <div className="user-empty">
-            No hay usuarios registrados para este filtro.
-          </div>
+          <div className="user-empty">No hay usuarios registrados para este filtro.</div>
         )}
       </div>
 
@@ -521,7 +559,10 @@ const UserList = () => {
           user={null}
           role={filterRole}
           onClose={() => setShowForm(false)}
-          onSave={fetchUsers}
+          onSave={() => {
+            void fetchUsers();
+          }}
+          onCreatedCredentials={(credentials) => setCreatedCredentials(credentials)}
         />
       ) : null}
 
@@ -537,6 +578,56 @@ const UserList = () => {
         />
       ) : null}
 
+      {createdCredentials ? (
+        <div className="modal-overlay">
+          <div className="modal-container user-credentials-modal">
+            <div className="modal-shell__header">
+              <div>
+                <span className="modal-shell__eyebrow">Credenciales generadas</span>
+                <h2 className="modal-title">Acceso listo para entregar</h2>
+                <p className="modal-shell__subtitle">
+                  Comparte estos datos con {createdCredentials.full_name}. La contrasena se debera
+                  cambiar en el primer ingreso.
+                </p>
+              </div>
+
+              <button
+                className="close-btn"
+                onClick={() => setCreatedCredentials(null)}
+                aria-label="Cerrar modal"
+              >
+                x
+              </button>
+            </div>
+
+            <div className="form user-credentials-modal__body">
+              <div className="user-credentials-modal__card">
+                <span>Usuario de acceso</span>
+                <strong>{createdCredentials.login_identifier}</strong>
+              </div>
+              <div className="user-credentials-modal__card">
+                <span>Contrasena temporal</span>
+                <strong>{createdCredentials.temporary_password}</strong>
+              </div>
+
+              <div className="user-credentials-modal__actions">
+                <button type="button" className="btn" onClick={() => downloadSingleCredentials(createdCredentials)}>
+                  <Download size={16} />
+                  <span>Descargar credenciales</span>
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => setCreatedCredentials(null)}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {bulkPreviewOpen ? (
         <div className="modal-overlay">
           <div className="user-profile-modal bulk-import-modal">
@@ -549,8 +640,8 @@ const UserList = () => {
                 <span className="user-profile-modal__eyebrow">Carga masiva</span>
                 <h2>Revision previa de usuarios</h2>
                 <p>
-                  Revisa el archivo antes de crear usuarios. Puedes abrir cada fila para
-                  corroborar los datos y ver los errores exactos.
+                  Revisa el archivo antes de crear usuarios. Puedes abrir cada fila para corroborar
+                  los datos y ver los errores exactos.
                 </p>
               </div>
             </div>
@@ -594,14 +685,65 @@ const UserList = () => {
                       {bulkImportResult.error_count || 0}. Advertencias:{" "}
                       {bulkImportResult.warning_count || 0}.
                     </p>
+                    {bulkImportResult.created?.length ? (
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={() =>
+                          downloadBulkCredentials(
+                            bulkImportResult.created
+                              .map((item: any) => item.credentials)
+                              .filter(Boolean),
+                          )
+                        }
+                      >
+                        <Download size={16} />
+                        <span>Descargar credenciales creadas</span>
+                      </button>
+                    ) : null}
                   </div>
+
+                  {bulkImportResult.created?.length ? (
+                    <div className="bulk-import-credentials">
+                      {bulkImportResult.created
+                        .map((item: any) => item.credentials)
+                        .filter(Boolean)
+                        .map((credentials: GeneratedCredentials) => (
+                          <article
+                            key={`${credentials.login_identifier}-${credentials.temporary_password}`}
+                            className="bulk-import-credentials__card"
+                          >
+                            <div className="bulk-import-credentials__info">
+                              <span>
+                                {credentials.role === "STUDENT" ? "Estudiante" : "Docente"}
+                              </span>
+                              <strong>{credentials.full_name}</strong>
+                              <p>Usuario: {credentials.login_identifier}</p>
+                              <p>Contrasena temporal: {credentials.temporary_password}</p>
+                            </div>
+                            <button
+                              type="button"
+                              className="btn"
+                              onClick={() => downloadSingleCredentials(credentials)}
+                            >
+                              <Download size={16} />
+                              <span>Descargar</span>
+                            </button>
+                          </article>
+                        ))}
+                    </div>
+                  ) : null}
 
                   {bulkImportResult.errors?.length ? (
                     <div className="bulk-import-result__list">
                       {bulkImportResult.errors.map((errorItem: any, index: number) => (
-                        <article key={`${errorItem.sheet}-${errorItem.row}-${index}`} className="bulk-import-result__item bulk-import-result__item--error">
+                        <article
+                          key={`${errorItem.sheet}-${errorItem.row}-${index}`}
+                          className="bulk-import-result__item bulk-import-result__item--error"
+                        >
                           <strong>
-                            {errorItem.name || `Fila ${errorItem.row}`} - {errorItem.sheet} fila {errorItem.row}
+                            {errorItem.name || `Fila ${errorItem.row}`} - {errorItem.sheet} fila{" "}
+                            {errorItem.row}
                           </strong>
                           {Object.entries(errorItem.errors || {}).map(([field, messages]) => (
                             <p key={field}>
@@ -644,12 +786,18 @@ const UserList = () => {
                             >
                               <div className="bulk-import-row__identity">
                                 <div className={`bulk-import-row__status bulk-import-row__status--${row.status}`}>
-                                  {row.status === "valid" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                                  {row.status === "valid" ? (
+                                    <CheckCircle2 size={16} />
+                                  ) : (
+                                    <AlertCircle size={16} />
+                                  )}
                                 </div>
                                 <div>
                                   <strong>{row.name}</strong>
                                   <span>
-                                    {row.email || "Sin correo"} · fila {row.row}
+                                    {row.role === "STUDENT"
+                                      ? `Cedula ${row.cedula || "Sin dato"} · fila ${row.row}`
+                                      : `${row.email || "Sin correo"} · fila ${row.row}`}
                                   </span>
                                 </div>
                               </div>
@@ -666,7 +814,9 @@ const UserList = () => {
                               <div className="bulk-import-row__details">
                                 <div className="bulk-import-row__fields">
                                   {Object.entries(row.data || {}).map(([field, value]) => {
-                                    if (field === "role") return null;
+                                    if (field === "role" || !shouldDisplayBulkField(field, row.role)) {
+                                      return null;
+                                    }
                                     return (
                                       <div key={field} className="bulk-import-row__field">
                                         <span>{renderBulkFieldLabel(field)}</span>

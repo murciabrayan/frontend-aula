@@ -67,6 +67,7 @@ const TeacherAcademicAlerts: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [submittingId, setSubmittingId] = useState<number | null>(null);
   const [selectedAlert, setSelectedAlert] = useState<AcademicAlert | null>(null);
+  const [detailAlert, setDetailAlert] = useState<AcademicAlert | null>(null);
   const [followUpNotes, setFollowUpNotes] = useState("");
   const [improvementConfirmed, setImprovementConfirmed] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -131,6 +132,14 @@ const TeacherAcademicAlerts: React.FC = () => {
     setSelectedAlert(null);
     setFollowUpNotes("");
     setImprovementConfirmed(true);
+  };
+
+  const handleOpenDetail = (alert: AcademicAlert) => {
+    setDetailAlert(alert);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailAlert(null);
   };
 
   const handleSubmitFollowUp = async () => {
@@ -306,6 +315,13 @@ const TeacherAcademicAlerts: React.FC = () => {
                   </div>
                 ) : null}
 
+                <button
+                  className="teacher-alert-card__secondary-action"
+                  onClick={() => handleOpenDetail(alert)}
+                >
+                  Ver historial y detalles
+                </button>
+
                 {alert.status === "TEACHER_INITIAL_PENDING" || alert.status === "TEACHER_FINAL_PENDING" ? (
                   <button
                     className="teacher-alert-card__action"
@@ -394,6 +410,79 @@ const TeacherAcademicAlerts: React.FC = () => {
                 disabled={submittingId === selectedAlert.id}
               >
                 {submittingId === selectedAlert.id ? "Enviando..." : "Enviar a coordinación"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {detailAlert ? (
+        <div className="teacher-alerts-modal-backdrop">
+          <div className="teacher-alerts-modal teacher-alerts-modal--detail">
+            <div className="teacher-alerts-modal__header">
+              <div>
+                <h3>Historial de la alerta</h3>
+                <p>{detailAlert.student_name}</p>
+              </div>
+              <button type="button" className="teacher-alerts-modal__close" onClick={handleCloseDetail}>
+                ×
+              </button>
+            </div>
+
+            <div className="teacher-alerts-modal__body">
+              <div className="teacher-alerts-modal__summary">
+                <span>{alertTypeLabel(detailAlert.alert_type)}</span>
+                <span>Periodo {detailAlert.period}</span>
+                <span>{statusLabel(detailAlert.status)}</span>
+              </div>
+
+              <div className="teacher-alerts-modal__message">
+                <label>Detalle de la alerta</label>
+                <div>{detailAlert.message_teacher}</div>
+              </div>
+
+              {detailAlert.resolution_notes ? (
+                <div className="teacher-alerts-modal__history-box">
+                  <label>Observación final</label>
+                  <div className="teacher-alerts-modal__history-note">
+                    <strong>{detailAlert.resolved_by_name || "Coordinación"}</strong>
+                    {detailAlert.resolved_at ? (
+                      <span>{formatDateTime(detailAlert.resolved_at)}</span>
+                    ) : null}
+                    <p>{detailAlert.resolution_notes}</p>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="teacher-alerts-modal__history-box">
+                <label>Historial de observaciones</label>
+                {detailAlert.events.length === 0 ? (
+                  <div className="teacher-alerts-modal__history-empty">
+                    No hay observaciones registradas para esta alerta.
+                  </div>
+                ) : (
+                  <div className="teacher-alerts-modal__timeline">
+                    {detailAlert.events.map((event) => (
+                      <article key={event.id} className="teacher-alerts-modal__timeline-item">
+                        <div className="teacher-alerts-modal__timeline-dot" />
+                        <div className="teacher-alerts-modal__timeline-content">
+                          <strong>{event.title}</strong>
+                          <span>
+                            {formatDateTime(event.created_at)}
+                            {event.actor_name ? ` · ${event.actor_name}` : ""}
+                          </span>
+                          {event.notes ? <p>{event.notes}</p> : null}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="teacher-alerts-modal__footer">
+              <button type="button" className="teacher-alerts-modal__primary" onClick={handleCloseDetail}>
+                Cerrar
               </button>
             </div>
           </div>

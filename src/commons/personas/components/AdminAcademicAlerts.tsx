@@ -30,7 +30,7 @@ const alertTypeLabel = (type: AlertType) => {
 };
 
 const alertLevelLabel = (level: string) => {
-  if (level === "CRITICAL") return "Crítica";
+  if (level === "CRITICAL") return "Critica";
   return "Advertencia";
 };
 
@@ -39,11 +39,11 @@ const alertStatusLabel = (status: AcademicAlert["status"]) => {
     case "TEACHER_INITIAL_PENDING":
       return "Pendiente docente";
     case "ADMIN_INITIAL_REVIEW":
-      return "Revisión inicial";
+      return "Revision inicial";
     case "MONITORING":
       return "En seguimiento";
     case "TEACHER_FINAL_PENDING":
-      return "Confirmación docente";
+      return "Confirmacion docente";
     case "ADMIN_FINAL_REVIEW":
       return "Cierre pendiente";
     case "RESOLVED_POSITIVE":
@@ -55,8 +55,33 @@ const alertStatusLabel = (status: AcademicAlert["status"]) => {
   }
 };
 
+const alertEventLabel = (eventType: string) => {
+  switch (eventType) {
+    case "ALERT_CREATED":
+      return "Alerta generada";
+    case "ALERT_REOPENED":
+      return "Alerta reabierta";
+    case "TEACHER_INITIAL_SUBMITTED":
+      return "Seguimiento inicial enviado";
+    case "ADMIN_REVIEW_APPROVED":
+      return "Seguimiento inicial aprobado";
+    case "ADMIN_REVIEW_REJECTED":
+      return "Seguimiento inicial rechazado";
+    case "SECOND_FOLLOW_UP_REQUESTED":
+      return "Seguimiento final habilitado";
+    case "TEACHER_FINAL_SUBMITTED":
+      return "Confirmacion docente enviada";
+    case "ADMIN_CLOSED_POSITIVE":
+      return "Cierre positivo";
+    case "ADMIN_CLOSED_NEGATIVE":
+      return "Cierre negativo";
+    default:
+      return eventType;
+  }
+};
+
 const formatDateTime = (value: string | null) => {
-  if (!value) return "—";
+  if (!value) return "-";
   return new Date(value).toLocaleString("es-CO");
 };
 
@@ -73,6 +98,7 @@ const AdminAcademicAlerts: React.FC = () => {
   const [processingAlertId, setProcessingAlertId] = useState<number | null>(null);
   const [showActionModal, setShowActionModal] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<AcademicAlert | null>(null);
+  const [detailAlert, setDetailAlert] = useState<AcademicAlert | null>(null);
   const [adminNotes, setAdminNotes] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -120,7 +146,7 @@ const AdminAcademicAlerts: React.FC = () => {
 
   const handleGenerateAlerts = async () => {
     if (selectedCourse === "ALL") {
-      setErrorMessage("Para generar alertas debes escoger un curso específico.");
+      setErrorMessage("Para generar alertas debes escoger un curso especifico.");
       return;
     }
 
@@ -181,6 +207,14 @@ const AdminAcademicAlerts: React.FC = () => {
     setAdminNotes("");
   };
 
+  const openDetailModal = (alert: AcademicAlert) => {
+    setDetailAlert(alert);
+  };
+
+  const closeDetailModal = () => {
+    setDetailAlert(null);
+  };
+
   const handleAdminReview = async (decision: "APPROVE" | "REJECT") => {
     if (!selectedAlert) return;
     try {
@@ -190,14 +224,14 @@ const AdminAcademicAlerts: React.FC = () => {
       setSuccessMessage(
         decision === "APPROVE"
           ? "El seguimiento inicial fue aprobado."
-          : "El seguimiento inicial fue rechazado y volvió al docente."
+          : "El seguimiento inicial fue rechazado y volvio al docente.",
       );
       closeActionModal();
       await loadAlerts();
       window.setTimeout(() => setSuccessMessage(""), 2200);
     } catch (error: any) {
       console.error("Error revisando seguimiento", error);
-      setErrorMessage(error?.response?.data?.detail || "No se pudo registrar la revisión.");
+      setErrorMessage(error?.response?.data?.detail || "No se pudo registrar la revision.");
     } finally {
       setProcessingAlertId(null);
     }
@@ -212,7 +246,7 @@ const AdminAcademicAlerts: React.FC = () => {
       setSuccessMessage(
         outcome === "POSITIVE"
           ? "La alerta fue cerrada satisfactoriamente."
-          : "La alerta fue cerrada con resultado no satisfactorio."
+          : "La alerta fue cerrada con resultado no satisfactorio.",
       );
       closeActionModal();
       await loadAlerts();
@@ -226,7 +260,7 @@ const AdminAcademicAlerts: React.FC = () => {
   };
 
   if (loadingCourses) {
-    return <div className="admin-alerts-empty">Cargando alertas académicas...</div>;
+    return <div className="admin-alerts-empty">Cargando alertas academicas...</div>;
   }
 
   return (
@@ -234,10 +268,10 @@ const AdminAcademicAlerts: React.FC = () => {
       <section className="admin-alerts-hero">
         <div className="admin-alerts-hero-copy">
           <span className="admin-alerts-badge">Alertas tempranas</span>
-          <h1>Seguimiento académico preventivo</h1>
+          <h1>Seguimiento academico preventivo</h1>
           <p>
-            Coordina el flujo completo de revisión: alerta inicial, seguimiento docente,
-            monitoreo semanal y cierre final con trazabilidad.
+            Coordina el flujo completo de revision: alerta inicial, seguimiento docente,
+            monitoreo y cierre final con trazabilidad.
           </p>
         </div>
 
@@ -247,9 +281,7 @@ const AdminAcademicAlerts: React.FC = () => {
             <StyledSelect
               value={selectedCourse}
               onChange={(e) =>
-                setSelectedCourse(
-                  e.target.value === "ALL" ? "ALL" : Number(e.target.value),
-                )
+                setSelectedCourse(e.target.value === "ALL" ? "ALL" : Number(e.target.value))
               }
             >
               <option value="ALL">Todos los cursos</option>
@@ -262,7 +294,7 @@ const AdminAcademicAlerts: React.FC = () => {
           </div>
 
           <div className="admin-alerts-control-card">
-            <label>Período</label>
+            <label>Periodo</label>
             <StyledSelect value={selectedPeriod} onChange={(e) => setSelectedPeriod(Number(e.target.value))}>
               <option value={1}>Periodo 1</option>
               <option value={2}>Periodo 2</option>
@@ -273,7 +305,7 @@ const AdminAcademicAlerts: React.FC = () => {
 
           <div className="admin-alerts-control-card">
             <label>Tipo</label>
-            <StyledSelect value={filterType} onChange={(e) => setFilterType(e.target.value as AlertType | "") }>
+            <StyledSelect value={filterType} onChange={(e) => setFilterType(e.target.value as AlertType | "")}>
               <option value="">Todos</option>
               <option value="LOW_GRADE">Bajo rendimiento</option>
               <option value="ABSENCE_RISK">Inasistencia</option>
@@ -349,7 +381,7 @@ const AdminAcademicAlerts: React.FC = () => {
       ) : visibleAlerts.length === 0 ? (
         <div className="admin-alerts-empty">
           {activeView === "PENDING_REVIEW"
-            ? "No hay alertas pendientes de revisión administrativa."
+            ? "No hay alertas pendientes de revision administrativa."
             : activeView === "IN_PROGRESS"
               ? "No hay alertas en curso para los filtros seleccionados."
               : "No hay alertas cerradas para los filtros seleccionados."}
@@ -359,17 +391,17 @@ const AdminAcademicAlerts: React.FC = () => {
           <div className="admin-alerts-table-header">
             <h3>
               {activeView === "PENDING_REVIEW"
-                ? "Bandeja de revisión administrativa"
+                ? "Bandeja de revision administrativa"
                 : activeView === "IN_PROGRESS"
                   ? "Alertas en curso"
                   : "Historial de cierres"}
             </h3>
             <p>
               {activeView === "PENDING_REVIEW"
-                ? "Aquí decides si el seguimiento docente inicial se aprueba o vuelve para ajustes, y también realizas el cierre final."
+                ? "Aqui decides si el seguimiento docente inicial se aprueba o vuelve para ajustes, y tambien realizas el cierre final."
                 : activeView === "IN_PROGRESS"
-                  ? "Consulta qué alertas siguen en manos del docente o están esperando la segunda verificación semanal."
-                  : "Mantén la trazabilidad de los cierres satisfactorios y no satisfactorios del proceso."}
+                  ? "Consulta que alertas siguen en manos del docente o estan esperando la siguiente verificacion."
+                  : "Manten la trazabilidad de los cierres satisfactorios y no satisfactorios del proceso."}
             </p>
           </div>
 
@@ -379,13 +411,13 @@ const AdminAcademicAlerts: React.FC = () => {
                 <tr>
                   <th>Estudiante</th>
                   <th>Curso</th>
-                  <th>Período</th>
+                  <th>Periodo</th>
                   <th>Tipo</th>
                   <th>Nivel</th>
                   <th>Estado</th>
                   <th>Mensaje</th>
-                  <th>Métrica</th>
-                  <th>Acción</th>
+                  <th>Metrica</th>
+                  <th>Accion</th>
                 </tr>
               </thead>
               <tbody>
@@ -413,36 +445,47 @@ const AdminAcademicAlerts: React.FC = () => {
                         </span>
                       </td>
                       <td className="admin-alerts-message-cell">{alert.message_admin}</td>
-                      <td>{alert.metric_value !== null ? alert.metric_value : "—"}</td>
+                      <td>{alert.metric_value !== null ? alert.metric_value : "-"}</td>
                       <td>
-                        {alert.status === "ADMIN_INITIAL_REVIEW" || alert.status === "ADMIN_FINAL_REVIEW" ? (
+                        <div className="admin-alerts-action-stack">
                           <button
                             type="button"
-                            className="admin-alerts-resolve-btn"
-                            onClick={() => openActionModal(alert)}
+                            className="admin-alerts-detail-btn"
+                            onClick={() => openDetailModal(alert)}
                           >
-                            {alert.status === "ADMIN_INITIAL_REVIEW" ? "Revisar" : "Cerrar"}
+                            Ver historial
                           </button>
-                        ) : alert.status === "MONITORING" ? (
-                          <div className="admin-alerts-resolved-box">
-                            <span>Próxima verificación</span>
-                            <small>{formatDateTime(alert.next_follow_up_due_at)}</small>
-                          </div>
-                        ) : alert.status === "TEACHER_INITIAL_PENDING" || alert.status === "TEACHER_FINAL_PENDING" ? (
-                          <div className="admin-alerts-resolved-box">
-                            <span>Esperando docente</span>
-                            <small>
-                              {latestTeacherEvent
-                                ? `Último envío: ${formatDateTime(latestTeacherEvent.created_at)}`
-                                : "Aún sin seguimiento"}
-                            </small>
-                          </div>
-                        ) : (
-                          <div className="admin-alerts-resolved-box">
-                            <span>{alert.resolved_by_name ? `Por ${alert.resolved_by_name}` : "Cerrada"}</span>
-                            <small>{formatDateTime(alert.resolved_at)}</small>
-                          </div>
-                        )}
+
+                          {alert.status === "ADMIN_INITIAL_REVIEW" || alert.status === "ADMIN_FINAL_REVIEW" ? (
+                            <button
+                              type="button"
+                              className="admin-alerts-resolve-btn"
+                              onClick={() => openActionModal(alert)}
+                            >
+                              {alert.status === "ADMIN_INITIAL_REVIEW" ? "Revisar" : "Cerrar"}
+                            </button>
+                          ) : alert.status === "MONITORING" ? (
+                            <div className="admin-alerts-resolved-box">
+                              <span>Proxima verificacion</span>
+                              <small>{formatDateTime(alert.next_follow_up_due_at)}</small>
+                            </div>
+                          ) : alert.status === "TEACHER_INITIAL_PENDING" ||
+                            alert.status === "TEACHER_FINAL_PENDING" ? (
+                            <div className="admin-alerts-resolved-box">
+                              <span>Esperando docente</span>
+                              <small>
+                                {latestTeacherEvent
+                                  ? `Ultimo envio: ${formatDateTime(latestTeacherEvent.created_at)}`
+                                  : "Aun sin seguimiento"}
+                              </small>
+                            </div>
+                          ) : (
+                            <div className="admin-alerts-resolved-box">
+                              <span>{alert.resolved_by_name ? `Por ${alert.resolved_by_name}` : "Cerrada"}</span>
+                              <small>{formatDateTime(alert.resolved_at)}</small>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -453,6 +496,101 @@ const AdminAcademicAlerts: React.FC = () => {
         </section>
       )}
 
+      {detailAlert ? (
+        <div className="admin-alerts-modal-backdrop">
+          <div className="admin-alerts-modal admin-alerts-modal--detail">
+            <div className="admin-alerts-modal-header">
+              <div>
+                <h2>Historial completo de la alerta</h2>
+                <p>{detailAlert.student_name}</p>
+              </div>
+              <button type="button" className="admin-alerts-close-btn" onClick={closeDetailModal}>
+                x
+              </button>
+            </div>
+
+            <div className="admin-alerts-modal-body">
+              <div className="admin-alerts-detail-card">
+                <div>
+                  <span>Curso</span>
+                  <strong>{detailAlert.course_name}</strong>
+                </div>
+                <div>
+                  <span>Periodo</span>
+                  <strong>{detailAlert.period}</strong>
+                </div>
+                <div>
+                  <span>Tipo</span>
+                  <strong>{alertTypeLabel(detailAlert.alert_type)}</strong>
+                </div>
+                <div>
+                  <span>Nivel</span>
+                  <strong>{alertLevelLabel(detailAlert.level)}</strong>
+                </div>
+                <div>
+                  <span>Estado actual</span>
+                  <strong>{alertStatusLabel(detailAlert.status)}</strong>
+                </div>
+                <div>
+                  <span>Metrica</span>
+                  <strong>{detailAlert.metric_value !== null ? detailAlert.metric_value : "-"}</strong>
+                </div>
+              </div>
+
+              <div className="admin-alerts-full-message">
+                <label>Mensaje institucional</label>
+                <div>{detailAlert.message_admin}</div>
+              </div>
+
+              {detailAlert.resolution_notes ? (
+                <div className="admin-alerts-full-message">
+                  <label>Ultima observacion administrativa</label>
+                  <div>{detailAlert.resolution_notes}</div>
+                </div>
+              ) : null}
+
+              <div className="admin-alerts-history-box">
+                <label>Historial de observaciones y cambios</label>
+                {detailAlert.events.length === 0 ? (
+                  <div className="admin-alerts-history-empty">Esta alerta todavia no registra eventos.</div>
+                ) : (
+                  <div className="admin-alerts-timeline">
+                    {detailAlert.events.map((event) => (
+                      <article key={event.id} className="admin-alerts-timeline-item">
+                        <span className="admin-alerts-timeline-dot" aria-hidden="true" />
+                        <div className="admin-alerts-timeline-content">
+                          <div className="admin-alerts-timeline-meta">
+                            <strong>{event.title || alertEventLabel(event.event_type)}</strong>
+                            <span>{formatDateTime(event.created_at)}</span>
+                          </div>
+                          <p className="admin-alerts-timeline-subtitle">
+                            {event.actor_name || "Sistema"} | {alertEventLabel(event.event_type)}
+                          </p>
+                          {event.notes ? <p className="admin-alerts-event-notes">{event.notes}</p> : null}
+                          {event.metadata?.improvement_confirmed !== undefined ? (
+                            <p className="admin-alerts-event-notes">
+                              {event.metadata.improvement_confirmed
+                                ? "El docente confirmo mejoria en el estudiante."
+                                : "El docente reporto que todavia no hay mejoria."}
+                            </p>
+                          ) : null}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="admin-alerts-modal-footer">
+              <button type="button" className="admin-alerts-secondary-btn" onClick={closeDetailModal}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {showActionModal && selectedAlert ? (
         <div className="admin-alerts-modal-backdrop">
           <div className="admin-alerts-modal">
@@ -460,13 +598,13 @@ const AdminAcademicAlerts: React.FC = () => {
               <div>
                 <h2>
                   {selectedAlert.status === "ADMIN_INITIAL_REVIEW"
-                    ? "Revisión del seguimiento docente"
+                    ? "Revision del seguimiento docente"
                     : "Cierre final de la alerta"}
                 </h2>
                 <p>{selectedAlert.student_name}</p>
               </div>
               <button type="button" className="admin-alerts-close-btn" onClick={closeActionModal}>
-                ✕
+                x
               </button>
             </div>
 
@@ -477,7 +615,7 @@ const AdminAcademicAlerts: React.FC = () => {
                   <strong>{selectedAlert.course_name}</strong>
                 </div>
                 <div>
-                  <span>Período</span>
+                  <span>Periodo</span>
                   <strong>{selectedAlert.period}</strong>
                 </div>
                 <div>
@@ -509,14 +647,12 @@ const AdminAcademicAlerts: React.FC = () => {
                       <strong>{event.actor_name || "Docente"}</strong>
                       <br />
                       <small>{formatDateTime(event.created_at)}</small>
-                      {event.notes ? (
-                        <p className="admin-alerts-event-notes">{event.notes}</p>
-                      ) : null}
+                      {event.notes ? <p className="admin-alerts-event-notes">{event.notes}</p> : null}
                       {event.metadata?.improvement_confirmed !== undefined ? (
                         <p className="admin-alerts-event-notes">
                           {event.metadata.improvement_confirmed
-                            ? "El docente reportó mejora en el estudiante."
-                            : "El docente reportó que no hubo mejora."}
+                            ? "El docente reporto mejora en el estudiante."
+                            : "El docente reporto que no hubo mejora."}
                         </p>
                       ) : null}
                     </div>
@@ -526,15 +662,15 @@ const AdminAcademicAlerts: React.FC = () => {
               <div className="admin-alerts-notes-block">
                 <label>
                   {selectedAlert.status === "ADMIN_INITIAL_REVIEW"
-                    ? "Observación de revisión"
-                    : "Observación final"}
+                    ? "Observacion de revision"
+                    : "Observacion final"}
                 </label>
                 <textarea
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
                   placeholder={
                     selectedAlert.status === "ADMIN_INITIAL_REVIEW"
-                      ? "Indica por qué apruebas o rechazas el seguimiento docente..."
+                      ? "Indica por que apruebas o rechazas el seguimiento docente..."
                       : "Registra el comentario final del cierre satisfactorio o no satisfactorio..."
                   }
                 />

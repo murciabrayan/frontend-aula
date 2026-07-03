@@ -363,6 +363,22 @@
   transform: none;
 }
 
+.teacher-alert-card__secondary-action {
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid #d7dde6;
+  background: #fff;
+  color: #111827;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.teacher-alert-card__secondary-action:hover {
+  transform: translateY(-1px);
+  background: #faf7ed;
+}
+
 .teacher-alert-card__resolved {
   display: grid;
   gap: 6px;
@@ -442,6 +458,10 @@
   border-radius: 24px;
   border: 1px solid rgba(201, 162, 39, 0.18);
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.26);
+}
+
+.teacher-alerts-modal--detail {
+  width: min(860px, 96vw);
 }
 
 .teacher-alerts-modal__header {
@@ -581,6 +601,97 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.teacher-alerts-modal__history-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teacher-alerts-modal__history-box label {
+  font-weight: 800;
+  color: #334155;
+}
+
+.teacher-alerts-modal__history-empty {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px dashed #d7dde6;
+  background: rgba(255, 255, 255, 0.86);
+  color: #64748b;
+}
+
+.teacher-alerts-modal__history-note {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff9ec;
+  border: 1px solid #ead7a1;
+}
+
+.teacher-alerts-modal__history-note strong {
+  color: #111827;
+}
+
+.teacher-alerts-modal__history-note span {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.teacher-alerts-modal__history-note p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.55;
+}
+
+.teacher-alerts-modal__timeline {
+  display: grid;
+  gap: 14px;
+}
+
+.teacher-alerts-modal__timeline-item {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.teacher-alerts-modal__timeline-dot {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: #c9a227;
+  box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.16);
+}
+
+.teacher-alerts-modal__timeline-content {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid #ede2c3;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.teacher-alerts-modal__timeline-content strong {
+  color: #111827;
+}
+
+.teacher-alerts-modal__timeline-content span {
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.teacher-alerts-modal__timeline-content p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.55;
+  white-space: pre-wrap;
 }
 
 .teacher-alerts-modal__secondary,

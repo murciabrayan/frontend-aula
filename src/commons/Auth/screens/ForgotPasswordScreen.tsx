@@ -55,6 +55,10 @@ const ForgotPasswordScreen = () => {
 
           <div className="login-card">
             <h1>Recuperar contraseña</h1>
+            <p className="login-tagline" style={{ marginBottom: "14px" }}>
+              Esta opciÃ³n aplica para cuentas con correo registrado. Si el estudiante no cuenta
+              con correo, el restablecimiento debe gestionarse desde el colegio.
+            </p>
             <form onSubmit={handleSubmit}>
               <input
                 type="email"

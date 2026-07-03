@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import api from "@/api/axios";
 import { useFeedback } from "@/context/FeedbackContext";
+import type { GeneratedCredentials, User } from "../../types/User";
 import "./UserManagement.css";
-import type { User } from "../../types/User";
 
 interface UserFormProps {
   user: User | null;
   onClose: () => void;
   onSave: () => void;
+  onCreatedCredentials?: (credentials: GeneratedCredentials) => void;
   role: "STUDENT" | "TEACHER";
 }
 
@@ -31,6 +32,14 @@ interface UserFormState {
 const RH_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const onlyNumbers = (value: string) => value.replace(/\D/g, "");
+const removeDigits = (value: string) => value.replace(/\d/g, "");
+const TEXT_ONLY_FIELDS = new Set([
+  "first_name",
+  "last_name",
+  "acudiente_nombre",
+  "especialidad",
+  "titulo",
+]);
 
 const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   email: "",
@@ -48,7 +57,13 @@ const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   titulo: "",
 });
 
-const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
+const UserForm: React.FC<UserFormProps> = ({
+  user,
+  onClose,
+  onSave,
+  onCreatedCredentials,
+  role,
+}) => {
   const { showToast } = useFeedback();
   const [formData, setFormData] = useState<UserFormState>(emptyForm(role));
 
@@ -75,18 +90,18 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     setFormData(emptyForm(role));
   }, [user, role]);
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     const normalizedValue =
       name === "cedula"
         ? onlyNumbers(value)
         : name === "acudiente_cedula"
           ? onlyNumbers(value)
-        : name === "acudiente_telefono"
-          ? onlyNumbers(value).slice(0, 10)
-          : value;
+          : name === "acudiente_telefono"
+            ? onlyNumbers(value).slice(0, 10)
+            : TEXT_ONLY_FIELDS.has(name)
+              ? removeDigits(value)
+              : value;
 
     setFormData((prev) => ({
       ...prev,
@@ -96,7 +111,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
   const buildPayload = () => {
     const basePayload: Record<string, string> = {
-      email: formData.email.trim(),
       cedula: formData.cedula.trim(),
       first_name: formData.first_name.trim(),
       last_name: formData.last_name.trim(),
@@ -106,6 +120,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     };
 
     if (role === "TEACHER") {
+      basePayload.email = formData.email.trim();
       basePayload.especialidad = formData.especialidad.trim();
       basePayload.titulo = formData.titulo.trim();
     }
@@ -114,7 +129,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       basePayload.acudiente_nombre = formData.acudiente_nombre.trim();
       basePayload.acudiente_cedula = formData.acudiente_cedula.trim();
       basePayload.acudiente_telefono = formData.acudiente_telefono.trim();
-      basePayload.acudiente_email = formData.acudiente_email.trim();
     }
 
     return basePayload;
@@ -123,7 +137,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!formData.email.includes("@")) {
+    if (role === "TEACHER" && !formData.email.includes("@")) {
       showToast({
         type: "warning",
         title: "Correo invalido",
@@ -159,11 +173,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       return;
     }
 
-    if (
-      role === "STUDENT" &&
-      formData.acudiente_telefono &&
-      formData.acudiente_telefono.length !== 10
-    ) {
+    if (role === "STUDENT" && formData.acudiente_telefono.length !== 10) {
       showToast({
         type: "warning",
         title: "Telefono",
@@ -175,15 +185,18 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
     const payload = buildPayload();
 
     try {
-      let response;
-      if (user) {
-        response = await api.patch(`/api/users/${user.id}/`, payload);
-      } else {
-        response = await api.post("/api/users/", payload);
+      const response = user
+        ? await api.patch(`/api/users/${user.id}/`, payload)
+        : await api.post("/api/users/", payload);
+
+      await onSave();
+
+      if (!user && response?.data?.credentials && onCreatedCredentials) {
+        onCreatedCredentials(response.data.credentials);
       }
 
-      onSave();
       onClose();
+
       const warningMessage = response?.data?.warning;
       const warningDetail = response?.data?.warning_detail;
       showToast(
@@ -201,8 +214,10 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               title: user ? "Usuario actualizado" : "Usuario creado",
               message: user
                 ? "Los cambios del usuario se guardaron correctamente."
-                : "El usuario se cre? y la contraseña temporal fue enviada al correo.",
-            }
+                : role === "STUDENT"
+                  ? "El estudiante fue creado y las credenciales quedaron listas para descarga."
+                  : "El docente fue creado y la credencial temporal fue generada.",
+            },
       );
     } catch (error: any) {
       const backendErrors = error?.response?.data;
@@ -210,8 +225,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
       if (error.response?.status === 401) {
         showToast({
           type: "warning",
-          title: "Sesión expirada",
-          message: "Tu sesión ha expirado o el token es inválido. Inicia sesión nuevamente.",
+          title: "Sesion expirada",
+          message: "Tu sesion ha expirado o el token es invalido. Inicia sesion nuevamente.",
         });
         return;
       }
@@ -244,11 +259,11 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
         <div className="modal-shell__header">
           <div>
             <span className="modal-shell__eyebrow">Administracion</span>
-            <h2 className="modal-title">
-              {user ? "Editar usuario" : "Agregar nuevo usuario"}
-            </h2>
+            <h2 className="modal-title">{user ? "Editar usuario" : "Agregar nuevo usuario"}</h2>
             <p className="modal-shell__subtitle">
-              Completa la información principal. La contraseña inicial se generará automáticamente y se enviará al correo del usuario.
+              {role === "STUDENT"
+                ? "El estudiante ingresara con su cedula. Al guardar veras la clave temporal para entregarla manualmente."
+                : "Completa la informacion principal. El docente ingresara con su correo y recibira una clave temporal."}
             </p>
           </div>
 
@@ -278,19 +293,21 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
             className="input-field"
           />
 
-          <input
-            type="email"
-            name="email"
-            placeholder="Correo electrónico"
-            value={formData.email}
-            onChange={handleChange}
-            onInvalid={(e) =>
-              e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
-            }
-            onInput={(e) => e.currentTarget.setCustomValidity("")}
-            required
-            className="input-field"
-          />
+          {role === "TEACHER" ? (
+            <input
+              type="email"
+              name="email"
+              placeholder="Correo electronico"
+              value={formData.email}
+              onChange={handleChange}
+              onInvalid={(e) =>
+                e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
+              }
+              onInput={(e) => e.currentTarget.setCustomValidity("")}
+              required
+              className="input-field"
+            />
+          ) : null}
 
           <input
             type="text"
@@ -314,13 +331,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
             className="input-field"
           />
 
-          <select
-            name="rh"
-            value={formData.rh}
-            onChange={handleChange}
-            required
-            className="input-field"
-          >
+          <select name="rh" value={formData.rh} onChange={handleChange} required className="input-field">
             <option value="">Selecciona el RH</option>
             {RH_OPTIONS.map((rh) => (
               <option key={rh} value={rh}>
@@ -331,7 +342,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
 
           {!user ? (
             <div className="user-form__generated-password">
-              La contraseña temporal se asignará automáticamente y se enviará al correo ingresado.
+              {role === "STUDENT"
+                ? "El sistema generara una clave temporal y te mostrara un comprobante descargable para entregar al estudiante."
+                : "La contrasena temporal se generara automaticamente y se mostrara al finalizar."}
             </div>
           ) : null}
 
@@ -348,7 +361,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
               <input
                 type="text"
                 name="titulo"
-                placeholder="Título académico"
+                placeholder="Titulo academico"
                 value={formData.titulo}
                 onChange={handleChange}
                 className="input-field"
@@ -384,18 +397,6 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose, onSave, role }) => {
                 onChange={handleChange}
                 inputMode="numeric"
                 maxLength={10}
-                className="input-field"
-              />
-              <input
-                type="email"
-                name="acudiente_email"
-                placeholder="Correo del acudiente"
-                value={formData.acudiente_email}
-                onChange={handleChange}
-                onInvalid={(e) =>
-                  e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
-                }
-                onInput={(e) => e.currentTarget.setCustomValidity("")}
                 className="input-field"
               />
             </>

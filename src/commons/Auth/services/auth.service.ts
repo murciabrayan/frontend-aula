@@ -14,6 +14,7 @@ export interface StoredUser {
   id?: number;
   email: string;
   cedula?: string;
+  login_identifier?: string;
   first_name?: string;
   last_name?: string;
   role: "ADMIN" | "TEACHER" | "STUDENT";
@@ -35,6 +36,8 @@ export interface LoginResponse {
 
 export const AUTH_CHANGE_EVENT = "auth-change";
 const LANDING_ADMIN_ACCESS_KEY = "landing_admin_access";
+const INACTIVITY_LAST_ACTIVITY_KEY = "dashboard_last_activity_at";
+const INACTIVITY_LOCK_KEY = "dashboard_inactivity_locked";
 
 const notifyAuthChange = () => {
   window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
@@ -54,9 +57,9 @@ export const getNextAuthRoute = (user?: StoredUser | null) => {
   return getDashboardRoute(user.role);
 };
 
-export const loginUser = async (email: string, password: string) => {
+export const loginUser = async (identifier: string, password: string) => {
   try {
-    const response = await api.post<LoginResponse>("/api/token/", { email, password });
+    const response = await api.post<LoginResponse>("/api/token/", { email: identifier, password });
     const { access, refresh, user } = response.data;
 
     // Guardar los tokens en localStorage
@@ -71,6 +74,7 @@ export const loginUser = async (email: string, password: string) => {
       ...user,
       email: user?.email || decoded.email,
       cedula: user?.cedula || decoded.cedula,
+      login_identifier: user?.login_identifier || user?.cedula || decoded.cedula || user?.email || decoded.email,
       role: user?.role || decoded.role,
       must_change_password: user?.must_change_password || false,
       has_accepted_data_policy: user?.has_accepted_data_policy || false,
@@ -83,6 +87,8 @@ export const loginUser = async (email: string, password: string) => {
     };
 
     localStorage.setItem("user", JSON.stringify(storedUser));
+    localStorage.setItem(INACTIVITY_LAST_ACTIVITY_KEY, Date.now().toString());
+    localStorage.removeItem(INACTIVITY_LOCK_KEY);
 
     notifyAuthChange();
 
@@ -107,6 +113,8 @@ export const loginWithGoogle = async (googleToken: string) => {
 
     // Guardar usuario
     localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem(INACTIVITY_LAST_ACTIVITY_KEY, Date.now().toString());
+    localStorage.removeItem(INACTIVITY_LOCK_KEY);
 
     notifyAuthChange();
 
@@ -125,6 +133,8 @@ export const logoutUser = () => {
   localStorage.removeItem("refresh_token");
   localStorage.removeItem("user");
   localStorage.removeItem(LANDING_ADMIN_ACCESS_KEY);
+  localStorage.removeItem(INACTIVITY_LAST_ACTIVITY_KEY);
+  localStorage.removeItem(INACTIVITY_LOCK_KEY);
   notifyAuthChange();
 };
 

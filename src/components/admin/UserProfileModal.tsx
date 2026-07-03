@@ -30,6 +30,14 @@ interface EditableState {
 const RH_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 const onlyNumbers = (value: string) => value.replace(/\D/g, "");
+const removeDigits = (value: string) => value.replace(/\d/g, "");
+const TEXT_ONLY_FIELDS = new Set([
+  "first_name",
+  "last_name",
+  "acudiente_nombre",
+  "especialidad",
+  "titulo",
+]);
 const isPdfFile = (file: File) =>
   file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
@@ -128,6 +136,8 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
           ? onlyNumbers(value)
         : name === "acudiente_telefono"
           ? onlyNumbers(value).slice(0, 10)
+          : TEXT_ONLY_FIELDS.has(name)
+            ? removeDigits(value)
           : value;
 
     setFormData((current) => ({ ...current, [name]: normalizedValue }));
@@ -143,7 +153,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     event.preventDefault();
     if (!user.id) return;
 
-    if (!formData.email.includes("@")) {
+    if (user.role !== "STUDENT" && !formData.email.includes("@")) {
       showToast({
         type: "warning",
         title: "Correo inválido",
@@ -394,18 +404,20 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                   maxLength={20}
                 />
               </label>
-              <label>
-                <span>Correo</span>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleFieldChange("email", e.target.value)}
-                  onInvalid={(e) =>
-                    e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
-                  }
-                  onInput={(e) => e.currentTarget.setCustomValidity("")}
-                />
-              </label>
+              {user.role !== "STUDENT" ? (
+                <label>
+                  <span>Correo</span>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleFieldChange("email", e.target.value)}
+                    onInvalid={(e) =>
+                      e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
+                    }
+                    onInput={(e) => e.currentTarget.setCustomValidity("")}
+                  />
+                </label>
+              ) : null}
               <label>
                 <span>Direccion</span>
                 <input value={formData.direccion} onChange={(e) => handleFieldChange("direccion", e.target.value)} />
@@ -444,18 +456,6 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                       onChange={(e) => handleFieldChange("acudiente_telefono", e.target.value)}
                       inputMode="numeric"
                       maxLength={10}
-                    />
-                  </label>
-                  <label>
-                    <span>Correo del acudiente</span>
-                    <input
-                      type="email"
-                      value={formData.acudiente_email}
-                      onChange={(e) => handleFieldChange("acudiente_email", e.target.value)}
-                      onInvalid={(e) =>
-                        e.currentTarget.setCustomValidity("Ingresa un correo valido que incluya arroba.")
-                      }
-                      onInput={(e) => e.currentTarget.setCustomValidity("")}
                     />
                   </label>
                 </>
