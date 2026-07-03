@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "@/api/axios";
-import { Download, Eye, FileText, Save, Upload, UserRound, X } from "lucide-react";
+import { Download, Eye, FileText, KeyRound, Save, Upload, UserRound, X } from "lucide-react";
 import { useFeedback } from "@/context/FeedbackContext";
 import { exportUserProfileToPdf } from "@/utils/userPdf";
-import type { User, UserDocument } from "../../types/User";
+import type { GeneratedCredentials, User, UserDocument } from "../../types/User";
 import "./UserManagement.css";
 
 interface Props {
@@ -69,6 +69,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   const [documentTitle, setDocumentTitle] = useState("");
   const [documentCategory, setDocumentCategory] = useState("");
   const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [resetCredentials, setResetCredentials] = useState<GeneratedCredentials | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -141,6 +142,35 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
           : value;
 
     setFormData((current) => ({ ...current, [name]: normalizedValue }));
+  };
+
+  const downloadTextFile = (filename: string, content: string, type = "text/plain;charset=utf-8") => {
+    const blob = new Blob([content], { type });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const downloadCredentials = (credentials: GeneratedCredentials) => {
+    const roleLabel = credentials.role === "STUDENT" ? "Estudiante" : credentials.role === "TEACHER" ? "Docente" : "Administrador";
+    const content = [
+      "Gimnasio Los Cerros",
+      "Credenciales de acceso",
+      "",
+      `Nombre: ${credentials.full_name}`,
+      `Rol: ${roleLabel}`,
+      `Usuario de acceso: ${credentials.login_identifier}`,
+      `Contrasena temporal: ${credentials.temporary_password}`,
+      "",
+      "Al ingresar por primera vez, la plataforma solicitara cambiar la contrasena.",
+    ].join("\r\n");
+
+    downloadTextFile(`credenciales-${credentials.login_identifier}.txt`, content);
   };
 
   const refreshDocuments = async () => {
@@ -362,6 +392,39 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     }
   };
 
+  const handleResetAccess = async () => {
+    if (!user.id) return;
+
+    const accepted = await confirm({
+      title: "Restablecer acceso",
+      message: `Se generara una nueva contrasena temporal para ${user.first_name} ${user.last_name}. La clave anterior dejara de funcionar.`,
+      confirmText: "Generar nueva clave",
+      cancelText: "Cancelar",
+    });
+
+    if (!accepted) return;
+
+    try {
+      setSaving(true);
+      const response = await api.post(`/api/users/${user.id}/reset-access/`);
+      setResetCredentials(response.data?.credentials || null);
+      await onSave();
+      showToast({
+        type: "success",
+        title: "Acceso restablecido",
+        message: "Se genero una nueva contrasena temporal para este usuario.",
+      });
+    } catch (error: any) {
+      showToast({
+        type: "error",
+        title: "Restablecer acceso",
+        message: error.response?.data?.detail || "No se pudo generar una nueva contrasena temporal.",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="user-profile-modal" onClick={(event) => event.stopPropagation()}>
@@ -480,6 +543,10 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                 <Download size={16} />
                 <span>Descargar ficha</span>
               </button>
+              <button type="button" className="btn" onClick={() => void handleResetAccess()} disabled={saving}>
+                <KeyRound size={16} />
+                <span>{saving ? "Procesando..." : "Restablecer acceso"}</span>
+              </button>
               <button type="submit" className="btn btn-primary" disabled={saving}>
                 <Save size={16} />
                 <span>{saving ? "Guardando..." : "Guardar cambios"}</span>
@@ -591,6 +658,51 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
           </section>
         </div>
       </div>
+
+      {resetCredentials ? (
+        <div className="modal-overlay" onClick={() => setResetCredentials(null)}>
+          <div className="modal-container user-credentials-modal" onClick={(event) => event.stopPropagation()}>
+            <div className="modal-shell__header">
+              <div>
+                <span className="modal-shell__eyebrow">Acceso restablecido</span>
+                <h2 className="modal-title">Nueva clave temporal generada</h2>
+                <p className="modal-shell__subtitle">
+                  Comparte estas credenciales con {resetCredentials.full_name}. La contrasena anterior ya no funciona.
+                </p>
+              </div>
+
+              <button
+                className="close-btn"
+                onClick={() => setResetCredentials(null)}
+                aria-label="Cerrar modal"
+              >
+                x
+              </button>
+            </div>
+
+            <div className="form user-credentials-modal__body">
+              <div className="user-credentials-modal__card">
+                <span>Usuario de acceso</span>
+                <strong>{resetCredentials.login_identifier}</strong>
+              </div>
+              <div className="user-credentials-modal__card">
+                <span>Contrasena temporal</span>
+                <strong>{resetCredentials.temporary_password}</strong>
+              </div>
+
+              <div className="user-credentials-modal__actions">
+                <button type="button" className="btn" onClick={() => downloadCredentials(resetCredentials)}>
+                  <Download size={16} />
+                  <span>Descargar credenciales</span>
+                </button>
+                <button type="button" className="btn btn-primary" onClick={() => setResetCredentials(null)}>
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };
