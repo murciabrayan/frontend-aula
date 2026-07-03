@@ -45,6 +45,7 @@ const UserList = () => {
   const [bulkImportResult, setBulkImportResult] = useState<any | null>(null);
   const [createdCredentials, setCreatedCredentials] = useState<GeneratedCredentials | null>(null);
   const bulkInputRef = useRef<HTMLInputElement | null>(null);
+  const studentDocumentLabel = "Tarjeta de identidad";
 
   const downloadTextFile = (filename: string, content: string, type = "text/plain;charset=utf-8") => {
     const blob = new Blob([content], { type });
@@ -374,7 +375,7 @@ const UserList = () => {
   const renderBulkFieldLabel = (field: string) => {
     const labels: Record<string, string> = {
       email: "Correo",
-      cedula: "Cedula",
+      cedula: studentDocumentLabel,
       first_name: "Nombres",
       last_name: "Apellidos",
       direccion: "Direccion",
@@ -519,7 +520,7 @@ const UserList = () => {
                   </h3>
                   <p>
                     {user.role === "STUDENT"
-                      ? `Acceso por cedula: ${user.login_identifier || user.cedula}`
+                      ? `Acceso por tarjeta de identidad: ${user.login_identifier || user.cedula}`
                       : user.email}
                   </p>
                 </div>
@@ -527,7 +528,7 @@ const UserList = () => {
 
               <div className="user-card__meta">
                 <div>
-                  <span>Documento</span>
+                  <span>{user.role === "STUDENT" ? studentDocumentLabel : "Documento"}</span>
                   <strong>{user.cedula}</strong>
                 </div>
                 <div>
@@ -796,7 +797,7 @@ const UserList = () => {
                                   <strong>{row.name}</strong>
                                   <span>
                                     {row.role === "STUDENT"
-                                      ? `Cedula ${row.cedula || "Sin dato"} · fila ${row.row}`
+                                      ? `${studentDocumentLabel} ${row.cedula || "Sin dato"} · fila ${row.row}`
                                       : `${row.email || "Sin correo"} · fila ${row.row}`}
                                   </span>
                                 </div>

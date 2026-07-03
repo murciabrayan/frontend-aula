@@ -38,6 +38,7 @@ const TEXT_ONLY_FIELDS = new Set([
   "especialidad",
   "titulo",
 ]);
+const STUDENT_DOCUMENT_LABEL = "Tarjeta de identidad";
 const isPdfFile = (file: File) =>
   file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
 
@@ -195,8 +196,11 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
     if (!formData.cedula.trim()) {
       showToast({
         type: "warning",
-        title: "Cedula",
-        message: "La cedula es obligatoria y solo puede contener numeros.",
+        title: user.role === "STUDENT" ? STUDENT_DOCUMENT_LABEL : "Cedula",
+        message:
+          user.role === "STUDENT"
+            ? "La tarjeta de identidad es obligatoria y solo puede contener numeros."
+            : "La cedula es obligatoria y solo puede contener numeros.",
       });
       return;
     }
@@ -459,7 +463,7 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                 <input value={formData.last_name} onChange={(e) => handleFieldChange("last_name", e.target.value)} />
               </label>
               <label>
-                <span>Documento</span>
+                <span>{user.role === "STUDENT" ? STUDENT_DOCUMENT_LABEL : "Documento"}</span>
                 <input
                   value={formData.cedula}
                   onChange={(e) => handleFieldChange("cedula", e.target.value)}

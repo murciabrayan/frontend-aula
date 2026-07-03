@@ -95,7 +95,7 @@ const LoginScreen = () => {
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
-                placeholder="Correo institucional o cédula"
+                placeholder="Correo institucional o tarjeta de identidad"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 required
@@ -160,7 +160,7 @@ const LoginScreen = () => {
               </a>
 
               <div className="login-tagline" style={{ marginTop: "12px" }}>
-                Los estudiantes pueden ingresar con su cédula. Si no tienen correo registrado,
+                Los estudiantes pueden ingresar con su tarjeta de identidad. Si no tienen correo registrado,
                 la recuperación debe solicitarse al colegio.
               </div>
 

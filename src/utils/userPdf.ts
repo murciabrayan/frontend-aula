@@ -64,6 +64,9 @@ const buildRoleLabel = (role: User["role"]) => {
   return "Administrador";
 };
 
+const buildDocumentLabel = (role: User["role"]) =>
+  role === "STUDENT" ? "Tarjeta de identidad" : "Documento";
+
 const groupUsersByCourse = (users: User[]) => {
   const grouped = new Map<string, User[]>();
 
@@ -182,7 +185,7 @@ const drawFieldList = (doc: jsPDF, fields: PdfField[], startY: number) => {
 
 const getListingFields = (user: User): PdfField[] => {
   const fields: PdfField[] = [
-    { label: "Documento", value: normalizeText(user.cedula) },
+    { label: buildDocumentLabel(user.role), value: normalizeText(user.cedula) },
     { label: "Correo", value: normalizeText(user.email) },
     { label: "Direccion", value: normalizeText(user.direccion) },
     { label: "RH", value: normalizeText(user.rh) },
@@ -343,7 +346,7 @@ export const exportUserProfileToPdf = async (user: User) => {
     [
       { label: "Nombre completo", value: buildFullName(user) },
       { label: "Rol", value: buildRoleLabel(user.role) },
-      { label: "Documento", value: normalizeText(user.cedula) },
+      { label: buildDocumentLabel(user.role), value: normalizeText(user.cedula) },
       { label: "Correo", value: normalizeText(user.email) },
       { label: "Direccion", value: normalizeText(user.direccion) },
       { label: "RH", value: normalizeText(user.rh) },

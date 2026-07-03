@@ -41,6 +41,8 @@ const TEXT_ONLY_FIELDS = new Set([
   "titulo",
 ]);
 
+const STUDENT_DOCUMENT_LABEL = "Tarjeta de identidad";
+
 const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   email: "",
   cedula: "",
@@ -149,8 +151,11 @@ const UserForm: React.FC<UserFormProps> = ({
     if (!formData.cedula.trim()) {
       showToast({
         type: "warning",
-        title: "Cedula",
-        message: "La cedula es obligatoria y solo puede contener numeros.",
+        title: role === "STUDENT" ? STUDENT_DOCUMENT_LABEL : "Cedula",
+        message:
+          role === "STUDENT"
+            ? "La tarjeta de identidad es obligatoria y solo puede contener numeros."
+            : "La cedula es obligatoria y solo puede contener numeros.",
       });
       return;
     }
@@ -262,7 +267,7 @@ const UserForm: React.FC<UserFormProps> = ({
             <h2 className="modal-title">{user ? "Editar usuario" : "Agregar nuevo usuario"}</h2>
             <p className="modal-shell__subtitle">
               {role === "STUDENT"
-                ? "El estudiante ingresara con su cedula. Al guardar veras la clave temporal para entregarla manualmente."
+                ? "El estudiante ingresara con su tarjeta de identidad. Al guardar veras la clave temporal para entregarla manualmente."
                 : "Completa la informacion principal. El docente ingresara con su correo y recibira una clave temporal."}
             </p>
           </div>
@@ -312,7 +317,7 @@ const UserForm: React.FC<UserFormProps> = ({
           <input
             type="text"
             name="cedula"
-            placeholder="Cedula"
+            placeholder={role === "STUDENT" ? STUDENT_DOCUMENT_LABEL : "Cedula"}
             value={formData.cedula}
             onChange={handleChange}
             inputMode="numeric"

@@ -367,7 +367,7 @@ const AdminReportCards: React.FC = () => {
                   <span className="report-card__eyebrow">Estudiante</span>
                   <h3>{student.nombre}</h3>
                   <p>{student.email}</p>
-                  <span>C.C. {student.cedula}</span>
+                  <span>T.I. {student.cedula}</span>
                 </article>
               ))
             )}
@@ -442,7 +442,7 @@ const AdminReportCards: React.FC = () => {
               <strong>{report.estudiante.nombre}</strong>
             </div>
             <div className="summary-item">
-              <span>Cedula</span>
+              <span>Tarjeta de identidad</span>
               <strong>{report.estudiante.cedula}</strong>
             </div>
             <div className="summary-item">
