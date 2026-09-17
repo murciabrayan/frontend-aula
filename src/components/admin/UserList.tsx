@@ -383,15 +383,24 @@ const UserList = () => {
       acudiente_nombre: "Acudiente",
       acudiente_cedula: "Cedula del acudiente",
       acudiente_telefono: "Telefono del acudiente",
+      acudiente_parentesco: "Parentesco del acudiente",
+      acudiente2_nombre: "Segundo acudiente",
+      acudiente2_cedula: "Cedula del segundo acudiente",
+      acudiente2_telefono: "Telefono del segundo acudiente",
+      acudiente2_parentesco: "Parentesco del segundo acudiente",
       especialidad: "Especialidad",
       titulo: "Titulo",
+      telefono: "Telefono",
     };
 
     return labels[field] || field;
   };
 
   const shouldDisplayBulkField = (field: string, role: "STUDENT" | "TEACHER") => {
-    if (role === "STUDENT" && (field === "email" || field === "acudiente_email")) {
+    if (
+      role === "STUDENT" &&
+      (field === "email" || field === "acudiente_email" || field === "acudiente2_email")
+    ) {
       return false;
     }
 
