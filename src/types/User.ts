@@ -1,3 +1,27 @@
+export type Parentesco =
+  | "MADRE"
+  | "PADRE"
+  | "TIO"
+  | "TIA"
+  | "ABUELO"
+  | "ABUELA"
+  | "HERMANO"
+  | "HERMANA"
+  | "CONOCIDO"
+  | "";
+
+export const PARENTESCO_OPTIONS: { value: Exclude<Parentesco, "">; label: string }[] = [
+  { value: "MADRE", label: "Madre" },
+  { value: "PADRE", label: "Padre" },
+  { value: "TIO", label: "Tío" },
+  { value: "TIA", label: "Tía" },
+  { value: "ABUELO", label: "Abuelo" },
+  { value: "ABUELA", label: "Abuela" },
+  { value: "HERMANO", label: "Hermano" },
+  { value: "HERMANA", label: "Hermana" },
+  { value: "CONOCIDO", label: "Conocido" },
+];
+
 export interface StudentProfile {
   id?: number;
   grado?: string;
@@ -5,12 +29,19 @@ export interface StudentProfile {
   acudiente_cedula?: string;
   acudiente_telefono?: string;
   acudiente_email?: string;
+  acudiente_parentesco?: Parentesco;
+  acudiente2_nombre?: string;
+  acudiente2_cedula?: string;
+  acudiente2_telefono?: string;
+  acudiente2_email?: string;
+  acudiente2_parentesco?: Parentesco;
 }
 
 export interface TeacherProfile {
   id?: number;
   especialidad?: string;
   titulo?: string;
+  telefono?: string;
 }
 
 export interface UserDocument {

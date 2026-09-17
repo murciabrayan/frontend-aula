@@ -25,6 +25,7 @@ const TeacherProfile = () => {
           fields: [
             { name: "especialidad", label: "Especialidad" },
             { name: "titulo", label: "Título académico" },
+            { name: "telefono", label: "Teléfono" },
           ],
         },
       ]}

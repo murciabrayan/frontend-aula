@@ -172,6 +172,15 @@ export const completeInitialPassword = async (newPassword: string) => {
   return response.data;
 };
 
+export interface DataPolicySigner {
+  index: number;
+  name: string;
+  document: string;
+  role: string;
+  parentesco: string;
+  parentesco_label: string;
+}
+
 export interface DataPolicyStatusResponse {
   version: string;
   title: string;
@@ -180,6 +189,7 @@ export interface DataPolicyStatusResponse {
   signer_name: string;
   signer_document: string;
   signer_role: string;
+  available_signers?: DataPolicySigner[];
   accepted: boolean;
   accepted_at: string | null;
 }
@@ -189,10 +199,11 @@ export const getDataPolicyStatus = async () => {
   return response.data;
 };
 
-export const acceptDataPolicy = async (signatureFile: File) => {
+export const acceptDataPolicy = async (signatureFile: File, signerIndex = 0) => {
   const payload = new FormData();
   payload.append("accept", "true");
   payload.append("signature_file", signatureFile);
+  payload.append("signer_index", String(signerIndex));
 
   const response = await api.post<{ message: string; user: StoredUser }>(
     "/api/data-policy/accept/",

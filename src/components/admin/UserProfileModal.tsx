@@ -4,6 +4,7 @@ import { Download, Eye, FileText, KeyRound, Save, Upload, UserRound, X } from "l
 import { useFeedback } from "@/context/FeedbackContext";
 import { exportUserProfileToPdf } from "@/utils/userPdf";
 import type { GeneratedCredentials, User, UserDocument } from "../../types/User";
+import { PARENTESCO_OPTIONS } from "../../types/User";
 import "./UserManagement.css";
 
 interface Props {
@@ -23,8 +24,15 @@ interface EditableState {
   acudiente_cedula: string;
   acudiente_telefono: string;
   acudiente_email: string;
+  acudiente_parentesco: string;
+  acudiente2_nombre: string;
+  acudiente2_cedula: string;
+  acudiente2_telefono: string;
+  acudiente2_email: string;
+  acudiente2_parentesco: string;
   especialidad: string;
   titulo: string;
+  telefono: string;
 }
 
 const RH_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -35,9 +43,12 @@ const TEXT_ONLY_FIELDS = new Set([
   "first_name",
   "last_name",
   "acudiente_nombre",
+  "acudiente2_nombre",
   "especialidad",
   "titulo",
 ]);
+const NUMERIC_FIELDS = new Set(["cedula", "acudiente_cedula", "acudiente2_cedula"]);
+const PHONE_FIELDS = new Set(["acudiente_telefono", "acudiente2_telefono", "telefono"]);
 const STUDENT_DOCUMENT_LABEL = "Tarjeta de identidad";
 const isPdfFile = (file: File) =>
   file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
@@ -53,8 +64,15 @@ const buildStateFromUser = (user: User): EditableState => ({
   acudiente_cedula: user.student_profile?.acudiente_cedula || "",
   acudiente_telefono: user.student_profile?.acudiente_telefono || "",
   acudiente_email: user.student_profile?.acudiente_email || "",
+  acudiente_parentesco: user.student_profile?.acudiente_parentesco || "",
+  acudiente2_nombre: user.student_profile?.acudiente2_nombre || "",
+  acudiente2_cedula: user.student_profile?.acudiente2_cedula || "",
+  acudiente2_telefono: user.student_profile?.acudiente2_telefono || "",
+  acudiente2_email: user.student_profile?.acudiente2_email || "",
+  acudiente2_parentesco: user.student_profile?.acudiente2_parentesco || "",
   especialidad: user.teacher_profile?.especialidad || "",
   titulo: user.teacher_profile?.titulo || "",
+  telefono: user.teacher_profile?.telefono || "",
 });
 
 const getDownloadName = (title: string, fileUrl: string) => {
@@ -131,15 +149,12 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
   }, [user]);
 
   const handleFieldChange = (name: keyof EditableState, value: string) => {
-    const normalizedValue =
-      name === "cedula"
-        ? onlyNumbers(value)
-        : name === "acudiente_cedula"
-          ? onlyNumbers(value)
-        : name === "acudiente_telefono"
-          ? onlyNumbers(value).slice(0, 10)
-          : TEXT_ONLY_FIELDS.has(name)
-            ? removeDigits(value)
+    const normalizedValue = NUMERIC_FIELDS.has(name)
+      ? onlyNumbers(value)
+      : PHONE_FIELDS.has(name)
+        ? onlyNumbers(value).slice(0, 10)
+        : TEXT_ONLY_FIELDS.has(name)
+          ? removeDigits(value)
           : value;
 
     setFormData((current) => ({ ...current, [name]: normalizedValue }));
@@ -236,6 +251,29 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
       return;
     }
 
+    const acudiente2Filled =
+      formData.acudiente2_nombre.trim() ||
+      formData.acudiente2_cedula.trim() ||
+      formData.acudiente2_telefono.trim() ||
+      formData.acudiente2_email.trim() ||
+      formData.acudiente2_parentesco;
+    if (
+      user.role === "STUDENT" &&
+      acudiente2Filled &&
+      (!formData.acudiente2_nombre.trim() ||
+        !formData.acudiente2_cedula.trim() ||
+        formData.acudiente2_telefono.length !== 10 ||
+        !formData.acudiente2_parentesco)
+    ) {
+      showToast({
+        type: "warning",
+        title: "Segundo acudiente",
+        message:
+          "Completa nombre, cedula, telefono (10 numeros) y parentesco del segundo acudiente, o dejalo vacio.",
+      });
+      return;
+    }
+
     const payload: Record<string, string> = {
       first_name: formData.first_name.trim(),
       last_name: formData.last_name.trim(),
@@ -251,11 +289,18 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
       payload.acudiente_cedula = formData.acudiente_cedula.trim();
       payload.acudiente_telefono = formData.acudiente_telefono.trim();
       payload.acudiente_email = formData.acudiente_email.trim();
+      payload.acudiente_parentesco = formData.acudiente_parentesco;
+      payload.acudiente2_nombre = formData.acudiente2_nombre.trim();
+      payload.acudiente2_cedula = formData.acudiente2_cedula.trim();
+      payload.acudiente2_telefono = formData.acudiente2_telefono.trim();
+      payload.acudiente2_email = formData.acudiente2_email.trim();
+      payload.acudiente2_parentesco = formData.acudiente2_parentesco;
     }
 
     if (user.role === "TEACHER") {
       payload.especialidad = formData.especialidad.trim();
       payload.titulo = formData.titulo.trim();
+      payload.telefono = formData.telefono.trim();
     }
 
     try {
@@ -525,6 +570,56 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                       maxLength={10}
                     />
                   </label>
+                  <label>
+                    <span>Parentesco del acudiente</span>
+                    <select
+                      value={formData.acudiente_parentesco}
+                      onChange={(e) => handleFieldChange("acudiente_parentesco", e.target.value)}
+                    >
+                      <option value="">Selecciona el parentesco</option>
+                      {PARENTESCO_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    <span>Nombre del segundo acudiente (opcional)</span>
+                    <input value={formData.acudiente2_nombre} onChange={(e) => handleFieldChange("acudiente2_nombre", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Cedula del segundo acudiente</span>
+                    <input
+                      value={formData.acudiente2_cedula}
+                      onChange={(e) => handleFieldChange("acudiente2_cedula", e.target.value)}
+                      inputMode="numeric"
+                      maxLength={20}
+                    />
+                  </label>
+                  <label>
+                    <span>Telefono del segundo acudiente</span>
+                    <input
+                      value={formData.acudiente2_telefono}
+                      onChange={(e) => handleFieldChange("acudiente2_telefono", e.target.value)}
+                      inputMode="numeric"
+                      maxLength={10}
+                    />
+                  </label>
+                  <label>
+                    <span>Parentesco del segundo acudiente</span>
+                    <select
+                      value={formData.acudiente2_parentesco}
+                      onChange={(e) => handleFieldChange("acudiente2_parentesco", e.target.value)}
+                    >
+                      <option value="">Selecciona el parentesco</option>
+                      {PARENTESCO_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </>
               ) : null}
 
@@ -537,6 +632,15 @@ const UserProfileModal = ({ user, onClose, onSave }: Props) => {
                   <label>
                     <span>Título académico</span>
                     <input value={formData.titulo} onChange={(e) => handleFieldChange("titulo", e.target.value)} />
+                  </label>
+                  <label>
+                    <span>Teléfono</span>
+                    <input
+                      value={formData.telefono}
+                      onChange={(e) => handleFieldChange("telefono", e.target.value)}
+                      inputMode="numeric"
+                      maxLength={10}
+                    />
                   </label>
                 </>
               ) : null}

@@ -2,6 +2,10 @@ import { jsPDF } from "jspdf";
 
 import schoolLogo from "@/assets/logo.png";
 import type { User } from "@/types/User";
+import { PARENTESCO_OPTIONS } from "@/types/User";
+
+const parentescoLabel = (value?: string) =>
+  PARENTESCO_OPTIONS.find((option) => option.value === value)?.label || "";
 
 const MARGIN = 16;
 const PAGE_WIDTH = 210;
@@ -194,16 +198,27 @@ const getListingFields = (user: User): PdfField[] => {
   if (user.role === "STUDENT") {
     fields.push(
       { label: "Acudiente", value: normalizeText(user.student_profile?.acudiente_nombre) },
+      { label: "Parentesco acudiente", value: normalizeText(parentescoLabel(user.student_profile?.acudiente_parentesco)) },
       { label: "Cedula acudiente", value: normalizeText(user.student_profile?.acudiente_cedula) },
       { label: "Telefono acudiente", value: normalizeText(user.student_profile?.acudiente_telefono) },
       { label: "Correo acudiente", value: normalizeText(user.student_profile?.acudiente_email) },
     );
+    if (normalizeText(user.student_profile?.acudiente2_nombre)) {
+      fields.push(
+        { label: "Segundo acudiente", value: normalizeText(user.student_profile?.acudiente2_nombre) },
+        { label: "Parentesco 2do acudiente", value: normalizeText(parentescoLabel(user.student_profile?.acudiente2_parentesco)) },
+        { label: "Cedula 2do acudiente", value: normalizeText(user.student_profile?.acudiente2_cedula) },
+        { label: "Telefono 2do acudiente", value: normalizeText(user.student_profile?.acudiente2_telefono) },
+        { label: "Correo 2do acudiente", value: normalizeText(user.student_profile?.acudiente2_email) },
+      );
+    }
   }
 
   if (user.role === "TEACHER") {
     fields.push(
       { label: "Especialidad", value: normalizeText(user.teacher_profile?.especialidad) },
       { label: "Título académico", value: normalizeText(user.teacher_profile?.titulo) },
+      { label: "Telefono", value: normalizeText(user.teacher_profile?.telefono) },
     );
   }
 
@@ -362,12 +377,28 @@ export const exportUserProfileToPdf = async (user: User) => {
       "Datos del acudiente",
       [
         { label: "Nombre del acudiente", value: normalizeText(user.student_profile?.acudiente_nombre) },
+        { label: "Parentesco", value: normalizeText(parentescoLabel(user.student_profile?.acudiente_parentesco)) },
         { label: "Cedula del acudiente", value: normalizeText(user.student_profile?.acudiente_cedula) },
         { label: "Telefono del acudiente", value: normalizeText(user.student_profile?.acudiente_telefono) },
         { label: "Correo del acudiente", value: normalizeText(user.student_profile?.acudiente_email) },
       ],
       cursorY,
     );
+
+    if (normalizeText(user.student_profile?.acudiente2_nombre)) {
+      cursorY = drawProfileSection(
+        doc,
+        "Datos del segundo acudiente",
+        [
+          { label: "Nombre del acudiente", value: normalizeText(user.student_profile?.acudiente2_nombre) },
+          { label: "Parentesco", value: normalizeText(parentescoLabel(user.student_profile?.acudiente2_parentesco)) },
+          { label: "Cedula del acudiente", value: normalizeText(user.student_profile?.acudiente2_cedula) },
+          { label: "Telefono del acudiente", value: normalizeText(user.student_profile?.acudiente2_telefono) },
+          { label: "Correo del acudiente", value: normalizeText(user.student_profile?.acudiente2_email) },
+        ],
+        cursorY,
+      );
+    }
   }
 
   if (user.role === "TEACHER") {
@@ -377,6 +408,7 @@ export const exportUserProfileToPdf = async (user: User) => {
       [
         { label: "Especialidad", value: normalizeText(user.teacher_profile?.especialidad) },
         { label: "Título académico", value: normalizeText(user.teacher_profile?.titulo) },
+        { label: "Telefono", value: normalizeText(user.teacher_profile?.telefono) },
       ],
       cursorY,
     );

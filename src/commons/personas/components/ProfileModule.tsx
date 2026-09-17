@@ -8,13 +8,14 @@ import { isStrongPassword } from "@/utils/passwordValidation";
 import type { UserDocument } from "@/types/User";
 import "./profile.css";
 
-type FieldType = "text" | "email";
+type FieldType = "text" | "email" | "select";
 
 export interface ProfileField {
   name: string;
   label: string;
   type?: FieldType;
   placeholder?: string;
+  options?: { value: string; label: string }[];
 }
 
 export interface ProfileSection {
@@ -587,15 +588,32 @@ const ProfileModule = ({
                         }`}
                       >
                         <span>{field.label}</span>
-                        <input
-                          type={field.type ?? "text"}
-                          value={draft[field.name] || ""}
-                          placeholder={field.placeholder || field.label}
-                          onChange={(event) =>
-                            handleFieldChange(field.name, event.target.value)
-                          }
-                          disabled={!editing || !canEditProfile}
-                        />
+                        {field.type === "select" ? (
+                          <select
+                            value={draft[field.name] || ""}
+                            onChange={(event) =>
+                              handleFieldChange(field.name, event.target.value)
+                            }
+                            disabled={!editing || !canEditProfile}
+                          >
+                            <option value="">{field.placeholder || field.label}</option>
+                            {(field.options ?? []).map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type={field.type ?? "text"}
+                            value={draft[field.name] || ""}
+                            placeholder={field.placeholder || field.label}
+                            onChange={(event) =>
+                              handleFieldChange(field.name, event.target.value)
+                            }
+                            disabled={!editing || !canEditProfile}
+                          />
+                        )}
                       </label>
                     ))}
                   </div>

@@ -33,6 +33,7 @@ const DataPolicyConsentScreen = () => {
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [signerIndex, setSignerIndex] = useState(0);
 
   useEffect(() => {
     if (!currentUser) {
@@ -76,10 +77,22 @@ const DataPolicyConsentScreen = () => {
     context.strokeStyle = "#111111";
   }, []);
 
+  const availableSigners = statusData?.available_signers ?? [];
+  const selectedSigner = useMemo(
+    () => availableSigners.find((signer) => signer.index === signerIndex) ?? availableSigners[0],
+    [availableSigners, signerIndex],
+  );
+
   const signerSummary = useMemo(() => {
     if (!statusData) return "";
-    return `${statusData.signer_role}: ${statusData.signer_name} | Documento: ${statusData.signer_document}`;
-  }, [statusData]);
+    const name = selectedSigner?.name ?? statusData.signer_name;
+    const document = selectedSigner?.document ?? statusData.signer_document;
+    const role = selectedSigner?.role ?? statusData.signer_role;
+    const parentesco = selectedSigner?.parentesco_label
+      ? ` (${selectedSigner.parentesco_label})`
+      : "";
+    return `${role}${parentesco}: ${name} | Documento: ${document}`;
+  }, [statusData, selectedSigner]);
 
   const getCanvasCoordinates = (event: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
@@ -171,7 +184,7 @@ const DataPolicyConsentScreen = () => {
 
     try {
       setSubmitting(true);
-      await acceptDataPolicy(fileToSend);
+      await acceptDataPolicy(fileToSend, signerIndex);
       navigate(getNextAuthRoute(getCurrentUser()), { replace: true });
     } catch (error: any) {
       setErrorMessage(
@@ -234,6 +247,22 @@ const DataPolicyConsentScreen = () => {
 
             <div className="data-policy-letter__signer">
               <strong>Firmante autorizado</strong>
+              {availableSigners.length > 1 ? (
+                <select
+                  className="data-policy-signer-select"
+                  value={signerIndex}
+                  onChange={(event) => setSignerIndex(Number(event.target.value))}
+                >
+                  {availableSigners.map((signer) => (
+                    <option key={signer.index} value={signer.index}>
+                      {signer.parentesco_label
+                        ? `${signer.name} (${signer.parentesco_label})`
+                        : signer.name}
+                      {signer.document ? ` - ${signer.document}` : ""}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
               <span>{signerSummary}</span>
             </div>
           </div>

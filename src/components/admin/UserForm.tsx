@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import api from "@/api/axios";
 import { useFeedback } from "@/context/FeedbackContext";
 import type { GeneratedCredentials, User } from "../../types/User";
+import { PARENTESCO_OPTIONS } from "../../types/User";
 import "./UserManagement.css";
 
 interface UserFormProps {
@@ -25,8 +26,15 @@ interface UserFormState {
   acudiente_cedula: string;
   acudiente_telefono: string;
   acudiente_email: string;
+  acudiente_parentesco: string;
+  acudiente2_nombre: string;
+  acudiente2_cedula: string;
+  acudiente2_telefono: string;
+  acudiente2_email: string;
+  acudiente2_parentesco: string;
   especialidad: string;
   titulo: string;
+  telefono: string;
 }
 
 const RH_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -37,9 +45,12 @@ const TEXT_ONLY_FIELDS = new Set([
   "first_name",
   "last_name",
   "acudiente_nombre",
+  "acudiente2_nombre",
   "especialidad",
   "titulo",
 ]);
+const NUMERIC_FIELDS = new Set(["cedula", "acudiente_cedula", "acudiente2_cedula"]);
+const PHONE_FIELDS = new Set(["acudiente_telefono", "acudiente2_telefono", "telefono"]);
 
 const STUDENT_DOCUMENT_LABEL = "Tarjeta de identidad";
 
@@ -55,8 +66,15 @@ const emptyForm = (role: "STUDENT" | "TEACHER"): UserFormState => ({
   acudiente_cedula: "",
   acudiente_telefono: "",
   acudiente_email: "",
+  acudiente_parentesco: "",
+  acudiente2_nombre: "",
+  acudiente2_cedula: "",
+  acudiente2_telefono: "",
+  acudiente2_email: "",
+  acudiente2_parentesco: "",
   especialidad: "",
   titulo: "",
+  telefono: "",
 });
 
 const UserForm: React.FC<UserFormProps> = ({
@@ -83,8 +101,15 @@ const UserForm: React.FC<UserFormProps> = ({
         acudiente_cedula: user.student_profile?.acudiente_cedula || "",
         acudiente_telefono: user.student_profile?.acudiente_telefono || "",
         acudiente_email: user.student_profile?.acudiente_email || "",
+        acudiente_parentesco: user.student_profile?.acudiente_parentesco || "",
+        acudiente2_nombre: user.student_profile?.acudiente2_nombre || "",
+        acudiente2_cedula: user.student_profile?.acudiente2_cedula || "",
+        acudiente2_telefono: user.student_profile?.acudiente2_telefono || "",
+        acudiente2_email: user.student_profile?.acudiente2_email || "",
+        acudiente2_parentesco: user.student_profile?.acudiente2_parentesco || "",
         especialidad: user.teacher_profile?.especialidad || "",
         titulo: user.teacher_profile?.titulo || "",
+        telefono: user.teacher_profile?.telefono || "",
       });
       return;
     }
@@ -94,16 +119,13 @@ const UserForm: React.FC<UserFormProps> = ({
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
-    const normalizedValue =
-      name === "cedula"
-        ? onlyNumbers(value)
-        : name === "acudiente_cedula"
-          ? onlyNumbers(value)
-          : name === "acudiente_telefono"
-            ? onlyNumbers(value).slice(0, 10)
-            : TEXT_ONLY_FIELDS.has(name)
-              ? removeDigits(value)
-              : value;
+    const normalizedValue = NUMERIC_FIELDS.has(name)
+      ? onlyNumbers(value)
+      : PHONE_FIELDS.has(name)
+        ? onlyNumbers(value).slice(0, 10)
+        : TEXT_ONLY_FIELDS.has(name)
+          ? removeDigits(value)
+          : value;
 
     setFormData((prev) => ({
       ...prev,
@@ -125,12 +147,30 @@ const UserForm: React.FC<UserFormProps> = ({
       basePayload.email = formData.email.trim();
       basePayload.especialidad = formData.especialidad.trim();
       basePayload.titulo = formData.titulo.trim();
+      basePayload.telefono = formData.telefono.trim();
     }
 
     if (role === "STUDENT") {
       basePayload.acudiente_nombre = formData.acudiente_nombre.trim();
       basePayload.acudiente_cedula = formData.acudiente_cedula.trim();
       basePayload.acudiente_telefono = formData.acudiente_telefono.trim();
+      basePayload.acudiente_email = formData.acudiente_email.trim();
+      basePayload.acudiente_parentesco = formData.acudiente_parentesco;
+
+      // Acudiente 2 (opcional): se envia solo si escribieron algun dato.
+      const acudiente2Filled =
+        formData.acudiente2_nombre.trim() ||
+        formData.acudiente2_cedula.trim() ||
+        formData.acudiente2_telefono.trim() ||
+        formData.acudiente2_email.trim() ||
+        formData.acudiente2_parentesco;
+      if (acudiente2Filled) {
+        basePayload.acudiente2_nombre = formData.acudiente2_nombre.trim();
+        basePayload.acudiente2_cedula = formData.acudiente2_cedula.trim();
+        basePayload.acudiente2_telefono = formData.acudiente2_telefono.trim();
+        basePayload.acudiente2_email = formData.acudiente2_email.trim();
+        basePayload.acudiente2_parentesco = formData.acudiente2_parentesco;
+      }
     }
 
     return basePayload;
@@ -178,6 +218,15 @@ const UserForm: React.FC<UserFormProps> = ({
       return;
     }
 
+    if (role === "TEACHER" && !user && formData.telefono.length !== 10) {
+      showToast({
+        type: "warning",
+        title: "Telefono",
+        message: "El telefono del docente debe tener exactamente 10 numeros.",
+      });
+      return;
+    }
+
     if (role === "STUDENT" && formData.acudiente_telefono.length !== 10) {
       showToast({
         type: "warning",
@@ -185,6 +234,40 @@ const UserForm: React.FC<UserFormProps> = ({
         message: "El telefono del acudiente debe tener exactamente 10 numeros.",
       });
       return;
+    }
+
+    if (role === "STUDENT" && !user && !formData.acudiente_parentesco) {
+      showToast({
+        type: "warning",
+        title: "Parentesco",
+        message: "Selecciona el parentesco del acudiente.",
+      });
+      return;
+    }
+
+    if (role === "STUDENT") {
+      const acudiente2Filled =
+        formData.acudiente2_nombre.trim() ||
+        formData.acudiente2_cedula.trim() ||
+        formData.acudiente2_telefono.trim() ||
+        formData.acudiente2_email.trim() ||
+        formData.acudiente2_parentesco;
+      if (acudiente2Filled) {
+        if (
+          !formData.acudiente2_nombre.trim() ||
+          !formData.acudiente2_cedula.trim() ||
+          formData.acudiente2_telefono.length !== 10 ||
+          !formData.acudiente2_parentesco
+        ) {
+          showToast({
+            type: "warning",
+            title: "Segundo acudiente",
+            message:
+              "Completa nombre, cedula, telefono (10 numeros) y parentesco del segundo acudiente, o dejalo totalmente vacio.",
+          });
+          return;
+        }
+      }
     }
 
     const payload = buildPayload();
@@ -371,6 +454,16 @@ const UserForm: React.FC<UserFormProps> = ({
                 onChange={handleChange}
                 className="input-field"
               />
+              <input
+                type="text"
+                name="telefono"
+                placeholder="Telefono del docente"
+                value={formData.telefono}
+                onChange={handleChange}
+                inputMode="numeric"
+                maxLength={10}
+                className="input-field"
+              />
             </>
           ) : null}
 
@@ -404,6 +497,64 @@ const UserForm: React.FC<UserFormProps> = ({
                 maxLength={10}
                 className="input-field"
               />
+              <select
+                name="acudiente_parentesco"
+                value={formData.acudiente_parentesco}
+                onChange={handleChange}
+                className="input-field"
+              >
+                <option value="">Parentesco del acudiente</option>
+                {PARENTESCO_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              <div className="form-section-divider">
+                Segundo acudiente (opcional)
+              </div>
+              <input
+                type="text"
+                name="acudiente2_nombre"
+                placeholder="Nombre del segundo acudiente"
+                value={formData.acudiente2_nombre}
+                onChange={handleChange}
+                className="input-field"
+              />
+              <input
+                type="text"
+                name="acudiente2_cedula"
+                placeholder="Cedula del segundo acudiente"
+                value={formData.acudiente2_cedula}
+                onChange={handleChange}
+                inputMode="numeric"
+                maxLength={20}
+                className="input-field"
+              />
+              <input
+                type="text"
+                name="acudiente2_telefono"
+                placeholder="Telefono del segundo acudiente"
+                value={formData.acudiente2_telefono}
+                onChange={handleChange}
+                inputMode="numeric"
+                maxLength={10}
+                className="input-field"
+              />
+              <select
+                name="acudiente2_parentesco"
+                value={formData.acudiente2_parentesco}
+                onChange={handleChange}
+                className="input-field"
+              >
+                <option value="">Parentesco del segundo acudiente</option>
+                {PARENTESCO_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </>
           ) : null}
 
