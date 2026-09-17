@@ -4,25 +4,44 @@ import schoolLogo from "@/assets/logo.png";
 import type { User } from "@/types/User";
 import { PARENTESCO_OPTIONS } from "@/types/User";
 
-const parentescoLabel = (value?: string) =>
-  PARENTESCO_OPTIONS.find((option) => option.value === value)?.label || "";
+/* ==========================================================================
+   Sistema de diseño de los PDF institucionales.
+   Ambos documentos (listado general y ficha individual) comparten la misma
+   paleta y primitivas: banda oscura con filete dorado, titulos de seccion en
+   dorado y campos "apilados" (etiqueta pequeña arriba, valor destacado).
+   ========================================================================== */
 
-const MARGIN = 16;
-const PAGE_WIDTH = 210;
-const PAGE_HEIGHT = 297;
-const CONTENT_WIDTH = PAGE_WIDTH - MARGIN * 2;
-const BODY_START_Y = 68;
+const MARGIN = 14;
 const SCHOOL_NAME = "GIMNASIO LOS CERROS";
-const SCHOOL_SUBTITLE = "Registro institucional de usuarios";
-const BLACK = [0, 0, 0] as const;
-const LIGHT = [247, 247, 247] as const;
-const BORDER = [198, 198, 198] as const;
-const MUTED = [92, 92, 92] as const;
+const SCHOOL_SUBTITLE = "Registro institucional";
+
+const INK = [17, 18, 24] as const;
+const GOLD = [178, 141, 58] as const;
+const GOLD_SOFT = [246, 241, 228] as const;
+const LINE = [226, 222, 212] as const;
+const SOFT = [250, 249, 245] as const;
+const TEXT = [34, 34, 38] as const;
+const MUTED = [122, 119, 112] as const;
+const WHITE = [255, 255, 255] as const;
+
+// Metricas de un campo apilado (etiqueta + valor).
+const LABEL_TO_VALUE = 4.2;
+const VALUE_LINE_HEIGHT = 3.7;
+const FIELD_BOTTOM_GAP = 3.6;
+const SECTION_LABEL_HEIGHT = 5.6;
 
 type PdfField = {
   label: string;
   value: string;
 };
+
+type FieldGroup = {
+  title: string;
+  fields: PdfField[];
+};
+
+const parentescoLabel = (value?: string) =>
+  PARENTESCO_OPTIONS.find((option) => option.value === value)?.label || "";
 
 const loadImageDataUrl = (src: string) =>
   new Promise<string>((resolve, reject) => {
@@ -46,7 +65,7 @@ const loadImageDataUrl = (src: string) =>
 const sanitizeFileName = (value: string) =>
   value
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-zA-Z0-9-_]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
@@ -92,62 +111,260 @@ const groupUsersByCourse = (users: User[]) => {
   );
 };
 
-const addHeader = async (doc: jsPDF, title: string, subtitle: string) => {
-  doc.setFillColor(255, 255, 255);
-  doc.setDrawColor(...BLACK);
-  doc.roundedRect(MARGIN, MARGIN, CONTENT_WIDTH, 34, 2, 2, "FD");
-
-  try {
-    const logoData = await loadImageDataUrl(schoolLogo);
-    doc.addImage(logoData, "PNG", MARGIN + 4, 20, 14, 14, undefined, "FAST");
-  } catch {
-    // noop
-  }
-
-  doc.setTextColor(...BLACK);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text(SCHOOL_NAME, MARGIN + 24, 24);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9.5);
-  doc.setTextColor(...MUTED);
-  doc.text(SCHOOL_SUBTITLE, MARGIN + 24, 29);
-
-  doc.setDrawColor(...BLACK);
-  doc.line(MARGIN + 4, 38, PAGE_WIDTH - MARGIN - 4, 38);
-
-  doc.setTextColor(...BLACK);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  doc.text(title, MARGIN + 4, 46);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9.5);
-  doc.setTextColor(...MUTED);
-  doc.text(subtitle, MARGIN + 4, 56);
-};
-
-const addPageFooter = (doc: jsPDF) => {
-  const pageCount = doc.getNumberOfPages();
-  // Se lee del documento para que funcione igual en vertical y apaisado.
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const generatedAt = new Date().toLocaleDateString("es-CO", {
+const formattedToday = () =>
+  new Date().toLocaleDateString("es-CO", {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
 
+const pageWidthOf = (doc: jsPDF) => doc.internal.pageSize.getWidth();
+const pageHeightOf = (doc: jsPDF) => doc.internal.pageSize.getHeight();
+const contentWidthOf = (doc: jsPDF) => pageWidthOf(doc) - MARGIN * 2;
+
+/* --------------------------------------------------------------------------
+   Primitivas de dibujo
+   -------------------------------------------------------------------------- */
+
+interface BrandHeaderOptions {
+  eyebrow: string;
+  title: string;
+  meta?: string;
+  logoData?: string | null;
+}
+
+const drawBrandHeader = (doc: jsPDF, options: BrandHeaderOptions) => {
+  const width = contentWidthOf(doc);
+  const bandHeight = 24;
+
+  doc.setFillColor(...INK);
+  doc.rect(MARGIN, MARGIN, width, bandHeight, "F");
+  doc.setFillColor(...GOLD);
+  doc.rect(MARGIN, MARGIN + bandHeight, width, 1.3, "F");
+
+  if (options.logoData) {
+    try {
+      doc.addImage(options.logoData, "PNG", MARGIN + 5, MARGIN + 5, 14, 14, undefined, "FAST");
+    } catch {
+      // Un logo invalido no debe impedir la generacion del documento.
+    }
+  }
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(...WHITE);
+  doc.text(SCHOOL_NAME, MARGIN + 23, MARGIN + 11);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.4);
+  doc.setTextColor(...GOLD);
+  doc.text(SCHOOL_SUBTITLE.toUpperCase(), MARGIN + 23, MARGIN + 16.5);
+
+  const rightX = MARGIN + width - 5;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10.5);
+  doc.setTextColor(...WHITE);
+  doc.text(options.title, rightX, MARGIN + 11, { align: "right" });
+
+  if (options.eyebrow) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.4);
+    doc.setTextColor(...GOLD);
+    doc.text(options.eyebrow.toUpperCase(), rightX, MARGIN + 16.5, { align: "right" });
+  }
+
+  if (options.meta) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.6);
+    doc.setTextColor(214, 210, 200);
+    doc.text(options.meta, rightX, MARGIN + 21, { align: "right" });
+  }
+
+  return MARGIN + bandHeight + 9;
+};
+
+/** Banda compacta para las paginas de continuacion. */
+const drawContinuationHeader = (doc: jsPDF, title: string) => {
+  const width = contentWidthOf(doc);
+
+  doc.setFillColor(...INK);
+  doc.rect(MARGIN, MARGIN, width, 10, "F");
+  doc.setFillColor(...GOLD);
+  doc.rect(MARGIN, MARGIN + 10, width, 0.9, "F");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.4);
+  doc.setTextColor(...WHITE);
+  doc.text(SCHOOL_NAME, MARGIN + 4, MARGIN + 6.6);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.6);
+  doc.setTextColor(...GOLD);
+  doc.text(title, MARGIN + width - 4, MARGIN + 6.6, { align: "right" });
+
+  return MARGIN + 10 + 7;
+};
+
+const drawSectionLabel = (doc: jsPDF, text: string, x: number, y: number) => {
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.2);
+  doc.setTextColor(...GOLD);
+  doc.text(text.toUpperCase(), x, y);
+
+  doc.setDrawColor(...GOLD);
+  doc.setLineWidth(0.45);
+  doc.line(x, y + 1.7, x + 9, y + 1.7);
+
+  return y + SECTION_LABEL_HEIGHT;
+};
+
+const measureFieldHeight = (doc: jsPDF, value: string, width: number) => {
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.2);
+  const lines = doc.splitTextToSize(value, width);
+  return LABEL_TO_VALUE + (lines.length - 1) * VALUE_LINE_HEIGHT + FIELD_BOTTOM_GAP;
+};
+
+const drawField = (
+  doc: jsPDF,
+  field: PdfField,
+  x: number,
+  y: number,
+  width: number,
+) => {
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(6.4);
+  doc.setTextColor(...MUTED);
+  doc.text(field.label.toUpperCase(), x, y);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.2);
+  doc.setTextColor(...TEXT);
+  const lines = doc.splitTextToSize(field.value, width);
+  doc.text(lines, x, y + LABEL_TO_VALUE);
+
+  return y + LABEL_TO_VALUE + (lines.length - 1) * VALUE_LINE_HEIGHT + FIELD_BOTTOM_GAP;
+};
+
+const measureGroupHeight = (doc: jsPDF, group: FieldGroup, width: number) =>
+  group.fields.reduce(
+    (total, field) => total + measureFieldHeight(doc, field.value, width),
+    SECTION_LABEL_HEIGHT,
+  );
+
+const drawGroup = (
+  doc: jsPDF,
+  group: FieldGroup,
+  x: number,
+  y: number,
+  width: number,
+) => {
+  let cursorY = drawSectionLabel(doc, group.title, x, y);
+  group.fields.forEach((field) => {
+    cursorY = drawField(doc, field, x, cursorY, width);
+  });
+  return cursorY;
+};
+
+/* --------------------------------------------------------------------------
+   Datos por rol
+   -------------------------------------------------------------------------- */
+
+const buildGuardianGroup = (
+  title: string,
+  name?: string,
+  parentesco?: string,
+  cedula?: string,
+  telefono?: string,
+  email?: string,
+): FieldGroup => ({
+  title,
+  fields: [
+    { label: "Nombre", value: normalizeText(name) },
+    { label: "Parentesco", value: normalizeText(parentescoLabel(parentesco)) },
+    { label: "Documento", value: normalizeText(cedula) },
+    { label: "Telefono", value: normalizeText(telefono) },
+    { label: "Correo", value: normalizeText(email) },
+  ],
+});
+
+/** Grupos con TODOS los datos de la persona (los usan el listado y la ficha). */
+const buildUserGroups = (user: User): FieldGroup[] => {
+  const identity: FieldGroup = {
+    title: user.role === "STUDENT" ? "Datos del estudiante" : "Datos del docente",
+    fields: [
+      { label: buildDocumentLabel(user.role), value: normalizeText(user.cedula) },
+      { label: "Correo", value: normalizeText(user.email) },
+      { label: "Direccion", value: normalizeText(user.direccion) },
+      { label: "RH", value: normalizeText(user.rh) },
+      { label: "Estado", value: user.is_active === false ? "Inactivo" : "Activo" },
+    ],
+  };
+
+  if (user.role === "TEACHER") {
+    return [
+      identity,
+      {
+        title: "Informacion academica",
+        fields: [
+          { label: "Especialidad", value: normalizeText(user.teacher_profile?.especialidad) },
+          { label: "Titulo academico", value: normalizeText(user.teacher_profile?.titulo) },
+          { label: "Telefono", value: normalizeText(user.teacher_profile?.telefono) },
+        ],
+      },
+    ];
+  }
+
+  const profile = user.student_profile;
+  const hasSecondGuardian = Boolean((profile?.acudiente2_nombre || "").trim());
+
+  return [
+    identity,
+    buildGuardianGroup(
+      "Acudiente principal",
+      profile?.acudiente_nombre,
+      profile?.acudiente_parentesco,
+      profile?.acudiente_cedula,
+      profile?.acudiente_telefono,
+      profile?.acudiente_email,
+    ),
+    hasSecondGuardian
+      ? buildGuardianGroup(
+          "Segundo acudiente",
+          profile?.acudiente2_nombre,
+          profile?.acudiente2_parentesco,
+          profile?.acudiente2_cedula,
+          profile?.acudiente2_telefono,
+          profile?.acudiente2_email,
+        )
+      : {
+          title: "Segundo acudiente",
+          fields: [{ label: "Registro", value: "No registrado" }],
+        },
+  ];
+};
+
+/* --------------------------------------------------------------------------
+   Pie de pagina y guardado
+   -------------------------------------------------------------------------- */
+
+const addPageFooter = (doc: jsPDF) => {
+  const pageCount = doc.getNumberOfPages();
+  const pageWidth = pageWidthOf(doc);
+  const pageHeight = pageHeightOf(doc);
+  const generatedAt = formattedToday();
+
   for (let page = 1; page <= pageCount; page += 1) {
     doc.setPage(page);
-    doc.setDrawColor(...BORDER);
-    doc.line(MARGIN, pageHeight - 10, pageWidth - MARGIN, pageHeight - 10);
+    doc.setDrawColor(...LINE);
+    doc.setLineWidth(0.3);
+    doc.line(MARGIN, pageHeight - 11, pageWidth - MARGIN, pageHeight - 11);
+
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8.5);
+    doc.setFontSize(7.2);
     doc.setTextColor(...MUTED);
-    doc.text(`${SCHOOL_NAME} | Generado el ${generatedAt}`, MARGIN, pageHeight - 5);
-    doc.text(`Pagina ${page} de ${pageCount}`, pageWidth - MARGIN, pageHeight - 5, {
+    doc.text(`${SCHOOL_NAME}  |  Generado el ${generatedAt}`, MARGIN, pageHeight - 6.5);
+    doc.text(`Pagina ${page} de ${pageCount}`, pageWidth - MARGIN, pageHeight - 6.5, {
       align: "right",
     });
   }
@@ -158,252 +375,126 @@ const exportDocument = (doc: jsPDF, fileName: string) => {
   doc.save(ensurePdfFileName(fileName));
 };
 
-const drawSectionTitle = (doc: jsPDF, title: string, y: number) => {
-  doc.setFillColor(...LIGHT);
-  doc.setDrawColor(...BLACK);
-  doc.rect(MARGIN, y, CONTENT_WIDTH, 9, "FD");
-  doc.setTextColor(...BLACK);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10.5);
-  doc.text(title, MARGIN + 4, y + 5.8);
-  return y + 12;
-};
-
-const drawFieldList = (doc: jsPDF, fields: PdfField[], startY: number) => {
-  let cursorY = startY;
-
-  fields.forEach((field) => {
-    const valueLines = doc.splitTextToSize(field.value, 112);
-    const rowHeight = Math.max(9, valueLines.length * 4.6 + 3);
-
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(...BORDER);
-    doc.rect(MARGIN, cursorY, CONTENT_WIDTH, rowHeight, "FD");
-
-    doc.setTextColor(...BLACK);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9.5);
-    doc.text(`${field.label}:`, MARGIN + 5, cursorY + 5.8);
-
-    doc.setTextColor(38, 38, 38);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9.5);
-    doc.text(valueLines, MARGIN + 48, cursorY + 5.8);
-
-    cursorY += rowHeight + 3;
-  });
-
-  return cursorY;
-};
-
-/* ==========================================================================
-   LISTADO GENERAL (tabla apaisada)
-   Se genera como tabla: una fila por persona, agrupada por curso, con
-   cabecera repetida en cada pagina. El detalle completo de cada persona
-   vive en su ficha individual.
-   ========================================================================== */
-
-const LANDSCAPE_MARGIN = 12;
-const GOLD = [202, 165, 64] as const;
-const INK = [17, 18, 24] as const;
-const ZEBRA = [248, 246, 241] as const;
-
-interface ListingColumn {
-  key: string;
-  header: string;
-  width: number;
-  align?: "left" | "center";
-}
-
-// Los anchos suman el ancho util (297 - 2*12 = 273 mm).
-const STUDENT_COLUMNS: ListingColumn[] = [
-  { key: "index", header: "#", width: 8, align: "center" },
-  { key: "name", header: "Estudiante", width: 57 },
-  { key: "document", header: "T. identidad", width: 28 },
-  { key: "guardian1", header: "Acudiente 1", width: 44 },
-  { key: "parentesco1", header: "Parentesco", width: 21 },
-  { key: "phone1", header: "Telefono", width: 25 },
-  { key: "guardian2", header: "Acudiente 2", width: 44 },
-  { key: "parentesco2", header: "Parentesco", width: 21 },
-  { key: "phone2", header: "Telefono", width: 25 },
-];
-
-const TEACHER_COLUMNS: ListingColumn[] = [
-  { key: "index", header: "#", width: 8, align: "center" },
-  { key: "name", header: "Docente", width: 60 },
-  { key: "document", header: "Cedula", width: 30 },
-  { key: "email", header: "Correo", width: 65 },
-  { key: "especialidad", header: "Especialidad", width: 45 },
-  { key: "titulo", header: "Titulo academico", width: 40 },
-  { key: "phone", header: "Telefono", width: 25 },
-];
-
-const emptyDash = (value?: string | null) => (value || "").trim() || "-";
-
-const buildListingRow = (user: User, index: number): Record<string, string> => {
-  if (user.role === "TEACHER") {
-    return {
-      index: String(index),
-      name: buildFullName(user),
-      document: emptyDash(user.cedula),
-      email: emptyDash(user.email),
-      especialidad: emptyDash(user.teacher_profile?.especialidad),
-      titulo: emptyDash(user.teacher_profile?.titulo),
-      phone: emptyDash(user.teacher_profile?.telefono),
-    };
-  }
-
-  const profile = user.student_profile;
-  return {
-    index: String(index),
-    name: buildFullName(user),
-    document: emptyDash(user.cedula),
-    guardian1: emptyDash(profile?.acudiente_nombre),
-    parentesco1: emptyDash(parentescoLabel(profile?.acudiente_parentesco)),
-    phone1: emptyDash(profile?.acudiente_telefono),
-    guardian2: emptyDash(profile?.acudiente2_nombre),
-    parentesco2: emptyDash(parentescoLabel(profile?.acudiente2_parentesco)),
-    phone2: emptyDash(profile?.acudiente2_telefono),
-  };
-};
-
-const drawListingHeaderBand = async (
-  doc: jsPDF,
-  title: string,
-  scopeLabel: string,
-  total: number,
-) => {
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const width = pageWidth - LANDSCAPE_MARGIN * 2;
-
-  doc.setFillColor(...INK);
-  doc.rect(LANDSCAPE_MARGIN, LANDSCAPE_MARGIN, width, 24, "F");
-  doc.setFillColor(...GOLD);
-  doc.rect(LANDSCAPE_MARGIN, LANDSCAPE_MARGIN + 24, width, 1.2, "F");
-
+const loadLogoSafely = async () => {
   try {
-    const logoData = await loadImageDataUrl(schoolLogo);
-    doc.addImage(logoData, "PNG", LANDSCAPE_MARGIN + 5, LANDSCAPE_MARGIN + 5, 14, 14, undefined, "FAST");
+    return await loadImageDataUrl(schoolLogo);
   } catch {
-    // Sin logo el encabezado sigue siendo valido.
+    return null;
   }
+};
 
-  doc.setTextColor(255, 250, 240);
+/* --------------------------------------------------------------------------
+   LISTADO GENERAL
+   Una tarjeta por persona con TODOS sus datos, repartidos en columnas.
+   -------------------------------------------------------------------------- */
+
+const CARD_PADDING = 5;
+const CARD_HEADER_HEIGHT = 10;
+const CARD_GAP = 5;
+const COLUMN_GAP = 5;
+
+const measureCardHeight = (doc: jsPDF, groups: FieldGroup[], cardWidth: number) => {
+  const columnCount = groups.length;
+  const columnWidth =
+    (cardWidth - CARD_PADDING * 2 - COLUMN_GAP * (columnCount - 1)) / columnCount;
+  const tallestColumn = groups.reduce(
+    (max, group) => Math.max(max, measureGroupHeight(doc, group, columnWidth)),
+    0,
+  );
+  return CARD_HEADER_HEIGHT + tallestColumn + CARD_PADDING;
+};
+
+const drawUserCard = (
+  doc: jsPDF,
+  user: User,
+  index: number,
+  y: number,
+  cardWidth: number,
+) => {
+  const groups = buildUserGroups(user);
+  const height = measureCardHeight(doc, groups, cardWidth);
+
+  // Contenedor
+  doc.setFillColor(...WHITE);
+  doc.setDrawColor(...LINE);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(MARGIN, y, cardWidth, height, 1.6, 1.6, "FD");
+
+  // Franja del encabezado + acento dorado lateral
+  doc.setFillColor(...SOFT);
+  doc.rect(MARGIN + 0.3, y + 0.3, cardWidth - 0.6, CARD_HEADER_HEIGHT, "F");
+  doc.setFillColor(...GOLD);
+  doc.rect(MARGIN + 0.3, y + 0.3, 1.8, height - 0.6, "F");
+
+  // Numero de orden
+  doc.setFillColor(...INK);
+  doc.roundedRect(MARGIN + 4.5, y + 2.4, 9, 5.4, 0.8, 0.8, "F");
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.text(SCHOOL_NAME, LANDSCAPE_MARGIN + 24, LANDSCAPE_MARGIN + 11);
+  doc.setFontSize(7);
+  doc.setTextColor(...WHITE);
+  doc.text(String(index).padStart(2, "0"), MARGIN + 9, y + 6.1, { align: "center" });
 
+  // Nombre
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.setTextColor(...INK);
+  doc.text(buildFullName(user), MARGIN + 16.5, y + 6.4);
+
+  // Curso / rol a la derecha
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(...GOLD);
-  doc.text(title, LANDSCAPE_MARGIN + 24, LANDSCAPE_MARGIN + 18);
-
-  doc.setTextColor(232, 226, 214);
-  doc.setFontSize(8.5);
+  doc.setFontSize(7.4);
+  doc.setTextColor(...MUTED);
   doc.text(
-    `${scopeLabel}   |   Total de registros: ${total}`,
-    pageWidth - LANDSCAPE_MARGIN - 5,
-    LANDSCAPE_MARGIN + 18,
+    user.role === "STUDENT"
+      ? `Curso: ${buildCourseLabel(user)}`
+      : buildRoleLabel(user.role),
+    MARGIN + cardWidth - 5,
+    y + 6.4,
     { align: "right" },
   );
-};
 
-const drawTableHead = (doc: jsPDF, columns: ListingColumn[], y: number) => {
-  const height = 8;
-  const width = columns.reduce((total, column) => total + column.width, 0);
+  doc.setDrawColor(...LINE);
+  doc.setLineWidth(0.3);
+  doc.line(MARGIN + 2.1, y + CARD_HEADER_HEIGHT, MARGIN + cardWidth, y + CARD_HEADER_HEIGHT);
 
-  doc.setFillColor(...INK);
-  doc.rect(LANDSCAPE_MARGIN, y, width, height, "F");
+  // Columnas con todos los datos
+  const columnCount = groups.length;
+  const columnWidth =
+    (cardWidth - CARD_PADDING * 2 - COLUMN_GAP * (columnCount - 1)) / columnCount;
+  const bodyY = y + CARD_HEADER_HEIGHT + 5.5;
 
-  doc.setTextColor(255, 250, 240);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(8);
-
-  let x = LANDSCAPE_MARGIN;
-  columns.forEach((column) => {
-    const textX = column.align === "center" ? x + column.width / 2 : x + 2.5;
-    doc.text(column.header, textX, y + 5.4, {
-      align: column.align === "center" ? "center" : "left",
-    });
-    x += column.width;
+  groups.forEach((group, groupIndex) => {
+    const x = MARGIN + CARD_PADDING + groupIndex * (columnWidth + COLUMN_GAP);
+    drawGroup(doc, group, x, bodyY, columnWidth);
   });
 
-  return y + height;
-};
-
-const drawTableRow = (
-  doc: jsPDF,
-  columns: ListingColumn[],
-  row: Record<string, string>,
-  y: number,
-  striped: boolean,
-) => {
-  // Se calcula la altura real a partir del texto, para que nunca se solape.
-  const cellLines = columns.map((column) =>
-    doc.splitTextToSize(row[column.key] ?? "-", column.width - 5).slice(0, 2),
-  );
-  const maxLines = cellLines.reduce((max, lines) => Math.max(max, lines.length), 1);
-  const height = Math.max(7, maxLines * 3.9 + 3.2);
-  const width = columns.reduce((total, column) => total + column.width, 0);
-
-  if (striped) {
-    doc.setFillColor(...ZEBRA);
-    doc.rect(LANDSCAPE_MARGIN, y, width, height, "F");
-  }
-
-  doc.setDrawColor(...BORDER);
-  doc.setLineWidth(0.1);
-  doc.line(LANDSCAPE_MARGIN, y + height, LANDSCAPE_MARGIN + width, y + height);
-
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.setTextColor(40, 40, 40);
-
-  let x = LANDSCAPE_MARGIN;
-  columns.forEach((column, columnIndex) => {
-    const lines = cellLines[columnIndex];
-    const textX = column.align === "center" ? x + column.width / 2 : x + 2.5;
-    if (column.key === "name") {
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(...BLACK);
-    }
-    doc.text(lines, textX, y + 4.8, {
-      align: column.align === "center" ? "center" : "left",
-    });
-    if (column.key === "name") {
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(40, 40, 40);
-    }
-    x += column.width;
-  });
-
-  return y + height;
+  return y + height + CARD_GAP;
 };
 
 const drawCourseBand = (doc: jsPDF, label: string, count: number, y: number) => {
-  const width = doc.internal.pageSize.getWidth() - LANDSCAPE_MARGIN * 2;
+  const width = contentWidthOf(doc);
 
-  doc.setFillColor(...LIGHT);
-  doc.rect(LANDSCAPE_MARGIN, y, width, 7.5, "F");
+  doc.setFillColor(...GOLD_SOFT);
+  doc.rect(MARGIN, y, width, 7.5, "F");
   doc.setFillColor(...GOLD);
-  doc.rect(LANDSCAPE_MARGIN, y, 2.2, 7.5, "F");
+  doc.rect(MARGIN, y, 2.2, 7.5, "F");
 
-  doc.setTextColor(...BLACK);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
-  doc.text(label, LANDSCAPE_MARGIN + 6, y + 5.2);
+  doc.setFontSize(8.6);
+  doc.setTextColor(...INK);
+  doc.text(label, MARGIN + 6, y + 5.1);
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
+  doc.setFontSize(7.4);
   doc.setTextColor(...MUTED);
   doc.text(
     `${count} ${count === 1 ? "registro" : "registros"}`,
-    LANDSCAPE_MARGIN + width - 3,
-    y + 5.2,
+    MARGIN + width - 4,
+    y + 5.1,
     { align: "right" },
   );
 
-  return y + 7.5;
+  return y + 7.5 + 4;
 };
 
 interface UserListingPdfOptions {
@@ -422,23 +513,24 @@ export const exportUserListingToPdf = async ({
   const doc = new jsPDF({
     unit: "mm",
     format: "a4",
-    orientation: "landscape",
+    orientation: "portrait",
     compress: true,
   });
 
-  const columns = role === "STUDENT" ? STUDENT_COLUMNS : TEACHER_COLUMNS;
-  const roleLabel = role === "STUDENT" ? "estudiantes" : "docentes";
-  const scopeLabel =
-    courseFilter === "TODOS" ? "Todos los cursos" : `Curso: ${courseFilter}`;
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const bottomLimit = pageHeight - 16;
+  const logoData = await loadLogoSafely();
+  const roleLabel = role === "STUDENT" ? "Estudiantes" : "Docentes";
+  const documentTitle = `Listado general de ${roleLabel.toLowerCase()}`;
+  const scopeLabel = courseFilter === "TODOS" ? "Todos los cursos" : `Curso: ${courseFilter}`;
 
-  await drawListingHeaderBand(
-    doc,
-    `Listado general de ${roleLabel}`,
-    scopeLabel,
-    users.length,
-  );
+  let cursorY = drawBrandHeader(doc, {
+    logoData,
+    eyebrow: roleLabel,
+    title: "Listado general",
+    meta: `${scopeLabel}  |  ${users.length} ${users.length === 1 ? "registro" : "registros"}`,
+  });
+
+  const cardWidth = contentWidthOf(doc);
+  const bottomLimit = pageHeightOf(doc) - 16;
 
   const byName = (userA: User, userB: User) =>
     buildFullName(userA).localeCompare(buildFullName(userB), "es");
@@ -448,72 +540,126 @@ export const exportUserListingToPdf = async ({
       ? groupUsersByCourse(users)
       : [[courseFilter, [...users].sort(byName)]];
 
-  let cursorY = LANDSCAPE_MARGIN + 32;
-
-  const startNewPage = () => {
-    doc.addPage();
-    cursorY = LANDSCAPE_MARGIN;
-  };
-
   groupedUsers.forEach(([courseName, courseUsers]) => {
     const sortedUsers = [...courseUsers].sort(byName);
 
-    // La banda del curso y su cabecera no deben quedar solas al pie de pagina.
-    if (cursorY + 24 > bottomLimit) {
-      startNewPage();
+    // La banda del curso nunca debe quedar sola al pie de la pagina.
+    if (cursorY + 34 > bottomLimit) {
+      doc.addPage();
+      cursorY = drawContinuationHeader(doc, documentTitle);
     }
 
     cursorY = drawCourseBand(doc, `Curso / Grupo: ${courseName}`, sortedUsers.length, cursorY);
-    cursorY = drawTableHead(doc, columns, cursorY);
 
     sortedUsers.forEach((user, userIndex) => {
-      // 12 mm cubre la fila mas alta posible (dos lineas de texto).
-      if (cursorY + 12 > bottomLimit) {
-        startNewPage();
+      const cardHeight = measureCardHeight(doc, buildUserGroups(user), cardWidth);
+
+      if (cursorY + cardHeight > bottomLimit) {
+        doc.addPage();
+        cursorY = drawContinuationHeader(doc, documentTitle);
         cursorY = drawCourseBand(
           doc,
           `Curso / Grupo: ${courseName} (continuacion)`,
           sortedUsers.length,
           cursorY,
         );
-        cursorY = drawTableHead(doc, columns, cursorY);
       }
 
-      cursorY = drawTableRow(
-        doc,
-        columns,
-        buildListingRow(user, userIndex + 1),
-        cursorY,
-        userIndex % 2 === 1,
-      );
+      cursorY = drawUserCard(doc, user, userIndex + 1, cursorY, cardWidth);
     });
 
-    cursorY += 5;
+    cursorY += 2;
   });
 
   exportDocument(doc, fileName);
 };
 
-const paginateIfNeeded = (doc: jsPDF, cursorY: number, estimatedHeight: number) => {
-  // Deja espacio para el pie de pagina.
-  if (cursorY + estimatedHeight <= PAGE_HEIGHT - 19) {
-    return cursorY;
-  }
+/* --------------------------------------------------------------------------
+   FICHA INDIVIDUAL
+   -------------------------------------------------------------------------- */
 
-  doc.addPage();
-  return 24;
+const drawProfileHero = (doc: jsPDF, user: User, y: number) => {
+  const width = contentWidthOf(doc);
+  const height = 26;
+
+  doc.setFillColor(...SOFT);
+  doc.setDrawColor(...LINE);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(MARGIN, y, width, height, 1.8, 1.8, "FD");
+  doc.setFillColor(...GOLD);
+  doc.rect(MARGIN + 0.3, y + 0.3, 2, height - 0.6, "F");
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(6.8);
+  doc.setTextColor(...GOLD);
+  doc.text(buildRoleLabel(user.role).toUpperCase(), MARGIN + 7, y + 7.5);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.setTextColor(...INK);
+  doc.text(buildFullName(user), MARGIN + 7, y + 15.5);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(...MUTED);
+  doc.text(
+    `${buildDocumentLabel(user.role)}: ${normalizeText(user.cedula)}   |   ${
+      user.role === "STUDENT" ? buildCourseLabel(user) : normalizeText(user.email)
+    }`,
+    MARGIN + 7,
+    y + 21.5,
+  );
+
+  return y + height + 8;
 };
 
-const drawProfileSection = (
+/** Dibuja una seccion a lo ancho, repartiendo los campos en varias columnas. */
+const drawWideSection = (
   doc: jsPDF,
-  title: string,
-  fields: PdfField[],
-  startY: number,
+  group: FieldGroup,
+  y: number,
+  columnCount = 3,
 ) => {
-  let cursorY = paginateIfNeeded(doc, startY, fields.length * 14 + 18);
-  cursorY = drawSectionTitle(doc, title, cursorY);
-  cursorY = drawFieldList(doc, fields, cursorY);
-  return cursorY + 2;
+  const width = contentWidthOf(doc);
+  const columnWidth = (width - COLUMN_GAP * (columnCount - 1)) / columnCount;
+
+  let cursorY = drawSectionLabel(doc, group.title, MARGIN, y);
+  const bodyTop = cursorY;
+
+  const perColumn = Math.ceil(group.fields.length / columnCount);
+  let tallest = bodyTop;
+
+  for (let column = 0; column < columnCount; column += 1) {
+    const columnFields = group.fields.slice(column * perColumn, (column + 1) * perColumn);
+    if (!columnFields.length) continue;
+
+    const x = MARGIN + column * (columnWidth + COLUMN_GAP);
+    let columnY = bodyTop;
+    columnFields.forEach((field) => {
+      columnY = drawField(doc, field, x, columnY, columnWidth);
+    });
+    tallest = Math.max(tallest, columnY);
+  }
+
+  return tallest + 3;
+};
+
+const measureWideSection = (doc: jsPDF, group: FieldGroup, columnCount = 3) => {
+  const width = contentWidthOf(doc);
+  const columnWidth = (width - COLUMN_GAP * (columnCount - 1)) / columnCount;
+  const perColumn = Math.ceil(group.fields.length / columnCount);
+
+  let tallest = 0;
+  for (let column = 0; column < columnCount; column += 1) {
+    const columnFields = group.fields.slice(column * perColumn, (column + 1) * perColumn);
+    const columnHeight = columnFields.reduce(
+      (total, field) => total + measureFieldHeight(doc, field.value, columnWidth),
+      0,
+    );
+    tallest = Math.max(tallest, columnHeight);
+  }
+
+  return SECTION_LABEL_HEIGHT + tallest + 3;
 };
 
 export const exportUserProfileToPdf = async (user: User) => {
@@ -524,89 +670,65 @@ export const exportUserProfileToPdf = async (user: User) => {
     compress: true,
   });
 
-  await addHeader(
-    doc,
-    `Ficha profesional de ${buildRoleLabel(user.role).toLowerCase()}`,
-    `${buildFullName(user)} | ${buildCourseLabel(user)}`,
-  );
+  const logoData = await loadLogoSafely();
+  const documentTitle = `Ficha de ${buildRoleLabel(user.role).toLowerCase()}`;
 
-  let cursorY = BODY_START_Y;
+  let cursorY = drawBrandHeader(doc, {
+    logoData,
+    eyebrow: buildRoleLabel(user.role),
+    title: "Ficha individual",
+    meta: formattedToday(),
+  });
 
-  cursorY = drawProfileSection(
-    doc,
-    "Datos generales",
-    [
-      { label: "Nombre completo", value: buildFullName(user) },
-      { label: "Rol", value: buildRoleLabel(user.role) },
-      { label: buildDocumentLabel(user.role), value: normalizeText(user.cedula) },
-      { label: "Correo", value: normalizeText(user.email) },
-      { label: "Direccion", value: normalizeText(user.direccion) },
-      { label: "RH", value: normalizeText(user.rh) },
-      { label: "Curso", value: buildCourseLabel(user) },
-      { label: "Estado", value: user.is_active === false ? "Inactivo" : "Activo" },
-    ],
-    cursorY,
-  );
+  cursorY = drawProfileHero(doc, user, cursorY);
 
-  if (user.role === "STUDENT") {
-    cursorY = drawProfileSection(
-      doc,
-      "Datos del acudiente",
-      [
-        { label: "Nombre del acudiente", value: normalizeText(user.student_profile?.acudiente_nombre) },
-        { label: "Parentesco", value: normalizeText(parentescoLabel(user.student_profile?.acudiente_parentesco)) },
-        { label: "Cedula del acudiente", value: normalizeText(user.student_profile?.acudiente_cedula) },
-        { label: "Telefono del acudiente", value: normalizeText(user.student_profile?.acudiente_telefono) },
-        { label: "Correo del acudiente", value: normalizeText(user.student_profile?.acudiente_email) },
-      ],
-      cursorY,
-    );
+  const bottomLimit = pageHeightOf(doc) - 16;
+  const sections = buildUserGroups(user);
 
-    if (normalizeText(user.student_profile?.acudiente2_nombre)) {
-      cursorY = drawProfileSection(
-        doc,
-        "Datos del segundo acudiente",
-        [
-          { label: "Nombre del acudiente", value: normalizeText(user.student_profile?.acudiente2_nombre) },
-          { label: "Parentesco", value: normalizeText(parentescoLabel(user.student_profile?.acudiente2_parentesco)) },
-          { label: "Cedula del acudiente", value: normalizeText(user.student_profile?.acudiente2_cedula) },
-          { label: "Telefono del acudiente", value: normalizeText(user.student_profile?.acudiente2_telefono) },
-          { label: "Correo del acudiente", value: normalizeText(user.student_profile?.acudiente2_email) },
-        ],
-        cursorY,
-      );
+  sections.forEach((group) => {
+    const sectionHeight = measureWideSection(doc, group);
+    if (cursorY + sectionHeight > bottomLimit) {
+      doc.addPage();
+      cursorY = drawContinuationHeader(doc, documentTitle);
     }
-  }
+    cursorY = drawWideSection(doc, group, cursorY);
+  });
 
-  if (user.role === "TEACHER") {
-    cursorY = drawProfileSection(
-      doc,
-      "Información académica",
-      [
-        { label: "Especialidad", value: normalizeText(user.teacher_profile?.especialidad) },
-        { label: "Título académico", value: normalizeText(user.teacher_profile?.titulo) },
-        { label: "Telefono", value: normalizeText(user.teacher_profile?.telefono) },
-      ],
-      cursorY,
-    );
-  }
-
-  cursorY = drawProfileSection(
-    doc,
-    "Documentos adjuntos",
-    user.documents?.length
+  // Documentos adjuntos
+  const documentsGroup: FieldGroup = {
+    title: "Documentos adjuntos",
+    fields: user.documents?.length
       ? user.documents.map((document, index) => ({
           label: `Documento ${index + 1}`,
-          value: `${document.title}${document.category ? ` | ${document.category}` : ""}`,
+          value: `${document.title}${document.category ? ` - ${document.category}` : ""}`,
         }))
-      : [{ label: "Documentos", value: "No hay documentos cargados en este perfil." }],
-    cursorY,
-  );
+      : [{ label: "Sin adjuntos", value: "No hay documentos cargados en este perfil." }],
+  };
+
+  const documentsHeight = measureWideSection(doc, documentsGroup, 2);
+  if (cursorY + documentsHeight > bottomLimit) {
+    doc.addPage();
+    cursorY = drawContinuationHeader(doc, documentTitle);
+  }
+  cursorY = drawWideSection(doc, documentsGroup, cursorY, 2);
+
+  // Espacio de firma institucional
+  if (cursorY + 26 <= bottomLimit) {
+    const width = contentWidthOf(doc);
+    const signatureY = cursorY + 12;
+    doc.setDrawColor(...LINE);
+    doc.setLineWidth(0.3);
+    doc.line(MARGIN, signatureY, MARGIN + width / 2 - 8, signatureY);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.2);
+    doc.setTextColor(...MUTED);
+    doc.text("Firma y sello institucional", MARGIN, signatureY + 4.5);
+  }
 
   exportDocument(
     doc,
     sanitizeFileName(
-      `ficha-${user.role === "STUDENT" ? "estudiante" : "usuario"}-${buildFullName(user)}`,
+      `ficha-${user.role === "STUDENT" ? "estudiante" : "docente"}-${buildFullName(user)}`,
     ),
   );
 };
