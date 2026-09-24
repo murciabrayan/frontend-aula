@@ -1,3 +1,8 @@
+import gcCrest from "@/assets/logo.png";
+import gcBannerImage from "@/assets/carrusel3.jpg";
+import "./gc-anuario.css";
+import { useScrollReveal } from "./useScrollReveal";
+
 import { useEffect, useMemo, useState } from "react";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import {
@@ -18,7 +23,7 @@ import {
 import banderaInstitucional from "@/assets/bandera.png";
 import escudoInstitucional from "@/assets/logo.png";
 import himnoGimnasioAudio from "@/assets/himno-gimnasio.mp3";
-import logoGimnasio from "@/assets/logogim.png";
+import logoGimnasio from "@/assets/logo.png";
 import { useLandingContent } from "./LandingContentContext";
 
 GlobalWorkerOptions.workerSrc = new URL(
@@ -244,6 +249,8 @@ const anthemEmbedUrl = "https://www.youtube.com/embed/5esbclQLsrM?rel=0";
 
 const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
   const { content } = useLandingContent();
+
+  useScrollReveal();
   const documents = content.documents.length ? content.documents : fallbackDocuments;
   const [documentPreviewImages, setDocumentPreviewImages] = useState<Record<number, string>>({});
   const [activeIdentityCard, setActiveIdentityCard] = useState<(typeof identityHighlights)[number] | null>(null);
@@ -332,11 +339,15 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
 
   return (
     <div className="landing-page">
-      <section className="landing-inner-hero landing-inner-hero--dark landing-inner-hero--institutional">
-        <div className="landing-section-heading landing-section-heading--dark">
-          <span className="landing-section-tag">{currentPage.tag}</span>
-          <h1>{currentPage.title}</h1>
-          <p>{currentPage.description}</p>
+      <section className="gc-banner gc-banner--inner">
+        <img className="gc-banner__img" src={gcBannerImage} alt={currentPage.title} />
+        <div className="gc-banner__in">
+          <img className="gc-banner__crest" src={gcCrest} alt="Escudo del Gimnasio Los Cerros" />
+          <div>
+            <span className="gc-banner__crumb">Nosotros — {currentPage.tag}</span>
+            <h1>{currentPage.title}</h1>
+            <p className="gc-banner__text">{currentPage.description}</p>
+          </div>
         </div>
       </section>
 

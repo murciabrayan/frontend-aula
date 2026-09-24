@@ -1,0 +1,405 @@
+/* =============================================================================
+   Diseño aprobado: banner + tarjetas solapadas + mosaico.
+   Clases con prefijo gc- para no chocar con landing.css.
+   Colores del logo intactos: #0b0b0f · #c9a227 · #e5c96b · #f8f6f1
+   ========================================================================== */
+
+:root {
+  --gc-ink: #0b0b0f;
+  --gc-gold: #c9a227;
+  --gc-gold-lt: #e5c96b;
+  --gc-ivory: #f8f6f1;
+  --gc-line: rgba(201, 162, 39, 0.22);
+  --gc-line-soft: rgba(201, 162, 39, 0.12);
+  --gc-foil: linear-gradient(115deg, #7d6410 0%, #c9a227 18%, #f6e6a8 34%, #e5c96b 45%,
+                             #c9a227 58%, #8a6f10 72%, #e5c96b 88%, #c9a227 100%);
+  --gc-display: "Fraunces", Georgia, "Times New Roman", serif;
+}
+
+.gc-display,
+.gc-banner h1,
+.gc-card h3,
+.gc-cell h3,
+.gc-quote p,
+.gc-ag h2 {
+  font-family: var(--gc-display);
+  font-variation-settings: "opsz" 140, "SOFT" 0, "WONK" 0;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.gc-foil {
+  background: var(--gc-foil);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   BANNER
+   -------------------------------------------------------------------------- */
+.gc-banner {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  isolation: isolate;
+  /* Ocupa toda la primera pantalla */
+  min-height: 100vh;
+  min-height: 100dvh;
+  /* Se sale del ancho del contenedor para ir de borde a borde */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: -18px;
+}
+
+/* Variante para páginas internas: más baja, sin ocupar toda la pantalla */
+.gc-banner--inner {
+  min-height: clamp(280px, 42vh, 420px);
+}
+
+/* Portada: la foto sigue a pantalla completa, pero el texto se centra en
+   vertical en vez de quedarse pegado al borde inferior */
+.gc-banner:not(.gc-banner--inner) { align-items: center; }
+.gc-banner:not(.gc-banner--inner) .gc-banner__in {
+  padding-top: 84px;     /* deja libre la barra de navegación */
+  padding-bottom: 120px; /* y el indicador "Desliza" */
+}
+.gc-banner--inner .gc-banner h1,
+.gc-banner--inner h1 {
+  font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+}
+.gc-banner__crumb {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gc-gold);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.gc-banner--inner .gc-banner__crest { width: clamp(56px, 6vw, 78px); }
+
+/* Páginas internas: el banner conserva su alto y su texto como siempre,
+   pero la foto NO se corta en su borde inferior. Sigue hacia abajo completa,
+   con su proporción real, por detrás del contenido, y al terminar se disuelve
+   hasta quedar el color de fondo de la página. */
+.gc-banner.gc-banner--inner {
+  overflow: visible;
+  z-index: 0;
+}
+.gc-banner--inner .gc-banner__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: auto;          /* proporción real: la foto se ve completa */
+  object-fit: initial;
+  pointer-events: none;
+  /* Oscurecida en la propia foto (el velo solo cubriría el alto del banner
+     y dejaría una línea donde termina) */
+  filter: brightness(0.58) saturate(0.95);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 0%, #000 50%, transparent 100%);
+}
+/* Velo y grano solo existen dentro de la caja del banner: se quitan para que
+   no marquen un borde a mitad de la foto */
+.gc-banner.gc-banner--inner::before,
+.gc-banner.gc-banner--inner::after {
+  content: none;
+}
+.gc-banner--inner .gc-banner__in { padding-bottom: 34px; }
+/* El contenido que sigue queda por encima de la foto */
+.gc-banner--inner ~ * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Indicador de que hay más abajo */
+.gc-scroll-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 5;
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(248, 246, 241, 0.65);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.gc-scroll-hint::after {
+  content: "";
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(180deg, var(--gc-gold), transparent);
+  animation: gc-hint 2.2s ease-in-out infinite;
+}
+@keyframes gc-hint {
+  0%, 100% { opacity: 0.35; transform: scaleY(0.6); transform-origin: top; }
+  50%      { opacity: 1;    transform: scaleY(1);   transform-origin: top; }
+}
+
+.gc-banner__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Encuadre hacia la franja media-alta: es donde estan las personas */
+  object-position: 50% 38%;
+  z-index: 0;
+}
+
+/* Velo: oscurece abajo, deja ver la foto arriba */
+.gc-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(0deg,
+    rgba(8, 7, 10, 0.96) 0%, rgba(8, 7, 10, 0.74) 28%,
+    rgba(8, 7, 10, 0.2) 60%, rgba(8, 7, 10, 0.45) 100%);
+}
+
+/* Grano fino sobre la foto */
+.gc-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Contenido centrado en una columna estrecha: nada de texto disperso */
+.gc-banner__in {
+  position: relative;
+  z-index: 3;
+  width: min(1040px, calc(100% - 48px));
+  margin: 0 auto;
+  padding-bottom: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+}
+
+.gc-banner__crest {
+  width: clamp(84px, 11vw, 132px);
+  height: auto;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.7));
+}
+
+.gc-banner h1 {
+  font-size: clamp(1.8rem, 4.2vw, 3.2rem);
+  color: var(--gc-ivory);
+  margin: 0 auto;
+  max-width: 30ch;
+  text-shadow: 0 4px 26px rgba(0, 0, 0, 0.65);
+}
+
+.gc-banner__motto {
+  display: block;
+  margin-top: 16px;
+  font-size: clamp(0.66rem, 1.3vw, 0.78rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.gc-banner__text {
+  margin: 14px auto 0;
+  color: #ded9cd;
+  font-size: 0.93rem;
+  max-width: 56ch;
+}
+
+.gc-banner__actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.gc-banner__dots {
+  position: absolute;
+  right: max(20px, calc(50% - 660px));
+  bottom: 36px;
+  z-index: 5;
+  display: flex;
+  gap: 7px;
+}
+.gc-banner__dots button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(229, 201, 107, 0.7);
+  background: transparent;
+  cursor: pointer;
+}
+.gc-banner__dots button.is-active { background: var(--gc-gold); }
+.gc-banner__dots button:focus-visible { outline: 2px solid var(--gc-gold-lt); outline-offset: 3px; }
+
+/* --------------------------------------------------------------------------
+   TARJETAS QUE SUBEN SOBRE LA FOTO
+   -------------------------------------------------------------------------- */
+/* Banda propia para que las tarjetas no queden flotando sobre el fondo */
+.gc-newsband {
+  /* Sin fondo ni bordes propios: el fondo de la pagina corre continuo y lo
+     unico que aparece/desaparece al deslizar son las tarjetas. */
+  background: transparent;
+  border: 0;
+  padding: 40px 0 20px;
+}
+.gc-newsband__in {
+  width: min(1360px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.gc-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  position: relative;
+  z-index: 6;
+}
+
+.gc-card {
+  background: #131118;
+  border: 1px solid var(--gc-line);
+  overflow: hidden;
+  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.55);
+  transition: transform 380ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  text-align: left;
+}
+.gc-card:hover { transform: translateY(-8px); }
+.gc-card__img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+.gc-card__body { padding: 15px 16px 18px; }
+.gc-card time {
+  font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gc-gold); font-variant-numeric: tabular-nums;
+}
+.gc-card h3 { font-size: 1.02rem; line-height: 1.26; margin: 6px 0 0; color: var(--gc-ivory); }
+
+/* Franja de pilares */
+.gc-pillars {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 16px; flex-wrap: wrap;
+  margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--gc-line);
+}
+.gc-pillars__item { display: flex; gap: 9px; align-items: baseline; }
+.gc-pillars__item b { font-family: var(--gc-display); font-size: 1.02rem; font-weight: 600; }
+.gc-pillars__item span { font-size: 0.78rem; color: #aaa49a; }
+
+.gc-more { margin-top: 22px; display: flex; justify-content: center; }
+
+/* --------------------------------------------------------------------------
+   CINTA DORADA
+   -------------------------------------------------------------------------- */
+.gc-ribbon {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; flex-wrap: wrap;
+  padding: 15px 22px;
+  background: var(--gc-foil);
+  color: #33290a;
+}
+.gc-ribbon b { font-family: var(--gc-display); font-size: 1.04rem; font-weight: 700; }
+.gc-ribbon span { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* --------------------------------------------------------------------------
+   MOSAICO
+   -------------------------------------------------------------------------- */
+.gc-mosaic {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: 152px;
+  gap: 2px;
+}
+.gc-cell {
+  position: relative; overflow: hidden; margin: 0;
+  transition: transform 700ms cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.gc-cell:hover { transform: scale(1.03); }
+.gc-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gc-cell::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(8, 7, 10, 0.88) 0%, rgba(8, 7, 10, 0) 54%);
+}
+.gc-cell figcaption { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 13px 14px; }
+.gc-cell figcaption span {
+  display: block; font-size: 0.55rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gc-gold-lt);
+}
+.gc-cell h3 { font-size: 0.92rem; line-height: 1.22; margin: 4px 0 0; color: var(--gc-ivory); }
+.gc-cell--w2 { grid-column: span 2; }
+.gc-cell--h2 { grid-row: span 2; }
+.gc-cell--w2.gc-cell--h2 h3 { font-size: 1.3rem; }
+
+.gc-quote {
+  grid-column: span 2;
+  background: linear-gradient(140deg, #1a1610, #0b0b0f);
+  display: grid; place-items: center; padding: 22px; text-align: center;
+}
+.gc-quote p {
+  margin: 0; font-size: 1.02rem; font-style: italic; line-height: 1.36;
+  color: var(--gc-ivory);
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 1;
+}
+.gc-quote span {
+  display: block; margin-top: 9px; font-size: 0.57rem;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--gc-gold);
+}
+
+/* --------------------------------------------------------------------------
+   Cabecera transparente sobre el banner (solo en la portada)
+   -------------------------------------------------------------------------- */
+.gc-home .landing-header {
+  background: linear-gradient(180deg, rgba(8, 7, 10, 0.72) 0%, rgba(8, 7, 10, 0) 100%);
+  backdrop-filter: none;
+}
+.gc-home .landing-header::after { display: none; }
+
+@media (max-width: 900px) {
+  .gc-cards { grid-template-columns: 1fr; }
+  .gc-mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 138px; }
+  .gc-banner__in { grid-template-columns: 1fr; gap: 14px; }
+  .gc-banner__dots { display: none; }
+}
+@media (max-width: 560px) {
+  .gc-mosaic { grid-template-columns: 1fr; }
+  .gc-cell--w2, .gc-cell--h2, .gc-quote { grid-column: span 1; grid-row: span 1; }
+}
+/* --------------------------------------------------------------------------
+   Aparición ligada al scroll.
+   useScrollReveal escribe --reveal (0 → 1) según la posición en pantalla.
+   Sin transición: es el propio scroll el que mueve la animación, así que al
+   subir los elementos se vuelven translúcidos de forma progresiva.
+   Por defecto --reveal vale 1: sin JS todo queda visible.
+   Se usan translate/scale (propiedades sueltas) para no pisar el transform
+   del efecto al pasar el cursor.
+   -------------------------------------------------------------------------- */
+[data-reveal] {
+  opacity: var(--reveal, 1);
+  translate: 0 calc((1 - var(--reveal, 1)) * 70px);
+  scale: calc(0.94 + var(--reveal, 1) * 0.06);
+  will-change: opacity, translate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gc-card, .gc-cell { transition: none; }
+  [data-reveal] { opacity: 1; translate: none; scale: none; }
+  .gc-scroll-hint::after { animation: none; }
+}

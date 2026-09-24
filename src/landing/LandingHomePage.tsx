@@ -2,14 +2,19 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
   GraduationCap,
   Newspaper,
   Sparkles,
   Users,
   X,
 } from "lucide-react";
+import schoolCrest from "@/assets/logo.png";
+import "./gc-anuario.css";
+import { useScrollReveal } from "./useScrollReveal";
+
+// Lema institucional, tomado del escudo del colegio.
+const SCHOOL_MOTTO = "Un camino feliz hacia la construcción del conocimiento";
+
 import heroImageA from "@/assets/carrusel.jpg";
 import heroImageB from "@/assets/carrusel2.jpg";
 import heroImageC from "@/assets/carrusel3.jpg";
@@ -252,24 +257,20 @@ const buildMonthlyCalendar = (
 
 const LandingHomePage = () => {
   const [activeHero, setActiveHero] = useState(0);
-  const [activeGallery, setActiveGallery] = useState(0);
   const [allNewsOpen, setAllNewsOpen] = useState(false);
   const [selectedCalendarEvent, setSelectedCalendarEvent] = useState<LandingCalendarEntry | null>(null);
   const lockedScrollY = useRef(0);
   const { content } = useLandingContent();
+
+  useScrollReveal();
 
   useEffect(() => {
     const heroTimer = window.setInterval(() => {
       setActiveHero((current) => (current + 1) % heroSlides.length);
     }, 5200);
 
-    const galleryTimer = window.setInterval(() => {
-      setActiveGallery((current) => (current + 1) % galleryItems.length);
-    }, 4200);
-
     return () => {
       window.clearInterval(heroTimer);
-      window.clearInterval(galleryTimer);
     };
   }, []);
 
@@ -330,16 +331,25 @@ const LandingHomePage = () => {
 
   const calendarCells = buildMonthlyCalendar(activeMonthDate, calendarEntries);
 
+  // La cinta solo anuncia eventos reales del CMS que todavía no han pasado.
+  // Nunca usa los eventos de ejemplo, para no anunciar fechas inventadas.
+  const todayKey = new Date().toLocaleDateString("en-CA");
+  const nextRealEvent = [...content.calendar_entries]
+    .filter((entry) => entry.event_date >= todayKey)
+    .sort((a, b) => a.event_date.localeCompare(b.event_date))[0];
+
   return (
-    <div className="landing-page">
-      <section className="landing-hero">
-        <div className="landing-hero__backdrop" />
-        <div className="landing-hero__content">
-          <div className="landing-hero__copy">
-            <span className="landing-section-tag">{currentHero.eyebrow}</span>
+    <div className="landing-page gc-home">
+      <section className="gc-banner">
+        <img className="gc-banner__img" src={currentHero.image} alt={currentHero.title} />
+
+        <div className="gc-banner__in">
+          <img className="gc-banner__crest" src={schoolCrest} alt="Escudo del Gimnasio Los Cerros" />
+          <div>
             <h1>{currentHero.title}</h1>
-            <p>{currentHero.text}</p>
-            <div className="landing-hero__actions">
+            <span className="gc-banner__motto gc-foil">{SCHOOL_MOTTO}</span>
+            <p className="gc-banner__text">{currentHero.text}</p>
+            <div className="gc-banner__actions">
               <a href="/#programas" className="landing-btn landing-btn--primary">
                 Conocer el colegio
               </a>
@@ -347,96 +357,51 @@ const LandingHomePage = () => {
                 Más información
               </Link>
             </div>
-
-            <div className="landing-hero__metrics">
-              <article>
-                <strong></strong>
-                <span>Niveles y procesos escolares articulados</span>
-              </article>
-              <article>
-                <strong></strong>
-                <span>Satisfacción de estudiantes y familias</span>
-              </article>
-              <article>
-                <strong></strong>
-                <span>Eventos institucionales de alto impacto cada semestre</span>
-              </article>
-            </div>
-          </div>
-
-          <div className="landing-hero__visual">
-            <div className="landing-hero__frame">
-              <img src={currentHero.image} alt={currentHero.title} />
-            </div>
           </div>
         </div>
 
-        <div className="landing-hero__ornament landing-hero__ornament--top" />
-        <div className="landing-hero__ornament landing-hero__ornament--bottom" />
+        <span className="gc-scroll-hint">Desliza</span>
 
-        <div className="landing-hero__controls">
-          <button
-            type="button"
-            onClick={() =>
-              setActiveHero((current) => (current - 1 + heroSlides.length) % heroSlides.length)
-            }
-            aria-label="Hero anterior"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          <div className="landing-hero__dots">
-            {heroSlides.map((slide, index) => (
-              <button
-                key={slide.title}
-                type="button"
-                className={index === activeHero ? "is-active" : ""}
-                onClick={() => setActiveHero(index)}
-                aria-label={`Ir a ${slide.title}`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setActiveHero((current) => (current + 1) % heroSlides.length)}
-            aria-label="Hero siguiente"
-          >
-            <ChevronRight size={18} />
-          </button>
+        <div className="gc-banner__dots">
+          {heroSlides.map((slide, index) => (
+            <button
+              key={slide.title}
+              type="button"
+              className={index === activeHero ? "is-active" : ""}
+              onClick={() => setActiveHero(index)}
+              aria-label={`Ir a ${slide.title}`}
+            />
+          ))}
         </div>
       </section>
 
-      <section id="noticias" className="landing-news-section">
-        <div className="landing-section-heading landing-section-heading--center">
-          <span className="landing-section-tag landing-section-tag--light">Actualidad institucional</span>
-          <h2>Últimas Noticias</h2>
-          <p>
-            Historias, actividades y anuncios que reflejan el dinamismo de nuestra
-            comunidad educativa.
-          </p>
-        </div>
-
-        <div className="landing-news-grid">
-          {latestNewsItems.map((item) => (
-            <article key={item.id} className="landing-news-card">
-              <div className="landing-news-card__image-wrap">
-                <img
-                  src={item.image_url || heroImageA}
-                  alt={item.title}
-                  className="landing-news-card__image"
-                />
-                <span className="landing-news-card__date">
-                  {formatDisplayDate(item.published_at)}
-                </span>
-              </div>
-              <div className="landing-news-card__body">
+      <section id="noticias" className="landing-news-section gc-newsband">
+        <div className="gc-newsband__in">
+        <div className="gc-cards">
+          {latestNewsItems.map((item, index) => (
+            <article key={item.id} className="gc-card" data-reveal data-reveal-delay={index + 1}>
+              <img
+                className="gc-card__img"
+                src={item.image_url || heroImageA}
+                alt={item.title}
+              />
+              <div className="gc-card__body">
+                <time>{formatDisplayDate(item.published_at)}</time>
                 <h3>{item.title}</h3>
-                <p>{item.summary}</p>
               </div>
             </article>
           ))}
         </div>
 
-        <div className="landing-news-section__action">
+        <div className="gc-pillars" data-reveal>
+          {featuredPrograms.map((program) => (
+            <div key={program.title} className="gc-pillars__item">
+              <b className="gc-foil">{program.title}</b>
+            </div>
+          ))}
+        </div>
+
+        <div className="landing-news-section__action gc-more">
           <button
             type="button"
             className="landing-btn landing-btn--primary"
@@ -444,6 +409,7 @@ const LandingHomePage = () => {
           >
             Ver todas las noticias
           </button>
+        </div>
         </div>
       </section>
 
@@ -570,63 +536,33 @@ const LandingHomePage = () => {
         </div>
       </section>
 
-      <section className="landing-gallery">
-        <div className="landing-section-heading landing-section-heading--center landing-section-heading--dark">
-          <span className="landing-section-tag">Vida académica</span>
-          <h2>Galería de Eventos</h2>
-          <p>
-            Un recorrido visual por actos, graduaciones, actividades escolares y momentos
-            que fortalecen nuestra identidad institucional.
-          </p>
+      {nextRealEvent ? (
+        <div className="gc-ribbon" data-reveal>
+          <b>{`Próximo: ${nextRealEvent.title} · ${formatDisplayDate(nextRealEvent.event_date)}`}</b>
+          <a href="/#admisiones">Ver agenda →</a>
         </div>
+      ) : null}
 
-        <div className="landing-gallery__viewport">
-          <button
-            type="button"
-            className="landing-gallery__arrow"
-            onClick={() =>
-              setActiveGallery((current) => (current - 1 + galleryItems.length) % galleryItems.length)
-            }
-            aria-label="Imagen anterior"
+      <section className="gc-mosaic">
+        {galleryItems.slice(0, 5).map((item, index) => (
+          <figure
+            key={`${item.id}-${index}`}
+            className={`gc-cell ${index === 0 ? "gc-cell--w2 gc-cell--h2" : ""}`}
+            data-reveal
+            data-reveal-delay={(index % 5) + 1}
           >
-            <ChevronLeft size={20} />
-          </button>
-
-          <div className="landing-gallery__track">
-            {galleryItems.map((item, index) => (
-              <article
-                key={`${item.id}-${index}`}
-                className={`landing-gallery__card ${index === activeGallery ? "is-active" : ""}`}
-              >
-                <img src={item.image_url || heroImageA} alt={item.title} />
-                <div className="landing-gallery__overlay">
-                  <strong>{item.title}</strong>
-                  <span>{item.detail}</span>
-                </div>
-              </article>
-            ))}
+            <img src={item.image_url || heroImageA} alt={item.title} />
+            <figcaption>
+              <span>{item.detail}</span>
+              <h3>{item.title}</h3>
+            </figcaption>
+          </figure>
+        ))}
+        <div className="gc-quote" data-reveal>
+          <div>
+            <p className="gc-display">{`“${SCHOOL_MOTTO}”`}</p>
+            <span>Lema institucional</span>
           </div>
-
-          <button
-            type="button"
-            className="landing-gallery__arrow"
-            onClick={() => setActiveGallery((current) => (current + 1) % galleryItems.length)}
-            aria-label="Imagen siguiente"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-
-        <div className="landing-gallery__dots">
-          {galleryItems.map((item, index) => (
-            <button
-              key={item.id}
-              type="button"
-              className={index === activeGallery ? "is-active" : ""}
-              onClick={() => setActiveGallery(index)}
-              aria-label={`Ir a ${item.title}`}
-            />
-          ))}
         </div>
       </section>
 

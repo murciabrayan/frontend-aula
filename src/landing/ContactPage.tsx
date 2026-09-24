@@ -1,4 +1,9 @@
 import { useState } from "react";
+
+import gcCrest from "@/assets/logo.png";
+import gcBannerImage from "@/assets/carrusel.jpg";
+import "./gc-anuario.css";
+import { useScrollReveal } from "./useScrollReveal";
 import type { FormEvent } from "react";
 
 import { useFeedback } from "@/context/FeedbackContext";
@@ -31,6 +36,8 @@ const ContactPage = () => {
   const [form, setForm] = useState(initialForm);
   const [sending, setSending] = useState(false);
   const { showNotice } = useFeedback();
+
+  useScrollReveal();
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -70,14 +77,18 @@ const ContactPage = () => {
 
   return (
     <div className="landing-page">
-      <section className="landing-inner-hero landing-inner-hero--dark">
-        <div className="landing-section-heading landing-section-heading--dark">
-          <span className="landing-section-tag">Contacto</span>
-          <h1>Estamos listos para acompañarte en tu proceso</h1>
-          <p>
-            Conecta con nuestro equipo institucional para resolver dudas sobre matrículas,
-            vida escolar, servicios y orientación para familias.
-          </p>
+      <section className="gc-banner gc-banner--inner">
+        <img className="gc-banner__img" src={gcBannerImage} alt="Comunidad del Gimnasio Los Cerros" />
+        <div className="gc-banner__in">
+          <img className="gc-banner__crest" src={gcCrest} alt="Escudo del Gimnasio Los Cerros" />
+          <div>
+            <span className="gc-banner__crumb">Contacto</span>
+            <h1>Estamos listos para acompañarte en tu proceso</h1>
+            <p className="gc-banner__text">
+              Conecta con nuestro equipo institucional para resolver dudas sobre matrículas,
+              vida escolar, servicios y orientación para familias.
+            </p>
+          </div>
         </div>
       </section>
 
