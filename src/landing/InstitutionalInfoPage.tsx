@@ -1,4 +1,3 @@
-import gcCrest from "@/assets/logo.png";
 import gcBannerImage from "@/assets/carrusel3.jpg";
 import "./gc-anuario.css";
 import { useScrollReveal } from "./useScrollReveal";
@@ -23,7 +22,7 @@ import {
 import banderaInstitucional from "@/assets/bandera.png";
 import escudoInstitucional from "@/assets/logo.png";
 import himnoGimnasioAudio from "@/assets/himno-gimnasio.mp3";
-import logoGimnasio from "@/assets/logo.png";
+import logoGimnasio from "@/assets/logogim.png";
 import { useLandingContent } from "./LandingContentContext";
 
 GlobalWorkerOptions.workerSrc = new URL(
@@ -255,6 +254,12 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
   const [documentPreviewImages, setDocumentPreviewImages] = useState<Record<number, string>>({});
   const [activeIdentityCard, setActiveIdentityCard] = useState<(typeof identityHighlights)[number] | null>(null);
 
+  // Las tres secciones reutilizan este componente: al cambiar de sección
+  // (Identidad, Símbolos, Documentos) se cierra el modal que estuviera abierto.
+  useEffect(() => {
+    setActiveIdentityCard(null);
+  }, [section]);
+
   const currentPage = useMemo(() => pageMeta[section], [section]);
 
   useEffect(() => {
@@ -342,7 +347,6 @@ const InstitutionalInfoPage = ({ section }: InstitutionalInfoPageProps) => {
       <section className="gc-banner gc-banner--inner">
         <img className="gc-banner__img" src={gcBannerImage} alt={currentPage.title} />
         <div className="gc-banner__in">
-          <img className="gc-banner__crest" src={gcCrest} alt="Escudo del Gimnasio Los Cerros" />
           <div>
             <span className="gc-banner__crumb">Nosotros — {currentPage.tag}</span>
             <h1>{currentPage.title}</h1>

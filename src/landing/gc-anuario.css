@@ -113,8 +113,9 @@
   content: none;
 }
 .gc-banner--inner .gc-banner__in { padding-bottom: 34px; }
-/* El contenido que sigue queda por encima de la foto */
-.gc-banner--inner ~ * {
+/* El contenido que sigue queda por encima de la foto.
+   Se excluyen los modales: necesitan su position: fixed para flotar. */
+.gc-banner--inner ~ *:not([class*="modal__overlay"]) {
   position: relative;
   z-index: 1;
 }

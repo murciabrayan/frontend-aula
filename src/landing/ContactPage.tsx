@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import gcCrest from "@/assets/logo.png";
 import gcBannerImage from "@/assets/carrusel.jpg";
 import "./gc-anuario.css";
 import { useScrollReveal } from "./useScrollReveal";
@@ -80,7 +79,6 @@ const ContactPage = () => {
       <section className="gc-banner gc-banner--inner">
         <img className="gc-banner__img" src={gcBannerImage} alt="Comunidad del Gimnasio Los Cerros" />
         <div className="gc-banner__in">
-          <img className="gc-banner__crest" src={gcCrest} alt="Escudo del Gimnasio Los Cerros" />
           <div>
             <span className="gc-banner__crumb">Contacto</span>
             <h1>Estamos listos para acompañarte en tu proceso</h1>
