@@ -1,0 +1,64 @@
+/* Shared reading surfaces and controls: opaque warm beige, dark text and blue cues. */
+:root{--reading-ink:#294831;--reading-muted:#495b3c;--card-beige:#f2e4c9;--card-line:#bca577;--cue:#195d77}
+.grade-card,.class-card,.part-link{background:var(--card-beige);border-color:#c5b18b}
+.grade-card:hover,.part-link:hover{background:#ebd9b6;border-color:#99804d}
+.class-card.is-available{background:#efdfbe;border-color:#ac8e53}
+.class-card.is-planned{background:#f4ead6}
+.page-heading h1,.class-intro h2,.grade-card h2,.class-card h2,.class-card.is-planned h2,.part-copy h4{color:var(--reading-ink)}
+.grade-card p,.class-card p,.part-copy p,.class-intro p:last-child,.page-description{color:var(--reading-muted)}
+.eyebrow,.class-number,.part-number{color:#6c542d}
+.grade-card-footer,.class-card.is-planned .class-card-bottom,.part-count,.parts-heading>span,.class-actions p,.catalog-footer{color:#526044}
+.school-brand small,.subject-label,.breadcrumbs,.breadcrumbs [aria-current]{color:#4e6042}
+.availability{background:#dce9cc;color:#345326}.availability::before{background:#476a32}
+.open-parts{color:#2e5939}.grade-card .card-arrow{color:#4b6140}
+.school-mark small,.part-tab,.part-tab span,.part-tab.is-reviewed:not([aria-current]){color:#465a3c}
+.part-tab[aria-current="step"],.part-tab[aria-current="step"] span{color:#fffbed}
+.story-card,.lesson-footer{background:#fff9eb;border-color:#e0cc9d}
+.story-description{color:#394e32}.story-description strong{color:#25472e}
+.scene-prompt{color:#435737;border-color:#866b32}
+.demo-stage{background:#f3e8d0;border-color:#c8b58b}
+.demo-caption,.equipment-note,.equipment-comparison figcaption,.overview-device,.overview-device small{color:#405535}
+.demo-button,.scene-choice,.virtual-key,.direction-buttons button{background:#f1e2bf;color:#3f5335;border-color:#ab9564}
+.demo-button:hover,.demo-button[aria-pressed="true"]{background:#345a3d;color:#fff9e7}
+.demo-buttons .demo-button,.context-alt{font-weight:900}
+.activity-board{background:#fff8e8;border-color:#c8b48c}
+.activity-heading>p:last-child{color:#425538}
+.activity-heading .eyebrow{color:#634a24;background:#ecd6aa}
+.activity-feedback,.activity-feedback.is-correct{color:#31572e}
+.activity-feedback.is-retry{color:#754817}
+.game-meta,.game-note,.game-target>small,.copy-caption,.copy-game .typing-form label,.typing-form label,.final-label,.context-request,.context-instruction,.path-sidebar p{color:#465a36}
+.game-meter{background:#d6d9bf}.game-meter>span{background:#547d39}
+.game-target,.word-model{background:#e8efd6;color:#36552c;border-color:#8a9c6e}
+.picture-choice,.memory-card,.drag-piece{background:#edddba;border-color:#af9562;color:#385132}
+.picture-choice:disabled,.memory-card:disabled,.virtual-key:disabled,.sort-target:disabled{opacity:1}
+.picture-choice.is-correct{outline:3px solid var(--cue);outline-offset:2px;background:#dcebd8;border-color:#477e60}
+.picture-choice.is-correct::after{content:'✓';position:absolute;top:4px;right:8px;font-size:18px;color:#154d63}
+.memory-card{position:relative;background:#d9e3c4;color:#344f2c}
+.memory-card::after{color:#405b33}
+.memory-card.is-open,.memory-card.is-matched{background:#f6e6c7}
+.memory-card.is-matched{border-color:#3f7758}
+.memory-card.is-matched::before{content:'✓';position:absolute;left:7px;top:3px;color:#1c566d;font-size:16px;font-weight:900}
+.type-mark{color:#3f6334}
+.quiet-button,.step-counter,.footer-message p,.class-modal p,.class-modal li,.motion-option{color:#475a3a}
+.footer-message>.eyebrow{color:#65502a}
+.class-modal .text-link{color:#36572e}
+.typing-input{color:#294b32;border-color:#78935c;background:#fffef7}.typing-input::placeholder{color:#626f54}
+.virtual-key.is-last{background:#d2e6e9;border-color:#255f77;color:#214b60}
+.sort-target{background:#f0e0bc;border:3px dashed #467b8a;color:#3f5735}
+.sort-target>.picture{opacity:.45}.sort-target>small{color:#3f5335}
+.sort-target.is-filled{background:#e2edce;border-color:#46794c}
+.drag-piece.is-selected{outline:4px solid var(--cue);outline-offset:3px}
+.mouse-hotspot{background:#f8ecd0;color:#3d5135;border:2px solid #ab9361}
+.mouse-hotspot[aria-pressed="true"]{background:#195d77;color:white;border-color:white;box-shadow:0 0 0 2px #195d77}
+.mouse-pulse,.mouse-pulse.right,.mouse-pulse.wheel{border:4px solid #195d77;background:#559fbd20;box-shadow:0 0 0 3px #fffef4,0 0 0 5px #195d77;opacity:1}
+.screen-callout{background:#f6e6c4;color:#3c5133;border:2px solid #9a814e}
+.screen-callout.power{color:#164f68;border-color:#195d77;background:#f6efdd}
+.screen-power:focus-visible{outline:4px solid #195d77;box-shadow:0 0 0 3px #fff}
+.pointer-arena{background:#e6edd4;border-color:#3e7888}.pointer-arena small{color:#465d37}
+.scroll-practice{background:#f8ecd3;border-color:#89976e;scrollbar-color:#3f7887 #dfd2ae}.scroll-practice figure{color:#405733}
+.context-menu{background:#f5e7c9;border-color:#927c4e}.context-menu button{color:#38502e}.context-menu button:hover,.context-menu button:focus-visible{background:#dbe8cf;color:#244d35}
+.game-complete p,.class-modal .eyebrow{color:#4c5b3b}
+.key-model span{color:#31502c;background:#f0e2c2;border-color:#a29261}.key-model span.is-found{color:#234e37;background:#d9eacb;border-color:#4d7c52}
+.class-actions .primary-link,.class-actions .primary-link span{color:#fffbed}
+.part-link:focus-visible,.part-link:hover{outline-color:#195d77}
+#next-step:disabled{opacity:1;background:#d9ddc8;border-color:#94a080;color:#3f5034;box-shadow:none}

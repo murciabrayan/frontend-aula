@@ -1,0 +1,928 @@
+/*
+ * Responsive classroom shell
+ *
+ * The header, learning area and navigation dock are three real layout rows.
+ * None of them floats over another, even when a game is taller than the screen.
+ */
+@keyframes classroom-panel-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (min-width: 761px) {
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(8px, 1.35vh, 14px);
+    height: 100svh;
+    min-height: 620px;
+    padding: clamp(10px, 1.8vh, 17px) clamp(24px, 4.5vw, 68px) clamp(10px, 1.8vh, 16px);
+    overflow: hidden;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .class-hud {
+    grid-row: 1;
+    width: 100%;
+    min-height: 50px;
+    margin: 0;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) :is(.lesson-layout, .activity-view) {
+    grid-row: 2;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    animation: classroom-panel-in .28s ease-out both;
+  }
+
+  .computer-class[data-mode="lesson"] .lesson-layout {
+    align-items: stretch;
+    gap: clamp(18px, 2.6vw, 36px);
+    overflow: hidden;
+  }
+
+  .computer-class[data-mode="lesson"] :is(.story-card, .demo-stage) {
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .computer-class[data-mode="lesson"] .demo-content {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-view {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-heading {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 7px 12px;
+    text-align: left;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-heading .eyebrow {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-heading h1 {
+    margin: 0;
+    font-size: clamp(24px, 2.15vw, 31px);
+  }
+
+  .computer-class[data-mode="challenge"] .activity-heading > p:last-child {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+    padding: 8px 14px;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-feedback.has-message {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-board {
+    height: 100%;
+    min-height: 0;
+    padding: 12px 16px;
+    overflow: hidden;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-board > .game-frame {
+    display: flex;
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-board .game-body {
+    flex: 1 1 auto;
+    min-height: 0 !important;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: #a7b891 #f1eddb;
+  }
+
+  .computer-class[data-mode="challenge"] .activity-board .game-toolbar {
+    flex: 0 0 auto;
+    margin-top: 6px;
+  }
+
+  /* Digital citizenship games keep every decision visible without an inner
+     scroll. The illustration supports the task instead of pushing controls
+     below the classroom dock. */
+  .first-path-class[data-mode="challenge"] .safe-profile-game {
+    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: center;
+    height: 100%;
+    gap: 8px 14px;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-profile-preview {
+    grid-row: 1 / 3;
+    height: min(100%, 270px);
+    padding: 10px;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-profile-preview .path-art {
+    width: 88px;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-profile-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: center;
+    gap: 7px;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-profile-options button {
+    min-height: 48px;
+    padding: 7px;
+    font-size: 12px;
+  }
+
+  .first-path-class[data-mode="challenge"] .trusted-game {
+    display: grid;
+    grid-template-columns: minmax(180px, 235px) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: center;
+    height: 100%;
+    gap: 14px;
+  }
+
+  .first-path-class[data-mode="challenge"] .trusted-game > .safety-scene {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: 100%;
+    margin: 0;
+  }
+
+  .first-path-class[data-mode="challenge"] .trusted-game > .path-task,
+  .first-path-class[data-mode="challenge"] .trusted-columns {
+    grid-column: 2;
+    margin-block: 0;
+  }
+
+  .first-path-class[data-mode="challenge"] .trusted-columns {
+    gap: 8px;
+  }
+
+  .first-path-class[data-mode="challenge"] .trusted-columns > div {
+    gap: 5px;
+  }
+
+  .first-path-class[data-mode="challenge"] .trusted-columns button {
+    min-height: 44px;
+    padding: 6px 8px;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-plan-game {
+    display: grid;
+    grid-template-columns: minmax(200px, 285px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    height: 100%;
+    gap: 8px 16px;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-plan-game > .safety-scene {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    width: 100%;
+    margin: 0;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-plan-game > :is(.path-task, .safe-plan-track, .safe-story-options) {
+    grid-column: 2;
+    margin-block: 0;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-plan-track {
+    min-height: 62px;
+  }
+
+  .first-path-class[data-mode="challenge"] .safe-plan-track span,
+  .first-path-class[data-mode="challenge"] .safe-plan-game .safe-story-options button {
+    min-height: 48px;
+    padding: 7px;
+    font-size: 12px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-footer {
+    grid-row: 3;
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    max-width: none;
+    min-height: 72px;
+    margin: 0 !important;
+    padding: 10px 17px;
+    gap: 18px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .footer-message {
+    max-width: min(54%, 670px);
+    padding-left: 12px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .footer-message > .eyebrow {
+    margin-bottom: 2px;
+    font-size: 8px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .footer-message p {
+    margin-top: 3px;
+    font-size: 13px;
+    line-height: 1.42;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-controls {
+    gap: 9px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-controls #next-step {
+    /* Keeps a full-size touch target even during the 0.96 entry animation. */
+    min-width: 162px;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-controls #next-step:disabled {
+    min-width: 192px;
+  }
+
+  /* The desktop simulator follows the same shell instead of using a fixed bar. */
+  :is(.desktop-class[data-mode="lesson"], .desktop-class[data-mode="challenge"]) {
+    height: 100svh;
+    min-height: 620px;
+    padding-bottom: clamp(10px, 1.8vh, 16px);
+    overflow: hidden;
+  }
+
+  :is(.desktop-class[data-mode="lesson"], .desktop-class[data-mode="challenge"]) .class-hud {
+    flex-wrap: nowrap;
+  }
+
+  :is(.desktop-class[data-mode="lesson"], .desktop-class[data-mode="challenge"]) .part-navigation {
+    order: 0;
+    min-width: 0;
+    margin: 0;
+  }
+
+  :is(.desktop-class[data-mode="lesson"], .desktop-class[data-mode="challenge"]) :is(.lesson-layout, .activity-view, .lesson-footer) {
+    margin: 0;
+  }
+
+  .desktop-class[data-mode="challenge"] .activity-board {
+    height: 100%;
+    padding: 12px 16px;
+  }
+
+  .desktop-class[data-mode="challenge"] :is(.desktop-game-layout, .desktop-engine-host, .desktop-lab) {
+    min-height: 0;
+  }
+
+  .desktop-class[data-mode="challenge"] .desktop-game-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .desktop-class[data-mode="challenge"] .desktop-engine-host {
+    flex: 1 1 auto;
+  }
+
+  .desktop-class[data-mode="challenge"] .desktop-lab {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .desktop-class[data-mode="challenge"] .desktop-lab .lab-desktop {
+    flex: 1 1 auto;
+    height: auto !important;
+    min-height: 250px;
+  }
+
+  .desktop-class[data-mode="challenge"] .desktop-lab-actions {
+    flex: 0 0 auto;
+    margin-top: 6px;
+  }
+
+  .desktop-class[data-mode="challenge"] :is(.desktop-goal, .desktop-control-hint, .project-checklist) {
+    flex: 0 0 auto;
+  }
+
+  .desktop-class[data-mode="lesson"] :is(.demo-stage, .demo-content, .desktop-demo, .desktop-engine-host, .desktop-lab) {
+    min-height: 0 !important;
+  }
+
+  .desktop-class[data-mode="lesson"] .desktop-demo,
+  .desktop-class[data-mode="lesson"] .desktop-lab {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .desktop-class[data-mode="lesson"] .desktop-engine-host {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .desktop-class[data-mode="lesson"] .desktop-lab .lab-desktop {
+    flex: 1 1 auto;
+    height: auto !important;
+    min-height: 245px;
+  }
+
+  /* The richer classes no longer force a height larger than the work row. */
+  :is(.sequence-class, .technology-class, .programming-class, .project-class, .first-path-class, .second-grade-class)[data-mode="lesson"] :is(.demo-stage, .demo-content) {
+    min-height: 0;
+  }
+
+  .project-class[data-mode="challenge"] .activity-board > .game-frame {
+    min-height: 0;
+  }
+
+  .project-class[data-mode="challenge"] .project-coordinate-task {
+    height: 100%;
+    min-height: 0;
+  }
+
+  .project-class[data-mode="challenge"] .project-coordinate-task .project-grid {
+    width: min(100%, 405px);
+    max-width: 405px;
+    height: auto;
+    margin-inline: auto;
+  }
+
+  .project-class[data-mode="challenge"] :is(.project-program-game, .project-debug-game) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .project-class[data-mode="challenge"] :is(.project-program-game, .project-debug-game) > header {
+    flex: 0 0 auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 12px;
+    margin-bottom: 6px;
+    text-align: left;
+  }
+
+  .project-class[data-mode="challenge"] :is(.project-program-game, .project-debug-game) > header h2 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.3;
+  }
+
+  .project-class[data-mode="challenge"] :is(.project-program-game, .project-debug-game) > header :is(p, .project-kicker) {
+    margin: 0;
+    font-size: 11px;
+  }
+
+  .project-class[data-mode="challenge"] .project-program-workspace {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    gap: 12px;
+  }
+
+  .project-class[data-mode="challenge"] :is(.project-map-panel, .project-code-panel) {
+    height: 100%;
+    min-height: 0;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .project-class[data-mode="challenge"] .project-map-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-class[data-mode="challenge"] .project-map-panel .project-grid {
+    flex: 0 1 auto;
+    width: min(100%, 230px);
+    max-width: 230px;
+    height: auto;
+  }
+
+  .project-class[data-mode="challenge"] .project-state {
+    gap: 4px;
+    margin-top: 5px;
+  }
+
+  .project-class[data-mode="challenge"] .project-state span {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+
+  .project-class[data-mode="challenge"] .project-run-result {
+    min-height: 0;
+    margin-top: 5px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .project-class[data-mode="challenge"] .project-code-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-class[data-mode="challenge"] .project-program-list {
+    flex: 1 1 62px;
+    min-height: 54px;
+    overflow: auto;
+  }
+
+  .project-class[data-mode="challenge"] .project-palette {
+    flex: 0 0 auto;
+    max-height: none;
+    gap: 5px;
+    overflow: visible;
+  }
+
+  .project-class[data-mode="challenge"] .project-palette fieldset {
+    gap: 4px;
+    padding: 5px 7px;
+  }
+
+  .project-class[data-mode="challenge"] .project-palette :is(legend, label, button, select) {
+    font-size: 10px;
+  }
+
+  .project-class[data-mode="challenge"] .project-palette button {
+    padding: 6px;
+  }
+
+  .project-class[data-mode="challenge"] .project-program-actions {
+    flex: 0 0 auto;
+    margin-top: 7px;
+  }
+
+  /* Requirement decisions use the width of the board instead of growing down. */
+  .project-class[data-mode="challenge"] .game-body:has(.project-brief-card) {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.9fr) minmax(420px, 1.1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 18px;
+    overflow: hidden;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-brief-card) .project-brief-card {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    height: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-brief-card) .project-checklist {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-brief-card) .project-actions {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-decision) {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(460px, 1.1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 8px 18px;
+    overflow: hidden;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-decision) .project-decision {
+    grid-column: 1;
+    grid-row: 1 / 4;
+    height: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-decision) .project-option-grid {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-decision) .project-actions {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-decision) .project-evidence {
+    grid-column: 2;
+    grid-row: 3;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-plan-intro) {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.85fr) minmax(470px, 1.15fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 18px;
+    overflow: hidden;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-plan-intro) .project-plan-intro {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    height: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-plan-intro) .project-task-list {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-plan-intro) .project-actions {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-test-header) {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(460px, 1.1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px 18px;
+    overflow: hidden;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-test-header) .project-test-header {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    height: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-test-header) .project-test-options {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    margin: 0;
+  }
+
+  .project-class[data-mode="challenge"] .game-body:has(.project-test-header) .project-actions {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+
+  /* Technology games: keep the scene and every decision visible together. */
+  .technology-class[data-mode="challenge"] .game-body .tech-card {
+    min-width: 80px;
+    min-height: 82px;
+    padding: 6px 8px;
+    border-radius: 15px;
+    font-size: 13px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body .tech-card :is(.tech-art, .picture) {
+    width: 49px;
+    height: 49px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body :is(.tech-tool-options, .tech-actions, .tech-power-row, .tech-energy-options) {
+    gap: 8px;
+    margin-block: 4px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body :is(.tech-round-title, .tech-task, .tech-hint) {
+    margin-block: 2px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) {
+    display: grid !important;
+    grid-template-columns: minmax(360px, 1.08fr) minmax(430px, 0.92fr);
+    grid-template-rows: auto auto auto auto auto;
+    align-items: center;
+    gap: 5px 16px;
+    overflow: hidden;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) .tech-reading-room {
+    grid-column: 1;
+    grid-row: 1 / 6;
+    width: 100%;
+    height: min(100%, 270px);
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) :is(.tech-round-title, .tech-task, .tech-tool-options, .tech-power-row, .tech-range, .tech-actions) {
+    grid-column: 2;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) :is(.tech-tool-options, .tech-power-row) {
+    height: 90px;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) .tech-actions {
+    min-height: 34px;
+    margin: 0;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) .tech-power-row {
+    flex-wrap: nowrap;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) .tech-energy-options {
+    flex-wrap: nowrap;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) .tech-socket {
+    min-width: 118px;
+    min-height: 78px;
+    font-size: 12px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) .tech-socket > .tech-art {
+    width: 45px;
+    height: 45px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-reading-room) .tech-actions .demo-button {
+    min-height: 34px;
+    padding-block: 7px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(:is(.tech-rain-scene, .tech-delivery, .tech-notebook, .tech-storybook)) {
+    display: grid !important;
+    grid-template-columns: minmax(390px, 1.08fr) minmax(390px, 0.92fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px 18px;
+    overflow: hidden;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(:is(.tech-rain-scene, .tech-delivery, .tech-notebook, .tech-storybook)) > :is(.tech-rain-scene, .tech-delivery, .tech-notebook, .tech-storybook) {
+    grid-column: 1;
+    grid-row: 1 / 5;
+    width: 100%;
+    max-width: none;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(:is(.tech-rain-scene, .tech-delivery, .tech-notebook, .tech-storybook)) > :is(.tech-round-title, .tech-task, .tech-tool-options, .tech-actions) {
+    grid-column: 2;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-puzzle-layout) {
+    display: grid !important;
+    grid-template-columns: 230px minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    overflow: hidden;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-puzzle-layout) .tech-puzzle-head {
+    flex-direction: column;
+    gap: 3px;
+    margin: 0;
+    text-align: center;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-puzzle-layout) .tech-puzzle-head > .tech-art {
+    width: 105px;
+    height: 105px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-puzzle-layout) .tech-puzzle-layout {
+    grid-template-columns: minmax(220px, 300px) minmax(220px, 1fr);
+    gap: 16px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-puzzle-layout) .tech-puzzle-board {
+    width: min(100%, 300px);
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-puzzle-layout) .tech-puzzle-tray {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    min-height: 0;
+    gap: 7px;
+  }
+
+  .technology-class[data-mode="challenge"] .tech-sort {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 18px;
+    height: 100%;
+  }
+
+  .technology-class[data-mode="challenge"] .tech-sort .tech-task,
+  .technology-class[data-mode="challenge"] .tech-sort .tech-hint {
+    grid-column: 1 / -1;
+  }
+
+  .technology-class[data-mode="challenge"] .tech-sort-object {
+    grid-column: 1;
+    margin: 0;
+  }
+
+  .technology-class[data-mode="challenge"] .tech-bins {
+    grid-column: 2;
+    gap: 12px;
+    width: 100%;
+    max-width: none;
+  }
+
+  .technology-class[data-mode="challenge"] .tech-bin {
+    min-height: 150px;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) {
+    display: grid !important;
+    grid-template-columns: minmax(430px, 1.15fr) minmax(370px, 0.85fr);
+    grid-template-rows: auto auto auto auto auto;
+    align-items: center;
+    gap: 4px 16px;
+    overflow: hidden;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) .tech-network {
+    grid-column: 1;
+    grid-row: 1 / 6;
+    width: 100%;
+    min-height: 230px;
+    margin: 0;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) > :is(.tech-round-title, .tech-task, .tech-tool-options, .tech-hint, .tech-actions, .tech-received) {
+    grid-column: 2;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) .tech-tool-options {
+    height: 90px;
+    min-height: 0;
+    margin: 0;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) .tech-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 6px;
+    min-height: 44px;
+    margin: 0;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) .tech-actions button {
+    min-width: 0;
+    min-height: 42px;
+    padding: 7px 6px;
+    font-size: 11px;
+    line-height: 1.3;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) .tech-network-node {
+    width: 100px;
+    min-height: 118px;
+    font-size: 12px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-network) .tech-network-node > :is(.tech-art, .picture) {
+    width: 64px;
+    height: 64px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-message-compare) {
+    display: grid !important;
+    grid-template-columns: minmax(470px, 1.15fr) minmax(350px, 0.85fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 6px 16px;
+    overflow: hidden;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-message-compare) .tech-message-compare {
+    grid-column: 1;
+    grid-row: 1 / 5;
+    gap: 8px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-message-compare) > :is(.tech-round-title, .tech-hint, .tech-tool-options, .tech-actions) {
+    grid-column: 2;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-message-compare) .tech-message-compare section {
+    padding: 8px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-message-compare) .tech-message-compare h3 {
+    margin: 3px;
+    font-size: 15px;
+  }
+
+  .technology-class[data-mode="challenge"] .game-body:has(.tech-message-compare) .tech-message-strip {
+    min-height: 90px;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) {
+    padding-inline: 24px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .part-tab {
+    padding-inline: 8px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .footer-message {
+    max-width: 48%;
+  }
+
+  .computer-class[data-mode="lesson"] .lesson-footer:has(#activity-choice-note:not([hidden])) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .computer-class[data-mode="lesson"] .lesson-footer:has(#activity-choice-note:not([hidden])) .footer-message {
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) {
+    min-height: 100svh;
+    overflow-x: clip;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .activity-view {
+    min-height: 0;
+    margin-bottom: 0;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .activity-board,
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .game-frame,
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .game-body {
+    min-height: 0;
+    height: auto;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-footer {
+    margin-top: 16px;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-controls {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr);
+    width: 100%;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-controls #next-step {
+    justify-self: stretch;
+    min-width: 0;
+  }
+
+  :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) .lesson-controls .start-class-activity {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 3px;
+  }
+
+  .project-class[data-mode="challenge"] .project-program-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

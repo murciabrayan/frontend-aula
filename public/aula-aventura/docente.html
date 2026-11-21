@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>Sesiones de clase · Aula interactiva</title>
+  <link rel="icon" href="assets/school-logo.png"><link rel="stylesheet" href="catalog.css"><link rel="stylesheet" href="contrast.css"><link rel="stylesheet" href="sessions.css"><link rel="stylesheet" href="second-grade.css"><link rel="stylesheet" href="third-grade.css">
+  <script defer src="aula-config.js"></script><script defer src="final-activities.js"></script><script defer src="part-activities.js"></script><script defer src="sequence-activities-v1.js"></script><script defer src="sequence-activities.js"></script><script defer src="technology-activities.js"></script><script defer src="project-activities.js"></script><script defer src="programming-first-activities.js"></script><script defer src="first-path-activities.js"></script><script defer src="second-grade-content.js"></script><script defer src="second-grade-scenarios.js"></script><script defer src="second-grade-activities.js"></script><script defer src="third-grade-content.js"></script><script defer src="third-grade-scenarios.js"></script><script defer src="third-grade-activities.js"></script><script defer src="session-api.js"></script><script defer src="session-ui.js"></script><script defer src="teacher-sessions.js"></script>
+</head>
+<body class="session-page">
+  <div class="session-shell">
+    <header class="session-header">
+      <a class="school-brand" href="./"><img class="school-logo" src="assets/school-logo.png" width="48" height="52" alt="Escudo del Gimnasio los Cerros"><span><strong>Gimnasio los Cerros</strong><small>AULA INTERACTIVA</small></span></a>
+      <a class="session-back" href="./"><span data-icon="back"></span> Grados y clases</a>
+    </header>
+    <main>
+      <div id="teacher-status" class="session-notice toast-notice" role="status" aria-live="polite" hidden></div>
+      <section id="teacher-login" class="teacher-access" hidden aria-labelledby="login-title">
+        <div class="access-story">
+          <span class="section-kicker"><span class="kicker-dot"></span> ESPACIO DOCENTE</span>
+          <h1>Una clase compartida.<br><em>Mucho por aprender.</em></h1>
+          <p>Prepara la actividad, invita al grupo y acompaña a cada estudiante mientras practica.</p>
+          <div class="access-illustration" aria-hidden="true"><span class="access-orbit orbit-one"></span><span class="access-orbit orbit-two"></span><span class="login-owl"></span><span class="illustration-tag"><span data-icon="book"></span> Aprendemos juntos</span><span class="floating-spark" data-icon="sparkle"></span></div>
+        </div>
+        <div class="login-card">
+          <span class="login-symbol" data-icon="lock"></span><p class="section-kicker">TU CUENTA DEL COLEGIO</p><h2 id="login-title">Bienvenido, profe</h2><p class="login-description">Ingresa para compartir actividades y ver cómo avanza tu grupo.</p>
+          <form id="teacher-login-form" novalidate>
+            <label for="teacher-email">Correo institucional</label><div class="field-wrap"><span data-icon="mail"></span><input id="teacher-email" name="email" type="email" autocomplete="username" placeholder="Tu correo del colegio" required maxlength="254"></div>
+            <label for="teacher-password">Contraseña</label><div class="field-wrap"><span data-icon="lock"></span><input id="teacher-password" name="password" type="password" autocomplete="current-password" placeholder="Escribe tu contraseña" required><button id="show-password" class="field-action" type="button" aria-label="Mostrar contraseña" aria-pressed="false"><span data-icon="eye"></span></button></div>
+            <button class="session-primary login-submit" type="submit"><span>Ingresar al aula</span><span data-icon="arrow"></span></button>
+          </form>
+          <p class="login-footnote"><span data-icon="info"></span> Usa los mismos datos de la plataforma del colegio.</p>
+        </div>
+      </section>
+      <section id="teacher-workspace" hidden>
+        <div class="workspace-heading"><div><span class="section-kicker">ESPACIO DOCENTE</span><h1>Sesiones de clase</h1><p>Comparte la actividad. Acompaña el aprendizaje.</p></div><div class="teacher-toolbar"><div class="teacher-user"><span id="teacher-avatar" class="user-avatar" aria-hidden="true">D</span><span><small>DOCENTE</small><strong id="teacher-name"></strong></span></div><button id="teacher-logout" class="icon-button" type="button" aria-label="Cerrar sesión" title="Cerrar sesión"><span data-icon="logout"></span></button></div></div>
+        <div class="workspace-action-row"><p><span data-icon="lock"></span> Tus grupos y sus avances, en un mismo lugar.</p><button id="new-session" class="session-primary" type="button"><span data-icon="plus"></span> Nueva sesión</button></div>
+        <div class="teacher-layout"><aside class="session-list-card"><div class="list-heading"><h2>Tus sesiones</h2><span id="session-list-count" class="count-badge">0</span></div><div id="session-list"></div></aside><section id="session-detail" class="session-detail" aria-label="Seguimiento de la sesión"></section></div>
+      </section>
+    </main>
+    <footer class="session-footer"><span class="footer-dot"></span> Un espacio para aprender juntos.</footer>
+  </div>
+  <dialog id="create-session" class="session-dialog" aria-labelledby="create-title" aria-describedby="create-description">
+    <div class="dialog-top"><span class="dialog-symbol" data-icon="link"></span><button class="icon-button" type="button" data-close-dialog="create-session" aria-label="Cerrar creación de sesión"><span data-icon="close"></span></button></div>
+    <p class="section-kicker">PREPAREMOS LA ACTIVIDAD</p><h2 id="create-title">Invita a tu grupo</h2><p id="create-description" class="dialog-description">Un enlace, sus nombres y todo listo para practicar.</p>
+    <form id="create-session-form" novalidate>
+      <div id="create-session-error" class="form-inline-notice" role="alert" hidden></div>
+      <label for="session-lesson">¿Qué van a practicar?</label><div class="field-wrap select-wrap"><span data-icon="book"></span><select id="session-lesson"><option value="partes-del-computador">Primero · Partes del computador</option><option value="escritorio">Primero · El escritorio y sus iconos</option><option value="instrucciones">Primero · Pasos e instrucciones</option><option value="tecnologia">Primero · La tecnología en nuestra vida</option><option value="programacion-flechas">Primero · Programamos con bloques y flechas</option><option value="patrones-mensajes">Primero · Patrones y mensajes secretos</option><option value="bucles">Primero · Acciones que se repiten</option><option value="bucles-practica">Primero · Bucles en nuevas misiones</option><option value="errores-programas">Primero · Detectives de programas</option><option value="ciudadania-digital">Primero · Nos cuidamos en internet</option><option value="entorno-trabajo">Segundo · Nuestro espacio de trabajo digital</option><option value="componentes-programas">Segundo · Dentro y fuera del computador</option><option value="eventos">Segundo · Programas que despiertan</option><option value="bucles-programas">Segundo · Bucles que dibujan</option><option value="bucles-anidados">Segundo · Patrones dentro de patrones</option><option value="condicionales">Segundo · Decisiones en el programa</option><option value="historias-bloques">Segundo · Creamos historias con bloques</option><option value="confianza-digital">Segundo · Detectives de confianza digital</option><option value="proyecto">Quinto · Planeamos un proyecto</option></select><span class="select-chevron" data-icon="chevron"></span></div>
+      <div class="activity-preview"><span class="preview-check" data-icon="check"></span><div class="activity-preview-copy"><p id="activity-preview-title">Actividad final de la clase</p><p id="activity-preview-note" class="activity-preview-note">Solo el taller final: ingresan con su nombre, sin cuenta. Cada desafío completado suma un 25 % al seguimiento.</p><ol id="activity-preview-challenges" aria-label="Desafíos incluidos en este enlace"></ol></div></div>
+      <div class="create-grid"><div><label for="session-group">Nombre del grupo</label><input id="session-group" required maxlength="80" placeholder="Por ejemplo: Primero A" autocomplete="off"></div><div><label for="session-duration">Enlace disponible por</label><div class="field-wrap select-wrap"><select id="session-duration"><option value="1">1 hora</option><option value="2">2 horas</option><option value="4" selected>4 horas</option><option value="8">8 horas</option></select><span class="select-chevron" data-icon="chevron"></span></div></div></div>
+      <div class="dialog-bottom"><button class="session-secondary" type="button" data-close-dialog="create-session">Volver</button><button class="session-primary" type="submit"><span>Crear enlace</span><span data-icon="arrow"></span></button></div>
+    </form>
+  </dialog>
+  <dialog id="session-confirm" class="session-dialog confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-description">
+    <span id="confirm-symbol" class="dialog-symbol"></span><h2 id="confirm-title"></h2><p id="confirm-description" class="dialog-description"></p><form method="dialog" class="dialog-bottom"><button class="session-secondary" value="cancel">Volver</button><button id="confirm-session-action" class="session-primary" value="confirm">Confirmar</button></form>
+  </dialog>
+</body></html>
