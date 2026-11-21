@@ -89,7 +89,7 @@
 .start-class-activity{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:45px;padding:11px 17px;border:1px solid #bda46c;border-radius:12px;background:#f3dfab;color:#334b36;text-decoration:none;font-family:inherit;font-weight:900;font-size:14px;line-height:1.4;white-space:nowrap;box-shadow:0 3px 0 #c9b57f}
 .start-class-activity:hover{background:#ecd094}.start-class-activity:focus-visible{outline:3px solid #236b85;outline-offset:3px}
 .lesson-footer .activity-choice-note{font-size:13px;line-height:1.6;color:#4d603f;margin-top:5px;max-width:390px}.lesson-controls{flex-wrap:wrap}.finish-copy>.start-class-activity{margin:16px 0}
-.computer-class:not(.desktop-class):has(#activity-choice-note:not([hidden])) .lesson-layout{bottom:200px}
+.computer-class:not(.desktop-class):has(#activity-choice-note:not([hidden])) .lesson-layout{bottom:auto}
 @media(max-width:1000px){.lesson-footer:has(#activity-choice-note:not([hidden])){flex-wrap:wrap}.lesson-footer:has(#activity-choice-note:not([hidden])) .footer-message{max-width:none}.lesson-controls .start-class-activity{font-size:13px;min-height:42px;padding:10px 12px}}
 @media(max-width:760px){.computer-class:not(.desktop-class):has(#activity-choice-note:not([hidden])) .lesson-layout{bottom:auto}.lesson-controls .start-class-activity{order:5;flex:1 0 100%;margin-top:6px}.lesson-footer .activity-choice-note{font-size:13px;max-width:none}}
 

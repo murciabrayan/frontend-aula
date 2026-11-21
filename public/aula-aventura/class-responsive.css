@@ -9,6 +9,13 @@
   to { opacity: 1; }
 }
 
+/* Keep the reading and activity surfaces in front of the animated canvas.
+ * An explicit layer also avoids GPU-compositing differences between browsers. */
+.lesson-layout,
+.activity-view {
+  z-index: 1;
+}
+
 @media (min-width: 761px) {
   :is(.computer-class[data-mode="lesson"], .computer-class[data-mode="challenge"]) {
     display: grid;
