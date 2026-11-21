@@ -5,12 +5,9 @@
   const teacher=(path,options={})=>request(`/api/aula/${path}`,{...options,teacher:true});
   const stamp=value=>new Date(value).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const stateLabel=state=>({open:'Abierta',closed:'Cerrada',expired:'Vencida'}[state]||'');
-  const secondLoopOption=[...$('session-lesson').options].find(option=>option.value==='bucles-programas'&&option.textContent.startsWith('Segundo'));
-  if(secondLoopOption)secondLoopOption.value='bucles-dibujan';
-  for(const [parent,label,grade='Primero'] of [['partes-del-computador','Partes del computador'],['escritorio','El escritorio y sus iconos'],['instrucciones','Pasos e instrucciones'],['tecnologia','La tecnología en nuestra vida'],['programacion-flechas','Programamos con bloques y flechas'],['patrones-mensajes','Patrones y mensajes secretos'],['bucles','Acciones que se repiten'],['bucles-practica','Bucles en nuevas misiones'],['errores-programas','Detectives de programas'],['ciudadania-digital','Nos cuidamos en internet'],['entorno-trabajo','Nuestro espacio de trabajo digital','Segundo'],['componentes-programas','Dentro y fuera del computador','Segundo'],['eventos','Programas que despiertan','Segundo'],['bucles-programas','Bucles que dibujan','Segundo'],['bucles-anidados','Patrones dentro de patrones','Segundo'],['condicionales','Decisiones en el programa','Segundo'],['historias-bloques','Creamos historias con bloques','Segundo'],['confianza-digital','Detectives de confianza digital','Segundo'],['proyecto','Planeamos un proyecto','Quinto']]){
+  for(const [parent,label,grade='Primero'] of [['partes-del-computador','Partes del computador'],['escritorio','El escritorio y sus iconos'],['instrucciones','Pasos e instrucciones'],['tecnologia','La tecnología en nuestra vida'],['programacion-flechas','Programamos con bloques y flechas'],['patrones-mensajes','Patrones y mensajes secretos'],['bucles','Acciones que se repiten'],['bucles-practica','Bucles en nuevas misiones'],['errores-programas','Detectives de programas'],['ciudadania-digital','Nos cuidamos en internet']]){
     const group=document.createElement('optgroup');group.label=`Actividades por parte · ${label}`;
-    const activityParent=grade==='Segundo'&&parent==='bucles-programas'?'bucles-dibujan':parent;
-    for(const definition of window.PublishedClassActivities().filter(item=>item.parentLesson===activityParent)){
+    for(const definition of window.PublishedClassActivities().filter(item=>item.parentLesson===parent)){
       const option=document.createElement('option');option.value=definition.lesson;option.textContent=`${grade} · ${definition.preview.title}`;group.append(option);
     }
     $('session-lesson').append(group);
@@ -100,7 +97,7 @@
     busy(button,true,'Ingresando…');notice();
     try{
       const data=await request('/api/token/',{method:'POST',body:{email:$('teacher-email').value.trim(),password:$('teacher-password').value}});
-      if(data.user&&!['ADMIN','TEACHER'].includes(data.user.role))throw new Error('Esta sección es para profesores y administradores.');
+      if(data.user&&!['ADMIN','TEACHER','AULA_DEMO'].includes(data.user.role))throw new Error('Esta sección es para profesores y administradores.');
       localStorage.setItem('access_token',data.access);localStorage.setItem('refresh_token',data.refresh);window.dispatchEvent(new Event('auth-change'));
       $('teacher-password').value='';$('teacher-password').type='password';$('show-password').setAttribute('aria-pressed','false');$('show-password').setAttribute('aria-label','Mostrar contraseña');$('show-password').innerHTML=icon('eye');await loadWorkspace();
     }catch(error){notice(error.status===401?'Revisa tu correo y contraseña e inténtalo otra vez.':error.message,true);}finally{busy(button,false);}
