@@ -93,6 +93,12 @@
 @media(max-width:1000px){.lesson-footer:has(#activity-choice-note:not([hidden])){flex-wrap:wrap}.lesson-footer:has(#activity-choice-note:not([hidden])) .footer-message{max-width:none}.lesson-controls .start-class-activity{font-size:13px;min-height:42px;padding:10px 12px}}
 @media(max-width:760px){.computer-class:not(.desktop-class):has(#activity-choice-note:not([hidden])) .lesson-layout{bottom:auto}.lesson-controls .start-class-activity{order:5;flex:1 0 100%;margin-top:6px}.lesson-footer .activity-choice-note{font-size:13px;max-width:none}}
 
+/* Teacher-only shell. The page is not revealed until /api/aula/me/ confirms
+   that the active account is a teacher, administrator or scoped demo user. */
+html.aula-auth-pending body>*{visibility:hidden!important}
+html.aula-auth-pending body::before{content:'Comprobando acceso al aulaâ€¦';position:fixed;inset:0;z-index:9999;visibility:visible;display:grid;place-items:center;background:#fbfcf8;color:#36553c;font:900 15px/1.5 Adventure,'Segoe UI',sans-serif;letter-spacing:.2px}
+.aula-access-error{min-height:100svh;margin:0;display:grid;place-items:center;padding:24px;background:#f7f7ef;color:#31523e;font-family:Adventure,'Segoe UI',sans-serif}.access-error-card{width:min(100%,520px);padding:38px;text-align:center;border:1px solid #dce4d5;border-radius:26px;background:#fffdf5;box-shadow:0 18px 70px #25443115}.access-error-card img{width:68px;height:74px;object-fit:contain}.access-error-card h1{margin:12px 0;font-size:31px;line-height:1.15}.access-error-card>p:not(.section-kicker){margin:0 auto 25px;max-width:410px;color:#67755f;line-height:1.65}.access-error-card .session-primary{margin:auto}
+
 @media(min-width:761px){.computer-class:not(.desktop-class):has(#activity-choice-note:not([hidden])) .activity-view{bottom:240px}}
 @media(min-width:761px) and (max-width:1000px){.computer-class:not(.desktop-class):has(#activity-choice-note:not([hidden])) .activity-view{bottom:275px}}
 

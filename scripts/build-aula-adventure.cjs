@@ -17,7 +17,7 @@ const files = [
   'index.html', 'catalog.css', 'catalog-data.js', 'catalog.js', 'contrast.css',
   'leccion.html', 'lesson.css', 'class-responsive.css', 'renderer.js', 'lesson-content.js', 'lesson-games.js', 'lesson.js',
   'lesson-challenges.js', 'lesson-challenges.css',
-  'aula-config.js', 'session-api.js', 'session-ui.js', 'activity-content.js', 'sessions.css',
+  'aula-config.js', 'session-api.js', 'teacher-access.js', 'session-ui.js', 'activity-content.js', 'sessions.css',
   'docente.html', 'teacher-sessions.js', 'alumno.html', 'student-session.js',
   'escritorio.html', 'desktop-content.js', 'desktop-lab.js', 'desktop-games.js', 'desktop.css', 'final-activities.js', 'part-activities.js', 'assets/desktop-icons-v1.png',
   'tecnologia.html', 'technology-content.js', 'technology-engine.js', 'technology-scenarios.js', 'technology-games.js', 'technology-messages.js', 'technology-demonstrations.js', 'technology-activities.js', 'technology.css', 'assets/technology-objects-v1.png', 'assets/technology-nature-v1.png',

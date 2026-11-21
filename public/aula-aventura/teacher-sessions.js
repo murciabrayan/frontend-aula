@@ -3,6 +3,14 @@
   const {request,escape}=window.AulaAPI,{icon,busy}=window.AulaUI,$=id=>document.getElementById(id);
   let user=null,sessions=[],selected=/^[a-f0-9-]{36}$/.test(location.hash.slice(1))?location.hash.slice(1):null,current=null,timer,noticeTimer,loadingId=null,detailSeq=0,detailKey='',authEpoch=0;
   const teacher=(path,options={})=>request(`/api/aula/${path}`,{...options,teacher:true});
+  function returnToRequestedPage(){
+    const raw=new URLSearchParams(location.search).get('volver');if(!raw)return false;
+    const target=new URL(raw,location.href),base=location.pathname.slice(0,location.pathname.lastIndexOf('/')+1);
+    const allowed=new Set(['index.html','leccion.html','escritorio.html','instrucciones.html','tecnologia.html','programacion-flechas.html','continuacion-primero.html','continuacion-segundo.html','continuacion-tercero.html','proyecto.html']);
+    const file=target.pathname.slice(target.pathname.lastIndexOf('/')+1)||'index.html';
+    if(target.origin!==location.origin||!target.pathname.startsWith(base)||!allowed.has(file))return false;
+    location.replace(target.href);return true;
+  }
   const stamp=value=>new Date(value).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const stateLabel=state=>({open:'Abierta',closed:'Cerrada',expired:'Vencida'}[state]||'');
   for(const [parent,label,grade='Primero'] of [['partes-del-computador','Partes del computador'],['escritorio','El escritorio y sus iconos'],['instrucciones','Pasos e instrucciones'],['tecnologia','La tecnología en nuestra vida'],['programacion-flechas','Programamos con bloques y flechas'],['patrones-mensajes','Patrones y mensajes secretos'],['bucles','Acciones que se repiten'],['bucles-practica','Bucles en nuevas misiones'],['errores-programas','Detectives de programas'],['ciudadania-digital','Nos cuidamos en internet']]){
@@ -83,6 +91,7 @@
   async function select(id){selected=id;current=null;detailKey='';$('session-detail').innerHTML='<div class="session-loading" role="status"><span class="ui-spinner" aria-hidden="true"></span><p>Cargando los avances del grupo…</p></div>';history.replaceState(null,'',`${location.pathname}${location.search}#${id}`);renderList();await refreshDetail();schedule();}
   async function loadWorkspace(){
     const epoch=authEpoch,identity=await teacher('me/');if(epoch!==authEpoch)return;
+    if(returnToRequestedPage())return;
     user=identity;$('teacher-login').hidden=true;$('teacher-workspace').hidden=false;document.body.classList.add('is-authenticated');$('teacher-name').textContent=user.name;$('teacher-avatar').textContent=user.name.split(/\s+/).slice(0,2).map(word=>word[0]).join('').toLocaleUpperCase('es');notice();
     await refreshList();if(epoch!==authEpoch||!user)return;
     if(!sessions.some(item=>item.id===selected))selected=sessions[0]?.id||null;
