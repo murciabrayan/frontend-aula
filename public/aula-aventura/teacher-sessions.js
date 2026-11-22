@@ -4,12 +4,16 @@
   let user=null,sessions=[],selected=/^[a-f0-9-]{36}$/.test(location.hash.slice(1))?location.hash.slice(1):null,current=null,timer,noticeTimer,loadingId=null,detailSeq=0,detailKey='',authEpoch=0;
   const teacher=(path,options={})=>request(`/api/aula/${path}`,{...options,teacher:true});
   function returnToRequestedPage(){
-    const raw=new URLSearchParams(location.search).get('volver');if(!raw)return false;
-    const target=new URL(raw,location.href),base=location.pathname.slice(0,location.pathname.lastIndexOf('/')+1);
+    const params=new URLSearchParams(location.search),raw=params.get('volver');
+    const base=location.pathname.slice(0,location.pathname.lastIndexOf('/')+1);
     const allowed=new Set(['index.html','leccion.html','escritorio.html','instrucciones.html','tecnologia.html','programacion-flechas.html','continuacion-primero.html','continuacion-segundo.html','continuacion-tercero.html','proyecto.html']);
-    const file=target.pathname.slice(target.pathname.lastIndexOf('/')+1)||'index.html';
-    if(target.origin!==location.origin||!target.pathname.startsWith(base)||!allowed.has(file))return false;
-    location.replace(target.href);return true;
+    if(raw){
+      const target=new URL(raw,location.href),file=target.pathname.slice(target.pathname.lastIndexOf('/')+1)||'index.html';
+      if(target.origin===location.origin&&target.pathname.startsWith(base)&&allowed.has(file)){location.replace(target.href);return true;}
+    }
+    const explicitSessions=params.get('panel')==='sesiones'||params.has('crear')||/^[a-f0-9-]{36}$/.test(location.hash.slice(1));
+    if(explicitSessions)return false;
+    location.replace('index.html#/grados');return true;
   }
   const stamp=value=>new Date(value).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const stateLabel=state=>({open:'Abierta',closed:'Cerrada',expired:'Vencida'}[state]||'');
