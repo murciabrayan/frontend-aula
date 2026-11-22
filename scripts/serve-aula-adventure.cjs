@@ -19,9 +19,14 @@ const server = http.createServer((req, res) => {
     req.on('aborted',()=>upstream.destroy());req.pipe(upstream);return;
   }
   if (!['GET', 'HEAD'].includes(req.method)) { res.writeHead(405, { Allow: 'GET, HEAD' }); res.end(); return; }
-  let pathname;
-  try { pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname); } catch { res.writeHead(400); res.end(); return; }
-  const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
+  let requestURL, pathname;
+  try { requestURL = new URL(req.url, 'http://localhost'); pathname = decodeURIComponent(requestURL.pathname); } catch { res.writeHead(400); res.end(); return; }
+  if (pathname === '/aula-aventura') { res.writeHead(308, { Location: `/aula-aventura/${requestURL.search}` }); res.end(); return; }
+  if (pathname.endsWith('.html')) { res.writeHead(308, { Location: `${pathname.slice(0, -5)}${requestURL.search}` }); res.end(); return; }
+  let publicPath = pathname.startsWith('/aula-aventura/') ? pathname.slice('/aula-aventura'.length) : pathname;
+  if (publicPath === '/' || publicPath === '/grados' || /^\/grado\/[1-5](?:\/clase\/[a-z0-9-]+)?\/?$/.test(publicPath)) publicPath = '/index.html';
+  let file = path.resolve(root, '.' + publicPath);
+  if (!path.extname(publicPath) && fs.existsSync(`${file}.html`)) file = `${file}.html`;
   const relative = path.relative(root, file);
   if (relative.startsWith('..') || path.isAbsolute(relative)) { res.writeHead(403); res.end(); return; }
   fs.stat(file, (err, stat) => {
@@ -31,7 +36,7 @@ const server = http.createServer((req, res) => {
       'Content-Length': stat.size,
       'Cache-Control': 'no-cache',
       'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+      'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'",
     });
     if (req.method === 'HEAD') { res.end(); return; }
     const stream = fs.createReadStream(file);

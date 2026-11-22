@@ -2,6 +2,10 @@
 (() => {
   const root = document.documentElement;
   const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  const aulaMarker = '/aula-aventura/';
+  const markerIndex = location.pathname.indexOf(aulaMarker);
+  const aulaRoot = markerIndex >= 0 ? location.pathname.slice(0, markerIndex + aulaMarker.length) : location.pathname.slice(0, location.pathname.lastIndexOf('/') + 1);
+  const aulaURL = path => `${aulaRoot}${path.replace(/^\/+/, '')}`;
   const release = detail => {
     root.classList.remove('aula-auth-pending');
     installLogout();
@@ -23,7 +27,7 @@
     button.innerHTML = tools ? icon : `<span>Cerrar sesi\u00f3n</span>${icon}`;
     button.addEventListener('click', () => {
       clearCredentials();
-      location.replace('docente.html?acceso=aula');
+      location.replace(aulaURL('docente?acceso=aula'));
     });
     host.append(button);
   }
@@ -34,12 +38,14 @@
   }
 
   const returnPath = () => {
-    const file = location.pathname.slice(location.pathname.lastIndexOf('/') + 1) || 'index.html';
-    return `${file}${location.search}${location.hash}`;
+    if (location.hash.startsWith('#/')) return location.hash.slice(2);
+    let path = location.pathname.startsWith(aulaRoot) ? location.pathname.slice(aulaRoot.length) : '';
+    if (!path || /^index(?:\.html)?\/?$/.test(path)) path = 'grados';
+    return `${path}${location.search}${location.hash}`;
   };
   const login = () => {
     const query = new URLSearchParams({ acceso: 'aula', volver: returnPath() });
-    location.replace(`docente.html?${query}`);
+    location.replace(aulaURL(`docente?${query}`));
   };
   const clearCredentials = () => {
     ['access_token', 'refresh_token', 'user'].forEach(key => localStorage.removeItem(key));

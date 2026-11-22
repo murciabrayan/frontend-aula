@@ -6,14 +6,15 @@
   function returnToRequestedPage(){
     const params=new URLSearchParams(location.search),raw=params.get('volver');
     const base=location.pathname.slice(0,location.pathname.lastIndexOf('/')+1);
-    const allowed=new Set(['index.html','leccion.html','escritorio.html','instrucciones.html','tecnologia.html','programacion-flechas.html','continuacion-primero.html','continuacion-segundo.html','continuacion-tercero.html','proyecto.html']);
+    const allowed=new Set(['grados','leccion','escritorio','instrucciones','tecnologia','programacion-flechas','continuacion-primero','continuacion-segundo','continuacion-tercero','proyecto']);
     if(raw){
-      const target=new URL(raw,location.href),file=target.pathname.slice(target.pathname.lastIndexOf('/')+1)||'index.html';
-      if(target.origin===location.origin&&target.pathname.startsWith(base)&&allowed.has(file)){location.replace(target.href);return true;}
+      const target=new URL(raw,location.href),relative=target.pathname.startsWith(base)?target.pathname.slice(base.length).replace(/\.html$/,''):'';
+      const catalog=/^grado\/[1-5](?:\/clase\/[a-z0-9-]+)?\/?$/.test(relative);
+      if(target.origin===location.origin&&target.pathname.startsWith(base)&&(allowed.has(relative)||catalog)){location.replace(target.href.replace(/\.html(?=[?#]|$)/,''));return true;}
     }
     const explicitSessions=params.get('panel')==='sesiones'||params.has('crear')||/^[a-f0-9-]{36}$/.test(location.hash.slice(1));
     if(explicitSessions)return false;
-    location.replace('index.html#/grados');return true;
+    location.replace('grados');return true;
   }
   const stamp=value=>new Date(value).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const stateLabel=state=>({open:'Abierta',closed:'Cerrada',expired:'Vencida'}[state]||'');
@@ -64,7 +65,7 @@
     $('session-list').innerHTML=sessions.length?sessions.map(item=>`<button type="button" class="session-list-button" data-session="${item.id}" aria-current="${item.id===selected}"><span class="list-session-icon">${icon('book')}</span><span class="session-list-copy"><strong>${escape(item.group_name)}</strong><small>${escape(item.activity.title)}</small><span class="session-list-meta"><span class="session-state-dot ${item.state==='open'?'':'is-closed'}"></span>${stateLabel(item.state)} · ${stamp(item.created_at)}</span></span></button>`).join(''):'<p class="list-empty">Aquí encontrarás las sesiones que compartas con tus grupos.</p>';
   }
   async function refreshList(){const epoch=authEpoch,result=await teacher('sessions/');if(epoch!==authEpoch||!user)return;sessions=result;renderList();}
-  function shareLink(item){const url=new URL('alumno.html',location.href);url.hash=item.join_token;return url.href;}
+  function shareLink(item){const url=new URL('alumno',location.href);url.hash=item.join_token;return url.href;}
   function renderDetail(item){
     const key=`${item.id}:${item.state}`;
     if(detailKey!==key){

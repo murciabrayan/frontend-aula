@@ -8,6 +8,7 @@
   }
   const dialog = $('class-dialog');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const basePath = new URL(document.baseURI).pathname.replace(/\/?$/, '/');
   let viewKey = '', closeTimer, restoreRoute='';
   const escape = value => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
   const svg = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
@@ -70,8 +71,11 @@
     }
     return illustration(part.illustration);
   }
+  const routeURL = path => `${basePath}${path.replace(/^\/+/, '')}`;
   function currentRoute() {
-    const path = location.hash.slice(1) || '/grados';
+    const legacyPath = location.hash.startsWith('#/') ? location.hash.slice(1) : '';
+    const relativePath = location.pathname.startsWith(basePath) ? location.pathname.slice(basePath.length) : '';
+    const path = legacyPath || (relativePath && !/^index(?:\.html)?\/?$/.test(relativePath) ? `/${relativePath}` : '/grados');
     const match = path.match(/^\/grado\/([1-5])(?:\/clase\/([a-z0-9-]+))?\/?$/);
     if (!match) return { path: '/grados', grade: null, item: null };
     const grade = grades.find(item => item.id === match[1]);
@@ -80,12 +84,12 @@
   }
   function navigate(path, replace = false) {
     const isModal = path.includes('/clase/');
-    history[replace ? 'replaceState' : 'pushState']({ catalogModal: isModal && !replace }, '', `#${path}`);
+    history[replace ? 'replaceState' : 'pushState']({ catalogModal: isModal && !replace }, '', routeURL(path));
     renderRoute(true);
   }
   function breadcrumb(grade) {
     $('breadcrumbs').innerHTML = grade
-      ? `<a href="#/grados" data-route="/grados">${svg('<path d="m9 5-7 7 7 7m-7-7h20"/>')} Todos los grados</a><span class="breadcrumb-divider" aria-hidden="true">/</span><span aria-current="page">${escape(grade.name)}</span>`
+      ? `<a href="${routeURL('/grados')}" data-route="/grados">${svg('<path d="m9 5-7 7 7 7m-7-7h20"/>')} Todos los grados</a><span class="breadcrumb-divider" aria-hidden="true">/</span><span aria-current="page">${escape(grade.name)}</span>`
       : '<span aria-current="page">Informática</span>';
   }
   function showGrades() {
@@ -94,7 +98,7 @@
     $('page-description').textContent = 'Elige el grado para ver sus clases de informática.';
     $('catalog-content').innerHTML = `<div class="grade-grid">${grades.map(grade => {
       const available = grade.classes.filter(item => item.available).length;
-      return `<a class="grade-card tone-${grade.tone}" href="#/grado/${grade.id}" data-route="/grado/${grade.id}" aria-label="Ver las clases de ${escape(grade.name)}">
+      return `<a class="grade-card tone-${grade.tone}" href="${routeURL(`/grado/${grade.id}`)}" data-route="/grado/${grade.id}" aria-label="Ver las clases de ${escape(grade.name)}">
         <span class="grade-number" aria-hidden="true">${grade.id}<sup>º</sup></span>
         <h2>${escape(grade.name)}</h2><p>${escape(grade.description)}</p>
         <span class="grade-card-footer"><span>${available ? `${available} ${available===1?'clase disponible':'clases disponibles'}` : 'En preparación'}</span><span class="card-arrow" aria-hidden="true">→</span></span>
@@ -117,7 +121,7 @@
         <div class="class-card-top"><span class="class-number">CLASE ${String(index + 1).padStart(2, '0')}</span>${item.available ? '<span class="availability">Disponible</span>' : ''}</div>
         ${image}<h2 id="title-${escape(item.id)}">${escape(item.title)}</h2><p>${escape(item.description)}</p>
         <div class="class-card-bottom">${item.available
-          ? `<span class="part-count">${item.parts.length} partes</span><a class="open-parts" href="#${path}" data-route="${path}" aria-label="Ver las partes de ${escape(item.title)}">Ver partes <span aria-hidden="true">→</span></a>`
+          ? `<span class="part-count">${item.parts.length} partes</span><a class="open-parts" href="${routeURL(path)}" data-route="${path}" aria-label="Ver las partes de ${escape(item.title)}">Ver partes <span aria-hidden="true">→</span></a>`
           : '<span>En preparación</span><span aria-hidden="true">✦</span>'}</div>
       </article>`;
     }).join('')}</div>`;
@@ -143,7 +147,7 @@
     $('offline-class-material').href=offlineAvailable?`materiales-sin-conexion/${grade.name.toLowerCase()}-${classNumber}-${item.id}.pdf`:'#';
     $('offline-class-material').download=offlineAvailable?`guia-${grade.name.toLowerCase()}-${classNumber}-${item.id}.pdf`:'';
     $('share-class-activity').hidden=!item.finalActivity;
-    if(item.finalActivity)$('share-class-activity').href=`docente.html?crear=${encodeURIComponent(item.id)}`;
+    if(item.finalActivity)$('share-class-activity').href=`docente?crear=${encodeURIComponent(item.id)}`;
     if (!dialog.open) {
       dialog.scrollTop = 0;
       dialog.showModal();
@@ -151,7 +155,8 @@
   }
   function renderRoute(focus = false) {
     const route = currentRoute();
-    if (location.hash !== `#${route.path}`) history.replaceState(null, '', `#${route.path}`);
+    const canonicalPath = routeURL(route.path);
+    if (location.pathname !== canonicalPath || location.hash) history.replaceState(history.state, '', canonicalPath);
     const key = route.grade ? `grade-${route.grade.id}` : 'grades';
     const changed = key !== viewKey;
     if (changed) {
@@ -194,10 +199,9 @@
     const link = event.target.closest('a[data-route]');
     if (!link || event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    if (location.hash !== `#${link.dataset.route}`) navigate(link.dataset.route);
+    if (currentRoute().path !== link.dataset.route) navigate(link.dataset.route);
   });
   document.querySelector('.skip-link').addEventListener('click', event => { event.preventDefault(); $('catalog-main').focus(); });
   window.addEventListener('popstate', () => renderRoute());
-  window.addEventListener('hashchange', () => renderRoute());
   renderRoute();
 })();

@@ -240,8 +240,8 @@
     document.querySelectorAll('[data-class-loading]').forEach(node => { node.textContent = selected.loading; });
     document.querySelectorAll('[data-class-closing]').forEach(node => { node.textContent = selected.closing; });
     document.querySelectorAll('[data-class-summary]').forEach(node => { node.textContent = selected.summary; });
-    document.querySelectorAll('[data-class-back]').forEach(node => { node.href = `./#/grado/1/clase/${meta.slug}`; });
-    document.querySelectorAll('[data-class-create]').forEach(node => { node.href = `docente.html?crear=${encodeURIComponent(meta.slug)}`; });
+    document.querySelectorAll('[data-class-back]').forEach(node => { node.href = `grado/1/clase/${meta.slug}`; });
+    document.querySelectorAll('[data-class-create]').forEach(node => { node.href = `docente?crear=${encodeURIComponent(meta.slug)}`; });
     const guide = document.getElementById('dynamic-guide-list');
     if (guide) guide.innerHTML = selected.guide.map(item => `<li>${item}</li>`).join('');
   }
