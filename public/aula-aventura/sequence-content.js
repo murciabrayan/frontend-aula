@@ -1,6 +1,6 @@
 'use strict';
 window.ComputerClass={
-  version:'INF-1-C03-v2',meta:{title:'Pasos e instrucciones',ordinal:'Tercera',slug:'instrucciones'},pictures:window.ComputerClass.pictures,
+  version:'INF-1-C03-v2',meta:{title:'Algoritmos',ordinal:'Cuarta',slug:'instrucciones'},pictures:window.ComputerClass.pictures,
   assets:['assets/sequence-stories-v2.png','assets/sequence-plant-v1.png','assets/learning-pictures-v1.png','assets/animals-v3.png'],
   parts:[
     {id:'orden',name:'Pasos y orden',short:'Orden',steps:[

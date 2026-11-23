@@ -6,11 +6,18 @@ const crypto = require('node:crypto');
 const project = path.resolve(__dirname, '..');
 const source = path.join(project, 'public', 'aula-aventura');
 const output = path.join(project, 'dist-aula-aventura');
+const publishedFirstGradeGuides = new Set([
+  'primero-01-exploradores-digitales.pdf', 'primero-02-partes-del-computador.pdf',
+  'primero-03-tecnologia.pdf', 'primero-04-instrucciones.pdf',
+  'primero-05-programacion-flechas.pdf', 'primero-06-patrones-mensajes.pdf',
+  'primero-07-bucles.pdf', 'primero-08-bucles-practica.pdf',
+  'primero-09-errores-programas.pdf', 'primero-10-ciudadania-digital.pdf',
+]);
 const offlineMaterials = fs.readdirSync(path.join(source, 'materiales-sin-conexion'))
   // El corte publico actual contiene solamente las guias de grado primero.
   // Las guias de los demas grados permanecen en el repositorio para futuros
   // lanzamientos, pero no deben terminar en el artefacto de demostracion.
-  .filter(file => /^primero-.*\.pdf$/i.test(file))
+  .filter(file => publishedFirstGradeGuides.has(file))
   .sort()
   .map(file => `materiales-sin-conexion/${file}`);
 const files = [
@@ -19,6 +26,7 @@ const files = [
   'lesson-challenges.js', 'lesson-challenges.css',
   'aula-config.js', 'session-api.js', 'teacher-access.js', 'session-ui.js', 'activity-content.js', 'sessions.css',
   'docente.html', 'teacher-sessions.js', 'alumno.html', 'student-session.js',
+  'exploradores.html', 'exploradores-content.js', 'exploradores-games.js', 'exploradores.css',
   'escritorio.html', 'desktop-content.js', 'desktop-lab.js', 'desktop-games.js', 'desktop.css', 'final-activities.js', 'part-activities.js', 'assets/desktop-icons-v1.png',
   'tecnologia.html', 'technology-content.js', 'technology-engine.js', 'technology-scenarios.js', 'technology-games.js', 'technology-messages.js', 'technology-demonstrations.js', 'technology-activities.js', 'technology.css', 'assets/technology-objects-v1.png', 'assets/technology-nature-v1.png',
   'programacion-flechas.html', 'programming-first-content.js', 'programming-first-engine.js', 'programming-first-games.js', 'programming-first-demonstrations.js', 'programming-first-activities.js', 'programming-first.css', 'assets/programming-journey-v1.png',

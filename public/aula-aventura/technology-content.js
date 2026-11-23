@@ -1,5 +1,5 @@
 'use strict';
-window.ComputerClass={version:'INF-1-C04-v1',meta:{title:'La tecnología en nuestra vida',ordinal:'Cuarta',slug:'tecnologia'},pictures:window.ComputerClass.pictures,
+window.ComputerClass={version:'INF-1-C04-v1',meta:{title:'Tecnología y evolución',ordinal:'Tercera',slug:'tecnologia'},pictures:window.ComputerClass.pictures,
   assets:['assets/technology-objects-v1.png','assets/technology-nature-v1.png','assets/learning-pictures-v1.png','assets/animals-v3.png'],
   parts:[
     {id:'objetos',name:'Naturaleza y objetos creados',short:'Objetos',steps:[

@@ -2,7 +2,7 @@
 
 window.ComputerClass = {
   version: 'INF-1-C05-v1',
-  meta: { title: 'Programamos con bloques y flechas', ordinal: 'Quinta', slug: 'programacion-flechas' },
+  meta: { title: 'Bloques de dirección', ordinal: 'Quinta', slug: 'programacion-flechas' },
   pictures: window.ComputerClass.pictures,
   assets: ['assets/programming-journey-v1.png', 'assets/owl-atlas.png'],
   parts: [

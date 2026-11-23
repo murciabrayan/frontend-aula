@@ -10,7 +10,7 @@
   const classes = {
     'patrones-mensajes': {
       version: 'INF-1-C06-v1',
-      meta: { title: 'Patrones y mensajes secretos', ordinal: 'Sexta', slug: 'patrones-mensajes', number: '06' },
+      meta: { title: 'Patrones', ordinal: 'Sexta', slug: 'patrones-mensajes', number: '06' },
       intro: 'Descubrimos reglas que se repiten, completamos secuencias y usamos una clave visible para representar mensajes.',
       loading: 'Preparando secuencias, fichas y claves.',
       closing: '¡Reglas y mensajes completados!',
@@ -52,7 +52,7 @@
 
     'bucles': {
       version: 'INF-1-C07-v1',
-      meta: { title: 'Acciones que se repiten', ordinal: 'Séptima', slug: 'bucles', number: '07' },
+      meta: { title: 'Bucles', ordinal: 'Séptima', slug: 'bucles', number: '07' },
       intro: 'Reconocemos instrucciones repetidas y usamos un bloque Repetir para construir programas más cortos y claros.',
       loading: 'Preparando repeticiones y recorridos.',
       closing: '¡Primeros bucles completados!',
@@ -94,7 +94,7 @@
 
     'bucles-practica': {
       version: 'INF-1-C08-v1',
-      meta: { title: 'Bucles en nuevas misiones', ordinal: 'Octava', slug: 'bucles-practica', number: '08' },
+      meta: { title: 'Más ejercicios con bucles', ordinal: 'Octava', slug: 'bucles-practica', number: '08' },
       intro: 'Aplicamos repeticiones en el planeta, el espacio, los deportes y el cuidado de animales; cada contexto cambia el problema.',
       loading: 'Preparando misiones del planeta y el espacio.',
       closing: '¡Bucles aplicados en nuevas misiones!',
@@ -136,7 +136,7 @@
 
     'errores-programas': {
       version: 'INF-1-C09-v1',
-      meta: { title: 'Detectives de programas', ordinal: 'Novena', slug: 'errores-programas', number: '09' },
+      meta: { title: 'Seguimos practicando', ordinal: 'Novena', slug: 'errores-programas', number: '09' },
       intro: 'Comparamos lo esperado con lo observado, seguimos trazas y corregimos dirección, orden o cantidad.',
       loading: 'Preparando pistas, trazas y programas.',
       closing: '¡Programas investigados y reparados!',
@@ -178,7 +178,7 @@
 
     'ciudadania-digital': {
       version: 'INF-1-C10-v1',
-      meta: { title: 'Nos cuidamos en internet', ordinal: 'Décima', slug: 'ciudadania-digital', number: '10' },
+      meta: { title: 'Ciudadanía digital', ordinal: 'Décima', slug: 'ciudadania-digital', number: '10' },
       intro: 'Reconocemos datos personales, identificamos adultos de confianza y practicamos detenernos, cerrar y pedir ayuda.',
       loading: 'Preparando historias y decisiones seguras.',
       closing: '¡Plan de cuidado digital completado!',

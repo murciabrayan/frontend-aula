@@ -142,10 +142,11 @@
       </a></li>`).join('');
     $('open-class').href = item.href;
     const classNumber=String(grade.classes.indexOf(item)+1).padStart(2,'0');
-    const offlineAvailable=['1','2','3'].includes(grade.id);
+    const offlineAvailable=!!item.offline||['1','2','3'].includes(grade.id);
     $('offline-class-material').hidden=!offlineAvailable;
-    $('offline-class-material').href=offlineAvailable?`materiales-sin-conexion/${grade.name.toLowerCase()}-${classNumber}-${item.id}.pdf`:'#';
-    $('offline-class-material').download=offlineAvailable?`guia-${grade.name.toLowerCase()}-${classNumber}-${item.id}.pdf`:'';
+    const offlineFile=item.offline||`${grade.name.toLowerCase()}-${classNumber}-${item.id}.pdf`;
+    $('offline-class-material').href=offlineAvailable?`materiales-sin-conexion/${offlineFile}`:'#';
+    $('offline-class-material').download=offlineAvailable?`guia-${offlineFile}`:'';
     $('share-class-activity').hidden=!item.finalActivity;
     if(item.finalActivity)$('share-class-activity').href=`docente?crear=${encodeURIComponent(item.id)}`;
     if (!dialog.open) {

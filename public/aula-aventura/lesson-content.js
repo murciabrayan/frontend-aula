@@ -52,3 +52,22 @@ window.ComputerClass = {
     ] },
   ],
 };
+
+// Verified curriculum: this class is now dedicated to the real use of the
+// mouse and keyboard. The former screen-only block is no longer part of the
+// published route; the existing polished practices are grouped into the four
+// moments requested by the teachers.
+(() => {
+  const source = window.ComputerClass.parts;
+  const mouse = source.find(part => part.id === 'mouse');
+  const keyboard = source.find(part => part.id === 'keyboard');
+  const review = source.find(part => part.id === 'repaso');
+  window.ComputerClass.version = 'INF-1-MOUSE-KEYBOARD-v2';
+  window.ComputerClass.meta = {title:'Uso del teclado y del mouse',ordinal:'Segunda',slug:'partes-del-computador'};
+  window.ComputerClass.parts = [
+    {id:'monitor',name:'Mouse',short:'Mouse',steps:[...mouse.steps.slice(0,5),mouse.steps[6]]},
+    {id:'mouse',name:'Mouse: segunda parte',short:'Mouse 2',steps:[mouse.steps[5],...mouse.steps.slice(7)]},
+    {id:'keyboard',name:'Teclado',short:'Teclado',steps:[...keyboard.steps.slice(0,4),keyboard.steps[5]]},
+    {id:'repaso',name:'Teclado: segunda parte',short:'Teclado 2',steps:[keyboard.steps[4],...keyboard.steps.slice(6),...review.steps]},
+  ];
+})();

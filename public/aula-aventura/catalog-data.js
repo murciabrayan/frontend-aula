@@ -7,66 +7,67 @@ window.ClassroomCatalog = {
   releasedGrades: ['1'],
   grades: [
     { id: '1', name: 'Primero', tone: 'honey', description: 'Conocer y descubrir.', classes: [
-      { id: 'partes-del-computador', title: 'Partes del computador', description: 'Conozcamos la pantalla, el mouse y el teclado, y para qué sirve cada uno.', available: true, illustration: 'computer', href: 'leccion', finalActivity: true, parts: [
-        { id: 'monitor', title: 'La pantalla', description: 'Imágenes, palabras y animaciones. Observamos y buscamos parejas.', illustration: 'monitor' },
-        { id: 'mouse', title: 'El mouse', description: 'Botones, rueda y arrastre. Dibujamos por puntos y reconstruimos ilustraciones.', illustration: 'mouse' },
-        { id: 'keyboard', title: 'El teclado', description: 'Letras, números, Espacio, Retroceso y flechas. Escribimos y corregimos.', illustration: 'keyboard' },
-        { id: 'repaso', title: 'Repaso final', description: 'Cuatro desafíos nuevos: puzle, dibujo, recorrido y creación de una escena.', illustration: 'review' },
+      { id: 'exploradores-digitales', title: 'Exploradores digitales', description: 'Aprendemos a ingresar, cuidar nuestra contraseña, reconocer nuestro espacio digital y guardar trabajos.', available: true, illustration: 'desktop', href: 'exploradores', offline:'primero-01-exploradores-digitales.pdf', finalActivity: true, parts: [
+        { id: 'inicio-sesion', title: 'Tutorial: iniciar sesión', description: 'Usuario, contraseña e ingreso con datos ficticios de práctica.', illustration: 'keyboard' },
+        { id: 'rincon-digital', title: 'Mi rincón digital', description: 'Conocemos el escritorio, sus iconos, carpetas y programas.', illustration: 'desktop' },
+        { id: 'artistas-digitales', title: 'Artistas digitales', description: 'Elegimos herramientas para dibujar, corregir y crear.', illustration: 'computer' },
+        { id: 'guardar-tesoros', title: 'Guardar tesoros', description: 'Nombramos, guardamos y volvemos a encontrar nuestros trabajos.', illustration: 'review' },
       ] },
-      { id: 'escritorio', title: 'El escritorio y sus iconos', description: 'Abrimos programas, manejamos ventanas y volvemos a encontrar un dibujo guardado.', available: true, illustration: 'desktop', href: 'escritorio', finalActivity: true, parts: [
-        {id:'escritorio',title:'El escritorio',description:'Zonas, fondo e iconos. Encontramos lo que necesitamos y cambiamos su lugar.',illustration:'desktop'},
-        {id:'programas',title:'Iconos y programas',description:'Seleccionamos, abrimos herramientas, dibujamos y distinguimos carpetas y trabajos.',illustration:'blocks'},
-        {id:'ventanas',title:'Ventanas y trabajos',description:'Movemos, minimizamos y recuperamos ventanas. Guardamos y buscamos archivos.',illustration:'messages'},
-        {id:'repaso',title:'Mi primer escritorio de trabajo',description:'Cuatro desafíos que terminan al crear, guardar y volver a abrir un dibujo propio.',illustration:'review'},
+      { id: 'partes-del-computador', title: 'Uso del teclado y del mouse', description: 'Practicamos clic, doble clic, arrastre, rueda y las teclas que usamos para escribir y movernos.', available: true, illustration: 'computer', href: 'leccion', offline:'primero-02-partes-del-computador.pdf', finalActivity: true, parts: [
+        { id: 'monitor', title: 'Mouse', description: 'Reconocemos sus partes y practicamos clic izquierdo, clic derecho y rueda.', illustration: 'mouse' },
+        { id: 'mouse', title: 'Mouse: segunda parte', description: 'Seleccionamos, arrastramos y usamos el doble clic en actividades guiadas.', illustration: 'mouse' },
+        { id: 'keyboard', title: 'Teclado', description: 'Encontramos letras, números, Espacio, Enter, Retroceso y flechas.', illustration: 'keyboard' },
+        { id: 'repaso', title: 'Teclado: segunda parte', description: 'Escribimos, corregimos y completamos recorridos usando el teclado real.', illustration: 'keyboard' },
       ] },
-      { id: 'instrucciones', title: 'Pasos e instrucciones', description: 'Ordenamos acciones, damos instrucciones claras y probamos y corregimos recorridos.', available: true, illustration: 'sequence', href: 'instrucciones', finalActivity: true, parts: [
- {id:'orden',title:'Pasos y orden',description:'Historias ilustradas, antes y después, tarjetas que se ordenan y pasos que faltan.',illustration:'sequence'},
- {id:'claridad',title:'Instrucciones claras',description:'Acción, objeto, lugar, dirección y cantidad. Ejecutamos para comprobar.',illustration:'messages'},
- {id:'prueba',title:'Probamos y corregimos',description:'Planeamos con flechas, observamos el resultado y reparamos instrucciones.',illustration:'blocks'},
- {id:'repaso',title:'Ordenamos, indicamos y comprobamos',description:'Cuatro desafíos para reunir lo aprendido y explicar una solución.',illustration:'review'},
- ] },
-      {id:'tecnologia',title:'La tecnología en nuestra vida',description:'Reconocemos objetos, probamos herramientas y compartimos información con dibujos y mensajes.',available:true,illustration:'technology',href:'tecnologia',finalActivity:true,parts:[
+      {id:'tecnologia',title:'Tecnología y evolución',description:'Reconocemos objetos, probamos herramientas y comprendemos cómo la tecnología cambia para resolver necesidades.',available:true,illustration:'technology',href:'tecnologia',offline:'primero-03-tecnologia.pdf',finalActivity:true,parts:[
         {id:'objetos',title:'Naturaleza y objetos creados',description:'Diferenciamos el origen de los objetos y reconstruimos inventos con puzles ilustrados.',illustration:'computer'},
         {id:'necesidades',title:'Inventos y necesidades',description:'Protegemos, transportamos, escribimos y probamos distintas fuentes de luz.',illustration:'blocks'},
         {id:'informacion',title:'Compartimos información',description:'Elegimos medios, conectamos destinatarios y reparamos mensajes con dibujos.',illustration:'messages'},
         {id:'repaso',title:'Tecnología para resolver y comunicar',description:'Creamos una señal, la compartimos y preparamos un rincón para leer sin corriente.',illustration:'review'},
       ]},
-      {id:'programacion-flechas',title:'Programamos con bloques y flechas',description:'Construimos programas, ejecutamos recorridos y usamos la traza para encontrar y corregir errores.',available:true,illustration:'blocks',href:'programacion-flechas',finalActivity:true,parts:[
+      { id: 'instrucciones', title: 'Algoritmos', description: 'Ordenamos acciones, damos instrucciones claras y probamos y corregimos recorridos.', available: true, illustration: 'sequence', href: 'instrucciones', offline:'primero-04-instrucciones.pdf', finalActivity: true, parts: [
+ {id:'orden',title:'Pasos y orden',description:'Historias ilustradas, antes y después, tarjetas que se ordenan y pasos que faltan.',illustration:'sequence'},
+ {id:'claridad',title:'Instrucciones claras',description:'Acción, objeto, lugar, dirección y cantidad. Ejecutamos para comprobar.',illustration:'messages'},
+ {id:'prueba',title:'Probamos y corregimos',description:'Planeamos con flechas, observamos el resultado y reparamos instrucciones.',illustration:'blocks'},
+ {id:'repaso',title:'Ordenamos, indicamos y comprobamos',description:'Cuatro desafíos para reunir lo aprendido y explicar una solución.',illustration:'review'},
+ ] },
+      {id:'programacion-flechas',title:'Bloques de dirección',description:'Construimos programas, ejecutamos recorridos y usamos la traza para encontrar y corregir errores.',available:true,illustration:'blocks',href:'programacion-flechas',finalActivity:true,parts:[
         {id:'bloques',title:'Bloques que dan instrucciones',description:'Una flecha mueve una casilla. Leemos programas y predecimos dónde terminarán.',illustration:'blocks'},
         {id:'construimos',title:'Construimos y ejecutamos',description:'Creamos listas con botones o teclado, recogemos objetos y completamos entregas.',illustration:'sequence'},
         {id:'corregimos',title:'Probamos y corregimos',description:'Seguimos la traza, localizamos el primer error y comprobamos una reparación.',illustration:'messages'},
         {id:'repaso',title:'Misión final de programación',description:'Cuatro tableros nuevos para predecir, construir, recoger y reparar.',illustration:'review'},
       ]},
-      {id:'patrones-mensajes',title:'Patrones y mensajes secretos',description:'Descubrimos reglas, continuamos secuencias y usamos claves visibles para representar mensajes.',available:true,illustration:'repeat',href:'continuacion-primero?clase=patrones-mensajes',finalActivity:true,parts:[
+      {id:'patrones-mensajes',title:'Patrones',description:'Descubrimos reglas, continuamos secuencias y usamos claves visibles para representar mensajes.',available:true,illustration:'repeat',href:'continuacion-primero?clase=patrones-mensajes',finalActivity:true,parts:[
         {id:'patrones',title:'Descubrimos patrones',description:'Observamos colores, formas y movimientos para encontrar la unidad que se repite.',illustration:'repeat'},
         {id:'reglas',title:'Continuamos y reparamos reglas',description:'Completamos varios lugares, localizamos cambios y construimos patrones propios.',illustration:'sequence'},
         {id:'codigos',title:'Representamos mensajes con una clave',description:'Relacionamos letras y símbolos sin usar contraseñas ni datos reales.',illustration:'messages'},
         {id:'repaso',title:'Misión final de patrones',description:'Cuatro estaciones nuevas para continuar, reconocer, reparar y descifrar.',illustration:'review'},
       ]},
-      {id:'bucles',title:'Acciones que se repiten',description:'Convertimos listas repetidas en bloques Repetir y programamos recorridos más claros.',available:true,illustration:'repeat',href:'continuacion-primero?clase=bucles',finalActivity:true,parts:[
+      {id:'bucles',title:'Bucles',description:'Convertimos listas repetidas en bloques Repetir y programamos recorridos más claros.',available:true,illustration:'repeat',href:'continuacion-primero?clase=bucles',finalActivity:true,parts:[
         {id:'repeticion',title:'Descubrimos la repetición',description:'Reconocemos acciones iguales y comparamos una lista larga con un bucle.',illustration:'repeat'},
         {id:'bloque-repetir',title:'Conocemos el bloque Repetir',description:'Elegimos la acción y la cantidad, y desplegamos el bloque para comprobar.',illustration:'blocks'},
         {id:'programas',title:'Programamos recorridos con bucles',description:'Combinamos tramos repetidos, giros y correcciones de cantidad.',illustration:'sequence'},
         {id:'repaso',title:'Misión final de bucles',description:'Comprimimos, contamos, programamos y reparamos repeticiones.',illustration:'review'},
       ]},
-      {id:'bucles-practica',title:'Bucles en nuevas misiones',description:'Aplicamos repeticiones en el planeta, el espacio, los deportes y el cuidado de animales.',available:true,illustration:'repeat',href:'continuacion-primero?clase=bucles-practica',finalActivity:true,parts:[
+      {id:'bucles-practica',title:'Más ejercicios con bucles',description:'Aplicamos repeticiones en el planeta, el espacio, los deportes y el cuidado de animales.',available:true,illustration:'repeat',href:'continuacion-primero?clase=bucles-practica',finalActivity:true,parts:[
         {id:'predecimos',title:'Predecimos repeticiones',description:'Leemos Inicio, dirección, cantidad y obstáculos antes de ejecutar.',illustration:'sequence'},
         {id:'contextos',title:'Usamos bucles en otros contextos',description:'Resolvemos reciclaje, órbitas y rutinas deportivas con estructuras distintas.',illustration:'repeat'},
         {id:'adaptamos',title:'Adaptamos un programa',description:'Conservamos lo que funciona y cambiamos distancia, giro o meta.',illustration:'blocks'},
         {id:'repaso',title:'Circuito de repeticiones',description:'Transferimos los bucles a cuatro problemas nuevos.',illustration:'review'},
       ]},
-      {id:'errores-programas',title:'Detectives de programas',description:'Comparamos resultados, seguimos trazas y corregimos dirección, orden o cantidad.',available:true,illustration:'messages',href:'continuacion-primero?clase=errores-programas',finalActivity:true,parts:[
+      {id:'errores-programas',title:'Seguimos practicando',description:'Comparamos resultados, seguimos trazas y corregimos dirección, orden o cantidad.',available:true,illustration:'messages',href:'continuacion-primero?clase=errores-programas',finalActivity:true,parts:[
         {id:'observamos',title:'Observamos antes de cambiar',description:'Diferenciamos la meta esperada del resultado que realmente ocurrió.',illustration:'messages'},
         {id:'localizamos',title:'Seguimos la traza',description:'Encontramos el primer paso diferente y clasificamos el tipo de error.',illustration:'sequence'},
         {id:'corregimos',title:'Corregimos y comprobamos',description:'Hacemos un cambio pequeño y ejecutamos otra vez desde Inicio.',illustration:'blocks'},
         {id:'repaso',title:'Archivo de programas',description:'Investigamos cuatro programas con fallos diferentes.',illustration:'review'},
       ]},
-      {id:'ciudadania-digital',title:'Nos cuidamos en internet',description:'Protegemos datos, buscamos adultos de confianza y practicamos decisiones seguras.',available:true,illustration:'messages',href:'continuacion-primero?clase=ciudadania-digital',finalActivity:true,parts:[
+      {id:'ciudadania-digital',title:'Ciudadanía digital',description:'Protegemos datos, buscamos adultos de confianza y practicamos decisiones seguras.',available:true,illustration:'messages',href:'continuacion-primero?clase=ciudadania-digital',finalActivity:true,parts:[
         {id:'datos',title:'Protegemos nuestros datos',description:'Reconocemos información personal usando únicamente ejemplos ficticios.',illustration:'messages'},
         {id:'confianza',title:'Pedimos ayuda a personas de confianza',description:'Practicamos cómo contar lo ocurrido y buscar más de una persona disponible.',illustration:'computer'},
         {id:'decisiones',title:'Actuamos ante algo incómodo',description:'Nos detenemos, cerramos o nos alejamos y contamos a un adulto.',illustration:'sequence'},
         {id:'repaso',title:'Plan de cuidado digital',description:'Aplicamos el plan en cuatro historias sin compartir experiencias privadas.',illustration:'review'},
       ]},
+      {id:'alternativas-sin-gcompris',title:'Alternativas sin GCompris',description:'Actividades equivalentes para practicar cuando GCompris no esté disponible.',available:false,illustration:'computer',finalActivity:false,parts:[]},
     ] },
     { id: '2', name: 'Segundo', tone: 'sage', description: 'Probar y relacionar.', classes: [
       {id:'entorno-trabajo',title:'Nuestro espacio de trabajo digital',description:'Ingresamos con ejemplos ficticios, creamos una producción y organizamos archivos para recuperarlos.',available:true,illustration:'computer',art:['folder','paint'],href:'continuacion-segundo?clase=entorno-trabajo',finalActivity:true,parts:[

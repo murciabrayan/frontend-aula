@@ -3,6 +3,8 @@
   const $ = id => document.getElementById(id), root = $('adventure');
   const content = window.ComputerClass, games = window.ClassGames;
   const meta=content.meta||{title:'Partes del computador',ordinal:'Primera',slug:'partes-del-computador'};
+  const finishEyebrow=document.querySelector('#finish .eyebrow.light');
+  if(finishEyebrow&&meta.ordinal)finishEyebrow.textContent=`${meta.ordinal.toLocaleUpperCase('es')} CLASE · CIERRE`;
   const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)');
   const state = { mode:'loading',part:0,step:0,active:null,paused:false,reducedMotion:prefersReduced.matches,extended:false };
   const renderer = new window.AdventureRenderer($('world'),()=>state);
@@ -14,6 +16,23 @@
   const signal = () => stepController.signal;
   const on = (element,event,callback) => element.addEventListener(event,callback,{signal:signal()});
   const paused = () => state.paused || !!document.querySelector('dialog[open]');
+  const successDialog=document.createElement('dialog');
+  successDialog.className='kid-success-dialog';
+  successDialog.setAttribute('aria-labelledby','kid-success-title');
+  successDialog.innerHTML='<div class="kid-success-card"><div class="kid-success-owl" aria-hidden="true"><span class="picture pic-owl"></span></div><p class="kid-success-kicker">ACTIVIDAD COMPLETADA</p><h2 id="kid-success-title">¡Muy bien!</h2><div class="kid-success-message"></div><button type="button" class="kid-success-continue">Seguir con la clase →</button></div>';
+  document.body.append(successDialog);
+  successDialog.addEventListener('cancel',event=>event.preventDefault());
+  successDialog.querySelector('button').addEventListener('click',()=>{successDialog.close();nextStep();});
+  function showSuccess(activityTitle){
+    successDialog.querySelector('.kid-success-message').textContent=`Completaste «${activityTitle}». Ya puedes continuar.`;
+    if(!successDialog.open)successDialog.showModal();
+    successDialog.querySelector('button').focus({preventScroll:true});
+  }
+  function animateScreen(mode){
+    root.classList.remove('screen-enter','screen-enter-activity');void root.offsetWidth;
+    root.classList.add('screen-enter');if(mode==='challenge')root.classList.add('screen-enter-activity');
+    setTimeout(()=>root.classList.remove('screen-enter','screen-enter-activity'),520);
+  }
   function chime(kind='tap') {
     if(!sound)return;
     try {
@@ -33,6 +52,7 @@
   }
   function celebrate(){renderer.setMood('success');renderer.burst();chime('success');}
   function setMode(mode) {
+    if(successDialog.open)successDialog.close();
     $('share-final').hidden=true;
     $('start-class-activity').hidden=true;$('activity-choice-note').hidden=true;
     stepController?.abort();stepController=new AbortController();state.mode=mode;root.dataset.mode=mode;
@@ -79,7 +99,7 @@
       games.mount(step.game,$('activity-board'),{
         store:activityStates.get(step.id),extended:state.extended,signal:signal(),paused,feedback,celebrate,sound:chime,isSoundEnabled:()=>sound,
         restart:()=>{activityStates.delete(step.id);completed.delete(step.id);showStep(state.part,state.step,false);},
-        complete:()=>{completed.add(step.id);updateNext();navigation();$('lesson-feedback').textContent='¡Reto completado! Continúa cuando el grupo esté preparado.';$('lesson-feedback').classList.remove('feedback-pop');void $('lesson-feedback').offsetWidth;$('lesson-feedback').classList.add('feedback-pop');},
+        complete:()=>{const firstCompletion=!completed.has(step.id);completed.add(step.id);updateNext();navigation();$('lesson-feedback').textContent='Actividad completada. Pulsa Seguir con la clase.';$('lesson-feedback').classList.remove('feedback-pop');void $('lesson-feedback').offsetWidth;$('lesson-feedback').classList.add('feedback-pop');if(firstCompletion)showSuccess(step.title);},
       });
       if(focus)$('activity-title').focus({preventScroll:true});
     }else{
@@ -88,7 +108,7 @@
       if(focus)$('story-title').focus({preventScroll:true});
       renderDemo(step);
     }
-    renderer.setMood('wave');renderer.measure();
+    renderer.setMood('wave');renderer.measure();animateScreen(state.mode);
     if(focus&&matchMedia('(max-width:760px)').matches)window.scrollTo({top:0,behavior:'instant'});
   }
   function nextStep(){const part=content.parts[state.part];if(current().game&&!completed.has(current().id))return;if(state.step+1<part.steps.length)showStep(state.part,state.step+1);else if(state.part+1<content.parts.length)showStep(state.part+1,0);else finishClass();}
@@ -142,7 +162,8 @@
   }
   function renderDemo(step){
     demoStates.has(step.id)||demoStates.set(step.id,{});const store=demoStates.get(step.id),demo=$('demo');demo.innerHTML='';
-    if(step.demo?.startsWith('second-grade-')){window.SecondGradeLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
+      if(step.demo?.startsWith('explorer-')){window.ExplorerLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
+      if(step.demo?.startsWith('second-grade-')){window.SecondGradeLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
     if(step.demo?.startsWith('first-path-')){window.FirstPathLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
     if(step.demo?.startsWith('project-')){window.ProjectLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
     if(step.demo?.startsWith('programming-')){window.ProgrammingFirstLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}

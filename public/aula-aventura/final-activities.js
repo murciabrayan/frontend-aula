@@ -1,6 +1,17 @@
 'use strict';
 // Stable published versions: old sessions keep their original activity and goals.
 window.ClassFinalActivities={
+  'INF-1-EXP-final-v1':{
+    lesson:'exploradores-digitales',game:'exploradores-final',requiresDesktop:true,stations:['password','login','desktop-find','desktop-project'],
+    preview:{title:'Misión de Exploradores digitales',challenges:['Comprobar una contraseña ficticia','Ingresar con datos de práctica','Encontrar un programa','Crear, guardar y recuperar un dibujo']},
+    evidence(index,s){
+      if(index===0)return{models:(s.round??-1)+1,checked:!!s.looked};
+      if(index===1)return{login:!!s.complete};
+      if(index===2)return{found:s.round||0};
+      const p=s.lab?.project,copy=p?.saved;
+      return{drawn:!!copy?.strokes?.some(stroke=>stroke.points.length>2),stamps:Math.min(2,copy?.stamps?.length||0),titled:!!copy?.title?.trim(),saved:!!copy,recovered:!!p?.recovered};
+    },
+  },
   'INF-1-C01-final-v3':{
     lesson:'partes-del-computador',game:'final',stations:['puzzle','drawing','maze','creation'],
     preview:{title:'Practiquemos con el computador',challenges:['Puzle del computador','Dibujo del ave','Laberinto con flechas','Creación de una escena']},
