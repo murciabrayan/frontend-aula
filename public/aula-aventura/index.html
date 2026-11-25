@@ -13,12 +13,24 @@
   <link rel="stylesheet" href="catalog.css">
   <link rel="stylesheet" href="contrast.css">
   <link rel="stylesheet" href="sessions.css">
-  <link rel="stylesheet" href="desktop.css"><link rel="stylesheet" href="sequence.css"><link rel="stylesheet" href="technology.css"><link rel="stylesheet" href="project.css"><link rel="stylesheet" href="programming-first.css"><link rel="stylesheet" href="first-path.css"><link rel="stylesheet" href="second-grade.css">
+  <link rel="stylesheet" href="desktop.css"><link rel="stylesheet" href="sequence.css"><link rel="stylesheet" href="technology.css"><link rel="stylesheet" href="programming-first.css"><link rel="stylesheet" href="first-path.css"><link rel="stylesheet" href="exploradores.css">
   <script defer src="aula-config.js"></script><script defer src="session-api.js"></script><script defer src="teacher-access.js"></script>
+  <script defer src="first-grade-curriculum.js"></script>
   <script defer src="catalog-data.js"></script>
   <script defer src="catalog.js"></script>
 </head>
 <body>
+  <section id="aula-access-screen" aria-labelledby="aula-access-title">
+    <div class="access-check-card">
+      <img src="assets/school-logo.png" width="62" height="68" alt="Escudo del Gimnasio los Cerros">
+      <h1 id="aula-access-title" tabindex="-1">Acceso docente</h1>
+      <p id="aula-access-message" role="status">Inicia sesión para abrir el aula.</p>
+      <div class="access-check-actions">
+        <a id="aula-access-login" class="session-primary" href="docente.html?acceso=aula&amp;reingresar=1">Ir al inicio de sesión</a>
+        <button id="aula-access-retry" class="session-secondary" type="button" hidden>Volver a intentar</button>
+      </div>
+    </div>
+  </section>
   <a class="skip-link" href="#catalog-main">Ir a los grados y clases</a>
   <div class="catalog-doodles" aria-hidden="true">
     <svg class="doodle doodle-leaves-left" viewBox="0 0 80 125" fill="none" focusable="false">

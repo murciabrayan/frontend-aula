@@ -1,12 +1,14 @@
 'use strict';
 (() => {
-  const {request,escape}=window.AulaAPI,{icon,busy}=window.AulaUI,$=id=>document.getElementById(id);
+  if (!window.AulaAPI || !window.AulaUI) return;
+  const {request,ApiError,escape,hasTeacherSession,clearTeacherSession}=window.AulaAPI,{icon,busy}=window.AulaUI,$=id=>document.getElementById(id);
+  const activitiesReady = Promise.resolve(window.SecondGradeActivityReady).then(() => null, error => error);
   let user=null,sessions=[],selected=/^[a-f0-9-]{36}$/.test(location.hash.slice(1))?location.hash.slice(1):null,current=null,timer,noticeTimer,loadingId=null,detailSeq=0,detailKey='',authEpoch=0;
   const teacher=(path,options={})=>request(`/api/aula/${path}`,{...options,teacher:true});
   function returnToRequestedPage(){
     const params=new URLSearchParams(location.search),raw=params.get('volver');
     const base=location.pathname.slice(0,location.pathname.lastIndexOf('/')+1);
-    const allowed=new Set(['grados','leccion','escritorio','instrucciones','tecnologia','programacion-flechas','continuacion-primero','continuacion-segundo','continuacion-tercero','proyecto']);
+    const allowed=new Set(['grados','exploradores','leccion','escritorio','instrucciones','tecnologia','programacion-flechas','continuacion-primero','continuacion-segundo','continuacion-tercero','proyecto']);
     if(raw){
       const target=new URL(raw,location.href),relative=target.pathname.startsWith(base)?target.pathname.slice(base.length).replace(/\.html$/,''):'';
       const catalog=/^grado\/[1-5](?:\/clase\/[a-z0-9-]+)?\/?$/.test(relative);
@@ -18,12 +20,30 @@
   }
   const stamp=value=>new Date(value).toLocaleString('es-CO',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
   const stateLabel=state=>({open:'Abierta',closed:'Cerrada',expired:'Vencida'}[state]||'');
-  for(const [parent,label,grade='Primero'] of [['partes-del-computador','Partes del computador'],['escritorio','El escritorio y sus iconos'],['instrucciones','Pasos e instrucciones'],['tecnologia','La tecnología en nuestra vida'],['programacion-flechas','Programamos con bloques y flechas'],['patrones-mensajes','Patrones y mensajes secretos'],['bucles','Acciones que se repiten'],['bucles-practica','Bucles en nuevas misiones'],['errores-programas','Detectives de programas'],['ciudadania-digital','Nos cuidamos en internet']]){
-    const group=document.createElement('optgroup');group.label=`Actividades por parte · ${label}`;
-    for(const definition of window.PublishedClassActivities().filter(item=>item.parentLesson===parent)){
-      const option=document.createElement('option');option.value=definition.lesson;option.textContent=`${grade} · ${definition.preview.title}`;group.append(option);
+  function populateActivityOptions() {
+    const select = $('session-lesson');
+    if (select.options.length) return;
+    const published = window.PublishedClassActivities();
+    const {grades, releasedGrades} = window.ClassroomCatalog;
+    const finalOptions = document.createElement('optgroup');
+    finalOptions.label = 'Actividades finales';
+    select.append(finalOptions);
+    function addActivities(item, grade) {
+      if (published.some(activity => activity.lesson === item.id)) {
+        finalOptions.append(new Option(`${grade} · ${item.title}`, item.id));
+      }
+      const activities = published.filter(activity => activity.parentLesson === item.id &&
+        (grade !== 'Segundo' || item.parts.some(part => part.id === activity.part)));
+      if (!activities.length) return;
+      const group = document.createElement('optgroup');
+      group.label = `Por parte · ${item.title}`;
+      for (const activity of activities) group.append(new Option(activity.preview.title, activity.lesson));
+      select.append(group);
     }
-    $('session-lesson').append(group);
+    for (const grade of grades.filter(grade => releasedGrades.includes(grade.id))) {
+      grade.classes.filter(item => item.available).forEach(item => addActivities(item, grade.name));
+    }
+    addActivities({ id: 'escritorio', title: 'El escritorio y sus iconos' }, 'Primero');
   }
   function notice(text='',error=false){
     clearTimeout(noticeTimer);const element=$('teacher-status');element.hidden=!text;if(!text)return;
@@ -41,8 +61,8 @@
     if($('create-session').open)$('create-session').close();notice(text);
   }
   function handle(error){
-    if(error.status===401){loginRequired();notice('Tu sesión terminó. Ingresa de nuevo para continuar.',true);return;}
-    if(error.status===403){loginRequired();notice('Esta sección es para profesores y administradores.',true);return;}
+    if(error.status===401){clearTeacherSession();loginRequired();notice('Tu sesión terminó. Ingresa de nuevo para continuar.',true);return;}
+    if(error.status===403){clearTeacherSession();loginRequired();notice('Esta sección requiere una cuenta activa de profesor o administrador.',true);return;}
     if($('create-session').open){$('create-session-error').innerHTML=`${icon('alert')}<span>${escape(error.message)}</span>`;$('create-session-error').hidden=false;return;}
     notice(error.message,true);
   }
@@ -70,8 +90,11 @@
     const key=`${item.id}:${item.state}`;
     if(detailKey!==key){
       detailKey=key;
+      const linkNote = window.AULA_CONFIG?.localPreview
+        ? '<p class="copy-link-note">Enlace de prueba para este computador.</p>'
+        : '';
       $('session-detail').innerHTML=`<div class="detail-heading"><div><span class="section-kicker">${escape(item.activity.grade).toUpperCase()} · ${item.activity.scope==='part'?'ACTIVIDAD POR PARTE':'ACTIVIDAD FINAL'}</span><h2>${escape(item.group_name)}</h2><p>${escape(item.activity.title)}</p></div><span class="session-badge ${item.state==='open'?'':'is-closed'}">${stateLabel(item.state)}</span></div>
-        <div class="share-box"><div class="share-top"><span class="share-symbol">${icon('link')}</span><div><strong>${item.state==='open'?'Invita a tu grupo':'El enlace está cerrado'}</strong><small>${item.state==='open'?`Disponible hasta ${stamp(item.expires_at)}`:'Puedes seguir consultando los resultados.'}</small></div></div><div class="share-row"><input id="student-link" readonly value="${escape(shareLink(item))}" aria-label="Enlace para los estudiantes"><button id="copy-student-link" class="session-primary" type="button" ${item.state==='open'?'':'disabled'}>${icon('copy')}<span>Copiar enlace</span></button></div><p id="copy-link-note" class="copy-link-note"></p>${['localhost','127.0.0.1','[::1]'].includes(location.hostname)?'<details class="local-network-tip"><summary>Usar en otros computadores</summary><p>Abre este panel con la dirección de red de tu equipo para que el enlace funcione en los demás computadores. La dirección actual solo abre este equipo.</p></details>':''}</div>
+        <div class="share-box"><div class="share-top"><span class="share-symbol">${icon('link')}</span><div><strong>${item.state==='open'?'Invita a tu grupo':'El enlace está cerrado'}</strong><small>${item.state==='open'?`Disponible hasta ${stamp(item.expires_at)}`:'Puedes seguir consultando los resultados.'}</small></div></div><div class="share-row"><input id="student-link" readonly value="${escape(shareLink(item))}" aria-label="Enlace para los estudiantes"><button id="copy-student-link" class="session-primary" type="button" ${item.state==='open'?'':'disabled'}>${icon('copy')}<span>Copiar enlace</span></button></div>${linkNote}<p id="copy-link-note" class="copy-link-note"></p></div>
         <div class="session-stats"><div class="session-stat"><span class="stat-icon">${icon('people')}</span><strong id="joined-count">0</strong><span>Ingresaron</span></div><div class="session-stat"><span class="stat-icon">${icon('check')}</span><strong id="completed-count">0</strong><span>Completaron</span></div><div class="session-stat"><span class="stat-icon">${icon('clock')}</span><strong id="pending-count">0</strong><span>Pendientes</span></div></div>
         <div class="progress-heading"><h3>Así va el grupo</h3><button id="refresh-participants" class="session-secondary" type="button">${icon('refresh')} Actualizar</button></div><p id="refresh-note" class="refresh-note" role="status"></p><div id="participants-view"></div>
         <details class="tracking-help"><summary>${icon('info')} ¿Qué significa este avance?</summary><p>El avance corresponde a los ${item.activity.stations.length} desafíos de esta actividad; cada uno aporta una parte del total. Los nombres iguales se distinguen por su número de participación. Si un estudiante deja de comunicarse, su avance se conserva.</p></details><div class="session-actions"><button id="close-session" class="session-secondary" type="button" ${item.state==='open'?'':'disabled'}>${icon('lock')} Cerrar el enlace</button><button id="delete-session" class="session-danger" type="button">${icon('trash')} Eliminar sesión</button></div>`;
@@ -95,29 +118,73 @@
   function schedule(){clearTimeout(timer);if(!user)return;timer=setTimeout(async()=>{if(!document.hidden)await refreshDetail();schedule();},8000);}
   async function select(id){selected=id;current=null;detailKey='';$('session-detail').innerHTML='<div class="session-loading" role="status"><span class="ui-spinner" aria-hidden="true"></span><p>Cargando los avances del grupo…</p></div>';history.replaceState(null,'',`${location.pathname}${location.search}#${id}`);renderList();await refreshDetail();schedule();}
   async function loadWorkspace(){
-    const epoch=authEpoch,identity=await teacher('me/');if(epoch!==authEpoch)return;
+    const epoch=authEpoch,identity=await teacher('me/', { signal: AbortSignal.timeout(8000) });if(epoch!==authEpoch)return;
+    if (!['ADMIN','TEACHER'].includes(identity?.role)) throw new ApiError('Acceso docente requerido.', 403);
     if(returnToRequestedPage())return;
+    const activityError = await activitiesReady;
+    if(epoch!==authEpoch)return;
+    populateActivityOptions();
     user=identity;$('teacher-login').hidden=true;$('teacher-workspace').hidden=false;document.body.classList.add('is-authenticated');$('teacher-name').textContent=user.name;$('teacher-avatar').textContent=user.name.split(/\s+/).slice(0,2).map(word=>word[0]).join('').toLocaleUpperCase('es');notice();
     await refreshList();if(epoch!==authEpoch||!user)return;
+    const requestedSession = location.hash.slice(1);
+    if (/^[a-f0-9-]{36}$/.test(requestedSession)) selected = requestedSession;
     if(!sessions.some(item=>item.id===selected))selected=sessions[0]?.id||null;
     if(selected)await select(selected);else $('session-detail').innerHTML=emptyWorkspace();
-    const requested=new URLSearchParams(location.search).get('crear');if(requested){if([...$('session-lesson').options].some(option=>option.value===requested))$('session-lesson').value=requested;openCreate();}schedule();
+    const requested=new URLSearchParams(location.search).get('crear');
+    if (requested) {
+      if ([...$('session-lesson').options].some(option => option.value === requested)) {
+        $('session-lesson').value = requested;
+        openCreate();
+      } else notice('La actividad solicitada todavía no está disponible para compartir.', true);
+    } else if (activityError) notice(activityError.message, true);
+    schedule();
+  }
+  async function enterWith(tokens) {
+    localStorage.setItem('access_token', tokens.access);
+    localStorage.setItem('refresh_token', tokens.refresh);
+    window.dispatchEvent(new Event('auth-change'));
+    await loadWorkspace();
+  }
+  if (window.AULA_CONFIG?.localPreview) {
+    $('teacher-login-form').hidden = true;
+    $('institutional-login-note').hidden = true;
+    $('local-preview-login').hidden = false;
+    const localLogin = $('preview-teacher-login');
+    localLogin.addEventListener('click', async () => {
+      authEpoch++;
+      busy(localLogin, true, 'Abriendo el aula…');
+      notice();
+      try {
+        await enterWith(await request('/api/aula-preview/sign-in/', { method: 'POST', body: {} }));
+      } catch (error) {
+        handle(error);
+      } finally {
+        busy(localLogin, false);
+      }
+    });
   }
   $('teacher-login-form').addEventListener('submit',async event=>{
     event.preventDefault();const button=event.submitter;
     const email=$('teacher-email'),password=$('teacher-password');
     if(!email.value.trim()||email.validity.typeMismatch){email.setAttribute('aria-invalid','true');notice('Escribe tu correo institucional para continuar.',true);email.focus();return;}
     if(!password.value){password.setAttribute('aria-invalid','true');notice('Escribe tu contraseña para ingresar.',true);password.focus();return;}
+    authEpoch++;
     busy(button,true,'Ingresando…');notice();
     try{
       const data=await request('/api/token/',{method:'POST',body:{email:$('teacher-email').value.trim(),password:$('teacher-password').value}});
-      if(data.user&&!['ADMIN','TEACHER','AULA_DEMO'].includes(data.user.role))throw new Error('Esta sección es para profesores y administradores.');
-      localStorage.setItem('access_token',data.access);localStorage.setItem('refresh_token',data.refresh);window.dispatchEvent(new Event('auth-change'));
-      $('teacher-password').value='';$('teacher-password').type='password';$('show-password').setAttribute('aria-pressed','false');$('show-password').setAttribute('aria-label','Mostrar contraseña');$('show-password').innerHTML=icon('eye');await loadWorkspace();
+      if(data.user&&!['ADMIN','TEACHER'].includes(data.user.role))throw new Error('Esta sección es para profesores y administradores.');
+      if(data.user?.must_change_password)throw new Error('Primero debes cambiar la contraseña temporal desde la plataforma principal. Después podrás ingresar al aula.');
+      $('teacher-password').value='';$('teacher-password').type='password';$('show-password').setAttribute('aria-pressed','false');$('show-password').setAttribute('aria-label','Mostrar contraseña');$('show-password').innerHTML=icon('eye');await enterWith(data);
     }catch(error){notice(error.status===401?'Revisa tu correo y contraseña e inténtalo otra vez.':error.message,true);}finally{busy(button,false);}
   });
+  $('teacher-login-form').querySelector('button[type="submit"]').disabled = false;
+  $('teacher-login-fallback').hidden = true;
   $('show-password').addEventListener('click',()=>{const visible=$('teacher-password').type==='password';$('teacher-password').type=visible?'text':'password';$('show-password').innerHTML=icon(visible?'eyeOff':'eye');$('show-password').setAttribute('aria-pressed',String(visible));$('show-password').setAttribute('aria-label',visible?'Ocultar contraseña':'Mostrar contraseña');});
-  $('teacher-logout').addEventListener('click',()=>{for(const key of ['access_token','refresh_token','user'])localStorage.removeItem(key);window.dispatchEvent(new Event('auth-change'));loginRequired('Sesión cerrada. Tu trabajo quedó guardado.');});
+  $('teacher-logout').addEventListener('click',()=>{clearTeacherSession();loginRequired('Sesión cerrada. Tu trabajo quedó guardado.');});
+  window.addEventListener('storage', event => {
+    if ([null, 'access_token', 'refresh_token'].includes(event.key) && !hasTeacherSession()) loginRequired('Sesión cerrada.');
+  });
+  window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
   $('new-session').addEventListener('click',openCreate);
   $('session-lesson').addEventListener('change',updateActivityPreview);
   document.querySelectorAll('[data-close-dialog]').forEach(button=>button.addEventListener('click',()=>$(button.dataset.closeDialog).close()));
@@ -147,5 +214,19 @@
   });
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&user)refreshDetail();});
   window.addEventListener('pagehide',()=>{clearTimeout(timer);clearTimeout(noticeTimer);});
-  if(localStorage.getItem('access_token')||localStorage.getItem('refresh_token'))loadWorkspace().catch(error=>{loginRequired();handle(error);});else loginRequired();
+  const accessParams = new URLSearchParams(location.search);
+  loginRequired();
+  const accessReason = accessParams.get('motivo');
+  if (accessReason === 'sesion') notice('Tu sesión terminó. Ingresa de nuevo para continuar.', true);
+  else if (accessReason === 'permiso') notice('Ingresa con una cuenta activa de profesor o administrador.', true);
+  else if (accessParams.has('salida')) notice('Sesión cerrada.');
+
+  if (!accessParams.has('reingresar') && hasTeacherSession()) {
+    const epoch = authEpoch;
+    loadWorkspace().catch(error => {
+      if (epoch !== authEpoch) return;
+      loginRequired();
+      handle(error);
+    });
+  }
 })();

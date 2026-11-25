@@ -5,8 +5,16 @@
  * None of them floats over another, even when a game is taller than the screen.
  */
 @keyframes classroom-panel-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { transform: translateY(8px); }
+  to { transform: none; }
+}
+
+@media (max-width: 760px) {
+  .second-grade-class[data-mode="lesson"] .demo-stage:has(.desktop-demo, .explorer-mini-login),
+  .second-grade-class[data-mode="lesson"] .demo-content:has(.desktop-demo, .explorer-mini-login) {
+    height: auto;
+    min-height: 0;
+  }
 }
 
 /* Keep the reading and activity surfaces in front of the animated canvas.
@@ -44,7 +52,16 @@
     height: auto;
     min-height: 0;
     margin: 0;
-    animation: classroom-panel-in .28s ease-out both;
+    animation: none;
+  }
+
+  .computer-class[data-mode="lesson"].screen-enter .lesson-layout,
+  .computer-class[data-mode="challenge"].screen-enter-activity .activity-view {
+    animation: classroom-panel-in .34s ease-out;
+  }
+
+  .computer-class[data-mode="lesson"] :is(.story-card, .demo-stage) {
+    animation: none;
   }
 
   .computer-class[data-mode="lesson"] .lesson-layout {
@@ -57,8 +74,7 @@
     height: 100%;
     min-height: 0;
     max-height: none;
-    overflow: auto;
-    overscroll-behavior: contain;
+    overflow: hidden;
   }
 
   .computer-class[data-mode="lesson"] .demo-content {

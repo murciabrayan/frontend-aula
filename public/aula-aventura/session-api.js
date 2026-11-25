@@ -2,19 +2,27 @@
 (() => {
   const origin=(window.AULA_CONFIG?.apiOrigin||'').replace(/\/+$/,'');
   class ApiError extends Error { constructor(message,status){super(message);this.status=status;} }
-  async function request(path,{method='GET',body,credential,teacher=false,retry=true}={}) {
+  const hasTeacherSession = () => Boolean(localStorage.getItem('access_token') || localStorage.getItem('refresh_token'));
+  function clearTeacherSession() {
+    for (const key of ['access_token', 'refresh_token', 'user']) localStorage.removeItem(key);
+    window.dispatchEvent(new Event('auth-change'));
+  }
+  async function request(path,{method='GET',body,credential,teacher=false,retry=true,signal}={}) {
     const headers={Accept:'application/json'};
     if(body!==undefined)headers['Content-Type']='application/json';
     if(credential)headers.Authorization=`Participation ${credential}`;
     else if(teacher){const token=localStorage.getItem('access_token');if(token)headers.Authorization=`Bearer ${token}`;}
     let response;
-    try { response=await fetch(`${origin}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body),credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(15000)}); }
+    try { response=await fetch(`${origin}${path}`,{method,headers,body:body===undefined?undefined:JSON.stringify(body),credentials:'omit',cache:'no-store',referrerPolicy:'no-referrer',signal:signal || AbortSignal.timeout(15000)}); }
     catch { throw new ApiError('No pudimos conectar. Comprueba la conexión y vuelve a intentar.',0); }
-    if(response.status===401&&teacher&&retry&&localStorage.getItem('refresh_token')){
+    const refresh = teacher && localStorage.getItem('refresh_token');
+    if(response.status===401&&retry&&refresh){
       try {
-        const tokens=await request('/api/token/refresh/',{method:'POST',body:{refresh:localStorage.getItem('refresh_token')}});
+        const tokens=await request('/api/token/refresh/',{method:'POST',body:{refresh},signal});
+        if (signal?.aborted) throw new ApiError('No pudimos terminar de comprobar tu sesión.', 0);
+        if (localStorage.getItem('refresh_token') !== refresh) throw new ApiError('La sesión cambió. Ingresa de nuevo si hace falta.', 401);
         localStorage.setItem('access_token',tokens.access);
-        return request(path,{method,body,teacher,retry:false});
+        return request(path,{method,body,teacher,retry:false,signal});
       } catch(error) { if(![401,403].includes(error.status))throw error; }
     }
     let data;
@@ -24,5 +32,5 @@
     return data;
   }
   const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  window.AulaAPI={request,ApiError,escape,activities:window.ClassFinalActivities,version:'INF-1-C01-final-v3',stations:['puzzle','drawing','maze','creation']};
+  window.AulaAPI={request,ApiError,escape,hasTeacherSession,clearTeacherSession,activities:window.ClassFinalActivities,version:'INF-1-C01-final-v3',stations:['puzzle','drawing','maze','creation']};
 })();

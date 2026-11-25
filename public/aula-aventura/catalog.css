@@ -170,6 +170,60 @@ main { flex: 1; padding-top: 23px; outline: none; }
 .part-copy h4 { display: inline; font-size: 18px; font-weight: 900; letter-spacing: -.3px; margin: 0 0 0 6px; }
 .part-copy p { font-size: 12px; line-height: 1.55; color: #748066; margin: 6px 0 0; }
 .part-chevron { flex-shrink: 0; color: #a0ab8a; font-size: 19px; margin-left: auto; }
+.catalog-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  isolation: isolate;
+  background: var(--art-paper);
+}
+.catalog-art-class {
+  --art-paper: var(--topic-tint);
+  width: min(100%, 15rem);
+  height: 7.15rem;
+  border-radius: 44% 38% 42% 39%;
+}
+.catalog-art.catalog-art-class > span {
+  display: block;
+  width: min(50%, 6.6rem);
+  height: auto;
+  aspect-ratio: 1;
+  flex: 0 1 auto;
+  filter: drop-shadow(0 5px 6px #26473526);
+}
+.catalog-art-class > span:first-child { transform: rotate(-7deg); }
+.catalog-art-class > span + span { transform: translateY(-4px) rotate(7deg); }
+.catalog-art-part {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  --art-paper: #f3ebd4;
+  border: 1px solid #ded2b5;
+  border-radius: 19px;
+}
+.part-row:nth-child(2) .catalog-art-part { --art-paper: #e7f1e5; border-color: #cbdcc6; }
+.part-row:nth-child(3) .catalog-art-part { --art-paper: #efe8f5; border-color: #e0d4ec; }
+.part-row:nth-child(4) .catalog-art-part { --art-paper: #e4efef; border-color: #ccdedc; }
+.catalog-art.catalog-art-part > span {
+  display: block;
+  position: absolute;
+  width: 67%;
+  height: auto;
+  aspect-ratio: 1;
+  bottom: 3%;
+  left: 1%;
+  border-radius: 0;
+}
+.catalog-art.catalog-art-part > span + span {
+  width: 54%;
+  bottom: auto;
+  left: auto;
+  top: 3%;
+  right: 2%;
+  filter: drop-shadow(0 2px 2px #26473526);
+}
+.catalog-art.catalog-art-part.is-single > span { width: 90%; left: 5%; bottom: 5%; border-radius: 10px; }
 .class-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 35px 29px; }
 .class-actions p { color: #899078; font-size: 11px; line-height: 1.5; margin: 0; }
 .primary-link { display: inline-flex; justify-content: center; align-items: center; gap: 24px; min-height: 48px; padding: 13px 21px; background: #365f43; color: #fff9e4; border: 1px solid #54704a; border-radius: 14px; box-shadow: 0 3px 0 #244630; font-size: 13px; font-weight: 900; white-space: nowrap; transition: transform .2s, background .2s; }

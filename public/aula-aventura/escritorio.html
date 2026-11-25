@@ -7,6 +7,17 @@
   <link rel="stylesheet" href="lesson.css"><link rel="stylesheet" href="lesson-challenges.css"><link rel="stylesheet" href="contrast.css"><link rel="stylesheet" href="sessions.css"><link rel="stylesheet" href="desktop.css"><link rel="stylesheet" href="class-responsive.css">
   <script defer src="session-ui.js"></script><script defer src="renderer.js"></script><script defer src="activity-content.js"></script><script defer src="desktop-content.js"></script><script defer src="lesson-games.js"></script><script defer src="lesson-challenges.js"></script><script defer src="desktop-lab.js"></script><script defer src="desktop-games.js"></script><script defer src="final-activities.js"></script><script defer src="part-activities.js"></script><script defer src="lesson.js"></script>
 </head><body>
+  <section id="aula-access-screen" aria-labelledby="aula-access-title">
+    <div class="access-check-card">
+      <img src="assets/school-logo.png" width="62" height="68" alt="Escudo del Gimnasio los Cerros">
+      <h1 id="aula-access-title" tabindex="-1">Acceso docente</h1>
+      <p id="aula-access-message" role="status">Inicia sesión para abrir el aula.</p>
+      <div class="access-check-actions">
+        <a id="aula-access-login" class="session-primary" href="docente.html?acceso=aula&amp;reingresar=1">Ir al inicio de sesión</a>
+        <button id="aula-access-retry" class="session-secondary" type="button" hidden>Volver a intentar</button>
+      </div>
+    </div>
+  </section>
 <main id="adventure" class="computer-class desktop-class" data-mode="loading" aria-label="Segunda clase: El escritorio y sus iconos">
   <canvas id="world" aria-hidden="true"></canvas><div class="scene-shade" aria-hidden="true"></div>
   <header class="class-hud"><button id="menu-button" class="school-mark" aria-label="Abrir menú de la clase"><img class="school-logo" src="assets/school-logo.png" width="43" height="48" alt="Escudo del Gimnasio los Cerros"><span>Gimnasio los Cerros<small>INFORMÁTICA · PRIMERO</small></span></button><nav id="part-navigation" class="part-navigation" aria-label="Partes de la clase"></nav><div class="hud-tools"><a id="share-final" data-share-available class="session-link" href="docente?crear=escritorio" target="_blank" rel="noopener" aria-label="Enlace para estudiantes; abre el panel docente en otra pestaña" hidden>Enlace para estudiantes</a><a class="round-control" href="grado/1/clase/escritorio" aria-label="Volver a las clases">←</a><button id="sound-button" class="round-control" aria-label="Activar sonido" aria-pressed="false">♪</button><button id="guide-button" class="round-control" aria-label="Abrir guía de clase">?</button><button id="fullscreen-button" class="round-control fullscreen-control" aria-label="Pantalla completa">⛶</button></div></header>

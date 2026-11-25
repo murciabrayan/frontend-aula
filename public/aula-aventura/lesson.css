@@ -40,14 +40,53 @@
 @media(max-width:760px){.activity-board{overflow:visible}.activity-heading>p:last-child{padding:11px 13px;font-size:14px;text-align:left}.activity-feedback.has-message{position:sticky;top:8px;font-size:14px;text-align:left;justify-content:flex-start}.footer-message{padding-left:12px}.footer-message p{font-size:15px}.lesson-controls #next-step{min-width:165px}.lesson-controls #next-step:disabled{min-width:190px;font-size:11px;padding-inline:10px}}
 
 /* Clear, child-friendly confirmation after finishing a complete activity. */
-.kid-success-dialog{width:min(540px,calc(100% - 32px));padding:0;border:0;border-radius:30px;background:#fffdf5;color:#284e35;box-shadow:0 28px 80px #17342066;overflow:hidden}
+.kid-success-dialog{width:min(540px,calc(100% - 32px));max-height:calc(100svh - 32px);padding:0;border:0;border-radius:30px;background:#fffdf5;color:#284e35;box-shadow:0 28px 80px #17342066;overflow:auto;font-family:Nunito,'Segoe UI',sans-serif}
 .kid-success-dialog::backdrop{background:#1f3b2fb8;backdrop-filter:blur(7px)}
 .kid-success-card{position:relative;display:grid;justify-items:center;gap:12px;padding:34px 42px 38px;text-align:center;background:radial-gradient(circle at 50% 0,#fff0b9 0 24%,transparent 58%),#fffdf5}
 .kid-success-card::before,.kid-success-card::after{content:'✦';position:absolute;top:26px;color:#e3a928;font-size:28px;animation:success-spark 1.2s ease-in-out infinite alternate}.kid-success-card::before{left:32px}.kid-success-card::after{right:32px;animation-delay:.35s}
 .kid-success-owl{display:grid;place-items:center;width:112px;height:112px;border:5px solid #fff;border-radius:50%;background:linear-gradient(#f4d38d,#dfad57);box-shadow:0 7px 0 #b4843d,0 12px 28px #76532438;font-size:64px;line-height:1}
 .kid-success-owl .picture{width:92px;height:92px;transform:translateY(5px)}
+.kid-success-card h2{font-weight:1000}
+@media(max-height:440px){.kid-success-dialog .kid-success-card{padding-block:18px;gap:8px}.kid-success-dialog .kid-success-owl{width:74px;height:74px}.kid-success-dialog .kid-success-owl :is(.picture,.vignette-art){width:78px;height:78px}}
 .kid-success-kicker{margin:8px 0 0;color:#866526;font-size:11px;font-weight:1000;letter-spacing:1.7px}.kid-success-card h2{margin:0;color:#294f36;font-size:42px;line-height:1;letter-spacing:-1.5px}.kid-success-message{max-width:410px;margin:3px 0 10px;color:#49604b;font-size:18px;font-weight:750;line-height:1.5}
 .kid-success-continue{min-width:240px;padding:15px 24px;border:2px solid #254f34;border-radius:16px;background:#396d48;color:white;box-shadow:0 5px 0 #21452d;font:inherit;font-size:16px;font-weight:950;cursor:pointer}.kid-success-continue:hover{transform:translateY(-1px);filter:brightness(1.08)}.kid-success-continue:active{transform:translateY(4px);box-shadow:0 1px 0 #21452d}.kid-success-dialog[open]{animation:success-dialog-in .34s cubic-bezier(.2,.9,.25,1.18)}
 .screen-enter #lesson-view,.screen-enter #activity-view{animation:lesson-screen-in .48s cubic-bezier(.2,.8,.2,1)}.screen-enter-activity #activity-view{animation:activity-screen-in .52s cubic-bezier(.2,.85,.2,1)}
 @keyframes success-dialog-in{from{opacity:0;transform:translateY(22px) scale(.9)}to{opacity:1;transform:none}}@keyframes success-spark{to{transform:translateY(-7px) rotate(12deg) scale(1.18)}}@keyframes lesson-screen-in{from{opacity:0;transform:translateX(32px) scale(.988)}to{opacity:1;transform:none}}@keyframes activity-screen-in{from{opacity:0;transform:translateY(24px) scale(.985)}to{opacity:1;transform:none}}
 @media(max-width:560px){.kid-success-card{padding:29px 23px 32px}.kid-success-owl{width:96px;height:96px;font-size:54px}.kid-success-card h2{font-size:36px}.kid-success-message{font-size:16px}.kid-success-continue{width:100%;min-width:0}}
+
+/* Original illustrated vignettes for screen-to-screen storytelling. */
+.story-card{position:relative;isolation:isolate;overflow:hidden;padding-right:180px;padding-bottom:48px}
+.story-card>:not(.class-vignette),.activity-heading>:not(.class-vignette){position:relative;z-index:2}
+.activity-heading{position:relative;isolation:isolate}
+.activity-heading>p:last-child{padding-right:124px}
+.class-vignette{position:absolute;z-index:1;width:190px;height:190px;pointer-events:none;user-select:none;transform-origin:50% 85%;filter:drop-shadow(0 10px 14px #2c4b3425)}
+.vignette-story{right:0;bottom:0}
+.vignette-activity{z-index:3;right:max(8px,calc((100% - 960px)/2 + 8px));bottom:-12px;width:112px;height:112px;filter:drop-shadow(0 6px 9px #2c4b3420)}
+.vignette-art{position:absolute;z-index:2;inset:0;display:block;background-image:url('assets/class-transition-vignettes-v1.png');background-size:400% 200%;background-repeat:no-repeat}
+.vignette-bear .vignette-art{background-position:0 0}.vignette-hummingbird .vignette-art{background-position:33.333333% 0}.vignette-robot .vignette-art{background-position:66.666667% 0}.vignette-frog .vignette-art{background-position:100% 0}.vignette-rocket .vignette-art{background-position:0 100%}.vignette-blocks .vignette-art{background-position:33.333333% 100%}.vignette-balloon .vignette-art{background-position:66.666667% 100%}.vignette-painting .vignette-art{background-position:100% 100%}
+.vignette-halo{position:absolute;z-index:0;inset:20%;border-radius:50%;background:radial-gradient(circle,#ffe29a9c 0,#f7c84d2c 48%,transparent 72%);animation:vignette-halo 2.8s ease-in-out infinite}
+.vignette-particle{position:absolute;z-index:3;width:10px;height:10px;border-radius:3px;background:#efbc3f;box-shadow:0 0 0 3px #fff3c99c;animation:vignette-spark 1.8s ease-in-out infinite alternate}
+.particle-one{right:18px;top:19px;rotate:18deg}.particle-two{left:20px;top:45%;width:7px;height:7px;background:#75aab5;animation-delay:.45s}.particle-three{right:30%;bottom:10px;width:6px;height:6px;background:#dd7b6e;animation-delay:.9s}
+.vignette-bear{animation:vignette-peek .72s cubic-bezier(.18,.9,.28,1.18) both}.vignette-bear .vignette-art{animation:vignette-wave 3.2s 1s ease-in-out infinite}
+.vignette-hummingbird{animation:vignette-fly-in .85s cubic-bezier(.18,.8,.25,1.05) both}.vignette-hummingbird .vignette-art{animation:vignette-hover 2s .8s ease-in-out infinite}
+.vignette-robot{animation:vignette-spring .75s cubic-bezier(.2,.95,.28,1.22) both}.vignette-robot .vignette-art{animation:vignette-robot-idle 3s 1s ease-in-out infinite}
+.vignette-frog{animation:vignette-zoom-in .72s cubic-bezier(.18,.9,.3,1.15) both}.vignette-frog .vignette-art{animation:vignette-look 3.3s .9s ease-in-out infinite}
+.vignette-rocket{animation:vignette-launch .9s cubic-bezier(.18,.8,.2,1.08) both}.vignette-rocket .vignette-art{animation:vignette-rocket-idle 2.4s 1s ease-in-out infinite}
+.vignette-blocks{animation:vignette-block-in .75s cubic-bezier(.2,.9,.3,1.16) both}.vignette-blocks .vignette-art{animation:vignette-block-idle 2.8s 1s ease-in-out infinite}
+.vignette-balloon{animation:vignette-rise .95s cubic-bezier(.2,.8,.25,1.08) both}.vignette-balloon .vignette-art{animation:vignette-balloon-idle 3.2s 1s ease-in-out infinite}
+.vignette-painting{animation:vignette-paint-in .82s cubic-bezier(.2,.9,.3,1.12) both}.vignette-painting .vignette-art{animation:vignette-paint-idle 3s 1s ease-in-out infinite}
+@keyframes vignette-peek{from{opacity:0;transform:translate(80px,85px) rotate(9deg)}to{opacity:1;transform:none}}@keyframes vignette-wave{0%,68%,100%{transform:rotate(0)}76%{transform:rotate(-3deg) translateY(-4px)}84%{transform:rotate(3deg)}}
+@keyframes vignette-fly-in{from{opacity:0;transform:translate(130px,-75px) scale(.65) rotate(14deg)}to{opacity:1;transform:none}}@keyframes vignette-hover{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-9px) rotate(2deg)}}
+@keyframes vignette-spring{0%{opacity:0;transform:translateY(110px) scale(.65)}68%{opacity:1;transform:translateY(-9px) scale(1.05)}100%{transform:none}}@keyframes vignette-robot-idle{0%,72%,100%{transform:rotate(0)}80%{transform:rotate(-3deg)}88%{transform:rotate(3deg)}}
+@keyframes vignette-zoom-in{from{opacity:0;transform:scale(.5) rotate(-7deg)}75%{opacity:1;transform:scale(1.05) rotate(2deg)}to{transform:none}}@keyframes vignette-look{0%,70%,100%{transform:rotate(0)}80%{transform:rotate(3deg) translateX(-3px)}90%{transform:rotate(-2deg)}}
+@keyframes vignette-launch{from{opacity:0;transform:translate(-45px,110px) scale(.7) rotate(-14deg)}to{opacity:1;transform:none}}@keyframes vignette-rocket-idle{0%,100%{transform:translate(0,0)}50%{transform:translate(5px,-8px)}}
+@keyframes vignette-block-in{from{opacity:0;transform:translateY(75px) scale(.78)}70%{opacity:1;transform:translateY(-6px) scale(1.04)}to{transform:none}}@keyframes vignette-block-idle{0%,75%,100%{transform:translateY(0)}84%{transform:translateY(-6px)}}
+@keyframes vignette-rise{from{opacity:0;transform:translateY(120px) scale(.75)}to{opacity:1;transform:none}}@keyframes vignette-balloon-idle{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-9px) rotate(2deg)}}
+@keyframes vignette-paint-in{from{opacity:0;transform:translate(70px,30px) scale(.72) rotate(10deg)}to{opacity:1;transform:none}}@keyframes vignette-paint-idle{0%,70%,100%{transform:rotate(0)}82%{transform:rotate(-3deg) scale(1.02)}}
+@keyframes vignette-halo{0%,100%{opacity:.55;transform:scale(.88)}50%{opacity:1;transform:scale(1.08)}}@keyframes vignette-spark{from{opacity:.35;transform:scale(.7) rotate(-10deg)}to{opacity:1;transform:scale(1.15) rotate(12deg)}}
+@media(max-height:800px) and (min-width:761px){.story-card{padding-right:153px;padding-bottom:34px}.vignette-story{width:156px;height:156px}.vignette-activity{width:94px;height:94px}.activity-heading>p:last-child{padding-right:104px}}
+@media(max-width:760px){.story-card{padding-right:112px;padding-bottom:57px}.vignette-story{right:0;bottom:0;width:128px;height:128px}.activity-heading>p:last-child{padding-right:91px}.vignette-activity{right:-4px;bottom:-8px;width:86px;height:86px}.vignette-particle{transform:scale(.7)}}
+@media(max-width:390px){.story-card{padding-right:94px}.vignette-story{right:0;width:117px;height:117px}.activity-heading>p:last-child{padding-right:75px}.vignette-activity{right:-10px;width:77px;height:77px}}
+.kid-success-owl{position:relative;overflow:visible}.kid-success-owl .vignette-art{width:126px;height:126px;inset:50% auto auto 50%;transform:translate(-50%,-48%);filter:drop-shadow(0 .35rem .4rem #65471924);animation:none!important}
+@media(max-width:760px){.story-card .scene-prompt{min-height:88px;padding-right:88px}.kid-success-owl .vignette-art{width:108px;height:108px}}
+@media(max-width:390px){.story-card .scene-prompt{min-height:82px;padding-right:74px}}

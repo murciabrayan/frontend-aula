@@ -1,7 +1,15 @@
 'use strict';
-(() => {
+(async () => {
+  if (document.documentElement.classList.contains('aula-auth-pending') && !await window.AulaTeacherAccess) return;
   const $ = id => document.getElementById(id), root = $('adventure');
-  const content = window.ComputerClass, games = window.ClassGames;
+  const content = window.FirstGradeCurriculum?.supplement(window.ComputerClass) || window.ComputerClass, games = window.ClassGames;
+  document.querySelectorAll('#class-guide ol > li').forEach((item, index) => {
+    const part = content.parts[index];
+    if (!part?.curriculumSummary) return;
+    const heading = document.createElement('strong');
+    heading.textContent = `${part.name}: `;
+    item.replaceChildren(heading, part.curriculumSummary);
+  });
   const meta=content.meta||{title:'Partes del computador',ordinal:'Primera',slug:'partes-del-computador'};
   const finishEyebrow=document.querySelector('#finish .eyebrow.light');
   if(finishEyebrow&&meta.ordinal)finishEyebrow.textContent=`${meta.ordinal.toLocaleUpperCase('es')} CLASE · CIERRE`;
@@ -10,28 +18,37 @@
   const renderer = new window.AdventureRenderer($('world'),()=>state);
   const activityStates = new Map(), demoStates = new Map(), completed = new Set(), seen = new Set();
   const isMultiClassPage = () => root.classList.contains('first-path-class') || root.classList.contains('second-grade-class') || root.classList.contains('third-grade-class');
-  let stepController, sound = false, audio;
+  let stepController, screenTimer, sound = false, audio;
   const escape = value => String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const current = () => content.parts[state.part].steps[state.step];
   const signal = () => stepController.signal;
   const on = (element,event,callback) => element.addEventListener(event,callback,{signal:signal()});
   const paused = () => state.paused || !!document.querySelector('dialog[open]');
-  const successDialog=document.createElement('dialog');
-  successDialog.className='kid-success-dialog';
-  successDialog.setAttribute('aria-labelledby','kid-success-title');
-  successDialog.innerHTML='<div class="kid-success-card"><div class="kid-success-owl" aria-hidden="true"><span class="picture pic-owl"></span></div><p class="kid-success-kicker">ACTIVIDAD COMPLETADA</p><h2 id="kid-success-title">¡Muy bien!</h2><div class="kid-success-message"></div><button type="button" class="kid-success-continue">Seguir con la clase →</button></div>';
-  document.body.append(successDialog);
-  successDialog.addEventListener('cancel',event=>event.preventDefault());
-  successDialog.querySelector('button').addEventListener('click',()=>{successDialog.close();nextStep();});
-  function showSuccess(activityTitle){
-    successDialog.querySelector('.kid-success-message').textContent=`Completaste «${activityTitle}». Ya puedes continuar.`;
-    if(!successDialog.open)successDialog.showModal();
-    successDialog.querySelector('button').focus({preventScroll:true});
+  const successDialog = games.shared.createSuccessDialog(root);
+  const transitionVignettes=['bear','hummingbird','robot','frog','rocket','blocks','balloon','painting'];
+  function vignetteSeed(value){return [...String(value||'')].reduce((total,letter)=>(total*33+letter.charCodeAt(0))>>>0,23);}
+  function showVignette(step,mode){
+    const host=mode==='activity'?document.querySelector('.activity-heading'):$('story-card');
+    if(!host)return;
+    host.querySelector('.class-vignette')?.remove();
+    const scene=transitionVignettes[vignetteSeed(`${meta.slug}-${step.id}-${mode}`)%transitionVignettes.length];
+    const vignette=document.createElement('div');
+    vignette.className=`class-vignette vignette-${mode} vignette-${scene}`;
+    vignette.setAttribute('aria-hidden','true');
+    vignette.innerHTML='<span class="vignette-halo"></span><span class="vignette-art"></span><i class="vignette-particle particle-one"></i><i class="vignette-particle particle-two"></i><i class="vignette-particle particle-three"></i>';
+    if(mode==='activity')host.insertBefore(vignette,$('activity-instruction'));
+    else host.append(vignette);
+    root.dataset.vignette=scene;
+  }
+  function showSuccess({ title, message, action = 'Seguir con la clase', next = nextStep }) {
+    const scene = transitionVignettes[(vignetteSeed(`${meta.slug}-${current().id}-${message}`) + 3) % transitionVignettes.length];
+    successDialog.show({ title, message, action, next, scene });
   }
   function animateScreen(mode){
+    clearTimeout(screenTimer);
     root.classList.remove('screen-enter','screen-enter-activity');void root.offsetWidth;
     root.classList.add('screen-enter');if(mode==='challenge')root.classList.add('screen-enter-activity');
-    setTimeout(()=>root.classList.remove('screen-enter','screen-enter-activity'),520);
+    screenTimer = setTimeout(()=>root.classList.remove('screen-enter','screen-enter-activity'),520);
   }
   function chime(kind='tap') {
     if(!sound)return;
@@ -52,7 +69,11 @@
   }
   function celebrate(){renderer.setMood('success');renderer.burst();chime('success');}
   function setMode(mode) {
-    if(successDialog.open)successDialog.close();
+    successDialog.close();
+    if (root.classList.contains('second-grade-class')) {
+      const desktop = mode === 'lesson' ? current().demo : mode === 'challenge' ? current().game : '';
+      root.classList.toggle('desktop-class', desktop?.startsWith('desktop-') || false);
+    }
     $('share-final').hidden=true;
     $('start-class-activity').hidden=true;$('activity-choice-note').hidden=true;
     stepController?.abort();stepController=new AbortController();state.mode=mode;root.dataset.mode=mode;
@@ -86,6 +107,7 @@
     state.part=partIndex;state.step=stepIndex;
     const part=content.parts[partIndex],step=part.steps[stepIndex];state.active=part.id;
     setMode(step.game?'challenge':'lesson');root.dataset.active=part.id;root.dataset.scene=step.id;
+    showVignette(step,step.game?'activity':'story');
     if(!step.game)seen.add(step.id);
     navigation();updateNext();
     const params=new URLSearchParams({parte:part.id,paso:step.id});if(isMultiClassPage())params.set('clase',meta.slug);if(state.extended)params.set('ruta','ampliada');history.replaceState(null,'',`${location.pathname}?${params}`);
@@ -99,7 +121,16 @@
       games.mount(step.game,$('activity-board'),{
         store:activityStates.get(step.id),extended:state.extended,signal:signal(),paused,feedback,celebrate,sound:chime,isSoundEnabled:()=>sound,
         restart:()=>{activityStates.delete(step.id);completed.delete(step.id);showStep(state.part,state.step,false);},
-        complete:()=>{const firstCompletion=!completed.has(step.id);completed.add(step.id);updateNext();navigation();$('lesson-feedback').textContent='Actividad completada. Pulsa Seguir con la clase.';$('lesson-feedback').classList.remove('feedback-pop');void $('lesson-feedback').offsetWidth;$('lesson-feedback').classList.add('feedback-pop');if(firstCompletion)showSuccess(step.title);},
+        onStationSuccess: (message, next) => showSuccess({ message, action: 'Siguiente reto', next }),
+        complete: message => {
+          const firstCompletion = !completed.has(step.id);
+          completed.add(step.id);
+          updateNext();
+          navigation();
+          feedback('');
+          $('lesson-feedback').textContent = 'Actividad completada. Ya puedes continuar.';
+          if (firstCompletion) showSuccess({ message: message || `Completaste «${step.title}».` });
+        },
       });
       if(focus)$('activity-title').focus({preventScroll:true});
     }else{
@@ -162,7 +193,14 @@
   }
   function renderDemo(step){
     demoStates.has(step.id)||demoStates.set(step.id,{});const store=demoStates.get(step.id),demo=$('demo');demo.innerHTML='';
-      if(step.demo?.startsWith('explorer-')){window.ExplorerLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
+    if(step.demo === 'curriculum-cards'){
+      window.FirstGradeExercises.renderDemo(step, demo);
+      return;
+    }
+    if(step.demo?.startsWith('explorer-')){
+      window.ExplorerLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime,confirm:showSuccess});
+      return;
+    }
       if(step.demo?.startsWith('second-grade-')){window.SecondGradeLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
     if(step.demo?.startsWith('first-path-')){window.FirstPathLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
     if(step.demo?.startsWith('project-')){window.ProjectLessons.render(step,demo,{store,signal:signal(),paused,feedback,celebrate,sound:chime});return;}
@@ -212,7 +250,7 @@
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!document.querySelector('dialog[open]')&&!document.fullscreenElement&&state.mode!=='loading')openModal('game-menu');});
   async function load(){
     $('retry-load').hidden=true;let core=0,extra=0;
-    const extraAssets=content.assets||['assets/learning-pictures-v1.png','assets/equipment-v1.png','assets/animals-v3.png','assets/puzzle-garden-v3.png','assets/puzzle-classroom-v3.png'];
+    const extraAssets=[...new Set([...(content.assets||['assets/learning-pictures-v1.png','assets/equipment-v1.png','assets/animals-v3.png','assets/puzzle-garden-v3.png','assets/puzzle-classroom-v3.png']),'assets/class-transition-vignettes-v1.png','assets/kid-ui-icons-v1.png'])];
     const progress=()=>$('load-fill').style.width=`${Math.round((core*4+extra)/(4+extraAssets.length)*100)}%`;
     try{
       await Promise.all([renderer.load(fraction=>{core=fraction;progress();}),...extraAssets.map(src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{extra++;progress();resolve();};image.onerror=()=>reject(Error('No se pudo cargar una ilustración.'));image.src=src;}))]);

@@ -33,5 +33,9 @@
     };
   }
   window.PublishedClassActivities=()=>Object.values(window.ClassFinalActivities).filter((item,index,items)=>!items.slice(index+1).some(other=>other.lesson===item.lesson));
-  window.ClassPartActivity=(lesson,part)=>window.PublishedClassActivities().find(item=>part==='repaso'?item.lesson===lesson:item.parentLesson===lesson&&item.part===part);
+  window.ClassPartActivity=(lesson,part)=>{
+    const activities=window.PublishedClassActivities();
+    return activities.find(item=>item.parentLesson===lesson&&item.part===part)
+      || (part==='repaso' ? activities.find(item=>item.lesson===lesson) : undefined);
+  };
 })();

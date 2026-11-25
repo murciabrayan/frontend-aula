@@ -43,7 +43,40 @@
     root.querySelector('[data-repeat]').addEventListener('click', context.restart, { signal: context.signal });
     root.querySelector('[data-repeat]').hidden = context.allowRestart === false;
   }
-  function finish(root, context, message) { context.store.complete = true; context.complete(); context.celebrate(); completed(root, context, message); }
+  function finish(root, context, message) { context.store.complete = true; context.complete(message); context.celebrate(); completed(root, context, message); }
+  function createSuccessDialog(host) {
+    const dialog = document.createElement('dialog');
+    dialog.className = 'kid-success-dialog';
+    dialog.setAttribute('aria-labelledby', 'kid-success-title');
+    dialog.setAttribute('aria-describedby', 'kid-success-message');
+    dialog.innerHTML = `<div class="kid-success-card">
+      <div class="kid-success-owl" aria-hidden="true"><span class="picture pic-owl"></span></div>
+      <h2 id="kid-success-title"></h2>
+      <p id="kid-success-message" class="kid-success-message"></p>
+      <button type="button" class="kid-success-continue"></button>
+    </div>`;
+    host.append(dialog);
+    const button = dialog.querySelector('button');
+    let onContinue;
+    button.addEventListener('click', () => {
+      dialog.close();
+      onContinue?.();
+    });
+    return {
+      close() { if (dialog.open) dialog.close(); },
+      show({ title = '¡Muy bien!', message, action, next, scene }) {
+        const art = dialog.querySelector('.kid-success-owl');
+        art.className = scene ? `kid-success-owl vignette-${scene}` : 'kid-success-owl';
+        art.firstElementChild.className = scene ? 'vignette-art' : 'picture pic-owl';
+        dialog.querySelector('h2').textContent = title;
+        dialog.querySelector('p').textContent = message;
+        button.textContent = action;
+        onContinue = next;
+        if (!dialog.open) dialog.showModal();
+        button.focus({ preventScroll: true });
+      },
+    };
+  }
   function listenKey(context, callback) {
     document.addEventListener('keydown', event => {
       if (context.paused() || event.ctrlKey || event.metaKey || event.altKey || event.target.closest?.('input, textarea, select, [contenteditable="true"]')) return;
@@ -299,10 +332,39 @@
       if(state.done.length===stations.length){finish(root,context,context.finalMessage||'Completaste los cuatro desafíos del taller y creaste una escena. Ahora conversemos sobre lo que aprendimos.');return;}
       root.innerHTML=`<div class="final-wrapper"><div class="final-stations" aria-label="Estaciones del juego final">${stations.map((item,i)=>`<span class="station-dot ${i===state.stage?'is-current':''} ${state.done.includes(i)?'is-done':''}" aria-label="Estación ${i+1}: ${item[0]}${state.done.includes(i)?', completada':''}">${state.done.includes(i)?'✓':i+1}</span>`).join('')}</div><p class="final-label">Estación ${state.stage+1} de ${stations.length} · ${stations[state.stage][0]}</p><div class="final-host"></div><div class="game-toolbar final-advance"></div></div>`;
       const host=root.querySelector('.final-host'),advance=root.querySelector('.final-advance');
-      const next=()=>{advance.innerHTML=`<button type="button" class="green-button">${state.stage===stations.length-1?'Terminar el taller ✓':'Siguiente estación →'}</button>`;advance.querySelector('button').addEventListener('click',()=>{if(state.stage===stations.length-1){render();return;}state.stage++;render();context.feedback(`Siguiente desafío: ${stations[state.stage][0]}.`);},{signal:context.signal});};
+      const stage = state.stage;
+      const last = stage === stations.length - 1;
+      function advanceStation() {
+        if (context.signal.aborted || state.stage !== stage) return;
+        if (!last) state.stage++;
+        context.feedback('');
+        render();
+        if (!last) {
+          const label = root.querySelector('.final-label');
+          label.tabIndex = -1;
+          label.focus({ preventScroll: true });
+        }
+      }
+      function showAdvance() {
+        advance.innerHTML = `<button type="button" class="green-button">${last ? 'Terminar el taller' : 'Siguiente reto'}</button>`;
+        advance.querySelector('button').addEventListener('click', advanceStation, { signal: childController.signal });
+      }
       childController=new AbortController();state.children[state.stage]??={};
-      mount(stations[state.stage][1],host,{...context,signal:childController.signal,store:state.children[state.stage],extended:false,finalStation:!context.practiceStations,restart:()=>{state.children[state.stage]={};state.done=state.done.filter(i=>i!==state.stage);render();},complete:()=>{if(!state.done.includes(state.stage))state.done.push(state.stage);context.onStationComplete?.(state.stage,state.children[state.stage]);next();}});
-      if(state.done.includes(state.stage))next();
+      mount(stations[stage][1],host,{
+        ...context, signal:childController.signal, store:state.children[stage], extended:false, finalStation:!context.practiceStations,
+        restart:()=>{state.children[stage]={};state.done=state.done.filter(i=>i!==stage);render();},
+        complete: message => {
+          if (state.done.includes(stage)) return;
+          state.done.push(stage);
+          context.onStationComplete?.(stage, state.children[stage]);
+          showAdvance();
+          if (context.onStationSuccess) {
+            if (last) queueMicrotask(advanceStation);
+            else context.onStationSuccess(message || `Completaste «${stations[stage][0]}».`, advanceStation);
+          }
+        },
+      });
+      if (state.done.includes(stage) && !advance.firstElementChild) showAdvance();
     }
     render();
   }
@@ -323,5 +385,5 @@
       default:throw Error(`Actividad desconocida: ${kind}`);
     }
   }
-  window.ClassGames={mount,runFinal:finalGame,picture,animated,keyboard,compactKeyboard,bindKeyboard,normalize,directions,paths,shared:{frame,toolbar,finish,completed,listenKey,shuffle,escape,names}};
+  window.ClassGames={mount,runFinal:finalGame,picture,animated,keyboard,compactKeyboard,bindKeyboard,normalize,directions,paths,shared:{frame,toolbar,finish,completed,listenKey,shuffle,escape,names,createSuccessDialog}};
 })();

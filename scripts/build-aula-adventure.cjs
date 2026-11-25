@@ -23,7 +23,7 @@ const offlineMaterials = fs.readdirSync(path.join(source, 'materiales-sin-conexi
 const files = [
   'index.html', 'catalog.css', 'catalog-data.js', 'catalog.js', 'contrast.css',
   'leccion.html', 'lesson.css', 'class-responsive.css', 'renderer.js', 'lesson-content.js', 'lesson-games.js', 'lesson.js',
-  'lesson-challenges.js', 'lesson-challenges.css',
+  'lesson-challenges.js', 'lesson-challenges.css', 'first-grade-curriculum.js', 'first-grade-exercises.js', 'first-grade-exercises.css',
   'aula-config.js', 'session-api.js', 'teacher-access.js', 'session-ui.js', 'activity-content.js', 'sessions.css',
   'docente.html', 'teacher-sessions.js', 'alumno.html', 'student-session.js',
   'exploradores.html', 'exploradores-content.js', 'exploradores-games.js', 'exploradores.css',
@@ -32,7 +32,7 @@ const files = [
   'programacion-flechas.html', 'programming-first-content.js', 'programming-first-engine.js', 'programming-first-games.js', 'programming-first-demonstrations.js', 'programming-first-activities.js', 'programming-first.css', 'assets/programming-journey-v1.png',
   'continuacion-primero.html', 'first-path-content.js', 'first-path-engine.js', 'first-path-games.js', 'first-path-demonstrations.js', 'first-path-activities.js', 'first-path.css', 'assets/first-path-objects-v1.png', 'assets/digital-safety-scenes-v1.png',
   'instrucciones.html', 'sequence-content.js', 'sequence-scenarios.js', 'sequence-precision.js', 'sequence-demonstrations.js', 'sequence-games.js', 'sequence-games-v1.js', 'sequence-activities.js', 'sequence-activities-v1.js', 'sequence.css', 'assets/sequence-plant-v1.png', 'assets/sequence-stories-v2.png',
-  'assets/catalog-white-v2.png', 'assets/school-logo.png',
+  'assets/catalog-white-v2.png', 'assets/school-logo.png', 'assets/class-transition-vignettes-v1.png', 'assets/kid-ui-icons-v1.png',
   'assets/valley-minimal-v2.png', 'assets/activity-studio.png', 'assets/owl-atlas.png', 'assets/devices-atlas-clean.png',
   'assets/learning-pictures-v1.png', 'assets/equipment-v1.png',
   'assets/animals-v3.png', 'assets/puzzle-garden-v3.png', 'assets/puzzle-classroom-v3.png',
